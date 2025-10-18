@@ -1,4 +1,4 @@
-const YOUTUBE_API_KEY = "AIzaSyDInlp_GeJCHDkUvVrtzWSAVfwwU5lHNEY";
+const YOUTUBE_API_KEY = "AIzaSyDctADO_spUkRULHkBOodSR6awtOBN0hFc";
 const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 
 export interface YouTubeVideo {
