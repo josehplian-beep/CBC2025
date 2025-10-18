@@ -48,13 +48,17 @@ const Media = () => {
     const title = video.title.toLowerCase();
     
     // Categorize videos
-    let category: "Sermon" | "Solo" | "Livestream" = "Solo";
+    let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
     if (title.includes('sermon')) {
       category = 'Sermon';
     } else if (title.includes('live') || title.includes('livestream') || title.includes('service')) {
       category = 'Livestream';
-    } else if (title.includes('solo') || title.includes('choir') || title.includes('worship') || title.includes('praise')) {
+    } else if (title.includes('solo')) {
       category = 'Solo';
+    } else if (title.includes('choir')) {
+      category = 'Choir';
+    } else if (title.includes('worship') || title.includes('praise')) {
+      category = 'Worship & Music';
     }
     
     return {
@@ -116,6 +120,7 @@ const Media = () => {
                   <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Sermon">Sermons</SelectItem>
                   <SelectItem value="Solo">Solo</SelectItem>
+                  <SelectItem value="Choir">Choir</SelectItem>
                   <SelectItem value="Worship & Music">Worship & Music</SelectItem>
                 </SelectContent>
               </Select>
