@@ -70,7 +70,7 @@ const About = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${communityImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">About CBC</h1>
