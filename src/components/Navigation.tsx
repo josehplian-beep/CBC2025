@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Church } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
+import cbcLogo from "@/assets/cbc-logo.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,10 +24,11 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-primary text-primary-foreground p-2 rounded-lg transition-transform group-hover:scale-105">
-              <Church className="w-6 h-6" />
-            </div>
-            <span className="font-display text-2xl font-bold text-foreground">CBC</span>
+            <img 
+              src={cbcLogo} 
+              alt="Chin Bethel Church Logo" 
+              className="h-12 w-auto transition-transform group-hover:scale-105"
+            />
           </Link>
 
           {/* Desktop Navigation */}
