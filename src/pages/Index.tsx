@@ -19,9 +19,9 @@ const Index = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
-      // Search for church-related videos - you can replace with your channel ID
+      // Fetch videos from Chin Bethel Church DC channel
       const videos = await searchYouTubeVideos({
-        query: "church sermon worship",
+        channelId: "UCXO1I-TWbxHLuGRzDdP8OYQ",
         maxResults: 8,
         order: 'date'
       });
