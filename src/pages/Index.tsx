@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import heroImage from "@/assets/hero-church.jpg";
 import communityImage from "@/assets/community.jpg";
-import worshipHero from "@/assets/worship-hero.png";
+import worshipHero from "@/assets/worship-hero-1.jpg";
 const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
