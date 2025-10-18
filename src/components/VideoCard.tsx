@@ -1,6 +1,6 @@
 import { Play, Calendar } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
+
 
 interface VideoCardProps {
   title: string;
@@ -41,9 +41,6 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
             </div>
           </div>
         </div>
-        <Badge className="absolute top-3 right-3 bg-background/90 text-foreground hover:bg-background">
-          {category}
-        </Badge>
       </div>
       <CardContent className="p-4">
         <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
