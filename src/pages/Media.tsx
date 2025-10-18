@@ -1,0 +1,126 @@
+import { useState } from "react";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import VideoCard from "@/components/VideoCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Video, Images } from "lucide-react";
+import communityImage from "@/assets/community.jpg";
+import worshipImage from "@/assets/worship.jpg";
+
+const Media = () => {
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [yearFilter, setYearFilter] = useState("all");
+
+  const videos = Array(24).fill(null).map((_, i) => ({
+    title: i % 2 === 0 ? `Sunday Sermon: Message ${i + 1}` : `Worship Solo: Song ${i + 1}`,
+    date: `January ${i + 1}, 2025`,
+    category: (i % 2 === 0 ? "Sermon" : "Solo") as "Sermon" | "Solo",
+    year: i < 12 ? "2025" : "2024",
+  }));
+
+  const albums = [
+    { title: "Christmas Celebration 2024", imageCount: 45, images: 12 },
+    { title: "Youth Camp Summer 2024", imageCount: 78, images: 15 },
+    { title: "Easter Service 2024", imageCount: 32, images: 8 },
+    { title: "Community Outreach", imageCount: 56, images: 10 },
+    { title: "Baptism Service", imageCount: 24, images: 6 },
+    { title: "Thanksgiving Dinner", imageCount: 35, images: 8 },
+    { title: "VBS 2024", imageCount: 89, images: 18 },
+    { title: "Mission Trip", imageCount: 67, images: 14 },
+  ];
+
+  const filteredVideos = videos.filter((video) => {
+    const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
+    const matchesYear = yearFilter === "all" || video.year === yearFilter;
+    return matchesCategory && matchesYear;
+  });
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      
+      {/* Hero Section */}
+      <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-primary">
+        <div className="relative z-10 text-center text-primary-foreground px-4">
+          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Media</h1>
+          <p className="text-xl md:text-2xl text-primary-foreground/90">
+            Sermons, Worship, and Church Life
+          </p>
+        </div>
+      </section>
+
+      <Tabs defaultValue="videos" className="w-full py-20">
+        <div className="container mx-auto px-4">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
+            <TabsTrigger value="videos" className="flex items-center gap-2">
+              <Video className="w-4 h-4" />
+              Videos
+            </TabsTrigger>
+            <TabsTrigger value="albums" className="flex items-center gap-2">
+              <Images className="w-4 h-4" />
+              Albums
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="videos" className="space-y-8">
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="Sermon">Sermon</SelectItem>
+                  <SelectItem value="Solo">Solo</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  <SelectItem value="2025">2025</SelectItem>
+                  <SelectItem value="2024">2024</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredVideos.map((video, index) => (
+                <VideoCard key={index} {...video} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="albums" className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {albums.map((album, index) => (
+                <div key={index} className="group cursor-pointer">
+                  <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
+                    <img 
+                      src={index % 2 === 0 ? communityImage : worshipImage}
+                      alt={album.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                    {album.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{album.imageCount} photos</p>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Media;
