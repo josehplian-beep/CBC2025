@@ -1,23 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Video, Images } from "lucide-react";
+import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import worshipImage from "@/assets/worship.jpg";
 
 const Media = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
+  const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const videos = Array(24).fill(null).map((_, i) => ({
-    title: i % 2 === 0 ? `Sunday Sermon: Message ${i + 1}` : `Worship Solo: Song ${i + 1}`,
-    date: `January ${i + 1}, 2025`,
-    category: (i % 2 === 0 ? "Sermon" : "Solo") as "Sermon" | "Solo",
-    year: i < 12 ? "2025" : "2024",
-  }));
+  useEffect(() => {
+    const fetchVideos = async () => {
+      setLoading(true);
+      // Search for church-related videos - you can replace with your channel ID
+      const videos = await searchYouTubeVideos({
+        query: "church sermon worship",
+        maxResults: 24,
+        order: 'date'
+      });
+      setYoutubeVideos(videos);
+      setLoading(false);
+    };
+
+    fetchVideos();
+  }, []);
 
   const albums = [
     { title: "Christmas Celebration 2024", imageCount: 45, images: 12 },
@@ -30,7 +42,22 @@ const Media = () => {
     { title: "Mission Trip", imageCount: 67, images: 14 },
   ];
 
-  const filteredVideos = videos.filter((video) => {
+  const processedVideos = youtubeVideos.map((video) => {
+    const date = new Date(video.publishedAt);
+    const year = date.getFullYear().toString();
+    const category = video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo';
+    
+    return {
+      title: video.title,
+      date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      category: category as "Sermon" | "Solo",
+      year,
+      thumbnail: video.thumbnail,
+      videoId: video.id,
+    };
+  });
+
+  const filteredVideos = processedVideos.filter((video) => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
     return matchesCategory && matchesYear;
@@ -89,11 +116,21 @@ const Media = () => {
               </Select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredVideos.map((video, index) => (
-                <VideoCard key={index} {...video} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading videos...</p>
+              </div>
+            ) : filteredVideos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filteredVideos.map((video, index) => (
+                  <VideoCard key={index} {...video} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No videos found</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="albums" className="space-y-8">

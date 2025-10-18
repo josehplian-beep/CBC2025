@@ -11,8 +11,17 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps) => {
+  const handleClick = () => {
+    if (videoId) {
+      window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+    }
+  };
+
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300">
+    <Card 
+      className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="relative aspect-video bg-muted overflow-hidden">
         {thumbnail ? (
           <img 
