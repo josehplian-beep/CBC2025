@@ -45,12 +45,22 @@ const Media = () => {
   const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
     const year = date.getFullYear().toString();
-    const category = video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo';
+    const title = video.title.toLowerCase();
+    
+    // Categorize videos
+    let category: "Sermon" | "Solo" | "Livestream" = "Solo";
+    if (title.includes('sermon')) {
+      category = 'Sermon';
+    } else if (title.includes('live') || title.includes('livestream') || title.includes('service')) {
+      category = 'Livestream';
+    } else if (title.includes('solo') || title.includes('choir') || title.includes('worship') || title.includes('praise')) {
+      category = 'Solo';
+    }
     
     return {
       title: video.title,
       date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      category: category as "Sermon" | "Solo",
+      category,
       year,
       thumbnail: video.thumbnail,
       videoId: video.id,
@@ -99,6 +109,9 @@ const Media = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="Sermon">Sermons</SelectItem>
+                  <SelectItem value="Solo">Worship & Music</SelectItem>
+                  <SelectItem value="Livestream">Livestreams</SelectItem>
                 </SelectContent>
               </Select>
 

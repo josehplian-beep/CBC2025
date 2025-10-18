@@ -7,7 +7,7 @@ import { Dialog, DialogContent } from "./ui/dialog";
 interface VideoCardProps {
   title: string;
   date: string;
-  category: "Sermon" | "Solo";
+  category: "Sermon" | "Solo" | "Livestream";
   thumbnail?: string;
   videoId?: string;
 }
