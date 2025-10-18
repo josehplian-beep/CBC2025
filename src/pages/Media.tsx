@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Images } from "lucide-react";
+import { Video, Images, Radio } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import worshipImage from "@/assets/worship.jpg";
@@ -89,10 +89,14 @@ const Media = () => {
 
       <Tabs defaultValue="videos" className="w-full py-20">
         <div className="container mx-auto px-4">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-12">
             <TabsTrigger value="videos" className="flex items-center gap-2">
               <Video className="w-4 h-4" />
               Videos
+            </TabsTrigger>
+            <TabsTrigger value="livestream" className="flex items-center gap-2">
+              <Radio className="w-4 h-4" />
+              Livestream
             </TabsTrigger>
             <TabsTrigger value="albums" className="flex items-center gap-2">
               <Images className="w-4 h-4" />
@@ -142,6 +146,26 @@ const Media = () => {
                 <p className="text-muted-foreground">No videos found</p>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="livestream" className="space-y-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ"
+                  title="CBC Live Stream"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="text-center mt-6">
+                <h3 className="text-2xl font-bold mb-2">Live Worship Service</h3>
+                <p className="text-muted-foreground">
+                  Join us live every Sunday at 1:00 PM EST
+                </p>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="albums" className="space-y-8">
