@@ -116,7 +116,6 @@ const Media = () => {
                   <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Sermon">Sermons</SelectItem>
                   <SelectItem value="Solo">Worship & Music</SelectItem>
-                  <SelectItem value="Livestream">Livestreams</SelectItem>
                 </SelectContent>
               </Select>
 
