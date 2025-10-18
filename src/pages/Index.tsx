@@ -21,7 +21,7 @@ const Index = () => {
       setLoading(true);
       // Fetch videos from Chin Bethel Church DC channel
       const videos = await searchYouTubeVideos({
-        channelId: "UCXO1I-TWbxHLuGRzDdP8OYQ",
+        channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
         maxResults: 8,
         order: 'date'
       });
