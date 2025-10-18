@@ -6,71 +6,74 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
-
 const About = () => {
   const ministries = {
-    pastors: [
-      { name: "Rev. Van Duh Ceu", role: "Senior Pastor", email: "vdc@cbc.org", phone: "(555) 123-4567" },
-      { name: "Rev. Joseph Nihre Bawihrin", role: "Associate Pastor", email: "jnb@cbc.org", phone: "(555) 123-4568" },
-    ],
+    pastors: [{
+      name: "Rev. Van Duh Ceu",
+      role: "Senior Pastor",
+      email: "vdc@cbc.org",
+      phone: "(555) 123-4567"
+    }, {
+      name: "Rev. Joseph Nihre Bawihrin",
+      role: "Associate Pastor",
+      email: "jnb@cbc.org",
+      phone: "(555) 123-4568"
+    }],
     leadership: Array(12).fill(null).map((_, i) => ({
       name: `Leadership Member ${i + 1}`,
       role: "Church Leader",
-      email: `leader${i + 1}@cbc.org`,
+      email: `leader${i + 1}@cbc.org`
     })),
     deacons: Array(12).fill(null).map((_, i) => ({
       name: `Deacon ${i + 1}`,
       role: "Deacon",
-      email: `deacon${i + 1}@cbc.org`,
+      email: `deacon${i + 1}@cbc.org`
     })),
     women: Array(12).fill(null).map((_, i) => ({
       name: `Women's Ministry Member ${i + 1}`,
       role: "Women's Ministry",
-      email: `women${i + 1}@cbc.org`,
+      email: `women${i + 1}@cbc.org`
     })),
     youth: Array(12).fill(null).map((_, i) => ({
       name: `Youth Leader ${i + 1}`,
       role: "Youth Ministry",
-      email: `youth${i + 1}@cbc.org`,
+      email: `youth${i + 1}@cbc.org`
     })),
     children: Array(10).fill(null).map((_, i) => ({
       name: `Children's Ministry ${i + 1}`,
       role: "Children's Ministry",
-      email: `children${i + 1}@cbc.org`,
+      email: `children${i + 1}@cbc.org`
     })),
     mission: Array(7).fill(null).map((_, i) => ({
       name: `Mission Member ${i + 1}`,
       role: "Mission Team",
-      email: `mission${i + 1}@cbc.org`,
+      email: `mission${i + 1}@cbc.org`
     })),
     building: Array(12).fill(null).map((_, i) => ({
       name: `Building Committee ${i + 1}`,
       role: "Building Committee",
-      email: `building${i + 1}@cbc.org`,
+      email: `building${i + 1}@cbc.org`
     })),
     culture: Array(6).fill(null).map((_, i) => ({
       name: `Culture & Literature ${i + 1}`,
       role: "Culture & Literature",
-      email: `culture${i + 1}@cbc.org`,
+      email: `culture${i + 1}@cbc.org`
     })),
     auditors: Array(2).fill(null).map((_, i) => ({
       name: `Auditor ${i + 1}`,
       role: "Financial Auditor",
-      email: `auditor${i + 1}@cbc.org`,
-    })),
+      email: `auditor${i + 1}@cbc.org`
+    }))
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
       <section className="relative h-[400px] flex items-center justify-center overflow-hidden mt-20">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${communityImage})` }}
-        >
-          <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-cover bg-center" style={{
+        backgroundImage: `url(${communityImage})`
+      }}>
+          <div className="absolute inset-0 bg-neutral-900" />
         </div>
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">About CBC</h1>
@@ -167,73 +170,55 @@ const About = () => {
 
             <TabsContent value="pastors">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.pastors.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.pastors.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="leadership">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.leadership.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.leadership.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="deacons">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.deacons.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.deacons.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="women">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.women.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.women.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="youth">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.youth.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.youth.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="children">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.children.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.children.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="mission">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.mission.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.mission.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="building">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.building.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.building.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="culture">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.culture.map((member, index) => (
-                  <StaffCard key={index} {...member} />
-                ))}
+                {ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
           </Tabs>
@@ -242,17 +227,13 @@ const About = () => {
           <div className="mt-16">
             <h3 className="font-display text-2xl font-bold mb-6 text-center">Auditors</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              {ministries.auditors.map((member, index) => (
-                <StaffCard key={index} {...member} />
-              ))}
+              {ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
             </div>
           </div>
         </div>
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default About;
