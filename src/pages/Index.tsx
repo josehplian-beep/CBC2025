@@ -7,16 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
-import heroImage from "@/assets/hero-worship.jpg";
+import heroImage from "@/assets/hero-church.jpg";
 import communityImage from "@/assets/community.jpg";
 import worshipHero from "@/assets/worship-hero.png";
-
 const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
@@ -29,62 +27,68 @@ const Index = () => {
       setYoutubeVideos(videos);
       setLoading(false);
     };
-
     fetchVideos();
   }, []);
-
-  const albums = [
-    { title: "Christmas Celebration 2024", imageCount: 45 },
-    { title: "Youth Camp Summer 2024", imageCount: 78 },
-    { title: "Easter Service 2024", imageCount: 32 },
-    { title: "Community Outreach", imageCount: 56 },
-  ];
-
-  const staff = [
-    { name: "Rev. Van Duh Ceu", role: "Senior Pastor", email: "vdc@cbc.org" },
-    { name: "Rev. Joseph Nihre Bawihrin", role: "Associate Pastor", email: "jnb@cbc.org" },
-  ];
-
-  const processedVideos = youtubeVideos.map((video) => {
+  const albums = [{
+    title: "Christmas Celebration 2024",
+    imageCount: 45
+  }, {
+    title: "Youth Camp Summer 2024",
+    imageCount: 78
+  }, {
+    title: "Easter Service 2024",
+    imageCount: 32
+  }, {
+    title: "Community Outreach",
+    imageCount: 56
+  }];
+  const staff = [{
+    name: "Rev. Van Duh Ceu",
+    role: "Senior Pastor",
+    email: "vdc@cbc.org"
+  }, {
+    name: "Rev. Joseph Nihre Bawihrin",
+    role: "Associate Pastor",
+    email: "jnb@cbc.org"
+  }];
+  const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);
     const year = date.getFullYear().toString();
     const category = video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo';
-    
     return {
       title: video.title,
-      date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
       category: category as "Sermon" | "Solo",
       year,
       thumbnail: video.thumbnail,
-      videoId: video.id,
+      videoId: video.id
     };
   });
-
-  const filteredVideos = processedVideos.filter((video) => {
+  const filteredVideos = processedVideos.filter(video => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
     return matchesCategory && matchesYear;
   });
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center" style={{
+        backgroundImage: `url(${worshipHero})`
+      }}>
         <div className="absolute inset-0 bg-black/40" />
       </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
-            Christ Baptist Church - A Community of Faith, Hope, and Love
-          </p>
+          <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">"Bawipa kan cungah aa lawmh ahcun"
+14:8</p>
           <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
             Join Us This Sunday
           </Button>
@@ -140,21 +144,13 @@ const Index = () => {
             </Select>
           </div>
 
-          {loading ? (
-            <div className="text-center py-12">
+          {loading ? <div className="text-center py-12">
               <p className="text-muted-foreground">Loading videos...</p>
-            </div>
-          ) : filteredVideos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredVideos.map((video, index) => (
-                <VideoCard key={index} {...video} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
+            </div> : filteredVideos.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredVideos.map((video, index) => <VideoCard key={index} {...video} />)}
+            </div> : <div className="text-center py-12">
               <p className="text-muted-foreground">No videos found</p>
-            </div>
-          )}
+            </div>}
         </div>
       </section>
 
@@ -169,21 +165,15 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {albums.map((album, index) => (
-              <div key={index} className="group cursor-pointer">
+            {albums.map((album, index) => <div key={index} className="group cursor-pointer">
                 <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
-                  <img 
-                    src={communityImage} 
-                    alt={album.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
+                  <img src={communityImage} alt={album.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
                   {album.title}
                 </h3>
                 <p className="text-sm text-muted-foreground">{album.imageCount} photos</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -199,9 +189,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {staff.map((member, index) => (
-              <StaffCard key={index} {...member} />
-            ))}
+            {staff.map((member, index) => <StaffCard key={index} {...member} />)}
           </div>
 
           <div className="text-center mt-12">
@@ -250,8 +238,6 @@ const Index = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
