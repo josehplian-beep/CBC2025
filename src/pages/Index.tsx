@@ -71,12 +71,16 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
-        </div>
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source src="https://player.vimeo.com/external/434045526.hd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1a9e7c02d&profile_id=174" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
