@@ -1,5 +1,6 @@
-import { Church, Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
+import cbcLogo from "@/assets/cbc-logo.png";
 
 const Footer = () => {
   return (
@@ -8,9 +9,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About Section */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Church className="w-6 h-6" />
-              <span className="font-display text-xl font-bold">CBC</span>
+            <div className="flex items-center mb-4">
+              <img src={cbcLogo} alt="CBC Logo" className="h-12 w-auto" />
             </div>
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
               Christ Baptist Church - A community of faith, worship, and service, dedicated to spreading God's love.
