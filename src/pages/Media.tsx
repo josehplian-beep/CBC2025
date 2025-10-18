@@ -70,7 +70,8 @@ const Media = () => {
   const filteredVideos = processedVideos.filter((video) => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
-    return matchesCategory && matchesYear;
+    const notLivestream = video.category !== "Livestream"; // Exclude livestreams from videos tab
+    return matchesCategory && matchesYear && notLivestream;
   });
 
   return (
