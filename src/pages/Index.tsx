@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
-import heroImage from "@/assets/hero-church.jpg";
+import heroImage from "@/assets/hero-worship.jpg";
 import communityImage from "@/assets/community.jpg";
 import worshipHero from "@/assets/worship-hero.png";
 
@@ -74,7 +74,7 @@ const Index = () => {
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
       <div 
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${worshipHero})` }}
+        style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-black/40" />
       </div>
