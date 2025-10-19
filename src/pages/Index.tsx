@@ -78,10 +78,12 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary/80 animate-[gradient_8s_ease_infinite]">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-foreground/10 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary/70 to-accent/60">
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-white/5 rounded-full blur-[100px] animate-[haze-float-1_20s_ease-in-out_infinite]"></div>
+            <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-primary-foreground/8 rounded-full blur-[120px] animate-[haze-float-2_15s_ease-in-out_infinite]"></div>
+            <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] bg-accent-foreground/6 rounded-full blur-[150px] animate-[haze-float-3_25s_ease-in-out_infinite]"></div>
+            <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-white/4 rounded-full blur-[80px] animate-[haze-float-4_18s_ease-in-out_infinite]"></div>
           </div>
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
