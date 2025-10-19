@@ -78,11 +78,12 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${worshipHero})`
-      }}>
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary/80 animate-[gradient_8s_ease_infinite]">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-foreground/10 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]"></div>
+          </div>
+        </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
