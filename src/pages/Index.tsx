@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
-import heroImage from "@/assets/hero-church.jpg";
+import modernChurch from "@/assets/modern-church.jpg";
 import communityImage from "@/assets/community.jpg";
-import worshipHero from "@/assets/worship-hero-1.jpg";
 const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
@@ -79,7 +78,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{
-          backgroundImage: `url(${heroImage})`
+          backgroundImage: `url(${modernChurch})`
         }}>
           <div className="absolute inset-0 bg-black/40" />
         </div>
