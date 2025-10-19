@@ -1,12 +1,31 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import cbcLogo from "@/assets/cbc-logo.png";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -18,6 +37,23 @@ const Navigation = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -46,9 +82,18 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
-            <Button size="sm" className="ml-4">
-              Visit Us
-            </Button>
+            {user ? (
+              <Button size="sm" variant="outline" onClick={handleSignOut} className="ml-4">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" className="ml-4">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -78,9 +123,18 @@ const Navigation = () => {
                   {link.name}
                 </Link>
               ))}
-              <Button size="sm" className="w-full">
-                Visit Us
-              </Button>
+              {user ? (
+                <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button size="sm" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         )}

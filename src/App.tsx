@@ -9,6 +9,7 @@ import Media from "./pages/Media";
 import Events from "./pages/Events";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
