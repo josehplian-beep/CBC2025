@@ -4,7 +4,8 @@ import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Video, Images, Radio } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Video, Images, Radio, Search } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import worshipImage from "@/assets/worship.jpg";
@@ -12,6 +13,7 @@ import worshipImage from "@/assets/worship.jpg";
 const Media = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,8 +76,9 @@ const Media = () => {
   const filteredVideos = processedVideos.filter((video) => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
+    const matchesSearch = searchQuery === "" || video.title.toLowerCase().includes(searchQuery.toLowerCase());
     const notLivestream = video.category !== "Livestream"; // Exclude livestreams from videos tab
-    return matchesCategory && matchesYear && notLivestream;
+    return matchesCategory && matchesYear && matchesSearch && notLivestream;
   });
 
   return (
@@ -112,6 +115,16 @@ const Media = () => {
           <TabsContent value="videos" className="space-y-8">
             {/* Filters */}
             <div className="flex flex-wrap gap-4 justify-center">
+              <div className="relative w-full max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search videos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Category" />
