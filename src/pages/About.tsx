@@ -454,6 +454,24 @@ const About = () => {
         </div>
       </section>
 
+      {/* Our Pastors */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-4xl font-bold mb-4">Our Pastors</h2>
+            <p className="text-muted-foreground text-lg">
+              Meet our spiritual leaders
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {ministries.pastors.map((member, index) => (
+              <StaffCard key={index} {...member} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Our Staff */}
       <section className="py-20 bg-secondary" id="staff">
         <div className="container mx-auto px-4">
@@ -479,9 +497,8 @@ const About = () => {
           </div>
 
           {/* Ministry Tabs */}
-          <Tabs defaultValue="pastors" className="w-full" onValueChange={setSelectedDepartment}>
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-10 mb-8">
-              <TabsTrigger value="pastors">Pastors</TabsTrigger>
+          <Tabs defaultValue="deacons" className="w-full" onValueChange={setSelectedDepartment}>
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-9 mb-8">
               <TabsTrigger value="deacons">Deacons</TabsTrigger>
               <TabsTrigger value="women">Women</TabsTrigger>
               <TabsTrigger value="youth">Youth</TabsTrigger>
@@ -494,7 +511,7 @@ const About = () => {
             </TabsList>
 
             {Object.entries(ministries).map(([key, members]) => {
-              if (key === 'leadership') return null;
+              if (key === 'leadership' || key === 'pastors') return null;
               const filteredMembers = members.filter((member: any) =>
                 member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 member.role.toLowerCase().includes(searchQuery.toLowerCase())
