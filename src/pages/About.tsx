@@ -224,10 +224,36 @@ const About = () => {
         role: "Teacher (Senior)"
       }
     ],
-    mission: Array(7).fill(null).map((_, i) => ({
-      name: `Mission Member ${i + 1}`,
-      role: "Mission Team"
-    })),
+    mission: [
+      {
+        name: "Rev. Van Duh Ceu",
+        role: "Director"
+      },
+      {
+        name: "Rev. Joseph Nihre Bawihrin",
+        role: "Member"
+      },
+      {
+        name: "Pi Mang Hniang Sung",
+        role: "Treasurer"
+      },
+      {
+        name: "Pi May Iang Sung",
+        role: "Secretary"
+      },
+      {
+        name: "Pu Peng Hu",
+        role: "Member"
+      },
+      {
+        name: "Pi Van Tha Hlei Par",
+        role: "Member"
+      },
+      {
+        name: "Pi Hlei Sung",
+        role: "Member"
+      }
+    ],
     building: Array(12).fill(null).map((_, i) => ({
       name: `Building Committee ${i + 1}`,
       role: "Building Committee"
