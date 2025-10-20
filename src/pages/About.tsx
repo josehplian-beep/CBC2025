@@ -4,12 +4,15 @@ import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Users, BookOpen, Target } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Heart, Users, BookOpen, Target, Search } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("pastors");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const ministries = {
     pastors: [{
@@ -452,7 +455,7 @@ const About = () => {
       </section>
 
       {/* Our Staff */}
-      <section className="py-20 bg-secondary">
+      <section className="py-20 bg-secondary" id="staff">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl font-bold mb-4">Our Staff</h2>
@@ -461,38 +464,59 @@ const About = () => {
             </p>
           </div>
 
+          {/* Search Bar */}
           <div className="max-w-md mx-auto mb-8">
-            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pastors">Pastors</SelectItem>
-                <SelectItem value="deacons">Deacons</SelectItem>
-                <SelectItem value="women">Women</SelectItem>
-                <SelectItem value="youth">Youth</SelectItem>
-                <SelectItem value="children">Children</SelectItem>
-                <SelectItem value="mission">Mission</SelectItem>
-                <SelectItem value="building">Building</SelectItem>
-                <SelectItem value="culture">Culture</SelectItem>
-                <SelectItem value="media">Media</SelectItem>
-                <SelectItem value="auditors">Auditors</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search staff..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {selectedDepartment === "pastors" && ministries.pastors.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "deacons" && ministries.deacons.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "women" && ministries.women.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "youth" && ministries.youth.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "children" && ministries.children.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "mission" && ministries.mission.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "building" && ministries.building.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "culture" && ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "media" && ministries.media.map((member, index) => <StaffCard key={index} {...member} />)}
-            {selectedDepartment === "auditors" && ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
-          </div>
+          {/* Ministry Tabs */}
+          <Tabs defaultValue="pastors" className="w-full" onValueChange={setSelectedDepartment}>
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-10 mb-8">
+              <TabsTrigger value="pastors">Pastors</TabsTrigger>
+              <TabsTrigger value="deacons">Deacons</TabsTrigger>
+              <TabsTrigger value="women">Women</TabsTrigger>
+              <TabsTrigger value="youth">Youth</TabsTrigger>
+              <TabsTrigger value="children">Children</TabsTrigger>
+              <TabsTrigger value="mission">Mission</TabsTrigger>
+              <TabsTrigger value="building">Building</TabsTrigger>
+              <TabsTrigger value="culture">Culture</TabsTrigger>
+              <TabsTrigger value="media">Media</TabsTrigger>
+              <TabsTrigger value="auditors">Auditors</TabsTrigger>
+            </TabsList>
+
+            {Object.entries(ministries).map(([key, members]) => {
+              if (key === 'leadership') return null;
+              const filteredMembers = members.filter((member: any) =>
+                member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                member.role.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+              return (
+                <TabsContent key={key} value={key}>
+                  {filteredMembers.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {filteredMembers.map((member: any, index: number) => (
+                        <StaffCard key={index} {...member} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">No staff found</p>
+                    </div>
+                  )}
+                </TabsContent>
+              );
+            })}
+          </Tabs>
         </div>
       </section>
 
