@@ -47,12 +47,14 @@ const Index = () => {
     name: "Rev. Van Duh Ceu",
     role: "Senior Pastor",
     email: "vdc@cbc.org",
-    image: revVanDuhCeuImage
+    image: revVanDuhCeuImage,
+    profileLink: "/rev-van-duh-ceu"
   }, {
     name: "Rev. Joseph Nihre Bawihrin",
     role: "Associate Pastor",
     email: "jnb@cbc.org",
-    image: revJosephImage
+    image: revJosephImage,
+    profileLink: "/rev-joseph-nihre-bawihrin"
   }];
   const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);
