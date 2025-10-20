@@ -54,7 +54,7 @@ const Index = () => {
     role: "Associate Pastor",
     email: "jnb@cbc.org",
     image: revJosephImage,
-    profileLink: "/rev-joseph-nihre-bawihrin"
+    profileLink: "/staff/Rev. Joseph Nihre Bawihrin"
   }];
   const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);
