@@ -7,15 +7,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
-import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
   const ministries = {
     pastors: [{
       name: "Rev. Van Duh Ceu",
       role: "Senior Pastor",
       email: "vdc@cbc.org",
-      phone: "(555) 123-4567",
-      image: revVanDuhCeuImage
+      phone: "(555) 123-4567"
     }, {
       name: "Rev. Joseph Nihre Bawihrin",
       role: "Associate Pastor",
@@ -153,7 +151,7 @@ const About = () => {
       <section className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Our Staff</h2>
+            <h2 className="font-display text-4xl font-bold mb-4">Leadership</h2>
             <p className="text-muted-foreground text-lg">
               Meet the dedicated servants leading our church family
             </p>
