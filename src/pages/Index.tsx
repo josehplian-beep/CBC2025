@@ -10,6 +10,7 @@ import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import modernChurch from "@/assets/modern-church.jpg";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
+import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
@@ -45,7 +46,8 @@ const Index = () => {
   const staff = [{
     name: "Rev. Van Duh Ceu",
     role: "Senior Pastor",
-    email: "vdc@cbc.org"
+    email: "vdc@cbc.org",
+    image: revVanDuhCeuImage
   }, {
     name: "Rev. Joseph Nihre Bawihrin",
     role: "Associate Pastor",
