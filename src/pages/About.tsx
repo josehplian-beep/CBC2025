@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
-import revJosephImage from "@/assets/rev-joseph-themed.jpg";
+import revJosephImage from "@/assets/rev-joseph.jpg";
 const About = () => {
   const ministries = {
     pastors: [{
