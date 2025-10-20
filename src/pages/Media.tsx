@@ -24,7 +24,7 @@ const Media = () => {
       const videos = await searchYouTubeVideos({
         channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
         maxResults: 2000,
-        order: 'date'
+        order: "date",
       });
       setYoutubeVideos(videos);
       setLoading(false);
@@ -48,24 +48,24 @@ const Media = () => {
     const date = new Date(video.publishedAt);
     const year = date.getFullYear().toString();
     const title = video.title.toLowerCase();
-    
+
     // Categorize videos
     let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
-    if (title.includes('sermon')) {
-      category = 'Sermon';
-    } else if (title.includes('live') || title.includes('livestream') || title.includes('service')) {
-      category = 'Livestream';
-    } else if (title.includes('solo')) {
-      category = 'Solo';
-    } else if (title.includes('choir')) {
-      category = 'Choir';
-    } else if (title.includes('worship') || title.includes('praise')) {
-      category = 'Worship & Music';
+    if (title.includes("sermon")) {
+      category = "Sermon";
+    } else if (title.includes("live") || title.includes("livestream") || title.includes("service")) {
+      category = "Livestream";
+    } else if (title.includes("solo")) {
+      category = "Solo";
+    } else if (title.includes("choir")) {
+      category = "Choir";
+    } else if (title.includes("worship") || title.includes("praise")) {
+      category = "Worship & Music";
     }
-    
+
     return {
       title: video.title,
-      date: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
       category,
       year,
       thumbnail: video.thumbnail,
@@ -84,14 +84,12 @@ const Media = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-primary">
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Media</h1>
-          <p className="text-xl md:text-2xl text-primary-foreground/90">
-            Sermons, Worship, and Church Life
-          </p>
+          <p className="text-xl md:text-2xl text-primary-foreground/90">Sermons, Worship, and Church Life</p>
         </div>
       </section>
 
@@ -180,9 +178,7 @@ const Media = () => {
               </div>
               <div className="text-center mt-6">
                 <h3 className="text-2xl font-bold mb-2">Live Worship Service</h3>
-                <p className="text-muted-foreground">
-                  Join us live every Sunday at 1:00 PM EST
-                </p>
+                <p className="text-muted-foreground">Join us live every Sunday at 1:00 PM EST</p>
               </div>
             </div>
           </TabsContent>
@@ -192,7 +188,7 @@ const Media = () => {
               {albums.map((album, index) => (
                 <div key={index} className="group cursor-pointer">
                   <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
-                    <img 
+                    <img
                       src={index % 2 === 0 ? communityImage : worshipImage}
                       alt={album.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
