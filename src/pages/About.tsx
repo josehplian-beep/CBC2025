@@ -84,11 +84,68 @@ const About = () => {
         email: "tial.thluam@cbc.org"
       }
     ],
-    women: Array(12).fill(null).map((_, i) => ({
-      name: `Women's Ministry Member ${i + 1}`,
-      role: "Women's Ministry",
-      email: `women${i + 1}@cbc.org`
-    })),
+    women: [
+      {
+        name: "Pi Sui Men",
+        role: "President",
+        email: "sui.men@cbc.org"
+      },
+      {
+        name: "Pi Zai Hlei Par",
+        role: "Vice President",
+        email: "zai.hlei.par@cbc.org"
+      },
+      {
+        name: "Pi Lalremruati",
+        role: "Secretary",
+        email: "lalremruati@cbc.org"
+      },
+      {
+        name: "Pi Siang Hnem Par",
+        role: "Assistant Secretary",
+        email: "siang.hnem.par@cbc.org"
+      },
+      {
+        name: "Pi Ruth Dawt Hlei",
+        role: "Treasurer",
+        email: "ruth.dawt.hlei@cbc.org"
+      },
+      {
+        name: "Pi Hniang Hlei Par",
+        role: "Assistant Treasurer",
+        email: "hniang.hlei.par@cbc.org"
+      },
+      {
+        name: "Pi Sui Par",
+        role: "Member",
+        email: "sui.par@cbc.org"
+      },
+      {
+        name: "Pi Hniang Sui Tial",
+        role: "Member",
+        email: "hniang.sui.tial@cbc.org"
+      },
+      {
+        name: "Pi Tin Hnem",
+        role: "Member",
+        email: "tin.hnem@cbc.org"
+      },
+      {
+        name: "Pi Hniang Zi Tial",
+        role: "Member",
+        email: "hniang.zi.tial@cbc.org"
+      },
+      {
+        name: "Pi Ngun Tlem",
+        role: "Member",
+        email: "ngun.tlem@cbc.org"
+      },
+      {
+        name: "Pi Thin Hnem",
+        role: "Member",
+        email: "thin.hnem@cbc.org"
+      }
+    ],
     youth: Array(12).fill(null).map((_, i) => ({
       name: `Youth Leader ${i + 1}`,
       role: "Youth Ministry",
