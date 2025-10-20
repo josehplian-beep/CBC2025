@@ -216,7 +216,7 @@ const About = () => {
               <TabsTrigger value="mission">Mission</TabsTrigger>
               <TabsTrigger value="building">Building</TabsTrigger>
               <TabsTrigger value="culture">Culture</TabsTrigger>
-              <TabsTrigger value="others">Others</TabsTrigger>
+              <TabsTrigger value="others">Auditors</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pastors">
