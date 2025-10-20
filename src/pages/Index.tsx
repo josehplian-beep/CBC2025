@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import modernChurch from "@/assets/modern-church.jpg";
 import communityImage from "@/assets/community.jpg";
+import revJosephImage from "@/assets/rev-joseph.jpg";
 const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
@@ -48,7 +49,8 @@ const Index = () => {
   }, {
     name: "Rev. Joseph Nihre Bawihrin",
     role: "Associate Pastor",
-    email: "jnb@cbc.org"
+    email: "jnb@cbc.org",
+    image: revJosephImage
   }];
   const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);

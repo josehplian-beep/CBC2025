@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
+import revJosephImage from "@/assets/rev-joseph.jpg";
 const About = () => {
   const ministries = {
     pastors: [{
@@ -17,7 +18,8 @@ const About = () => {
       name: "Rev. Joseph Nihre Bawihrin",
       role: "Associate Pastor",
       email: "jnb@cbc.org",
-      phone: "(555) 123-4568"
+      phone: "(555) 123-4568",
+      image: revJosephImage
     }],
     leadership: Array(12).fill(null).map((_, i) => ({
       name: `Leadership Member ${i + 1}`,
