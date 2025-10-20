@@ -207,7 +207,7 @@ const About = () => {
           </div>
 
           <Tabs defaultValue="pastors" className="w-full">
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-8 mb-12">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-9 mb-12">
               <TabsTrigger value="pastors">Pastors</TabsTrigger>
               <TabsTrigger value="deacons">Deacons</TabsTrigger>
               <TabsTrigger value="women">Women</TabsTrigger>
@@ -216,6 +216,7 @@ const About = () => {
               <TabsTrigger value="mission">Mission</TabsTrigger>
               <TabsTrigger value="building">Building</TabsTrigger>
               <TabsTrigger value="culture">Culture</TabsTrigger>
+              <TabsTrigger value="others">Others</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pastors">
@@ -265,15 +266,13 @@ const About = () => {
                 {ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
-          </Tabs>
 
-          {/* Auditors Section - Separate since it wasn't in tabs list */}
-          <div className="mt-16">
-            <h3 className="font-display text-2xl font-bold mb-6 text-center">Auditors</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              {ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
-            </div>
-          </div>
+            <TabsContent value="others">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                {ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
