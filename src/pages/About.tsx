@@ -8,13 +8,6 @@ import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
-import upaBiakHmungImage from "@/assets/deacons/upa-biak-hmung.png";
-import upaThangErImage from "@/assets/deacons/upa-thang-er.png";
-import upaCungBiakThawngImage from "@/assets/deacons/upa-cung-biak-thawng.png";
-import upaDawtHleiSangImage from "@/assets/deacons/upa-dawt-hlei-sang.png";
-import upaRungCinImage from "@/assets/deacons/upa-rung-cin.jpg";
-import upaCungVanHmungImage from "@/assets/deacons/upa-cung-van-hmung.jpg";
-import upaTialThluamImage from "@/assets/deacons/upa-tial-thluam.png";
 const About = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("pastors");
 
@@ -42,18 +35,15 @@ const About = () => {
     deacons: [
       {
         name: "Upa Biak Hmung",
-        role: "Chairman",
-        image: upaBiakHmungImage
+        role: "Chairman"
       },
       {
         name: "Upa Thang Er",
-        role: "Vice Chairman",
-        image: upaThangErImage
+        role: "Vice Chairman"
       },
       {
         name: "Upa Cung Biak Thawng",
-        role: "Secretary",
-        image: upaCungBiakThawngImage
+        role: "Secretary"
       },
       {
         name: "Upa Ngunzacung",
@@ -61,8 +51,7 @@ const About = () => {
       },
       {
         name: "Upa Dawt Hlei Sang",
-        role: "Treasurer",
-        image: upaDawtHleiSangImage
+        role: "Treasurer"
       },
       {
         name: "Upa Biak Hlun",
@@ -70,8 +59,7 @@ const About = () => {
       },
       {
         name: "Upa Rung Cin",
-        role: "Member",
-        image: upaRungCinImage
+        role: "Member"
       },
       {
         name: "Upa Zang Kung",
@@ -79,13 +67,11 @@ const About = () => {
       },
       {
         name: "Upa Cung Van Hmung",
-        role: "Member",
-        image: upaCungVanHmungImage
+        role: "Member"
       },
       {
         name: "Upa Tial Thluam",
-        role: "Member",
-        image: upaTialThluamImage
+        role: "Member"
       }
     ],
     women: [
