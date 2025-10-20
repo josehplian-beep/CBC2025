@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Play } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, Play, Search } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 
 const WatchVideo = () => {
@@ -11,7 +12,9 @@ const WatchVideo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [recentVideos, setRecentVideos] = useState<YouTubeVideo[]>([]);
+  const [allVideos, setAllVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const currentVideo = location.state?.video;
 
@@ -23,12 +26,25 @@ const WatchVideo = () => {
         maxResults: 12,
         order: 'date'
       });
-      setRecentVideos(videos.filter(v => v.id !== videoId));
+      const filtered = videos.filter(v => v.id !== videoId);
+      setAllVideos(filtered);
+      setRecentVideos(filtered);
       setLoading(false);
     };
 
     fetchRecentVideos();
   }, [videoId]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setRecentVideos(allVideos);
+    } else {
+      const filtered = allVideos.filter(video =>
+        video.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setRecentVideos(filtered);
+    }
+  }, [searchQuery, allVideos]);
 
   const handleVideoClick = (video: YouTubeVideo) => {
     navigate(`/watch/${video.id}`, {
@@ -81,6 +97,18 @@ const WatchVideo = () => {
           {/* Recent Videos Sidebar */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Recent Videos</h2>
+            
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search videos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
             
             {loading ? (
               <div className="text-center py-8">
