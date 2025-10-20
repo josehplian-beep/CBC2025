@@ -23,7 +23,7 @@ const Media = () => {
       // Fetch videos from Chin Bethel Church DC channel
       const videos = await searchYouTubeVideos({
         channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-        maxResults: 50,
+        maxResults: 200,
         order: 'date'
       });
       setYoutubeVideos(videos);
