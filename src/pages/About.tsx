@@ -334,6 +334,32 @@ const About = () => {
         role: "Member"
       }
     ],
+    media: [
+      {
+        name: "Casey Tluangi",
+        role: "Admin"
+      },
+      {
+        name: "Lg. Dawt Chin Tial",
+        role: "Member (PowerPoint)"
+      },
+      {
+        name: "Lg. Ram Za Len",
+        role: "Member (Photographer)"
+      },
+      {
+        name: "Nu Jessica Lian",
+        role: "Member (PowerPoint)"
+      },
+      {
+        name: "Pa Bawi Pek Lian",
+        role: "Member (Live)"
+      },
+      {
+        name: "Tv. Za Hning Thang",
+        role: "Member (Live)"
+      }
+    ],
     auditors: [
       {
         name: "Pu Henry Tin",
@@ -449,6 +475,7 @@ const About = () => {
                 <SelectItem value="mission">Mission</SelectItem>
                 <SelectItem value="building">Building</SelectItem>
                 <SelectItem value="culture">Culture</SelectItem>
+                <SelectItem value="media">Media</SelectItem>
                 <SelectItem value="auditors">Auditors</SelectItem>
               </SelectContent>
             </Select>
@@ -463,6 +490,7 @@ const About = () => {
             {selectedDepartment === "mission" && ministries.mission.map((member, index) => <StaffCard key={index} {...member} />)}
             {selectedDepartment === "building" && ministries.building.map((member, index) => <StaffCard key={index} {...member} />)}
             {selectedDepartment === "culture" && ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "media" && ministries.media.map((member, index) => <StaffCard key={index} {...member} />)}
             {selectedDepartment === "auditors" && ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
           </div>
         </div>
