@@ -17,13 +17,15 @@ const About = () => {
       role: "Senior Pastor",
       email: "vdc@cbc.org",
       phone: "(555) 123-4567",
-      image: revVanDuhCeuImage
+      image: revVanDuhCeuImage,
+      profileLink: "/staff/rev-van-duh-ceu"
     }, {
       name: "Rev. Joseph Nihre Bawihrin",
       role: "Associate Pastor",
       email: "jnb@cbc.org",
       phone: "(555) 123-4568",
-      image: revJosephImage
+      image: revJosephImage,
+      profileLink: "/staff/rev-joseph-nihre-bawihrin"
     }],
     leadership: Array(12).fill(null).map((_, i) => ({
       name: `Leadership Member ${i + 1}`,
