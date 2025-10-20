@@ -68,6 +68,18 @@ const WatchVideo = () => {
       <Navigation />
       
       <div className="container mx-auto px-4 pt-24 pb-20">
+        {/* Search Bar */}
+        <div className="relative max-w-md mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search videos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Video Player */}
           <div className="lg:col-span-2 space-y-4">
@@ -97,18 +109,6 @@ const WatchVideo = () => {
           {/* Recent Videos Sidebar */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Recent Videos</h2>
-            
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search videos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
             
             {loading ? (
               <div className="text-center py-8">
