@@ -160,9 +160,8 @@ const About = () => {
           </div>
 
           <Tabs defaultValue="pastors" className="w-full">
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-5 lg:grid-cols-9 mb-12">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-8 mb-12">
               <TabsTrigger value="pastors">Pastors</TabsTrigger>
-              <TabsTrigger value="leadership">Leadership</TabsTrigger>
               <TabsTrigger value="deacons">Deacons</TabsTrigger>
               <TabsTrigger value="women">Women</TabsTrigger>
               <TabsTrigger value="youth">Youth</TabsTrigger>
@@ -175,12 +174,6 @@ const About = () => {
             <TabsContent value="pastors">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {ministries.pastors.map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="leadership">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.leadership.map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
