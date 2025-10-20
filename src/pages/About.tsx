@@ -334,10 +334,16 @@ const About = () => {
         role: "Member"
       }
     ],
-    auditors: Array(2).fill(null).map((_, i) => ({
-      name: `Auditor ${i + 1}`,
-      role: "Financial Auditor"
-    }))
+    auditors: [
+      {
+        name: "Pu Henry Tin",
+        role: "Auditor"
+      },
+      {
+        name: "Pu Lung Kung",
+        role: "Auditor"
+      }
+    ]
   };
   return <div className="min-h-screen bg-background">
       <Navigation />
