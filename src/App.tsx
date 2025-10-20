@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Media from "./pages/Media";
+import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/media" element={<Media />} />
+          <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<Members />} />

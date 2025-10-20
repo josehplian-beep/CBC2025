@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Play, Calendar } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { Dialog, DialogContent } from "./ui/dialog";
-
+import { useNavigate } from "react-router-dom";
 
 interface VideoCardProps {
   title: string;
@@ -13,11 +11,13 @@ interface VideoCardProps {
 }
 
 const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleClick = () => {
     if (videoId) {
-      setIsOpen(true);
+      navigate(`/watch/${videoId}`, {
+        state: { video: { title, date, category, thumbnail, videoId } }
+      });
     }
   };
 
@@ -57,20 +57,6 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
           </div>
         </CardContent>
       </Card>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-4xl w-full p-0">
-          <div className="relative w-full pt-[56.25%]">
-            <iframe
-              className="absolute top-0 left-0 w-full h-full"
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-              title={title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
