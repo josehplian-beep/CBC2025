@@ -4,11 +4,14 @@ import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Users, BookOpen, Target } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Heart, Users, BookOpen, Target, Search } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const ministries = {
     pastors: [{
       name: "Rev. Van Duh Ceu",
@@ -206,6 +209,19 @@ const About = () => {
             </p>
           </div>
 
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search staff by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
           <Tabs defaultValue="pastors" className="w-full">
           <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-9 mb-12">
               <TabsTrigger value="pastors">Pastors</TabsTrigger>
@@ -221,55 +237,73 @@ const About = () => {
 
             <TabsContent value="pastors">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.pastors.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.pastors
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="deacons">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.deacons.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.deacons
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="women">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.women.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.women
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="youth">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.youth.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.youth
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="children">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.children.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.children
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="mission">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.mission.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.mission
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="building">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.building.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.building
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="culture">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.culture
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
 
             <TabsContent value="others">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                {ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
+                {ministries.auditors
+                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map((member, index) => <StaffCard key={index} {...member} />)}
               </div>
             </TabsContent>
           </Tabs>
