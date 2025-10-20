@@ -48,7 +48,7 @@ const Index = () => {
     role: "Senior Pastor",
     email: "vdc@cbc.org",
     image: revVanDuhCeuImage,
-    profileLink: "/rev-van-duh-ceu"
+    profileLink: "/staff/rev-van-duh-ceu"
   }, {
     name: "Rev. Joseph Nihre Bawihrin",
     role: "Associate Pastor",
