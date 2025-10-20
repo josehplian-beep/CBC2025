@@ -28,11 +28,58 @@ const About = () => {
       role: "Church Leader",
       email: `leader${i + 1}@cbc.org`
     })),
-    deacons: Array(12).fill(null).map((_, i) => ({
-      name: `Deacon ${i + 1}`,
-      role: "Deacon",
-      email: `deacon${i + 1}@cbc.org`
-    })),
+    deacons: [
+      {
+        name: "Upa Biak Hmung",
+        role: "Chairman",
+        email: "biak.hmung@cbc.org"
+      },
+      {
+        name: "Upa Thang Er",
+        role: "Vice Chairman",
+        email: "thang.er@cbc.org"
+      },
+      {
+        name: "Upa Cung Biak Thawng",
+        role: "Secretary",
+        email: "cung.biak.thawng@cbc.org"
+      },
+      {
+        name: "Upa Ngunzacung",
+        role: "Assistant Secretary",
+        email: "ngunzacung@cbc.org"
+      },
+      {
+        name: "Upa Dawt Hlei Sang",
+        role: "Treasurer",
+        email: "dawt.hlei.sang@cbc.org"
+      },
+      {
+        name: "Upa Biak Hlun",
+        role: "Assistant Treasurer",
+        email: "biak.hlun@cbc.org"
+      },
+      {
+        name: "Upa Rung Cin",
+        role: "Mino Coordinator",
+        email: "rung.cin@cbc.org"
+      },
+      {
+        name: "Upa Zang Kung",
+        role: "Media Coordinator",
+        email: "zang.kung@cbc.org"
+      },
+      {
+        name: "Upa Cung Van Hmung",
+        role: "Nubu Coordinator",
+        email: "cung.van.hmung@cbc.org"
+      },
+      {
+        name: "Upa Tial Thluam",
+        role: "Property Manager",
+        email: "tial.thluam@cbc.org"
+      }
+    ],
     women: Array(12).fill(null).map((_, i) => ({
       name: `Women's Ministry Member ${i + 1}`,
       role: "Women's Ministry",
