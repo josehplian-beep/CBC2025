@@ -312,10 +312,28 @@ const About = () => {
         role: "Member"
       }
     ],
-    culture: Array(6).fill(null).map((_, i) => ({
-      name: `Culture & Literature ${i + 1}`,
-      role: "Culture & Literature"
-    })),
+    culture: [
+      {
+        name: "Pu Van Tha Thawng",
+        role: "President"
+      },
+      {
+        name: "Pu Lung Kung",
+        role: "Member"
+      },
+      {
+        name: "Lg. Sui Len Par",
+        role: "Member"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Member"
+      },
+      {
+        name: "Pi Rachel Sui Chin Par",
+        role: "Member"
+      }
+    ],
     auditors: Array(2).fill(null).map((_, i) => ({
       name: `Auditor ${i + 1}`,
       role: "Financial Auditor"
