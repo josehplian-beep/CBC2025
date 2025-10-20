@@ -174,10 +174,56 @@ const About = () => {
         role: "Member"
       }
     ],
-    children: Array(10).fill(null).map((_, i) => ({
-      name: `Children's Ministry ${i + 1}`,
-      role: "Children's Ministry"
-    })),
+    children: [
+      {
+        name: "Sayamah Sung Caan Tial",
+        role: "President (Pre-K)"
+      },
+      {
+        name: "Lg. Sui Bor Iang",
+        role: "Vice President"
+      },
+      {
+        name: "Val. Sang Awr",
+        role: "Secretary (Pre-K)"
+      },
+      {
+        name: "Lg. Jairus Biak Tha Chin Par",
+        role: "Assistant Secretary (Seniors)"
+      },
+      {
+        name: "Lg. Mang Hlawn Tial",
+        role: "Treasurer"
+      },
+      {
+        name: "Lg. Sui Len Par",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Lg. Bawi Chin Tial",
+        role: "Teacher"
+      },
+      {
+        name: "Pi Biak Par Iang Bawihrin",
+        role: "Teacher (Intermediate)"
+      },
+      {
+        name: "Pi Rachel Sui Chin Par",
+        role: "Teacher (Intermediate)"
+      },
+      {
+        name: "Pu Bawi Za Ceu Lian",
+        role: "Teacher (Junior)"
+      },
+      {
+        name: "Pi Par Tin Tial",
+        role: "Teacher (Junior)"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Teacher (Senior)"
+      }
+    ],
     mission: Array(7).fill(null).map((_, i) => ({
       name: `Mission Member ${i + 1}`,
       role: "Mission Team"
