@@ -124,10 +124,56 @@ const About = () => {
         role: "Member"
       }
     ],
-    youth: Array(12).fill(null).map((_, i) => ({
-      name: `Youth Leader ${i + 1}`,
-      role: "Youth Ministry"
-    })),
+    youth: [
+      {
+        name: "Val. Tluang Lian",
+        role: "President"
+      },
+      {
+        name: "Pu Bawi Za Ceu Lian",
+        role: "Vice President"
+      },
+      {
+        name: "Val. Bawi Min Sang",
+        role: "Secretary"
+      },
+      {
+        name: "Lg. Jairus Biak Tha Cin Par",
+        role: "Assistant Secretary"
+      },
+      {
+        name: "Lg. Bawi Chin Tial",
+        role: "Treasurer"
+      },
+      {
+        name: "Pi Nawmi Zinghlawng",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Member"
+      },
+      {
+        name: "Val. Za Hnin Thang",
+        role: "Member"
+      },
+      {
+        name: "Lg. Linda Sui Pen",
+        role: "Member"
+      },
+      {
+        name: "Lg. Zing Chin Par",
+        role: "Member"
+      },
+      {
+        name: "Pu Tha Lian Sang",
+        role: "Member"
+      },
+      {
+        name: "Pu Henry Khang Za Tin",
+        role: "Member"
+      }
+    ],
     children: Array(10).fill(null).map((_, i) => ({
       name: `Children's Ministry ${i + 1}`,
       role: "Children's Ministry"
