@@ -38,32 +38,50 @@ export async function searchYouTubeVideos(params: YouTubeSearchParams): Promise<
       const uploadsId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
       if (uploadsId) {
-        // 2) Read latest items from the uploads playlist
-        const playlistParams = new URLSearchParams({
-          part: 'snippet',
-          playlistId: uploadsId,
-          maxResults: maxResults.toString(),
-          key: YOUTUBE_API_KEY,
-        });
+        // 2) Read latest items from the uploads playlist with pagination
+        const videos: YouTubeVideo[] = [];
+        let nextPageToken: string | undefined;
+        const perPageLimit = 50; // YouTube API max per request
 
-        const playlistRes = await fetch(
-          `${YOUTUBE_API_BASE_URL}/playlistItems?${playlistParams.toString()}`
-        );
-        if (!playlistRes.ok) throw new Error(`YouTube playlistItems error: ${playlistRes.status}`);
-        const playlistData = await playlistRes.json();
+        // Keep fetching pages until we reach maxResults or run out of videos
+        while (videos.length < maxResults) {
+          const playlistParams = new URLSearchParams({
+            part: 'snippet',
+            playlistId: uploadsId,
+            maxResults: Math.min(perPageLimit, maxResults - videos.length).toString(),
+            key: YOUTUBE_API_KEY,
+          });
 
-        // Map playlist items to our shape
-        const videos: YouTubeVideo[] = (playlistData.items || []).map((item: any) => ({
-          id: item.snippet.resourceId?.videoId,
-          title: item.snippet.title,
-          description: item.snippet.description,
-          thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
-          publishedAt: item.snippet.publishedAt,
-          channelId: item.snippet.channelId,
-          channelTitle: item.snippet.channelTitle,
-        }));
+          if (nextPageToken) {
+            playlistParams.append('pageToken', nextPageToken);
+          }
 
-        // Playlist is already reverse-chronological, but if "order" is provided differently we could sort here.
+          const playlistRes = await fetch(
+            `${YOUTUBE_API_BASE_URL}/playlistItems?${playlistParams.toString()}`
+          );
+          if (!playlistRes.ok) throw new Error(`YouTube playlistItems error: ${playlistRes.status}`);
+          const playlistData = await playlistRes.json();
+
+          // Map playlist items to our shape
+          const pageVideos: YouTubeVideo[] = (playlistData.items || []).map((item: any) => ({
+            id: item.snippet.resourceId?.videoId,
+            title: item.snippet.title,
+            description: item.snippet.description,
+            thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
+            publishedAt: item.snippet.publishedAt,
+            channelId: item.snippet.channelId,
+            channelTitle: item.snippet.channelTitle,
+          }));
+
+          videos.push(...pageVideos);
+
+          // Check if there are more pages
+          nextPageToken = playlistData.nextPageToken;
+          if (!nextPageToken || pageVideos.length === 0) {
+            break;
+          }
+        }
+
         return videos;
       }
     } catch (err) {
