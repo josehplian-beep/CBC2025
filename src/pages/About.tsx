@@ -252,6 +252,14 @@ const About = () => {
       {
         name: "Pi Hlei Sung",
         role: "Member"
+      },
+      {
+        name: "Pi Sarah Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Siang Kung Thang",
+        role: "Member"
       }
     ],
     building: Array(12).fill(null).map((_, i) => ({
