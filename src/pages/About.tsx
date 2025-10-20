@@ -2,15 +2,14 @@ import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Heart, Users, BookOpen, Target, Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("pastors");
 
   const ministries = {
     pastors: [{
@@ -210,103 +209,35 @@ const About = () => {
           </div>
 
           <div className="max-w-md mx-auto mb-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search staff by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pastors">Pastors</SelectItem>
+                <SelectItem value="deacons">Deacons</SelectItem>
+                <SelectItem value="women">Women</SelectItem>
+                <SelectItem value="youth">Youth</SelectItem>
+                <SelectItem value="children">Children</SelectItem>
+                <SelectItem value="mission">Mission</SelectItem>
+                <SelectItem value="building">Building</SelectItem>
+                <SelectItem value="culture">Culture</SelectItem>
+                <SelectItem value="auditors">Auditors</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <Tabs defaultValue="pastors" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-2 md:grid-cols-4 lg:grid-cols-9 mb-12">
-              <TabsTrigger value="pastors">Pastors</TabsTrigger>
-              <TabsTrigger value="deacons">Deacons</TabsTrigger>
-              <TabsTrigger value="women">Women</TabsTrigger>
-              <TabsTrigger value="youth">Youth</TabsTrigger>
-              <TabsTrigger value="children">Children</TabsTrigger>
-              <TabsTrigger value="mission">Mission</TabsTrigger>
-              <TabsTrigger value="building">Building</TabsTrigger>
-              <TabsTrigger value="culture">Culture</TabsTrigger>
-              <TabsTrigger value="others">Auditors</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="pastors">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.pastors
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="deacons">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.deacons
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="women">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.women
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="youth">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.youth
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="children">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.children
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="mission">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.mission
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="building">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ministries.building
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="culture">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ministries.culture
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="others">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                {ministries.auditors
-                  .filter(member => member.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((member, index) => <StaffCard key={index} {...member} />)}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {selectedDepartment === "pastors" && ministries.pastors.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "deacons" && ministries.deacons.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "women" && ministries.women.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "youth" && ministries.youth.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "children" && ministries.children.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "mission" && ministries.mission.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "building" && ministries.building.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "culture" && ministries.culture.map((member, index) => <StaffCard key={index} {...member} />)}
+            {selectedDepartment === "auditors" && ministries.auditors.map((member, index) => <StaffCard key={index} {...member} />)}
+          </div>
         </div>
       </section>
 
