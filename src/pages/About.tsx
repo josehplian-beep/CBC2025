@@ -61,22 +61,22 @@ const About = () => {
       },
       {
         name: "Upa Rung Cin",
-        role: "Mino Coordinator",
+        role: "Member",
         email: "rung.cin@cbc.org"
       },
       {
         name: "Upa Zang Kung",
-        role: "Media Coordinator",
+        role: "Member",
         email: "zang.kung@cbc.org"
       },
       {
         name: "Upa Cung Van Hmung",
-        role: "Nubu Coordinator",
+        role: "Member",
         email: "cung.van.hmung@cbc.org"
       },
       {
         name: "Upa Tial Thluam",
-        role: "Property Manager",
+        role: "Member",
         email: "tial.thluam@cbc.org"
       }
     ],
