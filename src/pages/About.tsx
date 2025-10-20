@@ -8,6 +8,13 @@ import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
+import upaBiakHmungImage from "@/assets/deacons/upa-biak-hmung.png";
+import upaThangErImage from "@/assets/deacons/upa-thang-er.png";
+import upaCungBiakThawngImage from "@/assets/deacons/upa-cung-biak-thawng.png";
+import upaDawtHleiSangImage from "@/assets/deacons/upa-dawt-hlei-sang.png";
+import upaRungCinImage from "@/assets/deacons/upa-rung-cin.jpg";
+import upaCungVanHmungImage from "@/assets/deacons/upa-cung-van-hmung.jpg";
+import upaTialThluamImage from "@/assets/deacons/upa-tial-thluam.png";
 const About = () => {
   const ministries = {
     pastors: [{
@@ -32,17 +39,20 @@ const About = () => {
       {
         name: "Upa Biak Hmung",
         role: "Chairman",
-        email: "biak.hmung@cbc.org"
+        email: "biak.hmung@cbc.org",
+        image: upaBiakHmungImage
       },
       {
         name: "Upa Thang Er",
         role: "Vice Chairman",
-        email: "thang.er@cbc.org"
+        email: "thang.er@cbc.org",
+        image: upaThangErImage
       },
       {
         name: "Upa Cung Biak Thawng",
         role: "Secretary",
-        email: "cung.biak.thawng@cbc.org"
+        email: "cung.biak.thawng@cbc.org",
+        image: upaCungBiakThawngImage
       },
       {
         name: "Upa Ngunzacung",
@@ -52,7 +62,8 @@ const About = () => {
       {
         name: "Upa Dawt Hlei Sang",
         role: "Treasurer",
-        email: "dawt.hlei.sang@cbc.org"
+        email: "dawt.hlei.sang@cbc.org",
+        image: upaDawtHleiSangImage
       },
       {
         name: "Upa Biak Hlun",
@@ -62,7 +73,8 @@ const About = () => {
       {
         name: "Upa Rung Cin",
         role: "Member",
-        email: "rung.cin@cbc.org"
+        email: "rung.cin@cbc.org",
+        image: upaRungCinImage
       },
       {
         name: "Upa Zang Kung",
@@ -72,12 +84,14 @@ const About = () => {
       {
         name: "Upa Cung Van Hmung",
         role: "Member",
-        email: "cung.van.hmung@cbc.org"
+        email: "cung.van.hmung@cbc.org",
+        image: upaCungVanHmungImage
       },
       {
         name: "Upa Tial Thluam",
         role: "Member",
-        email: "tial.thluam@cbc.org"
+        email: "tial.thluam@cbc.org",
+        image: upaTialThluamImage
       }
     ],
     women: Array(12).fill(null).map((_, i) => ({
