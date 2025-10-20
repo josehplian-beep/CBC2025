@@ -16,7 +16,7 @@ const StaffCard = ({ name, role, image, email, phone }: StaffCardProps) => {
         <div className="flex flex-col items-center text-center">
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-4 overflow-hidden">
             {image ? (
-              <img src={image} alt={name} className="w-full h-full object-cover object-[center_35%] scale-150" />
+              <img src={image} alt={name} className="w-full h-full object-cover object-[40%_35%] scale-150" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-4xl font-display text-primary">
                 {name.charAt(0)}
