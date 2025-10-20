@@ -8,6 +8,13 @@ import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
+import upaBiakHmungImage from "@/assets/deacons/upa-biak-hmung.png";
+import upaThangErImage from "@/assets/deacons/upa-thang-er.png";
+import upaCungBiakThawngImage from "@/assets/deacons/upa-cung-biak-thawng.png";
+import upaDawtHleiSangImage from "@/assets/deacons/upa-dawt-hlei-sang.png";
+import upaRungCinImage from "@/assets/deacons/upa-rung-cin.jpg";
+import upaCungVanHmungImage from "@/assets/deacons/upa-cung-van-hmung.jpg";
+import upaTialThluamImage from "@/assets/deacons/upa-tial-thluam.png";
 const About = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("pastors");
 
@@ -36,145 +43,124 @@ const About = () => {
       {
         name: "Upa Biak Hmung",
         role: "Chairman",
-        email: "biak.hmung@cbc.org"
+        image: upaBiakHmungImage
       },
       {
         name: "Upa Thang Er",
         role: "Vice Chairman",
-        email: "thang.er@cbc.org"
+        image: upaThangErImage
       },
       {
         name: "Upa Cung Biak Thawng",
         role: "Secretary",
-        email: "cung.biak.thawng@cbc.org"
+        image: upaCungBiakThawngImage
       },
       {
         name: "Upa Ngunzacung",
-        role: "Assistant Secretary",
-        email: "ngunzacung@cbc.org"
+        role: "Assistant Secretary"
       },
       {
         name: "Upa Dawt Hlei Sang",
         role: "Treasurer",
-        email: "dawt.hlei.sang@cbc.org"
+        image: upaDawtHleiSangImage
       },
       {
         name: "Upa Biak Hlun",
-        role: "Assistant Treasurer",
-        email: "biak.hlun@cbc.org"
+        role: "Assistant Treasurer"
       },
       {
         name: "Upa Rung Cin",
         role: "Member",
-        email: "rung.cin@cbc.org"
+        image: upaRungCinImage
       },
       {
         name: "Upa Zang Kung",
-        role: "Member",
-        email: "zang.kung@cbc.org"
+        role: "Member"
       },
       {
         name: "Upa Cung Van Hmung",
         role: "Member",
-        email: "cung.van.hmung@cbc.org"
+        image: upaCungVanHmungImage
       },
       {
         name: "Upa Tial Thluam",
         role: "Member",
-        email: "tial.thluam@cbc.org"
+        image: upaTialThluamImage
       }
     ],
     women: [
       {
         name: "Pi Sui Men",
-        role: "President",
-        email: "sui.men@cbc.org"
+        role: "President"
       },
       {
         name: "Pi Zai Hlei Par",
-        role: "Vice President",
-        email: "zai.hlei.par@cbc.org"
+        role: "Vice President"
       },
       {
         name: "Pi Lalremruati",
-        role: "Secretary",
-        email: "lalremruati@cbc.org"
+        role: "Secretary"
       },
       {
         name: "Pi Siang Hnem Par",
-        role: "Assistant Secretary",
-        email: "siang.hnem.par@cbc.org"
+        role: "Assistant Secretary"
       },
       {
         name: "Pi Ruth Dawt Hlei",
-        role: "Treasurer",
-        email: "ruth.dawt.hlei@cbc.org"
+        role: "Treasurer"
       },
       {
         name: "Pi Hniang Hlei Par",
-        role: "Assistant Treasurer",
-        email: "hniang.hlei.par@cbc.org"
+        role: "Assistant Treasurer"
       },
       {
         name: "Pi Sui Par",
-        role: "Member",
-        email: "sui.par@cbc.org"
+        role: "Member"
       },
       {
         name: "Pi Hniang Sui Tial",
-        role: "Member",
-        email: "hniang.sui.tial@cbc.org"
+        role: "Member"
       },
       {
         name: "Pi Tin Hnem",
-        role: "Member",
-        email: "tin.hnem@cbc.org"
+        role: "Member"
       },
       {
         name: "Pi Hniang Zi Tial",
-        role: "Member",
-        email: "hniang.zi.tial@cbc.org"
+        role: "Member"
       },
       {
         name: "Pi Ngun Tlem",
-        role: "Member",
-        email: "ngun.tlem@cbc.org"
+        role: "Member"
       },
       {
         name: "Pi Thin Hnem",
-        role: "Member",
-        email: "thin.hnem@cbc.org"
+        role: "Member"
       }
     ],
     youth: Array(12).fill(null).map((_, i) => ({
       name: `Youth Leader ${i + 1}`,
-      role: "Youth Ministry",
-      email: `youth${i + 1}@cbc.org`
+      role: "Youth Ministry"
     })),
     children: Array(10).fill(null).map((_, i) => ({
       name: `Children's Ministry ${i + 1}`,
-      role: "Children's Ministry",
-      email: `children${i + 1}@cbc.org`
+      role: "Children's Ministry"
     })),
     mission: Array(7).fill(null).map((_, i) => ({
       name: `Mission Member ${i + 1}`,
-      role: "Mission Team",
-      email: `mission${i + 1}@cbc.org`
+      role: "Mission Team"
     })),
     building: Array(12).fill(null).map((_, i) => ({
       name: `Building Committee ${i + 1}`,
-      role: "Building Committee",
-      email: `building${i + 1}@cbc.org`
+      role: "Building Committee"
     })),
     culture: Array(6).fill(null).map((_, i) => ({
       name: `Culture & Literature ${i + 1}`,
-      role: "Culture & Literature",
-      email: `culture${i + 1}@cbc.org`
+      role: "Culture & Literature"
     })),
     auditors: Array(2).fill(null).map((_, i) => ({
       name: `Auditor ${i + 1}`,
-      role: "Financial Auditor",
-      email: `auditor${i + 1}@cbc.org`
+      role: "Financial Auditor"
     }))
   };
   return <div className="min-h-screen bg-background">
