@@ -262,10 +262,56 @@ const About = () => {
         role: "Member"
       }
     ],
-    building: Array(12).fill(null).map((_, i) => ({
-      name: `Building Committee ${i + 1}`,
-      role: "Building Committee"
-    })),
+    building: [
+      {
+        name: "Pu Maung Maung Lian Dawt",
+        role: "Chairman"
+      },
+      {
+        name: "Pu Khamh Cung",
+        role: "Secretary"
+      },
+      {
+        name: "Pu Kyi Soe",
+        role: "Treasurer"
+      },
+      {
+        name: "Pu Lai Ram Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Lian Za Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Sui Thawng",
+        role: "Member"
+      },
+      {
+        name: "Pu Bawi Za Lian",
+        role: "Member"
+      },
+      {
+        name: "Pu Cung Lian Hup",
+        role: "Member"
+      },
+      {
+        name: "Pu Sang Ceu",
+        role: "Member"
+      },
+      {
+        name: "Pu Thawng Hmung",
+        role: "Member"
+      },
+      {
+        name: "Val. Thla Hnin",
+        role: "Member"
+      },
+      {
+        name: "Val. Siang Hnin Lian",
+        role: "Member"
+      }
+    ],
     culture: Array(6).fill(null).map((_, i) => ({
       name: `Culture & Literature ${i + 1}`,
       role: "Culture & Literature"
