@@ -7,13 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
+import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
   const ministries = {
     pastors: [{
       name: "Rev. Van Duh Ceu",
       role: "Senior Pastor",
       email: "vdc@cbc.org",
-      phone: "(555) 123-4567"
+      phone: "(555) 123-4567",
+      image: revVanDuhCeuImage
     }, {
       name: "Rev. Joseph Nihre Bawihrin",
       role: "Associate Pastor",
