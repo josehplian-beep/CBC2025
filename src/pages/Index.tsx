@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
@@ -198,9 +199,11 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg">
-              View All Staff
-            </Button>
+            <Link to="/about#staff">
+              <Button variant="outline" size="lg">
+                View All Staff
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
