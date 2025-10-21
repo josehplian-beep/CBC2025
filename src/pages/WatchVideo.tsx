@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Play, Search } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
@@ -15,6 +16,7 @@ const WatchVideo = () => {
   const [allVideos, setAllVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [displayCount, setDisplayCount] = useState(16);
   
   const currentVideo = location.state?.video;
 
@@ -44,7 +46,14 @@ const WatchVideo = () => {
       );
       setRecentVideos(filtered);
     }
+    setDisplayCount(16); // Reset display count when search changes
   }, [searchQuery, allVideos]);
+
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + 16);
+  };
+
+  const displayedVideos = recentVideos.slice(0, displayCount);
 
   const handleVideoClick = (video: YouTubeVideo) => {
     navigate(`/watch/${video.id}`, {
@@ -115,51 +124,65 @@ const WatchVideo = () => {
                 <p className="text-muted-foreground">Loading...</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {recentVideos.map((video) => (
-                  <Card 
-                    key={video.id}
-                    className="cursor-pointer hover:shadow-md transition-all duration-300 group"
-                    onClick={() => handleVideoClick(video)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="space-y-3">
-                        <div className="relative w-full pt-[56.25%] bg-muted rounded overflow-hidden">
-                          {video.thumbnail ? (
-                            <img 
-                              src={video.thumbnail} 
-                              alt={video.title}
-                              className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
-                              <Play className="w-8 h-8 text-primary/40" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Play className="w-6 h-6 text-white fill-white" />
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {displayedVideos.map((video) => (
+                    <Card 
+                      key={video.id}
+                      className="cursor-pointer hover:shadow-md transition-all duration-300 group"
+                      onClick={() => handleVideoClick(video)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="space-y-3">
+                          <div className="relative w-full pt-[56.25%] bg-muted rounded overflow-hidden">
+                            {video.thumbnail ? (
+                              <img 
+                                src={video.thumbnail} 
+                                alt={video.title}
+                                className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                                <Play className="w-8 h-8 text-primary/40" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Play className="w-6 h-6 text-white fill-white" />
+                              </div>
                             </div>
                           </div>
+                          
+                          <div>
+                            <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+                              {video.title}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(video.publishedAt).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
                         </div>
-                        
-                        <div>
-                          <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-                            {video.title}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(video.publishedAt).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {displayCount < recentVideos.length && (
+                  <div className="text-center mt-8">
+                    <Button 
+                      onClick={handleLoadMore}
+                      size="lg"
+                      variant="outline"
+                    >
+                      Load More Videos
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
