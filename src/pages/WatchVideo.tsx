@@ -85,8 +85,16 @@ const WatchVideo = () => {
             placeholder="Search videos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 pr-10"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         <div className="space-y-8">
@@ -117,11 +125,27 @@ const WatchVideo = () => {
 
           {/* Recent Videos Section */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold">Recent Videos</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Recent Videos</h2>
+              {searchQuery && (
+                <p className="text-sm text-muted-foreground">
+                  {recentVideos.length} result{recentVideos.length !== 1 ? 's' : ''} found
+                </p>
+              )}
+            </div>
             
             {loading ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">Loading...</p>
+              </div>
+            ) : recentVideos.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg mb-2">No videos found</p>
+                {searchQuery && (
+                  <p className="text-sm text-muted-foreground">
+                    Try adjusting your search terms
+                  </p>
+                )}
               </div>
             ) : (
               <>
