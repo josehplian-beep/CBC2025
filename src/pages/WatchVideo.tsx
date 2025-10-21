@@ -23,7 +23,7 @@ const WatchVideo = () => {
       setLoading(true);
       const videos = await searchYouTubeVideos({
         channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-        maxResults: 24,
+        maxResults: 2000,
         order: 'date'
       });
       const filtered = videos.filter(v => v.id !== videoId);
