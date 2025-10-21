@@ -80,9 +80,9 @@ const WatchVideo = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-8">
           {/* Main Video Player */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="space-y-4">
             <div className="relative w-full pt-[56.25%] bg-muted rounded-lg overflow-hidden">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
@@ -106,7 +106,7 @@ const WatchVideo = () => {
             )}
           </div>
 
-          {/* Recent Videos Sidebar */}
+          {/* Recent Videos Section */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Recent Videos</h2>
             
@@ -115,7 +115,7 @@ const WatchVideo = () => {
                 <p className="text-muted-foreground">Loading...</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {recentVideos.map((video) => (
                   <Card 
                     key={video.id}
@@ -123,16 +123,16 @@ const WatchVideo = () => {
                     onClick={() => handleVideoClick(video)}
                   >
                     <CardContent className="p-3">
-                      <div className="flex gap-3">
-                        <div className="relative w-32 h-20 flex-shrink-0 bg-muted rounded overflow-hidden">
+                      <div className="space-y-3">
+                        <div className="relative w-full pt-[56.25%] bg-muted rounded overflow-hidden">
                           {video.thumbnail ? (
                             <img 
                               src={video.thumbnail} 
                               alt={video.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
                               <Play className="w-8 h-8 text-primary/40" />
                             </div>
                           )}
@@ -143,7 +143,7 @@ const WatchVideo = () => {
                           </div>
                         </div>
                         
-                        <div className="flex-1 min-w-0">
+                        <div>
                           <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
                             {video.title}
                           </h3>
