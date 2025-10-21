@@ -476,7 +476,7 @@ const About = () => {
       <section className="py-20 bg-secondary" id="staff">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Our Staff</h2>
+            <h2 className="font-display text-4xl font-bold mb-4">Department</h2>
             <p className="text-muted-foreground text-lg">
               Meet the dedicated servants leading our church family
             </p>
