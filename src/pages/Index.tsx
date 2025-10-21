@@ -6,15 +6,13 @@ import VideoCard from "@/components/VideoCard";
 import StaffCard from "@/components/StaffCard";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import modernChurch from "@/assets/modern-church.jpg";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const Index = () => {
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [yearFilter, setYearFilter] = useState("all");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -59,8 +57,6 @@ const Index = () => {
   }];
   const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);
-    const year = date.getFullYear().toString();
-    const category = video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo';
     return {
       title: video.title,
       date: date.toLocaleDateString('en-US', {
@@ -68,16 +64,10 @@ const Index = () => {
         month: 'long',
         day: 'numeric'
       }),
-      category: category as "Sermon" | "Solo",
-      year,
+      category: video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo' as "Sermon" | "Solo",
       thumbnail: video.thumbnail,
       videoId: video.id
     };
-  });
-  const filteredVideos = processedVideos.filter(video => {
-    const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
-    const matchesYear = yearFilter === "all" || video.year === yearFilter;
-    return matchesCategory && matchesYear;
   });
   return <div className="min-h-screen bg-background">
       <Navigation />
@@ -127,33 +117,10 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-4 justify-center mb-12">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                <SelectItem value="2025">2025</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {loading ? <div className="text-center py-12">
               <p className="text-muted-foreground">Loading videos...</p>
-            </div> : filteredVideos.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredVideos.map((video, index) => <VideoCard key={index} {...video} />)}
+            </div> : processedVideos.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {processedVideos.map((video, index) => <VideoCard key={index} {...video} />)}
             </div> : <div className="text-center py-12">
               <p className="text-muted-foreground">No videos found</p>
             </div>}
