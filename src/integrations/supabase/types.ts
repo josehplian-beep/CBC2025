@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      albums: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           address: string | null
@@ -43,6 +76,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      photos: {
+        Row: {
+          album_id: string
+          caption: string | null
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          album_id: string
+          caption?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          album_id?: string
+          caption?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photos_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -100,6 +171,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_album_photo_count: { Args: { album_uuid: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
