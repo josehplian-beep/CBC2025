@@ -92,19 +92,51 @@ const Profile = () => {
     setSaving(true);
 
     try {
-      // Use upsert to handle both insert and update cases
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user.id,
-          full_name: fullName.trim(),
-          title: title.trim() || null,
-          email: email.trim() || null,
-        }, {
-          onConflict: 'user_id'
+      // Verify user is still authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in again to save your profile.",
+          variant: "destructive",
         });
+        navigate("/auth");
+        return;
+      }
 
-      if (error) throw error;
+      // Check if profile exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (existingProfile) {
+        // Update existing profile
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            full_name: fullName.trim(),
+            title: title.trim() || null,
+            email: email.trim() || null,
+          })
+          .eq('user_id', session.user.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new profile
+        const { error } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: session.user.id,
+            full_name: fullName.trim(),
+            title: title.trim() || null,
+            email: email.trim() || null,
+          });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Success",
@@ -114,6 +146,7 @@ const Profile = () => {
       // Reload profile
       await loadProfile();
     } catch (error: any) {
+      console.error('Profile save error:', error);
       toast({
         title: "Error",
         description: error.message,
