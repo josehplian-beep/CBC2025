@@ -27,6 +27,30 @@ const Navigation = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    try {
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      setIsAdmin(roles?.some(r => r.role === 'admin') || false);
+    } catch (error) {
+      setIsAdmin(false);
+    }
+  };
+
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
@@ -84,6 +108,13 @@ const Navigation = () => {
             ))}
             {user ? (
               <div className="flex items-center gap-2 ml-4">
+                {isAdmin && (
+                  <Link to="/admin/albums">
+                    <Button size="sm" variant="ghost">
+                      Manage Albums
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/profile">
                   <Button size="sm" variant="ghost">
                     Profile
@@ -132,6 +163,13 @@ const Navigation = () => {
               ))}
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link to="/admin/albums" onClick={() => setIsOpen(false)}>
+                      <Button size="sm" variant="ghost" className="w-full">
+                        Manage Albums
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/profile" onClick={() => setIsOpen(false)}>
                     <Button size="sm" variant="ghost" className="w-full">
                       Profile

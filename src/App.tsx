@@ -12,6 +12,7 @@ import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import AdminAlbums from "./pages/AdminAlbums";
 import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/members" element={<Members />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin/albums" element={<AdminAlbums />} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
