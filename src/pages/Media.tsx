@@ -8,7 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Video, Images, Radio, Search } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
-import worshipImage from "@/assets/worship.jpg";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Album {
+  id: string;
+  title: string;
+  description: string | null;
+  cover_image_url: string | null;
+  photo_count?: number;
+}
 
 const Media = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -16,33 +24,63 @@ const Media = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [albumsLoading, setAlbumsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      setLoading(true);
-      // Fetch videos from Chin Bethel Church DC channel
-      const videos = await searchYouTubeVideos({
-        channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-        maxResults: 100,
-        order: "date",
-      });
-      setYoutubeVideos(videos);
-      setLoading(false);
-    };
-
     fetchVideos();
+    fetchAlbums();
   }, []);
 
-  const albums = [
-    { title: "Christmas Celebration 2024", imageCount: 45, images: 12 },
-    { title: "Youth Camp Summer 2024", imageCount: 78, images: 15 },
-    { title: "Easter Service 2024", imageCount: 32, images: 8 },
-    { title: "Community Outreach", imageCount: 56, images: 10 },
-    { title: "Baptism Service", imageCount: 24, images: 6 },
-    { title: "Thanksgiving Dinner", imageCount: 35, images: 8 },
-    { title: "VBS 2024", imageCount: 89, images: 18 },
-    { title: "Mission Trip", imageCount: 67, images: 14 },
-  ];
+  const fetchVideos = async () => {
+    setLoading(true);
+    // Fetch videos from Chin Bethel Church DC channel
+    const videos = await searchYouTubeVideos({
+      channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
+      maxResults: 100,
+      order: "date",
+    });
+    setYoutubeVideos(videos);
+    setLoading(false);
+  };
+
+  const fetchAlbums = async () => {
+    try {
+      const { data: albumsData, error } = await supabase
+        .from('albums')
+        .select(`
+          id,
+          title,
+          description,
+          cover_image_url
+        `)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get photo counts for each album
+      const albumsWithCounts = await Promise.all(
+        (albumsData || []).map(async (album) => {
+          const { count } = await supabase
+            .from('photos')
+            .select('*', { count: 'exact', head: true })
+            .eq('album_id', album.id);
+
+          return {
+            ...album,
+            photo_count: count || 0,
+          };
+        })
+      );
+
+      setAlbums(albumsWithCounts);
+    } catch (error) {
+      console.error('Error fetching albums:', error);
+    } finally {
+      setAlbumsLoading(false);
+    }
+  };
 
   const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
@@ -184,23 +222,33 @@ const Media = () => {
           </TabsContent>
 
           <TabsContent value="albums" className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {albums.map((album, index) => (
-                <div key={index} className="group cursor-pointer">
-                  <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
-                    <img
-                      src={index % 2 === 0 ? communityImage : worshipImage}
-                      alt={album.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
+            {albumsLoading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Loading albums...</p>
+              </div>
+            ) : albums.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {albums.map((album) => (
+                  <div key={album.id} className="group cursor-pointer">
+                    <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
+                      <img 
+                        src={album.cover_image_url || communityImage} 
+                        alt={album.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
+                      />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                      {album.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{album.photo_count || 0} photos</p>
                   </div>
-                  <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                    {album.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{album.imageCount} photos</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No albums available yet</p>
+              </div>
+            )}
           </TabsContent>
         </div>
       </Tabs>
