@@ -153,6 +153,32 @@ const AdminAlbums = () => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    // Validate file types and sizes
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid File Type",
+          description: `File "${file.name}" is not a supported image format. Please upload JPG, PNG, GIF, or WebP files.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (file.size > maxSize) {
+        toast({
+          title: "File Too Large",
+          description: `File "${file.name}" exceeds 10MB limit. Please choose a smaller file.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();

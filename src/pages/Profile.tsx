@@ -92,7 +92,6 @@ const Profile = () => {
     setSaving(true);
 
     try {
-      // Verify user is still authenticated
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -105,45 +104,23 @@ const Profile = () => {
         return;
       }
 
-      // Check if profile exists
-      const { data: existingProfile } = await supabase
+      // Profile is automatically created by trigger, so we only need to update
+      const { error } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
+        .update({
+          full_name: fullName.trim(),
+          title: title.trim() || null,
+          email: email.trim() || null,
+        })
+        .eq('user_id', session.user.id);
 
-      if (existingProfile) {
-        // Update existing profile
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            full_name: fullName.trim(),
-            title: title.trim() || null,
-            email: email.trim() || null,
-          })
-          .eq('user_id', session.user.id);
-
-        if (error) throw error;
-      } else {
-        // Insert new profile
-        const { error } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: session.user.id,
-            full_name: fullName.trim(),
-            title: title.trim() || null,
-            email: email.trim() || null,
-          });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: "Your profile has been saved.",
       });
 
-      // Reload profile
       await loadProfile();
     } catch (error: any) {
       console.error('Profile save error:', error);
