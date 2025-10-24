@@ -92,31 +92,19 @@ const Profile = () => {
     setSaving(true);
 
     try {
-      if (profile) {
-        // Update existing profile
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            full_name: fullName.trim(),
-            title: title.trim() || null,
-            email: email.trim() || null,
-          })
-          .eq('id', profile.id);
+      // Use upsert to handle both insert and update cases
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: user.id,
+          full_name: fullName.trim(),
+          title: title.trim() || null,
+          email: email.trim() || null,
+        }, {
+          onConflict: 'user_id'
+        });
 
-        if (error) throw error;
-      } else {
-        // Create new profile
-        const { error } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: user.id,
-            full_name: fullName.trim(),
-            title: title.trim() || null,
-            email: email.trim() || null,
-          });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
