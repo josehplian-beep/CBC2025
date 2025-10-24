@@ -60,8 +60,8 @@ const Footer = () => {
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span className="text-primary-foreground/80">
-                  123 Church Street<br />
-                  Your City, State 12345
+                  6801 Douglas Legum Dr<br />
+                  Elkridge, MD 21075
                 </span>
               </li>
               <li className="flex items-center gap-2">
