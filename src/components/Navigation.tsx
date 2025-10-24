@@ -83,10 +83,17 @@ const Navigation = () => {
               </Link>
             ))}
             {user ? (
-              <Button size="sm" variant="outline" onClick={handleSignOut} className="ml-4">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-2 ml-4">
+                <Link to="/profile">
+                  <Button size="sm" variant="ghost">
+                    Profile
+                  </Button>
+                </Link>
+                <Button size="sm" variant="outline" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <Link to="/auth">
                 <Button size="sm" className="ml-4">
@@ -124,10 +131,17 @@ const Navigation = () => {
                 </Link>
               ))}
               {user ? (
-                <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
+                <>
+                  <Link to="/profile" onClick={() => setIsOpen(false)}>
+                    <Button size="sm" variant="ghost" className="w-full">
+                      Profile
+                    </Button>
+                  </Link>
+                  <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
               ) : (
                 <Link to="/auth" onClick={() => setIsOpen(false)}>
                   <Button size="sm" className="w-full">
