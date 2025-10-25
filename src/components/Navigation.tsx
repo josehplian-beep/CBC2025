@@ -70,6 +70,7 @@ const Navigation = () => {
   const aboutSubLinks = [
     { name: "About Us", path: "/about" },
     { name: "Meet Our Staffs", path: "/about#meet-our-staffs" },
+    { name: "Departments", path: "/departments" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

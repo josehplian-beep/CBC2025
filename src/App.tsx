@@ -19,6 +19,7 @@ import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
 import Community from "./pages/Community";
 import Mission from "./pages/Mission";
+import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/beliefs/salvation" element={<Salvation />} />
           <Route path="/beliefs/community" element={<Community />} />
           <Route path="/beliefs/mission" element={<Mission />} />
+          <Route path="/departments" element={<Departments />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
