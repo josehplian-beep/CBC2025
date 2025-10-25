@@ -9,7 +9,7 @@ import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
-import modernChurch from "@/assets/modern-church.jpg";
+import heroModernBuilding from "@/assets/hero-modern-building.jpg";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
@@ -115,7 +115,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{
-          backgroundImage: `url(${modernChurch})`
+          backgroundImage: `url(${heroModernBuilding})`
         }}>
           <div className="absolute inset-0 bg-black/40" />
         </div>
