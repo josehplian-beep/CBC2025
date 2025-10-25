@@ -13,6 +13,7 @@ import Members from "./pages/Members";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import AdminAlbums from "./pages/AdminAlbums";
+import AdminDepartments from "./pages/AdminDepartments";
 import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin/albums" element={<AdminAlbums />} />
+          <Route path="/admin/departments" element={<AdminDepartments />} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
@@ -6,13 +6,62 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import communityImage from "@/assets/community.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const Departments = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
   const [searchQuery, setSearchQuery] = useState("");
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const ministries = {
-    deacons: [
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('department_members')
+        .select('*')
+        .order('display_order');
+
+      if (error) throw error;
+      setMembers(data || []);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Group members by department
+  const ministries = members.reduce((acc: any, member) => {
+    if (!acc[member.department]) {
+      acc[member.department] = [];
+    }
+    acc[member.department].push({
+      name: member.name,
+      role: member.role,
+      image: member.profile_image_url
+    });
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  // Fallback empty data structure for departments without members
+  const allDepartments = {
+    deacons: ministries.deacons || [],
+    women: ministries.women || [],
+    youth: ministries.youth || [],
+    children: ministries.children || [],
+    mission: ministries.mission || [],
+    building: ministries.building || [],
+    culture: ministries.culture || [],
+    media: ministries.media || [],
+    auditors: ministries.auditors || []
+  };
+
+  const departmentData = {
+    deacons: allDepartments.deacons.length > 0 ? allDepartments.deacons : [
       {
         name: "Upa Biak Hmung",
         role: "Chairman"
@@ -54,7 +103,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    women: [
+    women: allDepartments.women.length > 0 ? allDepartments.women : [
       {
         name: "Pi Sui Men",
         role: "President"
@@ -104,7 +153,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    youth: [
+    youth: allDepartments.youth.length > 0 ? allDepartments.youth : [
       {
         name: "Val. Tluang Lian",
         role: "President"
@@ -154,7 +203,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    children: [
+    children: allDepartments.children.length > 0 ? allDepartments.children : [
       {
         name: "Sayamah Sung Caan Tial",
         role: "President (Pre-K)"
@@ -204,7 +253,7 @@ const Departments = () => {
         role: "Teacher (Senior)"
       }
     ],
-    mission: [
+    mission: allDepartments.mission.length > 0 ? allDepartments.mission : [
       {
         name: "Rev. Van Duh Ceu",
         role: "Director"
@@ -242,7 +291,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    building: [
+    building: allDepartments.building.length > 0 ? allDepartments.building : [
       {
         name: "Pu Maung Maung Lian Dawt",
         role: "Chairman"
@@ -292,7 +341,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    culture: [
+    culture: allDepartments.culture.length > 0 ? allDepartments.culture : [
       {
         name: "Pu Van Tha Thawng",
         role: "President"
@@ -314,7 +363,7 @@ const Departments = () => {
         role: "Member"
       }
     ],
-    media: [
+    media: allDepartments.media.length > 0 ? allDepartments.media : [
       {
         name: "Casey Tluangi",
         role: "Admin"
@@ -340,7 +389,7 @@ const Departments = () => {
         role: "Member (Live)"
       }
     ],
-    auditors: [
+    auditors: allDepartments.auditors.length > 0 ? allDepartments.auditors : [
       {
         name: "Pu Henry Tin",
         role: "Auditor"
@@ -351,6 +400,17 @@ const Departments = () => {
       }
     ]
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 pt-32">
+          <p className="text-center">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -402,7 +462,7 @@ const Departments = () => {
               <TabsTrigger value="auditors">Auditors</TabsTrigger>
             </TabsList>
 
-            {Object.entries(ministries).map(([key, members]) => {
+            {Object.entries(departmentData).map(([key, members]) => {
               const filteredMembers = members.filter((member: any) =>
                 member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 member.role.toLowerCase().includes(searchQuery.toLowerCase())

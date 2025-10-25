@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      department_members: {
+        Row: {
+          created_at: string | null
+          department: string
+          display_order: number | null
+          id: string
+          name: string
+          profile_image_url: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          display_order?: number | null
+          id?: string
+          name: string
+          profile_image_url?: string | null
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          display_order?: number | null
+          id?: string
+          name?: string
+          profile_image_url?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           address: string | null
