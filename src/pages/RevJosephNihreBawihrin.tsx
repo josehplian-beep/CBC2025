@@ -70,7 +70,7 @@ const RevJosephNihreBawihrin = () => {
           
           <div className="prose prose-lg max-w-none space-y-6 text-muted-foreground">
             <p>
-              Rev. Joseph Nihre Bawihrin serves as the Associate Pastor of Chin Baptist Church, 
+              Rev. Joseph Nihre Bawihrin serves as the Associate Pastor of Chin Bethel Church, 
               bringing energy, passion, and a deep commitment to ministry. He joined CBC in [year] 
               and has been instrumental in [specific contributions].
             </p>

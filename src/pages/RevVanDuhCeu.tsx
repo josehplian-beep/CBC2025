@@ -70,7 +70,7 @@ const RevVanDuhCeu = () => {
           
           <div className="prose prose-lg max-w-none space-y-6 text-muted-foreground">
             <p>
-              Rev. Van Duh Ceu has been serving as the Senior Pastor of Chin Baptist Church 
+              Rev. Van Duh Ceu has been serving as the Senior Pastor of Chin Bethel Church 
               since [year]. With a heart for ministry and a passion for serving the community, 
               he has led our congregation with wisdom and compassion.
             </p>

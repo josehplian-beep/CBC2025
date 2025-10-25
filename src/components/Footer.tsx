@@ -11,7 +11,7 @@ const Footer = () => {
               <img src={cbcLogo} alt="CBC Logo" className="h-12 w-auto" />
             </div>
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
-              Christ Baptist Church - A community of faith, worship, and service, dedicated to spreading God's love.
+              Chin Bethel Church - A community of faith, worship, and service, dedicated to spreading God's love.
             </p>
           </div>
 
@@ -90,7 +90,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center text-sm text-primary-foreground/60">
-          <p>&copy; {new Date().getFullYear()} Christ Baptist Church. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Chin Bethel Church. All rights reserved.</p>
         </div>
       </div>
     </footer>;
