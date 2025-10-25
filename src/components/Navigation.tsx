@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import cbcLogo from "@/assets/cbc-logo.png";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,11 +61,15 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
     { name: "Media", path: "/media" },
     { name: "Events", path: "/events" },
     { name: "Get Involved", path: "/get-involved" },
     { name: "Member Directory", path: "/members" },
+  ];
+
+  const aboutSubLinks = [
+    { name: "About Us", path: "/about" },
+    { name: "Meet Our Staffs", path: "/about#meet-our-staffs" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -93,6 +105,29 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
+                    About
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      {aboutSubLinks.map((link) => (
+                        <NavigationMenuLink key={link.path} asChild>
+                          <Link
+                            to={link.path}
+                            className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -147,6 +182,19 @@ const Navigation = () => {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-muted-foreground px-2">About</span>
+                {aboutSubLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium transition-colors hover:text-primary pl-6 text-muted-foreground"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
               {navLinks.map((link) => (
                 <Link
                   key={link.path}

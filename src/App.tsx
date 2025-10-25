@@ -15,6 +15,10 @@ import Profile from "./pages/Profile";
 import AdminAlbums from "./pages/AdminAlbums";
 import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
+import TheBible from "./pages/TheBible";
+import Salvation from "./pages/Salvation";
+import Community from "./pages/Community";
+import Mission from "./pages/Mission";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +42,10 @@ const App = () => (
           <Route path="/admin/albums" element={<AdminAlbums />} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
+          <Route path="/beliefs/the-bible" element={<TheBible />} />
+          <Route path="/beliefs/salvation" element={<Salvation />} />
+          <Route path="/beliefs/community" element={<Community />} />
+          <Route path="/beliefs/mission" element={<Mission />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Heart, Users, BookOpen, Target, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import communityImage from "@/assets/community.jpg";
 import revJosephImage from "@/assets/rev-joseph.jpg";
 import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
+  const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("pastors");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -403,7 +405,10 @@ const About = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/beliefs/the-bible")}
+            >
               <CardContent className="p-6 text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="w-8 h-8 text-primary" />
@@ -415,7 +420,10 @@ const About = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/beliefs/salvation")}
+            >
               <CardContent className="p-6 text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-primary" />
@@ -427,7 +435,10 @@ const About = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/beliefs/community")}
+            >
               <CardContent className="p-6 text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-primary" />
@@ -439,7 +450,10 @@ const About = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/beliefs/mission")}
+            >
               <CardContent className="p-6 text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Target className="w-8 h-8 text-primary" />
@@ -455,10 +469,10 @@ const About = () => {
       </section>
 
       {/* Our Pastors */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background" id="meet-our-staffs">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Our Pastors</h2>
+            <h2 className="font-display text-4xl font-bold mb-4">Meet Our Staffs</h2>
             <p className="text-muted-foreground text-lg">
               Meet our spiritual leaders
             </p>
