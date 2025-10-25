@@ -1,55 +1,356 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
   const [searchQuery, setSearchQuery] = useState("");
-  const [members, setMembers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadMembers();
-  }, []);
-
-  const loadMembers = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('department_members')
-      .select('*')
-      .order('department', { ascending: true })
-      .order('display_order', { ascending: true });
-
-    if (!error && data) {
-      setMembers(data);
-    }
-    setLoading(false);
+  const ministries = {
+    deacons: [
+      {
+        name: "Upa Biak Hmung",
+        role: "Chairman"
+      },
+      {
+        name: "Upa Thang Er",
+        role: "Vice Chairman"
+      },
+      {
+        name: "Upa Cung Biak Thawng",
+        role: "Secretary"
+      },
+      {
+        name: "Upa Ngunzacung",
+        role: "Assistant Secretary"
+      },
+      {
+        name: "Upa Dawt Hlei Sang",
+        role: "Treasurer"
+      },
+      {
+        name: "Upa Biak Hlun",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Upa Rung Cin",
+        role: "Member"
+      },
+      {
+        name: "Upa Zang Kung",
+        role: "Member"
+      },
+      {
+        name: "Upa Cung Van Hmung",
+        role: "Member"
+      },
+      {
+        name: "Upa Tial Thluam",
+        role: "Member"
+      }
+    ],
+    women: [
+      {
+        name: "Pi Sui Men",
+        role: "President"
+      },
+      {
+        name: "Pi Zai Hlei Par",
+        role: "Vice President"
+      },
+      {
+        name: "Pi Lalremruati",
+        role: "Secretary"
+      },
+      {
+        name: "Pi Siang Hnem Par",
+        role: "Assistant Secretary"
+      },
+      {
+        name: "Pi Ruth Dawt Hlei",
+        role: "Treasurer"
+      },
+      {
+        name: "Pi Hniang Hlei Par",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Pi Sui Par",
+        role: "Member"
+      },
+      {
+        name: "Pi Hniang Sui Tial",
+        role: "Member"
+      },
+      {
+        name: "Pi Tin Hnem",
+        role: "Member"
+      },
+      {
+        name: "Pi Hniang Zi Tial",
+        role: "Member"
+      },
+      {
+        name: "Pi Ngun Tlem",
+        role: "Member"
+      },
+      {
+        name: "Pi Thin Hnem",
+        role: "Member"
+      }
+    ],
+    youth: [
+      {
+        name: "Val. Tluang Lian",
+        role: "President"
+      },
+      {
+        name: "Pu Bawi Za Ceu Lian",
+        role: "Vice President"
+      },
+      {
+        name: "Val. Bawi Min Sang",
+        role: "Secretary"
+      },
+      {
+        name: "Lg. Jairus Biak Tha Cin Par",
+        role: "Assistant Secretary"
+      },
+      {
+        name: "Lg. Bawi Chin Tial",
+        role: "Treasurer"
+      },
+      {
+        name: "Pi Nawmi Zinghlawng",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Member"
+      },
+      {
+        name: "Val. Za Hnin Thang",
+        role: "Member"
+      },
+      {
+        name: "Lg. Linda Sui Pen",
+        role: "Member"
+      },
+      {
+        name: "Lg. Zing Chin Par",
+        role: "Member"
+      },
+      {
+        name: "Pu Tha Lian Sang",
+        role: "Member"
+      },
+      {
+        name: "Pu Henry Khang Za Tin",
+        role: "Member"
+      }
+    ],
+    children: [
+      {
+        name: "Sayamah Sung Caan Tial",
+        role: "President (Pre-K)"
+      },
+      {
+        name: "Lg. Sui Bor Iang",
+        role: "Vice President"
+      },
+      {
+        name: "Val. Sang Awr",
+        role: "Secretary (Pre-K)"
+      },
+      {
+        name: "Lg. Jairus Biak Tha Chin Par",
+        role: "Assistant Secretary (Seniors)"
+      },
+      {
+        name: "Lg. Mang Hlawn Tial",
+        role: "Treasurer"
+      },
+      {
+        name: "Lg. Sui Len Par",
+        role: "Assistant Treasurer"
+      },
+      {
+        name: "Lg. Bawi Chin Tial",
+        role: "Teacher"
+      },
+      {
+        name: "Pi Biak Par Iang Bawihrin",
+        role: "Teacher (Intermediate)"
+      },
+      {
+        name: "Pi Rachel Sui Chin Par",
+        role: "Teacher (Intermediate)"
+      },
+      {
+        name: "Pu Bawi Za Ceu Lian",
+        role: "Teacher (Junior)"
+      },
+      {
+        name: "Pi Par Tin Tial",
+        role: "Teacher (Junior)"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Teacher (Senior)"
+      }
+    ],
+    mission: [
+      {
+        name: "Rev. Van Duh Ceu",
+        role: "Director"
+      },
+      {
+        name: "Rev. Joseph Nihre Bawihrin",
+        role: "Member"
+      },
+      {
+        name: "Pi Mang Hniang Sung",
+        role: "Treasurer"
+      },
+      {
+        name: "Pi May Iang Sung",
+        role: "Secretary"
+      },
+      {
+        name: "Pu Peng Hu",
+        role: "Member"
+      },
+      {
+        name: "Pi Van Tha Hlei Par",
+        role: "Member"
+      },
+      {
+        name: "Pi Hlei Sung",
+        role: "Member"
+      },
+      {
+        name: "Pi Sarah Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Siang Kung Thang",
+        role: "Member"
+      }
+    ],
+    building: [
+      {
+        name: "Pu Maung Maung Lian Dawt",
+        role: "Chairman"
+      },
+      {
+        name: "Pu Khamh Cung",
+        role: "Secretary"
+      },
+      {
+        name: "Pu Kyi Soe",
+        role: "Treasurer"
+      },
+      {
+        name: "Pu Lai Ram Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Lian Za Thang",
+        role: "Member"
+      },
+      {
+        name: "Pu Sui Thawng",
+        role: "Member"
+      },
+      {
+        name: "Pu Bawi Za Lian",
+        role: "Member"
+      },
+      {
+        name: "Pu Cung Lian Hup",
+        role: "Member"
+      },
+      {
+        name: "Pu Sang Ceu",
+        role: "Member"
+      },
+      {
+        name: "Pu Thawng Hmung",
+        role: "Member"
+      },
+      {
+        name: "Val. Thla Hnin",
+        role: "Member"
+      },
+      {
+        name: "Val. Siang Hnin Lian",
+        role: "Member"
+      }
+    ],
+    culture: [
+      {
+        name: "Pu Van Tha Thawng",
+        role: "President"
+      },
+      {
+        name: "Pu Lung Kung",
+        role: "Member"
+      },
+      {
+        name: "Lg. Sui Len Par",
+        role: "Member"
+      },
+      {
+        name: "Val. Bawi Lian Thawng",
+        role: "Member"
+      },
+      {
+        name: "Pi Rachel Sui Chin Par",
+        role: "Member"
+      }
+    ],
+    media: [
+      {
+        name: "Casey Tluangi",
+        role: "Admin"
+      },
+      {
+        name: "Lg. Dawt Chin Tial",
+        role: "Member (PowerPoint)"
+      },
+      {
+        name: "Lg. Ram Za Len",
+        role: "Member (Photographer)"
+      },
+      {
+        name: "Nu Jessica Lian",
+        role: "Member (PowerPoint)"
+      },
+      {
+        name: "Pa Bawi Pek Lian",
+        role: "Member (Live)"
+      },
+      {
+        name: "Tv. Za Hning Thang",
+        role: "Member (Live)"
+      }
+    ],
+    auditors: [
+      {
+        name: "Pu Henry Tin",
+        role: "Auditor"
+      },
+      {
+        name: "Pu Lung Kung",
+        role: "Auditor"
+      }
+    ]
   };
-
-  // Group members by department
-  const departmentGroups: Record<string, any[]> = {
-    deacons: [],
-    women: [],
-    youth: [],
-    children: [],
-    mission: [],
-    building: [],
-    culture: [],
-    media: [],
-    auditors: [],
-  };
-
-  members.forEach((member) => {
-    if (departmentGroups[member.department]) {
-      departmentGroups[member.department].push(member);
-    }
-  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -101,39 +402,28 @@ const Departments = () => {
               <TabsTrigger value="auditors">Auditors</TabsTrigger>
             </TabsList>
 
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading...</p>
-              </div>
-            ) : (
-              Object.entries(departmentGroups).map(([key, deptMembers]) => {
-                const filteredMembers = deptMembers.filter((member: any) =>
-                  member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  member.role.toLowerCase().includes(searchQuery.toLowerCase())
-                );
+            {Object.entries(ministries).map(([key, members]) => {
+              const filteredMembers = members.filter((member: any) =>
+                member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                member.role.toLowerCase().includes(searchQuery.toLowerCase())
+              );
 
-                return (
-                  <TabsContent key={key} value={key}>
-                    {filteredMembers.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {filteredMembers.map((member: any) => (
-                          <StaffCard 
-                            key={member.id} 
-                            name={member.name}
-                            role={member.role}
-                            image={member.profile_image_url}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <p className="text-muted-foreground">No staff found in this department</p>
-                      </div>
-                    )}
-                  </TabsContent>
-                );
-              })
-            )}
+              return (
+                <TabsContent key={key} value={key}>
+                  {filteredMembers.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {filteredMembers.map((member: any, index: number) => (
+                        <StaffCard key={index} {...member} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">No staff found</p>
+                    </div>
+                  )}
+                </TabsContent>
+              );
+            })}
           </Tabs>
         </div>
       </section>

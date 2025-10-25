@@ -145,18 +145,11 @@ const Navigation = () => {
             {user ? (
               <div className="flex items-center gap-2 ml-4">
                 {isAdmin && (
-                  <>
-                    <Link to="/admin/albums">
-                      <Button size="sm" variant="ghost">
-                        Manage Albums
-                      </Button>
-                    </Link>
-                    <Link to="/admin/departments">
-                      <Button size="sm" variant="ghost">
-                        Manage Departments
-                      </Button>
-                    </Link>
-                  </>
+                  <Link to="/admin/albums">
+                    <Button size="sm" variant="ghost">
+                      Manage Albums
+                    </Button>
+                  </Link>
                 )}
                 <Link to="/profile">
                   <Button size="sm" variant="ghost">
@@ -220,18 +213,11 @@ const Navigation = () => {
               {user ? (
                 <>
                   {isAdmin && (
-                    <>
-                      <Link to="/admin/albums" onClick={() => setIsOpen(false)}>
-                        <Button size="sm" variant="ghost" className="w-full">
-                          Manage Albums
-                        </Button>
-                      </Link>
-                      <Link to="/admin/departments" onClick={() => setIsOpen(false)}>
-                        <Button size="sm" variant="ghost" className="w-full">
-                          Manage Departments
-                        </Button>
-                      </Link>
-                    </>
+                    <Link to="/admin/albums" onClick={() => setIsOpen(false)}>
+                      <Button size="sm" variant="ghost" className="w-full">
+                        Manage Albums
+                      </Button>
+                    </Link>
                   )}
                   <Link to="/profile" onClick={() => setIsOpen(false)}>
                     <Button size="sm" variant="ghost" className="w-full">
