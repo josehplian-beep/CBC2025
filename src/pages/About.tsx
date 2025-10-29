@@ -469,16 +469,16 @@ const About = () => {
       </section>
 
       {/* Our Pastors */}
-      <section className="py-20 bg-background" id="meet-our-staffs">
+      <section className="py-20 bg-secondary/50" id="meet-our-staffs">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Meet Our Staffs</h2>
-            <p className="text-muted-foreground text-lg">
-              Meet our spiritual leaders
+          <div className="text-center mb-16">
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Our Pastors</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Meet our dedicated spiritual leaders who guide and shepherd our congregation
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
             {ministries.pastors.map((member, index) => (
               <StaffCard key={index} {...member} />
             ))}
