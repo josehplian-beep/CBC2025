@@ -70,7 +70,7 @@ const Navigation = () => {
   ];
 
   const cbcSubLinks = [
-    { name: "Our Staff", path: "/rev-joseph-nihre-bawihrin" },
+    { name: "Our Staff", path: "/about#meet-our-staffs" },
     { name: "Departments", path: "/departments" },
   ];
 
