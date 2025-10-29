@@ -64,7 +64,6 @@ const Navigation = () => {
     { name: "Events", path: "/events" },
     { name: "Departments", path: "/departments" },
     { name: "Get Involved", path: "/get-involved" },
-    { name: "Community", path: "/community" },
     { name: "Member Directory", path: "/members" },
   ];
 

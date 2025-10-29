@@ -49,11 +49,6 @@ const Footer = () => {
                   Get Involved
                 </Link>
               </li>
-              <li>
-                <Link to="/community" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Community
-                </Link>
-              </li>
             </ul>
           </div>
 

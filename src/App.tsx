@@ -17,7 +17,7 @@ import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
-import Community from "./pages/Community";
+
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
@@ -45,7 +45,7 @@ const App = () => (
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />
           <Route path="/beliefs/salvation" element={<Salvation />} />
-          <Route path="/beliefs/community" element={<Community />} />
+          
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
