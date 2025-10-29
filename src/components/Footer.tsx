@@ -93,7 +93,7 @@ const Footer = () => {
               <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href="https://www.instagram.com/cbcmino/" target="_blank" rel="noopener noreferrer" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
               <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
