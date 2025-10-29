@@ -100,14 +100,16 @@ const WatchVideo = () => {
         <div className="space-y-8">
           {/* Main Video Player */}
           <div className="space-y-4">
-            <div className="relative w-full pt-[56.25%] bg-muted rounded-lg overflow-hidden">
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-                title={currentVideo?.title || "Video"}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+            <div className="max-w-4xl mx-auto">
+              <div className="relative w-full pt-[56.25%] bg-muted rounded-lg overflow-hidden">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                  title={currentVideo?.title || "Video"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
             
             {currentVideo && (

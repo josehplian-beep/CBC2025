@@ -64,14 +64,12 @@ const Navigation = () => {
   const navLinks = [
     { name: "Media", path: "/media" },
     { name: "Events", path: "/events" },
-    { name: "Departments", path: "/departments" },
     { name: "Get Involved", path: "/get-involved" },
     { name: "Member Directory", path: "/members" },
   ];
 
   const cbcSubLinks = [
     { name: "Our Staffs", path: "/about#meet-our-staffs" },
-    { name: "Departments", path: "/departments" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
