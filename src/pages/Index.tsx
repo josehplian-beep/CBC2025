@@ -3,33 +3,21 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
-import StaffCard from "@/components/StaffCard";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Users, Heart, Book } from "lucide-react";
+import { Calendar, Clock, Users, Heart, Book, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import heroModernBuilding from "@/assets/hero-modern-building.jpg";
-import communityImage from "@/assets/community.jpg";
-import revJosephImage from "@/assets/rev-joseph.jpg";
-import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 
-interface Album {
-  id: string;
-  title: string;
-  description: string | null;
-  cover_image_url: string | null;
-  photo_count?: number;
-}
 const Index = () => {
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [albums, setAlbums] = useState<Album[]>([]);
-  const [albumsLoading, setAlbumsLoading] = useState(true);
 
   useEffect(() => {
     fetchVideos();
-    fetchAlbums();
   }, []);
 
   const fetchVideos = async () => {
@@ -44,57 +32,65 @@ const Index = () => {
     setLoading(false);
   };
 
-  const fetchAlbums = async () => {
-    try {
-      const { data: albumsData, error } = await supabase
-        .from('albums')
-        .select(`
-          id,
-          title,
-          description,
-          cover_image_url
-        `)
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
-        .limit(4);
+  const upcomingEvents = [
+    {
+      title: "Sunday Worship Service",
+      date: "Every Sunday",
+      time: "1:00 PM - 3:00 PM",
+      location: "Main Sanctuary",
+      type: "Worship",
+      description: "Join us for worship, prayer, and biblical teaching.",
+    },
+    {
+      title: "Bible Sunday",
+      date: "October 19, 2025",
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "Join us for a special Bible Sunday celebration.",
+    },
+    {
+      title: "CBC Nubu Sunday",
+      date: "October 26, 2025",
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "CBC Nubu Sunday celebration.",
+    },
+    {
+      title: "CBCUSA Men's Conference",
+      date: "November 06-09, 2025",
+      time: "All Day",
+      location: "Conference Center",
+      type: "Special",
+      description: "CBCUSA Men's Conference - Four days of fellowship, worship, and spiritual growth.",
+    },
+    {
+      title: "Christmas Day",
+      date: "December 25, 2025",
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "Celebrate the birth of Jesus Christ.",
+    },
+    {
+      title: "Kumthar Hngahnak",
+      date: "December 31, 2025",
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "New Year's Eve celebration and service.",
+    },
+  ];
 
-      if (error) throw error;
-
-      // Get photo counts for each album
-      const albumsWithCounts = await Promise.all(
-        (albumsData || []).map(async (album) => {
-          const { count } = await supabase
-            .from('photos')
-            .select('*', { count: 'exact', head: true })
-            .eq('album_id', album.id);
-
-          return {
-            ...album,
-            photo_count: count || 0,
-          };
-        })
-      );
-
-      setAlbums(albumsWithCounts);
-    } catch (error) {
-      console.error('Error fetching albums:', error);
-    } finally {
-      setAlbumsLoading(false);
-    }
+  const typeColors: Record<string, string> = {
+    Worship: "bg-primary text-primary-foreground",
+    Youth: "bg-accent text-accent-foreground",
+    Study: "bg-secondary text-secondary-foreground",
+    Outreach: "bg-destructive text-destructive-foreground",
+    Special: "bg-primary text-primary-foreground",
+    Children: "bg-accent text-accent-foreground",
   };
-  const staff = [{
-    name: "Rev. Van Duh Ceu",
-    role: "Senior Pastor",
-    email: "vdc@cbc.org",
-    image: revVanDuhCeuImage,
-    profileLink: "/staff/rev-van-duh-ceu"
-  }, {
-    name: "Rev. Joseph Nihre Bawihrin",
-    role: "Associate Pastor",
-    email: "jnb@cbc.org",
-    image: revJosephImage,
-    profileLink: "/staff/rev-joseph-nihre-bawihrin"
-  }];
   const processedVideos = youtubeVideos.map(video => {
     const date = new Date(video.publishedAt);
     return {
@@ -167,64 +163,56 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Latest Albums */}
+      {/* Upcoming Events Section */}
       <section className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Latest Albums</h2>
+            <Calendar className="w-16 h-16 mx-auto mb-4 text-primary" />
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h2>
             <p className="text-muted-foreground text-lg">
-              Moments from our church community
+              Stay connected with our church activities
             </p>
           </div>
-
-          {albumsLoading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Loading albums...</p>
-            </div>
-          ) : albums.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {albums.map((album) => (
-                <div key={album.id} className="group cursor-pointer">
-                  <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
-                    <img 
-                      src={album.cover_image_url || communityImage} 
-                      alt={album.title} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
-                    />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {upcomingEvents.map((event, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between mb-2">
+                    <CardTitle className="text-xl font-display">{event.title}</CardTitle>
+                    <Badge className={typeColors[event.type]}>{event.type}</Badge>
                   </div>
-                  <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                    {album.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{album.photo_count || 0} photos</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No albums available yet</p>
-            </div>
-          )}
-        </div>
-      </section>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">{event.description}</p>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <Calendar className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Clock className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+                      <span>{event.time}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
 
-      {/* Staff Preview */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-4xl font-bold mb-4">Our Pastors</h2>
-            <p className="text-muted-foreground text-lg">
-              Meet our spiritual leaders
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {staff.map((member, index) => <StaffCard key={index} {...member} />)}
+                  <Button className="w-full">
+                    Learn More
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/about#staff">
-              <Button variant="outline" size="lg">
-                View All Staff
+            <Link to="/events">
+              <Button size="lg">
+                View All Events
               </Button>
             </Link>
           </div>

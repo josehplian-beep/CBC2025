@@ -20,23 +20,38 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  About Us
+                <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link to="/media" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Sermons & Media
+                <Link to="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  CBC
                 </Link>
               </li>
               <li>
                 <Link to="/events" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Events Calendar
+                  Events
+                </Link>
+              </li>
+              <li>
+                <Link to="/media" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Media
+                </Link>
+              </li>
+              <li>
+                <Link to="/departments" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Departments
                 </Link>
               </li>
               <li>
                 <Link to="/get-involved" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   Get Involved
+                </Link>
+              </li>
+              <li>
+                <Link to="/community" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Community
                 </Link>
               </li>
             </ul>
@@ -46,6 +61,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-lg mb-4">Service Times</h3>
             <div className="space-y-3 text-sm">
+              <div>
+                <p className="font-medium">Saturday Service</p>
+                <p className="text-primary-foreground/80">7:00 PM - 9:00 PM</p>
+              </div>
               <div>
                 <p className="font-medium">Sunday Service</p>
                 <p className="text-primary-foreground/80">1:00 PM - 3:00 PM</p>

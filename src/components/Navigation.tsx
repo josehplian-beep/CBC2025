@@ -60,17 +60,19 @@ const Navigation = () => {
   };
 
   const navLinks = [
-    { name: "Home", path: "/" },
     { name: "Media", path: "/media" },
     { name: "Events", path: "/events" },
+    { name: "Departments", path: "/departments" },
     { name: "Get Involved", path: "/get-involved" },
+    { name: "Community", path: "/community" },
     { name: "Member Directory", path: "/members" },
   ];
 
-  const aboutSubLinks = [
-    { name: "About Us", path: "/about" },
-    { name: "Meet Our Staffs", path: "/about#meet-our-staffs" },
-    { name: "Departments", path: "/departments" },
+  const cbcSubLinks = [
+    { name: "About CBC", path: "/about" },
+    { name: "The Bible", path: "/the-bible" },
+    { name: "Salvation", path: "/salvation" },
+    { name: "Mission", path: "/mission" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -106,15 +108,25 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
+            <Link
+              to="/"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/")
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Home
+            </Link>
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
-                    About
+                    CBC
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-48 p-2">
-                      {aboutSubLinks.map((link) => (
+                      {cbcSubLinks.map((link) => (
                         <NavigationMenuLink key={link.path} asChild>
                           <Link
                             to={link.path}
@@ -183,9 +195,20 @@ const Navigation = () => {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
+              <Link
+                to="/"
+                onClick={() => setIsOpen(false)}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/")
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Home
+              </Link>
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-muted-foreground px-2">About</span>
-                {aboutSubLinks.map((link) => (
+                <span className="text-sm font-medium text-muted-foreground px-2">CBC</span>
+                {cbcSubLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
