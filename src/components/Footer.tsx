@@ -84,19 +84,19 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80">info@chinbethelchurch.com</span>
+                <span className="text-primary-foreground/80">Chin</span>
               </li>
             </ul>
             
             {/* Social Media */}
             <div className="flex gap-3 mt-6">
-              <a href="https://facebook.com/chinbethelchurchdc" target="_blank" rel="noopener noreferrer" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="https://www.instagram.com/cbcmino/" target="_blank" rel="noopener noreferrer" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="https://www.youtube.com/@chinbethelchurchdc" target="_blank" rel="noopener noreferrer" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Youtube className="w-4 h-4" />
               </a>
             </div>
