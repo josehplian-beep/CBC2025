@@ -164,7 +164,7 @@ const Index = () => {
       </section>
 
       {/* Upcoming Events Section */}
-      <section className="py-20 bg-gradient-to-br from-background via-secondary/30 to-background relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-muted/40 via-muted/60 to-muted/40 dark:from-muted/20 dark:via-muted/30 dark:to-muted/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 animate-fade-in">
