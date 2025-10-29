@@ -70,10 +70,8 @@ const Navigation = () => {
   ];
 
   const cbcSubLinks = [
-    { name: "About CBC", path: "/about" },
-    { name: "The Bible", path: "/the-bible" },
-    { name: "Salvation", path: "/salvation" },
-    { name: "Mission", path: "/mission" },
+    { name: "Our Staff", path: "/rev-joseph-nihre-bawihrin" },
+    { name: "Departments", path: "/departments" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
