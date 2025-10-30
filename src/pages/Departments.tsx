@@ -3,13 +3,12 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [yearFilter, setYearFilter] = useState("current");
 
   const ministries = {
     deacons: [
@@ -374,18 +373,17 @@ const Departments = () => {
       {/* Departments Section */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          {/* Search Bar */}
+          {/* Year Filter */}
           <div className="max-w-md mx-auto mb-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search staff..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <Select value={yearFilter} onValueChange={setYearFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="current">Current Year</SelectItem>
+                <SelectItem value="2023-2025">2023-2025</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Ministry Tabs */}
@@ -403,10 +401,7 @@ const Departments = () => {
             </TabsList>
 
             {Object.entries(ministries).map(([key, members]) => {
-              const filteredMembers = members.filter((member: any) =>
-                member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                member.role.toLowerCase().includes(searchQuery.toLowerCase())
-              );
+              const filteredMembers = members;
 
               return (
                 <TabsContent key={key} value={key}>
