@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
-import heroModernChurch from "@/assets/hero-modern-church.jpg";
+import heroModernChurch from "@/assets/hero-CBC-Church.jpg";
 
 const Index = () => {
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
@@ -26,7 +26,7 @@ const Index = () => {
     const videos = await searchYouTubeVideos({
       channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
       maxResults: 8,
-      order: 'date'
+      order: "date",
     });
     setYoutubeVideos(videos);
     setLoading(false);
@@ -91,36 +91,41 @@ const Index = () => {
     Special: "bg-primary text-primary-foreground",
     Children: "bg-accent text-accent-foreground",
   };
-  const processedVideos = youtubeVideos.map(video => {
+  const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
     return {
       title: video.title,
-      date: date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      date: date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       }),
-      category: video.title.toLowerCase().includes('sermon') ? 'Sermon' : 'Solo' as "Sermon" | "Solo",
+      category: video.title.toLowerCase().includes("sermon") ? "Sermon" : ("Solo" as "Sermon" | "Solo"),
       thumbnail: video.thumbnail,
-      videoId: video.id
+      videoId: video.id,
     };
   });
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-          backgroundImage: `url(${heroModernChurch})`
-        }}>
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${heroModernChurch})`,
+          }}
+        >
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
           </h1>
-          <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">"Bawipa kan cungah aa lawmh ahcun"
-14:8</p>
+          <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">
+            "Bawipa kan cungah aa lawmh ahcun" 14:8
+          </p>
           <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
             Join Us This Sunday
           </Button>
@@ -148,18 +153,24 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-display text-4xl font-bold mb-4">Latest Videos</h2>
-            <p className="text-muted-foreground text-lg">
-              Watch our recent sermons and worship sessions
-            </p>
+            <p className="text-muted-foreground text-lg">Watch our recent sermons and worship sessions</p>
           </div>
 
-          {loading ? <div className="text-center py-12">
+          {loading ? (
+            <div className="text-center py-12">
               <p className="text-muted-foreground">Loading videos...</p>
-            </div> : processedVideos.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {processedVideos.map((video, index) => <VideoCard key={index} {...video} />)}
-            </div> : <div className="text-center py-12">
+            </div>
+          ) : processedVideos.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {processedVideos.map((video, index) => (
+                <VideoCard key={index} {...video} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
               <p className="text-muted-foreground">No videos found</p>
-            </div>}
+            </div>
+          )}
         </div>
       </section>
 
@@ -168,41 +179,33 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl font-bold mb-2">Upcoming Events</h2>
-            <p className="text-muted-foreground text-sm">
-              Join us for worship, fellowship, and spiritual growth
-            </p>
+            <p className="text-muted-foreground text-sm">Join us for worship, fellowship, and spiritual growth</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {upcomingEvents.map((event, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge className={typeColors[event.type]}>
-                      {event.type}
-                    </Badge>
+                    <Badge className={typeColors[event.type]}>{event.type}</Badge>
                   </div>
-                  <CardTitle className="text-lg font-semibold leading-tight">
-                    {event.title}
-                  </CardTitle>
+                  <CardTitle className="text-lg font-semibold leading-tight">{event.title}</CardTitle>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-3">
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {event.description}
-                  </p>
-                  
+                  <p className="text-muted-foreground text-sm leading-relaxed">{event.description}</p>
+
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-primary" />
                       <span>{event.date}</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-primary" />
                       <span>{event.time}</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-primary" />
                       <span>{event.location}</span>
@@ -215,9 +218,7 @@ const Index = () => {
 
           <div className="text-center mt-12">
             <Link to="/events">
-              <Button size="lg">
-                View All Events
-              </Button>
+              <Button size="lg">View All Events</Button>
             </Link>
           </div>
         </div>
@@ -242,18 +243,14 @@ const Index = () => {
                   <Book className="w-8 h-8" />
                 </div>
                 <h3 className="font-display text-xl font-bold">Learn</h3>
-                <p className="text-primary-foreground/80">
-                  Grow in your faith through Bible study and worship
-                </p>
+                <p className="text-primary-foreground/80">Grow in your faith through Bible study and worship</p>
               </div>
               <div className="space-y-4">
                 <div className="bg-primary-foreground/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Heart className="w-8 h-8" />
                 </div>
                 <h3 className="font-display text-xl font-bold">Serve</h3>
-                <p className="text-primary-foreground/80">
-                  Make a difference in our community through service
-                </p>
+                <p className="text-primary-foreground/80">Make a difference in our community through service</p>
               </div>
             </div>
           </div>
@@ -261,6 +258,7 @@ const Index = () => {
       </section>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
 export default Index;
