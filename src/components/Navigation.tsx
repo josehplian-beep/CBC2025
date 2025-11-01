@@ -83,10 +83,11 @@ const Navigation = () => {
         description: "You have been signed out successfully.",
       });
       navigate("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }

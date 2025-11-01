@@ -403,11 +403,20 @@ const Departments = () => {
             {Object.entries(ministries).map(([key, members]) => {
               const filteredMembers = members;
 
+              type DeptMember = {
+                name: string;
+                role: string;
+                image?: string;
+                email?: string;
+                phone?: string;
+                profileLink?: string;
+              };
+
               return (
                 <TabsContent key={key} value={key}>
                   {filteredMembers.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {filteredMembers.map((member: any, index: number) => (
+                      {filteredMembers.map((member: DeptMember, index: number) => (
                         <StaffCard key={index} {...member} />
                       ))}
                     </div>

@@ -73,10 +73,11 @@ const AdminAlbums = () => {
 
       setHasAccess(true);
       await loadAlbums();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -138,10 +139,11 @@ const AdminAlbums = () => {
       setNewAlbumDescription("");
       setShowCreateDialog(false);
       await loadAlbums();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -230,10 +232,11 @@ const AdminAlbums = () => {
       if (selectedAlbum) {
         await loadPhotos(selectedAlbum.id);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Upload Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -268,10 +271,11 @@ const AdminAlbums = () => {
         await loadPhotos(selectedAlbum.id);
       }
       await loadAlbums();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }
@@ -292,10 +296,11 @@ const AdminAlbums = () => {
       });
 
       await loadAlbums();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }
@@ -319,10 +324,11 @@ const AdminAlbums = () => {
 
       await loadAlbums();
       setSelectedAlbum(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }

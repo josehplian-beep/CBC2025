@@ -93,10 +93,11 @@ const Members = () => {
 
       setMembers(membersData || []);
       setFilteredMembers(membersData || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -164,10 +165,11 @@ const Members = () => {
       });
       
       checkAccessAndLoadMembers();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }

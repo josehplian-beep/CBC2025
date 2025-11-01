@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Droplets, HandHeart, Calendar, Heart, BookOpen } from "lucide-react";
-import worshipImage from "@/assets/worship.jpg";
+import worshipImage from "@/assets/community.jpg";
 
 const GetInvolved = () => {
   const opportunities = [

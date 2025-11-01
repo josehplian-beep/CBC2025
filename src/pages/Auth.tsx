@@ -56,10 +56,11 @@ const Auth = () => {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Sign in failed",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {

@@ -7,6 +7,19 @@ const corsHeaders = {
 
 const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 
+type Video = {
+  id?: string;
+  title?: string;
+  description?: string;
+  thumbnail?: string;
+  publishedAt?: string;
+  channelId?: string;
+  channelTitle?: string;
+};
+
+const asRecord = (v: unknown): Record<string, unknown> | undefined => (v && typeof v === 'object' ? v as Record<string, unknown> : undefined);
+const getString = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+
 interface YouTubeSearchParams {
   channelId?: string;
   query?: string;
@@ -52,7 +65,7 @@ serve(async (req) => {
         const uploadsId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
         if (uploadsId) {
-          const videos: any[] = [];
+            const videos: Video[] = [];
           let nextPageToken: string | undefined;
           const perPageLimit = 50;
 
@@ -76,21 +89,33 @@ serve(async (req) => {
               throw new Error(`YouTube playlistItems error: ${playlistRes.status}`);
             }
             
-            const playlistData: any = await playlistRes.json();
+            const playlistData = await playlistRes.json() as unknown;
+            const playlistObj = asRecord(playlistData);
 
-            const pageVideos: any[] = (playlistData.items || []).map((item: any) => ({
-              id: item.snippet.resourceId?.videoId,
-              title: item.snippet.title,
-              description: item.snippet.description,
-              thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
-              publishedAt: item.snippet.publishedAt,
-              channelId: item.snippet.channelId,
-              channelTitle: item.snippet.channelTitle,
-            }));
+            const items = (playlistObj?.items as unknown[] | undefined) || [];
+
+            const pageVideos: Video[] = items.map((it) => {
+              const item = asRecord(it) || {};
+              const snippet = asRecord(item.snippet) || {};
+              const resourceId = asRecord(snippet.resourceId) || {};
+              const thumbnails = asRecord(snippet.thumbnails) || {};
+              const high = asRecord(thumbnails.high) || {};
+              const medium = asRecord(thumbnails.medium) || {};
+
+              return {
+                id: getString(resourceId.videoId),
+                title: getString(snippet.title),
+                description: getString(snippet.description),
+                thumbnail: getString(high.url) || getString(medium.url),
+                publishedAt: getString(snippet.publishedAt),
+                channelId: getString(snippet.channelId),
+                channelTitle: getString(snippet.channelTitle),
+              };
+            });
 
             videos.push(...pageVideos);
 
-            nextPageToken = playlistData.nextPageToken;
+            nextPageToken = getString((playlistObj as Record<string, unknown>)?.nextPageToken);
             if (!nextPageToken || pageVideos.length === 0) {
               break;
             }
@@ -131,17 +156,28 @@ serve(async (req) => {
       throw new Error(`YouTube API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as unknown;
+    const dataObj = asRecord(data);
+    const items = (dataObj?.items as unknown[] | undefined) || [];
 
-    const videos = data.items.map((item: any) => ({
-      id: item.id.videoId,
-      title: item.snippet.title,
-      description: item.snippet.description,
-      thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
-      publishedAt: item.snippet.publishedAt,
-      channelId: item.snippet.channelId,
-      channelTitle: item.snippet.channelTitle,
-    }));
+    const videos: Video[] = items.map((it) => {
+      const item = asRecord(it) || {};
+      const idObj = asRecord(item.id) || {};
+      const snippet = asRecord(item.snippet) || {};
+      const thumbnails = asRecord(snippet.thumbnails) || {};
+      const high = asRecord(thumbnails.high) || {};
+      const medium = asRecord(thumbnails.medium) || {};
+
+      return {
+        id: getString(idObj.videoId),
+        title: getString(snippet.title),
+        description: getString(snippet.description),
+        thumbnail: getString(high.url) || getString(medium.url),
+        publishedAt: getString(snippet.publishedAt),
+        channelId: getString(snippet.channelId),
+        channelTitle: getString(snippet.channelTitle),
+      };
+    });
 
     console.log(`Successfully fetched ${videos.length} videos from search API`);
     return new Response(JSON.stringify(videos), {

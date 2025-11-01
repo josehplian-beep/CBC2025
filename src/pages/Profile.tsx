@@ -64,10 +64,11 @@ const Profile = () => {
         // No profile exists yet, use defaults
         setEmail(session.user.email || "");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -122,11 +123,12 @@ const Profile = () => {
       });
 
       await loadProfile();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Profile save error:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
