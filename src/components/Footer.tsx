@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 import cbcLogo from "@/assets/cbc-logo.png";
+import { SOCIAL } from "@/config/social";
 const Footer = () => {
   return <footer className="text-primary-foreground bg-gray-950">
       <div className="container mx-auto px-4 py-16">
@@ -90,13 +91,13 @@ const Footer = () => {
             
             {/* Social Media */}
             <div className="flex gap-3 mt-6">
-              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
                 <Youtube className="w-4 h-4" />
               </a>
             </div>
