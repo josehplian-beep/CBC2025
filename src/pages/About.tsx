@@ -394,6 +394,32 @@ const About = () => {
         </div>
       </section>
 
+      {/* Our Story */}
+      <section className="py-20 bg-background" id="our-story">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="font-display text-4xl font-bold mb-4">Our Story</h2>
+            <p className="text-muted-foreground text-lg">
+              Chin Bethel Church began as a small group of faithful believers with a passion for worship, discipleship, and serving our local community. Over the years we have grown into a warm, multigenerational congregation committed to proclaiming the gospel, nurturing spiritual growth, and caring for one another.
+            </p>
+          </div>
+
+          <div className="prose max-w-3xl mx-auto text-muted-foreground">
+            <p>
+              Our roots trace back to families who met in homes for prayer and Bible study. From those humble beginnings we established regular worship services, children and youth ministries, and outreach programs to meet practical needs in the neighborhood. Through seasons of challenge and joy, our focus has remained the same: to know Christ and make Him known.
+            </p>
+
+            <p>
+              Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
+            </p>
+
+            <p>
+              If you are new, we invite you to join us for worship, a small group, or one of our community events. We would love to meet you and help you find a place to belong and serve.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* What We Believe */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
