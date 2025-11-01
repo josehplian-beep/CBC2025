@@ -130,39 +130,37 @@ const Index = () => {
           <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
             Join Us This Sunday
           </Button>
-        </div>
-      </section>
-
-      {/* Social Media Icons - visible below hero */}
-      <section className="py-6 bg-background">
-        <div className="flex justify-center gap-6">
-          <a
-            href={SOCIAL.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook"
-            className="group p-3 rounded-full bg-white/80 hover:bg-white shadow transition-colors"
-          >
-            <Facebook className="w-7 h-7 text-[#1877F3] group-hover:text-[#1877F3]" style={{ filter: 'grayscale(1)', transition: 'filter 0.2s' }} />
-          </a>
-          <a
-            href={SOCIAL.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="group p-3 rounded-full bg-white/80 hover:bg-white shadow transition-colors"
-          >
-            <Instagram className="w-7 h-7 text-[#E4405F] group-hover:text-[#E4405F]" style={{ filter: 'grayscale(1)', transition: 'filter 0.2s' }} />
-          </a>
-          <a
-            href={SOCIAL.youtube}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="YouTube"
-            className="group p-3 rounded-full bg-white/80 hover:bg-white shadow transition-colors"
-          >
-            <Youtube className="w-7 h-7 text-[#FF0000] group-hover:text-[#FF0000]" style={{ filter: 'grayscale(1)', transition: 'filter 0.2s' }} />
-          </a>
+          
+          {/* Social Media Icons */}
+          <div className="flex justify-center gap-4 mt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+            <a
+              href={SOCIAL.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all backdrop-blur-sm"
+            >
+              <Facebook className="w-5 h-5 text-white" />
+            </a>
+            <a
+              href={SOCIAL.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all backdrop-blur-sm"
+            >
+              <Instagram className="w-5 h-5 text-white" />
+            </a>
+            <a
+              href={SOCIAL.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all backdrop-blur-sm"
+            >
+              <Youtube className="w-5 h-5 text-white" />
+            </a>
+          </div>
         </div>
       </section>
 
