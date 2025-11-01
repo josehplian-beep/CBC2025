@@ -103,7 +103,7 @@ serve(async (req) => {
               const high = asRecord(thumbnails.high) || {};
               const medium = asRecord(thumbnails.medium) || {};
 
-              return {
+              const video = {
                 id: getString(resourceId.videoId),
                 title: getString(snippet.title),
                 description: getString(snippet.description),
@@ -112,6 +112,14 @@ serve(async (req) => {
                 channelId: getString(snippet.channelId),
                 channelTitle: getString(snippet.channelTitle),
               };
+              
+              console.log('Processing video in Edge Function:', {
+                title: video.title,
+                publishedAt: video.publishedAt,
+                year: video.publishedAt ? new Date(video.publishedAt).getFullYear() : 'unknown'
+              });
+              
+              return video;
             });
 
             videos.push(...pageVideos);

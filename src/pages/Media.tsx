@@ -110,6 +110,12 @@ const Media = () => {
     const year = date.getFullYear().toString();
     const title = video.title.toLowerCase();
     
+    console.log('Processing video:', {
+      title: video.title,
+      publishedAt: video.publishedAt,
+      year: year
+    });
+    
     // Improved video categorization with more keywords
     let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
     if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {
@@ -139,6 +145,18 @@ const Media = () => {
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
     const matchesSearch = searchQuery === "" || video.title.toLowerCase().includes(searchQuery.toLowerCase());
     const notLivestream = categoryFilter === "all" ? true : video.category !== "Livestream"; // Only exclude livestreams if not specifically filtering for them
+    
+    console.log('Filtering video:', {
+      title: video.title,
+      year: video.year,
+      yearFilter,
+      matchesYear,
+      category: video.category,
+      categoryFilter,
+      matchesCategory,
+      willShow: matchesCategory && matchesYear && matchesSearch && notLivestream
+    });
+    
     return matchesCategory && matchesYear && matchesSearch && notLivestream;
   });
 
@@ -197,7 +215,13 @@ const Media = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={yearFilter} onValueChange={setYearFilter}>
+              <Select 
+                value={yearFilter} 
+                onValueChange={(value) => {
+                  console.log('Year filter changed to:', value);
+                  setYearFilter(value);
+                }}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
@@ -205,6 +229,8 @@ const Media = () => {
                   <SelectItem value="all">All Years</SelectItem>
                   <SelectItem value="2025">2025</SelectItem>
                   <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2023">2023</SelectItem>
+                  <SelectItem value="2022">2022</SelectItem>
                 </SelectContent>
               </Select>
             </div>
