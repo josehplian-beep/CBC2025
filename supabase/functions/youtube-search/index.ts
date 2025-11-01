@@ -51,17 +51,18 @@ serve(async (req) => {
 
     // If a channelId is provided, use the uploads playlist for accuracy
     if (channelId) {
-      try {
-        // Get the channel uploads playlist id
-        const channelRes = await fetch(
-          `${YOUTUBE_API_BASE_URL}/channels?part=contentDetails&id=${channelId}&key=${YOUTUBE_API_KEY}`
-        );
-        
-        if (!channelRes.ok) {
-          throw new Error(`YouTube channels error: ${channelRes.status}`);
-        }
-        
-        const channelData = await channelRes.json();
+    try {
+      console.log('Fetching channel data with API key:', YOUTUBE_API_KEY ? 'Key exists' : 'No key found');
+      
+      // Get the channel uploads playlist id
+      const channelRes = await fetch(
+        `${YOUTUBE_API_BASE_URL}/channels?part=contentDetails&id=${channelId}&key=${YOUTUBE_API_KEY}`
+      );
+      
+      if (!channelRes.ok) {
+        console.error('Channel response error:', await channelRes.text());
+        throw new Error(`YouTube channels error: ${channelRes.status}`);
+      }        const channelData = await channelRes.json();
         const uploadsId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
         if (uploadsId) {

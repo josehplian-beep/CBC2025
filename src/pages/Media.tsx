@@ -34,14 +34,37 @@ const Media = () => {
 
   const fetchVideos = async () => {
     setLoading(true);
-    // Fetch videos from Chin Bethel Church DC channel
-    const videos = await searchYouTubeVideos({
-      channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-      maxResults: 100,
-      order: "date",
-    });
-    setYoutubeVideos(videos);
-    setLoading(false);
+    try {
+      console.log('Starting video fetch...');
+      // Fetch videos from Chin Bethel Church DC channel with retries
+      let attempts = 0;
+      const maxAttempts = 3;
+      let videos: YouTubeVideo[] = [];
+      
+      while (attempts < maxAttempts && videos.length === 0) {
+        console.log(`Attempt ${attempts + 1} to fetch videos...`);
+        videos = await searchYouTubeVideos({
+          channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
+          maxResults: 200, // Increased to get more videos
+          order: "date",
+        });
+        
+        console.log(`Received ${videos.length} videos on attempt ${attempts + 1}`);
+        
+        if (videos.length === 0) {
+          console.log(`Attempt ${attempts + 1} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        }
+        attempts++;
+      }
+      
+      setYoutubeVideos(videos);
+      console.log('Successfully set videos:', videos.length);
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchAlbums = async () => {
@@ -86,18 +109,18 @@ const Media = () => {
     const date = new Date(video.publishedAt);
     const year = date.getFullYear().toString();
     const title = video.title.toLowerCase();
-
-    // Categorize videos
+    
+    // Improved video categorization with more keywords
     let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
-    if (title.includes("sermon")) {
+    if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {
       category = "Sermon";
-    } else if (title.includes("live") || title.includes("livestream") || title.includes("service")) {
+    } else if (title.includes("live") || title.includes("livestream") || title.includes("service") || title.includes("sunday")) {
       category = "Livestream";
-    } else if (title.includes("solo")) {
+    } else if (title.includes("solo") || title.includes("special") || title.includes("song")) {
       category = "Solo";
-    } else if (title.includes("choir")) {
+    } else if (title.includes("choir") || title.includes("group")) {
       category = "Choir";
-    } else if (title.includes("worship") || title.includes("praise")) {
+    } else if (title.includes("worship") || title.includes("praise") || title.includes("music")) {
       category = "Worship & Music";
     }
 
@@ -115,7 +138,7 @@ const Media = () => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
     const matchesSearch = searchQuery === "" || video.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const notLivestream = video.category !== "Livestream"; // Exclude livestreams from videos tab
+    const notLivestream = categoryFilter === "all" ? true : video.category !== "Livestream"; // Only exclude livestreams if not specifically filtering for them
     return matchesCategory && matchesYear && matchesSearch && notLivestream;
   });
 
