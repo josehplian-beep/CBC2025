@@ -208,7 +208,7 @@ const Media = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Sermon">Sermons</SelectItem>
+                  <SelectItem value="Sermon">Sermon</SelectItem>
                   <SelectItem value="Solo">Solo</SelectItem>
                   <SelectItem value="Choir">Choir</SelectItem>
                   <SelectItem value="Worship & Music">Worship & Music</SelectItem>
