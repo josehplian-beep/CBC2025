@@ -1,140 +1,145 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload } from "lucide-react";
-import { format, isSameDay } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { EventDialog } from "@/components/EventDialog";
-import * as XLSX from "xlsx";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { format, isSameDay, parseISO } from "date-fns";
 
 const Events = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [events, setEvents] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletingEvent, setDeletingEvent] = useState<any>(null);
 
-  useEffect(() => {
-    checkAdminStatus();
-    fetchEvents();
-  }, []);
-
-  const checkAdminStatus = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .single();
-      setIsAdmin(!!data);
-    }
-  };
-
-  const fetchEvents = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("date_obj", { ascending: true });
-
-      if (error) throw error;
-      
-      const eventsWithDateObj = data.map(event => ({
-        ...event,
-        dateObj: new Date(event.date_obj)
-      }));
-      
-      setEvents(eventsWithDateObj);
-    } catch (error: any) {
-      toast.error("Failed to load events");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deletingEvent) return;
-    
-    try {
-      const { error } = await supabase
-        .from("events")
-        .delete()
-        .eq("id", deletingEvent.id);
-
-      if (error) throw error;
-      
-      toast.success("Event deleted successfully");
-      fetchEvents();
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setDeleteDialogOpen(false);
-      setDeletingEvent(null);
-    }
-  };
-
-  const handleExport = () => {
-    const exportData = events.map(event => ({
-      "Event Name": event.title,
-      "Date": event.date,
-      "Event Type": event.type,
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Events");
-    XLSX.writeFile(wb, `church-events-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
-    toast.success("Events exported successfully");
-  };
-
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (evt) => {
-      try {
-        const bstr = evt.target?.result;
-        const wb = XLSX.read(bstr, { type: "binary" });
-        const wsname = wb.SheetNames[0];
-        const ws = wb.Sheets[wsname];
-        const data = XLSX.utils.sheet_to_json(ws);
-
-        const eventsToImport = data.map((row: any) => ({
-          title: row["Event Name"],
-          date: row["Date"],
-          date_obj: new Date(row["Date"]).toISOString(),
-          time: "TBA",
-          location: "To be announced",
-          type: row["Event Type"],
-          description: "",
-        }));
-
-        const { error } = await supabase.from("events").insert(eventsToImport);
-        
-        if (error) throw error;
-        
-        toast.success(`${eventsToImport.length} events imported successfully`);
-        fetchEvents();
-      } catch (error: any) {
-        toast.error("Failed to import events: " + error.message);
-      }
-    };
-    reader.readAsBinaryString(file);
-    e.target.value = "";
-  };
+  const events = [
+    {
+      title: "Sunday Worship Service",
+      date: "Every Sunday",
+      dateObj: new Date(2025, 10, 2),
+      time: "1:00 PM - 3:00 PM",
+      location: "Main Sanctuary",
+      type: "Worship",
+      description: "Join us for worship, prayer, and biblical teaching.",
+    },
+    {
+      title: "Youth Group Meeting",
+      date: "Every Friday",
+      dateObj: new Date(2025, 10, 7),
+      time: "6:00 PM - 8:00 PM",
+      location: "Youth Center",
+      type: "Youth",
+      description: "Fun, fellowship, and faith-building activities for teens.",
+    },
+    {
+      title: "Women's Bible Study",
+      date: "Every Wednesday",
+      dateObj: new Date(2025, 10, 5),
+      time: "10:00 AM - 12:00 PM",
+      location: "Fellowship Hall",
+      type: "Study",
+      description: "Deep dive into God's Word with fellow sisters in Christ.",
+    },
+    {
+      title: "Bible Sunday",
+      date: "October 19, 2025",
+      dateObj: new Date(2025, 9, 19),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "Join us for a special Bible Sunday celebration.",
+    },
+    {
+      title: "Audit tuahnak",
+      date: "October 25, 2025",
+      dateObj: new Date(2025, 9, 25),
+      time: "TBA",
+      location: "Church Office",
+      type: "Study",
+      description: "Church audit meeting.",
+    },
+    {
+      title: "CBC Nubu Sunday",
+      date: "October 26, 2025",
+      dateObj: new Date(2025, 9, 26),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "CBC Nubu Sunday celebration.",
+    },
+    {
+      title: "EC Regular Meeting",
+      date: "November 01, 2025",
+      dateObj: new Date(2025, 10, 1),
+      time: "TBA",
+      location: "Conference Room",
+      type: "Study",
+      description: "Executive Committee regular meeting.",
+    },
+    {
+      title: "CBCUSA Men's Conference",
+      date: "November 06-09, 2025",
+      dateObj: new Date(2025, 10, 6),
+      time: "All Day",
+      location: "Conference Center",
+      type: "Special",
+      description: "CBCUSA Men's Conference - Four days of fellowship, worship, and spiritual growth.",
+    },
+    {
+      title: "Church Council Meeting",
+      date: "November 15, 2025",
+      dateObj: new Date(2025, 10, 15),
+      time: "TBA",
+      location: "Conference Room",
+      type: "Study",
+      description: "Church Council meeting for planning and decision-making.",
+    },
+    {
+      title: "Church School Christmas Hmannak",
+      date: "December 06, 2025",
+      dateObj: new Date(2025, 11, 6),
+      time: "TBA",
+      location: "Fellowship Hall",
+      type: "Children",
+      description: "Church School Christmas celebration and preparation.",
+    },
+    {
+      title: "Mino Sweet December Hmannak",
+      date: "December 07, 2025",
+      dateObj: new Date(2025, 11, 7),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "Mino Sweet December celebration.",
+    },
+    {
+      title: "Christmas Day",
+      date: "December 25, 2025",
+      dateObj: new Date(2025, 11, 25),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "Celebrate the birth of Jesus Christ.",
+    },
+    {
+      title: "Rianṭuantu thimnak",
+      date: "December 28, 2025",
+      dateObj: new Date(2025, 11, 28),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Worship",
+      description: "Rianṭuantu thimnak service.",
+    },
+    {
+      title: "Kumthar Hngahnak",
+      date: "December 31, 2025",
+      dateObj: new Date(2025, 11, 31),
+      time: "TBA",
+      location: "Main Sanctuary",
+      type: "Special",
+      description: "New Year's Eve celebration and service.",
+    },
+  ];
 
   const filteredEvents = selectedDate
     ? events.filter(event => isSameDay(event.dateObj, selectedDate))
@@ -206,9 +211,7 @@ const Events = () => {
                       modifiersStyles={{
                         hasEvent: {
                           fontWeight: 'bold',
-                          backgroundColor: '#FF8F8F',
-                          color: 'white',
-                          borderRadius: '4px'
+                          textDecoration: 'underline'
                         }
                       }}
                     />
@@ -255,7 +258,7 @@ const Events = () => {
 
             {/* Events Content */}
             <div className="flex-1">
-              <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+              <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-display font-bold">
                     {selectedDate ? format(selectedDate, 'MMMM dd, yyyy') : 'All Events'}
@@ -264,54 +267,15 @@ const Events = () => {
                     {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                  {selectedDate && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedDate(undefined)}
-                      className="transition-all hover:scale-105"
-                    >
-                      Clear Filter
-                    </Button>
-                  )}
-                  {isAdmin && (
-                    <>
-                      <Button
-                        onClick={() => {
-                          setEditingEvent(null);
-                          setDialogOpen(true);
-                        }}
-                        className="transition-all hover:scale-105"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Event
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={handleExport}
-                        className="transition-all hover:scale-105"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Export
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => document.getElementById('import-file')?.click()}
-                        className="transition-all hover:scale-105"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        Import
-                      </Button>
-                      <input
-                        id="import-file"
-                        type="file"
-                        accept=".xlsx,.xls"
-                        onChange={handleImport}
-                        className="hidden"
-                      />
-                    </>
-                  )}
-                </div>
+                {selectedDate && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedDate(undefined)}
+                    className="transition-all hover:scale-105"
+                  >
+                    Clear Filter
+                  </Button>
+                )}
               </div>
 
               {filteredEvents.length === 0 ? (
@@ -357,34 +321,9 @@ const Events = () => {
                           </div>
                         </div>
 
-                        {isAdmin && (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingEvent(event);
-                                setDialogOpen(true);
-                              }}
-                              className="flex-1"
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setDeletingEvent(event);
-                                setDeleteDialogOpen(true);
-                              }}
-                              className="flex-1"
-                            >
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        )}
+                        <Button className="w-full transition-all hover:scale-105">
+                          Learn More
+                        </Button>
                       </CardContent>
                     </Card>
                   ))}
@@ -412,30 +351,6 @@ const Events = () => {
       </section>
 
       <Footer />
-
-      <EventDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        event={editingEvent}
-        onSuccess={fetchEvents}
-      />
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingEvent?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
