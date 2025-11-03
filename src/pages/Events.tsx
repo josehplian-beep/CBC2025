@@ -1,149 +1,141 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, isSameDay, parseISO } from "date-fns";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload } from "lucide-react";
+import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { EventDialog } from "@/components/EventDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 const Events = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [events, setEvents] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const events = [
-    {
-      title: "Sunday Worship Service",
-      date: "Every Sunday",
-      dateObj: new Date(2025, 10, 2),
-      time: "1:00 PM - 3:00 PM",
-      location: "Main Sanctuary",
-      type: "Worship",
-      description: "Join us for worship, prayer, and biblical teaching.",
-    },
-    {
-      title: "Youth Group Meeting",
-      date: "Every Friday",
-      dateObj: new Date(2025, 10, 7),
-      time: "6:00 PM - 8:00 PM",
-      location: "Youth Center",
-      type: "Youth",
-      description: "Fun, fellowship, and faith-building activities for teens.",
-    },
-    {
-      title: "Women's Bible Study",
-      date: "Every Wednesday",
-      dateObj: new Date(2025, 10, 5),
-      time: "10:00 AM - 12:00 PM",
-      location: "Fellowship Hall",
-      type: "Study",
-      description: "Deep dive into God's Word with fellow sisters in Christ.",
-    },
-    {
-      title: "Bible Sunday",
-      date: "October 19, 2025",
-      dateObj: new Date(2025, 9, 19),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "Join us for a special Bible Sunday celebration.",
-    },
-    {
-      title: "Audit tuahnak",
-      date: "October 25, 2025",
-      dateObj: new Date(2025, 9, 25),
-      time: "TBA",
-      location: "Church Office",
-      type: "Study",
-      description: "Church audit meeting.",
-    },
-    {
-      title: "CBC Nubu Sunday",
-      date: "October 26, 2025",
-      dateObj: new Date(2025, 9, 26),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "CBC Nubu Sunday celebration.",
-    },
-    {
-      title: "EC Regular Meeting",
-      date: "November 01, 2025",
-      dateObj: new Date(2025, 10, 1),
-      time: "TBA",
-      location: "Conference Room",
-      type: "Study",
-      description: "Executive Committee regular meeting.",
-    },
-    {
-      title: "CBCUSA Men's Conference",
-      date: "November 06-09, 2025",
-      dateObj: new Date(2025, 10, 6),
-      time: "All Day",
-      location: "Conference Center",
-      type: "Special",
-      description: "CBCUSA Men's Conference - Four days of fellowship, worship, and spiritual growth.",
-    },
-    {
-      title: "Church Council Meeting",
-      date: "November 15, 2025",
-      dateObj: new Date(2025, 10, 15),
-      time: "TBA",
-      location: "Conference Room",
-      type: "Study",
-      description: "Church Council meeting for planning and decision-making.",
-    },
-    {
-      title: "Church School Christmas Hmannak",
-      date: "December 06, 2025",
-      dateObj: new Date(2025, 11, 6),
-      time: "TBA",
-      location: "Fellowship Hall",
-      type: "Children",
-      description: "Church School Christmas celebration and preparation.",
-    },
-    {
-      title: "Mino Sweet December Hmannak",
-      date: "December 07, 2025",
-      dateObj: new Date(2025, 11, 7),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "Mino Sweet December celebration.",
-    },
-    {
-      title: "Christmas Day",
-      date: "December 25, 2025",
-      dateObj: new Date(2025, 11, 25),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "Celebrate the birth of Jesus Christ.",
-    },
-    {
-      title: "Rianṭuantu thimnak",
-      date: "December 28, 2025",
-      dateObj: new Date(2025, 11, 28),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Worship",
-      description: "Rianṭuantu thimnak service.",
-    },
-    {
-      title: "Kumthar Hngahnak",
-      date: "December 31, 2025",
-      dateObj: new Date(2025, 11, 31),
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "New Year's Eve celebration and service.",
-    },
-  ];
+  useEffect(() => {
+    checkAdminStatus();
+    fetchEvents();
+  }, []);
 
-  const filteredEvents = selectedDate
-    ? events.filter(event => isSameDay(event.dateObj, selectedDate))
-    : events;
+  const checkAdminStatus = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+      setIsAdmin(data || false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('events' as any)
+      .select('*')
+      .order('date_obj', { ascending: true });
+    
+    if (!error && data) {
+      setEvents(data.map((e: any) => ({
+        ...e,
+        dateObj: new Date(e.date_obj)
+      })));
+    }
+    setLoading(false);
+  };
+
+  const handleExport = () => {
+    const exportData = events.map(e => ({
+      'Event Name': e.title,
+      'Date': e.date,
+      'Event Type': e.type
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Events');
+    XLSX.writeFile(wb, `CBC_Events_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    toast.success('Events exported successfully');
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+
+        const eventsToInsert = jsonData.map((row: any) => ({
+          title: row['Event Name'],
+          date: row['Date'],
+          date_obj: new Date(row['Date']).toISOString(),
+          time: 'TBA',
+          location: 'TBA',
+          type: row['Event Type'],
+          description: ''
+        }));
+
+        const { error } = await supabase.from('events' as any).insert(eventsToInsert);
+        
+        if (error) throw error;
+        
+        toast.success(`${eventsToInsert.length} events imported successfully`);
+        fetchEvents();
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to import events');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = '';
+  };
+
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+
+    const { error } = await supabase
+      .from('events' as any)
+      .delete()
+      .eq('id', eventToDelete.id);
+
+    if (error) {
+      toast.error('Failed to delete event');
+    } else {
+      toast.success('Event deleted successfully');
+      fetchEvents();
+    }
+    setDeleteDialogOpen(false);
+    setEventToDelete(null);
+  };
+
+  let filteredEvents = events;
+  
+  if (weekFilter) {
+    const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
+    filteredEvents = events.filter(event => 
+      event.dateObj >= weekStart && event.dateObj <= weekEnd
+    );
+  } else if (selectedDate) {
+    filteredEvents = events.filter(event => isSameDay(event.dateObj, selectedDate));
+  }
 
   const upcomingEvents = events
     .filter(event => event.dateObj >= new Date())
@@ -153,11 +145,19 @@ const Events = () => {
   const typeColors: Record<string, string> = {
     Worship: "bg-primary text-primary-foreground",
     Youth: "bg-accent text-accent-foreground",
-    Study: "bg-secondary text-secondary-foreground",
-    Outreach: "bg-destructive text-destructive-foreground",
-    Special: "bg-primary text-primary-foreground",
     Children: "bg-accent text-accent-foreground",
+    Study: "bg-secondary text-secondary-foreground",
+    Deacon: "bg-primary/80 text-primary-foreground",
+    Mission: "bg-destructive text-destructive-foreground",
+    "Building Committee": "bg-secondary/80 text-secondary-foreground",
+    Media: "bg-primary/60 text-primary-foreground",
+    Culture: "bg-accent/80 text-accent-foreground",
+    CBCUSA: "bg-primary text-primary-foreground",
+    Special: "bg-primary text-primary-foreground",
+    Others: "bg-muted text-muted-foreground",
   };
+
+  const eventDates = events.map(e => e.dateObj);
 
   return (
     <div className="min-h-screen bg-background">
@@ -180,7 +180,7 @@ const Events = () => {
               className={`
                 lg:sticky lg:top-24 lg:h-fit
                 transition-all duration-300 ease-in-out
-                ${sidebarOpen ? 'lg:w-80' : 'lg:w-0 lg:overflow-hidden'}
+                ${sidebarOpen ? 'lg:w-96' : 'lg:w-0 lg:overflow-hidden'}
               `}
             >
               <div className={`
@@ -203,18 +203,47 @@ const Events = () => {
                     <Calendar
                       mode="single"
                       selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      className="rounded-md border pointer-events-auto"
+                      onSelect={(date) => {
+                        setSelectedDate(date);
+                        setWeekFilter(undefined);
+                      }}
+                      className="rounded-md border pointer-events-auto scale-110"
                       modifiers={{
-                        hasEvent: events.map(e => e.dateObj)
+                        hasEvent: eventDates
                       }}
                       modifiersStyles={{
                         hasEvent: {
+                          backgroundColor: '#FF8F8F',
+                          color: 'white',
                           fontWeight: 'bold',
-                          textDecoration: 'underline'
+                          borderRadius: '4px'
                         }
                       }}
                     />
+                    <div className="mt-4 space-y-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => {
+                          setWeekFilter(new Date());
+                          setSelectedDate(undefined);
+                        }}
+                      >
+                        This Week
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedDate(undefined);
+                          setWeekFilter(undefined);
+                        }}
+                      >
+                        Clear All Filters
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -258,19 +287,52 @@ const Events = () => {
 
             {/* Events Content */}
             <div className="flex-1">
+              {isAdmin && (
+                <Card className="mb-6 p-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={() => { setSelectedEvent(null); setDialogOpen(true); }}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Event
+                    </Button>
+                    <Button variant="outline" onClick={handleExport}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Excel
+                    </Button>
+                    <Button variant="outline" onClick={() => document.getElementById('excel-import')?.click()}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import Excel
+                    </Button>
+                    <input
+                      id="excel-import"
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={handleImport}
+                      className="hidden"
+                    />
+                  </div>
+                </Card>
+              )}
+
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-display font-bold">
-                    {selectedDate ? format(selectedDate, 'MMMM dd, yyyy') : 'All Events'}
+                    {weekFilter 
+                      ? `Week of ${format(startOfWeek(weekFilter, { weekStartsOn: 0 }), 'MMM dd, yyyy')}`
+                      : selectedDate 
+                      ? format(selectedDate, 'MMMM dd, yyyy') 
+                      : 'All Events'}
                   </h2>
                   <p className="text-muted-foreground">
                     {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
-                {selectedDate && (
+                {(selectedDate || weekFilter) && (
                   <Button
                     variant="outline"
-                    onClick={() => setSelectedDate(undefined)}
+                    onClick={() => {
+                      setSelectedDate(undefined);
+                      setWeekFilter(undefined);
+                    }}
                     className="transition-all hover:scale-105"
                   >
                     Clear Filter
@@ -321,9 +383,34 @@ const Events = () => {
                           </div>
                         </div>
 
-                        <Button className="w-full transition-all hover:scale-105">
-                          Learn More
-                        </Button>
+                        {isAdmin && (
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => {
+                                setSelectedEvent(event);
+                                setDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => {
+                                setEventToDelete(event);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -349,6 +436,30 @@ const Events = () => {
           </Button>
         </div>
       </section>
+
+      <EventDialog 
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        event={selectedEvent}
+        onSuccess={fetchEvents}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{eventToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Footer />
     </div>

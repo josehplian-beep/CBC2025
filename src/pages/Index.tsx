@@ -16,14 +16,15 @@ import heroModernChurch from "@/assets/hero-CBC-Church.jpg";
 const Index = () => {
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchVideos();
+    fetchEvents();
   }, []);
 
   const fetchVideos = async () => {
     setLoading(true);
-    // Fetch videos from Chin Bethel Church DC channel
     const videos = await searchYouTubeVideos({
       channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
       maxResults: 8,
@@ -33,64 +34,32 @@ const Index = () => {
     setLoading(false);
   };
 
-  const upcomingEvents = [
-    {
-      title: "Sunday Worship Service",
-      date: "Every Sunday",
-      time: "1:00 PM - 3:00 PM",
-      location: "Main Sanctuary",
-      type: "Worship",
-      description: "Join us for worship, prayer, and biblical teaching.",
-    },
-    {
-      title: "Bible Sunday",
-      date: "October 19, 2025",
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "Join us for a special Bible Sunday celebration.",
-    },
-    {
-      title: "CBC Nubu Sunday",
-      date: "October 26, 2025",
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "CBC Nubu Sunday celebration.",
-    },
-    {
-      title: "CBCUSA Men's Conference",
-      date: "November 06-09, 2025",
-      time: "All Day",
-      location: "Conference Center",
-      type: "Special",
-      description: "CBCUSA Men's Conference - Four days of fellowship, worship, and spiritual growth.",
-    },
-    {
-      title: "Christmas Day",
-      date: "December 25, 2025",
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "Celebrate the birth of Jesus Christ.",
-    },
-    {
-      title: "Kumthar Hngahnak",
-      date: "December 31, 2025",
-      time: "TBA",
-      location: "Main Sanctuary",
-      type: "Special",
-      description: "New Year's Eve celebration and service.",
-    },
-  ];
+  const fetchEvents = async () => {
+    const { data, error } = await supabase
+      .from('events' as any)
+      .select('*')
+      .gte('date_obj', new Date().toISOString())
+      .order('date_obj', { ascending: true })
+      .limit(6);
+    
+    if (!error && data) {
+      setUpcomingEvents(data);
+    }
+  };
 
   const typeColors: Record<string, string> = {
     Worship: "bg-primary text-primary-foreground",
     Youth: "bg-accent text-accent-foreground",
-    Study: "bg-secondary text-secondary-foreground",
-    Outreach: "bg-destructive text-destructive-foreground",
-    Special: "bg-primary text-primary-foreground",
     Children: "bg-accent text-accent-foreground",
+    Study: "bg-secondary text-secondary-foreground",
+    Deacon: "bg-primary/80 text-primary-foreground",
+    Mission: "bg-destructive text-destructive-foreground",
+    "Building Committee": "bg-secondary/80 text-secondary-foreground",
+    Media: "bg-primary/60 text-primary-foreground",
+    Culture: "bg-accent/80 text-accent-foreground",
+    CBCUSA: "bg-primary text-primary-foreground",
+    Special: "bg-primary text-primary-foreground",
+    Others: "bg-muted text-muted-foreground",
   };
   const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
