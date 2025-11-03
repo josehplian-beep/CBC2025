@@ -49,10 +49,16 @@ const Events = () => {
       .order('date_obj', { ascending: true });
     
     if (!error && data) {
-      setEvents(data.map((e: any) => ({
-        ...e,
-        dateObj: new Date(e.date_obj)
-      })));
+      setEvents(data.map((e: any) => {
+        // Parse date in UTC to avoid timezone shifts on calendar
+        const utcDate = e.date_obj.split('T')[0]; // Get YYYY-MM-DD
+        const [year, month, day] = utcDate.split('-').map(Number);
+        const dateObj = new Date(year, month - 1, day); // Local date object with correct calendar date
+        return {
+          ...e,
+          dateObj
+        };
+      }));
     }
     setLoading(false);
   };
@@ -187,13 +193,16 @@ const Events = () => {
                 transition-opacity duration-300
                 ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:opacity-0'}
               `}>
-                <Card className="mb-6 animate-fade-in">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Select Date</span>
+                <Card className="mb-6 animate-fade-in border-2 shadow-lg">
+                  <CardHeader className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-t-lg">
+                    <CardTitle className="flex items-center justify-between text-lg">
+                      <span className="flex items-center gap-2">
+                        <CalendarIcon className="w-5 h-5 text-primary" />
+                        Select Date
+                      </span>
                       <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="lg:inline-flex hidden p-1 hover:bg-muted rounded transition-colors"
+                        className="lg:inline-flex hidden p-2 hover:bg-primary/10 rounded-lg transition-all duration-200"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
@@ -207,35 +216,31 @@ const Events = () => {
                         setSelectedDate(date);
                         setWeekFilter(undefined);
                       }}
-                      className="rounded-md border pointer-events-auto scale-110"
+                      className="rounded-lg border-2 pointer-events-auto scale-110 shadow-sm"
                       modifiers={{
                         hasEvent: eventDates
                       }}
-                      modifiersStyles={{
-                        hasEvent: {
-                          backgroundColor: '#FF8F8F',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          borderRadius: '4px'
-                        }
+                      modifiersClassNames={{
+                        hasEvent: "relative bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:scale-110 transition-all duration-200"
                       }}
                     />
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-6 space-y-2 px-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full"
+                        className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 border-2"
                         onClick={() => {
                           setWeekFilter(new Date());
                           setSelectedDate(undefined);
                         }}
                       >
+                        <CalendarIcon className="w-4 h-4 mr-2" />
                         This Week
                       </Button>
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full"
+                        className="w-full hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 border-2"
                         onClick={() => {
                           setSelectedDate(undefined);
                           setWeekFilter(undefined);
@@ -247,16 +252,19 @@ const Events = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Upcoming Events</CardTitle>
+                <Card className="animate-fade-in border-2 shadow-lg" style={{ animationDelay: '0.1s' }}>
+                  <CardHeader className="bg-gradient-to-br from-accent/5 to-accent/10 rounded-t-lg">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-primary" />
+                      Upcoming Events
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {upcomingEvents.map((event, index) => (
                       <div
                         key={index}
                         onClick={() => setSelectedDate(event.dateObj)}
-                        className="p-3 rounded-lg border hover:bg-muted cursor-pointer transition-all duration-200 hover:scale-[1.02]"
+                        className="p-3 rounded-lg border-2 hover:bg-accent/10 hover:border-primary cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                       >
                         <div className="flex items-start justify-between mb-1">
                           <p className="font-medium text-sm line-clamp-1">{event.title}</p>
@@ -288,7 +296,7 @@ const Events = () => {
             {/* Events Content */}
             <div className="flex-1">
               {isAdmin && (
-                <Card className="mb-6 p-4">
+                <Card className="mb-6 p-4 border-2 shadow-lg bg-gradient-to-r from-primary/5 to-accent/5">
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={() => { setSelectedEvent(null); setDialogOpen(true); }}>
                       <Plus className="w-4 h-4 mr-2" />
@@ -356,7 +364,7 @@ const Events = () => {
                   {filteredEvents.map((event, index) => (
                     <Card 
                       key={index} 
-                      className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-fade-in"
+                      className="hover:shadow-xl transition-all duration-300 hover:scale-[1.03] animate-fade-in border-2 hover:border-primary/50"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
                       <CardHeader>
