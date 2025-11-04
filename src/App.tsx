@@ -17,7 +17,8 @@ import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
-
+import Testimonials from "./pages/Testimonials";
+import ColorPalette from "./pages/ColorPalette";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
@@ -45,9 +46,10 @@ const App = () => (
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />
           <Route path="/beliefs/salvation" element={<Salvation />} />
-          
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/admin/color-palette" element={<ColorPalette />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

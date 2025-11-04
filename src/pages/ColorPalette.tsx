@@ -1,0 +1,188 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Palette, Copy, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const ColorPalette = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [copiedColor, setCopiedColor] = useState<string>('');
+  const navigate = useNavigate();
+
+  const colors = [
+    { name: 'Primary', var: '--primary', value: 'hsl(221.2 83.2% 53.3%)' },
+    { name: 'Primary Foreground', var: '--primary-foreground', value: 'hsl(210 40% 98%)' },
+    { name: 'Secondary', var: '--secondary', value: 'hsl(210 40% 96.1%)' },
+    { name: 'Secondary Foreground', var: '--secondary-foreground', value: 'hsl(222.2 47.4% 11.2%)' },
+    { name: 'Accent', var: '--accent', value: 'hsl(210 40% 96.1%)' },
+    { name: 'Accent Foreground', var: '--accent-foreground', value: 'hsl(222.2 47.4% 11.2%)' },
+    { name: 'Destructive', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' },
+    { name: 'Destructive Foreground', var: '--destructive-foreground', value: 'hsl(210 40% 98%)' },
+    { name: 'Muted', var: '--muted', value: 'hsl(210 40% 96.1%)' },
+    { name: 'Muted Foreground', var: '--muted-foreground', value: 'hsl(215.4 16.3% 46.9%)' },
+    { name: 'Background', var: '--background', value: 'hsl(0 0% 100%)' },
+    { name: 'Foreground', var: '--foreground', value: 'hsl(222.2 84% 4.9%)' },
+    { name: 'Card', var: '--card', value: 'hsl(0 0% 100%)' },
+    { name: 'Card Foreground', var: '--card-foreground', value: 'hsl(222.2 84% 4.9%)' },
+    { name: 'Border', var: '--border', value: 'hsl(214.3 31.8% 91.4%)' },
+    { name: 'Input', var: '--input', value: 'hsl(214.3 31.8% 91.4%)' },
+    { name: 'Ring', var: '--ring', value: 'hsl(221.2 83.2% 53.3%)' }
+  ];
+
+  useEffect(() => {
+    checkAdminAccess();
+  }, []);
+
+  const checkAdminAccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('Access denied');
+      navigate('/');
+      return;
+    }
+
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (!data) {
+      toast.error('Admin access required');
+      navigate('/');
+      return;
+    }
+
+    setIsAdmin(true);
+    setLoading(false);
+  };
+
+  const copyToClipboard = (colorVar: string, value: string) => {
+    navigator.clipboard.writeText(value);
+    setCopiedColor(colorVar);
+    toast.success('Color copied to clipboard');
+    setTimeout(() => setCopiedColor(''), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      
+      <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
+        <div className="relative z-10 text-center text-primary-foreground px-4">
+          <Palette className="w-12 h-12 mx-auto mb-3" />
+          <h1 className="font-display text-4xl md:text-5xl font-bold">Color Palette</h1>
+          <p className="text-sm mt-2 opacity-90">Admin Only - Website Color System</p>
+        </div>
+      </section>
+
+      <section className="py-12 bg-background">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                Theme Colors
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-6">
+                These are the semantic color tokens used throughout the website. Click any color to copy its value.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {colors.map((color) => (
+                  <Card 
+                    key={color.var}
+                    className="overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer group"
+                    onClick={() => copyToClipboard(color.var, color.value)}
+                  >
+                    <div 
+                      className="h-24 w-full transition-transform group-hover:scale-105"
+                      style={{ background: color.value }}
+                    />
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm mb-1">{color.name}</p>
+                          <p className="text-xs text-muted-foreground font-mono break-all">
+                            {color.var}
+                          </p>
+                          <p className="text-xs text-muted-foreground font-mono mt-1 break-all">
+                            {color.value}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="flex-shrink-0 ml-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(color.var, color.value);
+                          }}
+                        >
+                          {copiedColor === color.var ? (
+                            <Check className="w-4 h-4 text-primary" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Usage Guidelines</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-muted-foreground">
+              <p>
+                <strong className="text-foreground">Primary:</strong> Main brand color for important actions and highlights
+              </p>
+              <p>
+                <strong className="text-foreground">Secondary:</strong> Supporting color for less prominent elements
+              </p>
+              <p>
+                <strong className="text-foreground">Accent:</strong> For highlighting and drawing attention
+              </p>
+              <p>
+                <strong className="text-foreground">Muted:</strong> For subtle, background elements
+              </p>
+              <p>
+                <strong className="text-foreground">Destructive:</strong> For warnings and delete actions
+              </p>
+              <p className="pt-4 border-t">
+                To use these colors in Tailwind classes, use: <code className="bg-muted px-2 py-1 rounded">bg-primary</code>, <code className="bg-muted px-2 py-1 rounded">text-foreground</code>, etc.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default ColorPalette;

@@ -47,6 +47,90 @@ export type Database = {
         }
         Relationships: []
       }
+      department_members: {
+        Row: {
+          created_at: string | null
+          department: string
+          display_order: number | null
+          id: string
+          name: string
+          profile_image_url: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department: string
+          display_order?: number | null
+          id?: string
+          name: string
+          profile_image_url?: string | null
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string
+          display_order?: number | null
+          id?: string
+          name?: string
+          profile_image_url?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date: string
+          date_obj: string
+          description: string | null
+          id: string
+          image_url: string | null
+          location: string
+          recurring_end_date: string | null
+          recurring_pattern: string | null
+          time: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date: string
+          date_obj: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location: string
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
+          time: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          date_obj?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
+          time?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           address: string | null
@@ -148,6 +232,45 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          author_name: string
+          author_role: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_name: string
+          author_role?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_name?: string
+          author_role?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

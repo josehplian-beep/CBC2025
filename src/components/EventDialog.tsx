@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Upload, X } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -30,8 +35,18 @@ const EVENT_TYPES = [
   "Others"
 ];
 
+const RECURRING_PATTERNS = [
+  { value: 'none', label: 'Does not repeat' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'yearly', label: 'Yearly' }
+];
+
 export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialogProps) => {
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     title: "",
     date: "",
@@ -40,6 +55,9 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     location: "",
     type: "Worship",
     description: "",
+    image_url: "",
+    recurring_pattern: "none",
+    recurring_end_date: ""
   });
 
   useEffect(() => {
@@ -52,7 +70,11 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         location: event.location || "",
         type: event.type || "Worship",
         description: event.description || "",
+        image_url: event.image_url || "",
+        recurring_pattern: event.recurring_pattern || "none",
+        recurring_end_date: event.recurring_end_date || ""
       });
+      setImagePreview(event.image_url || '');
     } else {
       setFormData({
         title: "",
@@ -62,18 +84,63 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         location: "",
         type: "Worship",
         description: "",
+        image_url: "",
+        recurring_pattern: "none",
+        recurring_end_date: ""
       });
+      setImagePreview('');
     }
-  }, [event]);
+    setImageFile(null);
+  }, [event, open]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let imageUrl = formData.image_url;
+
+      // Upload image if a new one was selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `event-${Math.random()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('albums')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('albums')
+          .getPublicUrl(fileName);
+        
+        imageUrl = publicUrl;
+      }
+
       const eventData = {
         ...formData,
         date_obj: new Date(formData.date_obj).toISOString(),
+        image_url: imageUrl || null,
+        recurring_pattern: formData.recurring_pattern !== 'none' ? formData.recurring_pattern : null,
+        recurring_end_date: formData.recurring_pattern !== 'none' && formData.recurring_end_date 
+          ? formData.recurring_end_date 
+          : null
       };
 
       if (event) {
@@ -192,6 +259,69 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
                 rows={3}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Event Image</Label>
+              <div className="flex flex-col gap-3">
+                {imagePreview && (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border-2">
+                    <img src={imagePreview} alt="Event preview" className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview('');
+                        setFormData({ ...formData, image_url: '' });
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="recurring">Recurring Event</Label>
+              <Select 
+                value={formData.recurring_pattern} 
+                onValueChange={(value) => setFormData({ ...formData, recurring_pattern: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RECURRING_PATTERNS.map(pattern => (
+                    <SelectItem key={pattern.value} value={pattern.value}>
+                      {pattern.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {formData.recurring_pattern !== 'none' && (
+              <div className="space-y-2">
+                <Label htmlFor="recurring_end_date">Repeat Until</Label>
+                <Input
+                  id="recurring_end_date"
+                  type="date"
+                  value={formData.recurring_end_date}
+                  onChange={(e) => setFormData({ ...formData, recurring_end_date: e.target.value })}
+                  min={formData.date_obj}
+                />
+              </div>
+            )}
           </div>
 
           <DialogFooter className="mt-6">
