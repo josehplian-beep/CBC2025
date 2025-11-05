@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Droplets, HandHeart, Calendar, Heart, BookOpen } from "lucide-react";
-import worshipImage from "@/assets/community.jpg";
 
 const GetInvolved = () => {
   const opportunities = [
@@ -47,19 +46,10 @@ const GetInvolved = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative h-[500px] flex items-center justify-center overflow-hidden mt-20">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${worshipImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
-        </div>
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <Heart className="w-16 h-16 mx-auto mb-6" />
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Get Involved</h1>
-          <p className="text-xl md:text-2xl text-white/90">
-            Find your place in our church family and make a difference
-          </p>
+      <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
+        <div className="relative z-10 text-center text-primary-foreground px-4">
+          <Heart className="w-12 h-12 mx-auto mb-3" />
+          <h1 className="font-display text-4xl md:text-5xl font-bold">Get Involved</h1>
         </div>
       </section>
 
