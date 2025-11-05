@@ -532,11 +532,22 @@ const AdminStaff = () => {
                 <div className="mt-3 p-4 border rounded-lg bg-muted/30">
                   <p className="text-sm font-semibold mb-2 text-muted-foreground">Preview:</p>
                   <div className="max-w-none space-y-4 text-base leading-relaxed">
-                    {formData.biography_content.split('\n\n').map((paragraph, idx) => (
-                      <p key={idx} className="text-foreground indent-8 text-justify">
-                        {paragraph}
-                      </p>
-                    ))}
+                    {formData.biography_content.split('\n\n').map((paragraph, idx) => {
+                      const parts = paragraph.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+                      
+                      return (
+                        <p key={idx} className="text-foreground indent-8 text-justify">
+                          {parts.map((part, partIdx) => {
+                            if (part.startsWith('**') && part.endsWith('**')) {
+                              return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+                            } else if (part.startsWith('*') && part.endsWith('*')) {
+                              return <em key={partIdx}>{part.slice(1, -1)}</em>;
+                            }
+                            return <span key={partIdx}>{part}</span>;
+                          })}
+                        </p>
+                      );
+                    })}
                   </div>
                 </div>
               )}
