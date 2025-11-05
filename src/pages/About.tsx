@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import StaffCard from "@/components/StaffCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,29 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Heart, Users, BookOpen, Target, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import communityImage from "@/assets/community.jpg";
-import revJosephImage from "@/assets/rev-joseph.jpg";
-import revVanDuhCeuImage from "@/assets/rev-van-duh-ceu.jpg";
 const About = () => {
   const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("pastors");
   const [searchQuery, setSearchQuery] = useState("");
 
   const ministries = {
-    pastors: [{
-      name: "Rev. Van Duh Ceu",
-      role: "Senior Pastor",
-      email: "vdc@cbc.org",
-      phone: "(555) 123-4567",
-      image: revVanDuhCeuImage,
-      profileLink: "/staff/rev-van-duh-ceu"
-    }, {
-      name: "Rev. Joseph Nihre Bawihrin",
-      role: "Associate Pastor",
-      email: "jnb@cbc.org",
-      phone: "(555) 123-4568",
-      image: revJosephImage,
-      profileLink: "/staff/rev-joseph-nihre-bawihrin"
-    }],
     leadership: Array(12).fill(null).map((_, i) => ({
       name: `Leadership Member ${i + 1}`,
       role: "Church Leader",
@@ -494,23 +476,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* Our Pastors */}
-      <section className="py-20 bg-secondary/50" id="meet-our-staffs">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Our Pastors</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Meet our dedicated spiritual leaders who guide and shepherd our congregation
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
-            {ministries.pastors.map((member, index) => (
-              <StaffCard key={index} {...member} />
-            ))}
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>;
