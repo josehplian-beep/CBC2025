@@ -14,11 +14,11 @@ interface StaffCardProps {
 const StaffCard = ({ name, role, image, email, phone, profileLink }: StaffCardProps) => {
   const content = (
     <div className="flex flex-col items-center text-center">
-      <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-4 overflow-hidden">
+      <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 mb-4 overflow-hidden border-2 border-border transition-all duration-300 group-hover:border-primary group-hover:shadow-xl group-hover:scale-105">
         {image ? (
-          <img src={image} alt={name} className="w-full h-full object-cover object-[center_35%] scale-150" />
+          <img src={image} alt={name} className="w-full h-full object-contain p-2 transition-transform duration-300" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl font-display text-primary">
+          <div className="w-full h-full flex items-center justify-center text-5xl font-display text-primary">
             {name.charAt(0)}
           </div>
         )}
