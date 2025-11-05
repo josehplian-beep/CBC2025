@@ -157,11 +157,11 @@ const StaffBiography = () => {
             </Button>
           </div>
           
-          <div className={`max-w-none space-y-6 transition-all ${
-            enlargedText ? "text-xl font-semibold leading-loose" : "text-base leading-loose"
+          <div className={`max-w-none space-y-4 transition-all ${
+            enlargedText ? "text-xl leading-relaxed" : "text-base leading-relaxed"
           }`}>
             {staff.biography_content.split('\n\n').map((paragraph, idx) => (
-              <p key={idx} className="italic text-foreground/90">
+              <p key={idx} className="text-foreground indent-8 text-justify">
                 {paragraph}
               </p>
             ))}
