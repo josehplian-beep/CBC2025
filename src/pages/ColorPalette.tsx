@@ -80,23 +80,13 @@ const ColorPalette = () => {
   };
 
   const colors = [
-    { name: 'Primary', var: '--primary', value: 'hsl(221.2 83.2% 53.3%)' },
-    { name: 'Primary Foreground', var: '--primary-foreground', value: 'hsl(210 40% 98%)' },
-    { name: 'Secondary', var: '--secondary', value: 'hsl(210 40% 96.1%)' },
-    { name: 'Secondary Foreground', var: '--secondary-foreground', value: 'hsl(222.2 47.4% 11.2%)' },
-    { name: 'Accent', var: '--accent', value: 'hsl(210 40% 96.1%)' },
-    { name: 'Accent Foreground', var: '--accent-foreground', value: 'hsl(222.2 47.4% 11.2%)' },
-    { name: 'Destructive', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' },
-    { name: 'Destructive Foreground', var: '--destructive-foreground', value: 'hsl(210 40% 98%)' },
-    { name: 'Muted', var: '--muted', value: 'hsl(210 40% 96.1%)' },
-    { name: 'Muted Foreground', var: '--muted-foreground', value: 'hsl(215.4 16.3% 46.9%)' },
-    { name: 'Background', var: '--background', value: 'hsl(0 0% 100%)' },
-    { name: 'Foreground', var: '--foreground', value: 'hsl(222.2 84% 4.9%)' },
-    { name: 'Card', var: '--card', value: 'hsl(0 0% 100%)' },
-    { name: 'Card Foreground', var: '--card-foreground', value: 'hsl(222.2 84% 4.9%)' },
-    { name: 'Border', var: '--border', value: 'hsl(214.3 31.8% 91.4%)' },
-    { name: 'Input', var: '--input', value: 'hsl(214.3 31.8% 91.4%)' },
-    { name: 'Ring', var: '--ring', value: 'hsl(221.2 83.2% 53.3%)' }
+    { name: 'Primary (Brand Blue)', var: '--primary', value: 'hsl(221.2 83.2% 53.3%)' },
+    { name: 'Background (White)', var: '--background', value: 'hsl(0 0% 100%)' },
+    { name: 'Foreground (Dark Text)', var: '--foreground', value: 'hsl(222.2 84% 4.9%)' },
+    { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 40% 96.1%)' },
+    { name: 'Muted Foreground (Gray Text)', var: '--muted-foreground', value: 'hsl(215.4 16.3% 46.9%)' },
+    { name: 'Border (Light Gray)', var: '--border', value: 'hsl(214.3 31.8% 91.4%)' },
+    { name: 'Destructive (Red)', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' }
   ];
 
   useEffect(() => {
