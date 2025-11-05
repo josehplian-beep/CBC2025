@@ -3,7 +3,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Quote, Share2 } from "lucide-react";
+import { Plus, Edit, Trash2, Quote, Share2, Facebook, Instagram, Link2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -185,17 +186,20 @@ const Testimonials = () => {
     setDialogOpen(true);
   };
 
-  const shareTestimonial = (testimonial: Testimonial) => {
-    if (navigator.share) {
-      navigator.share({
-        title: testimonial.title,
-        text: testimonial.content,
-        url: window.location.href
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard');
-    }
+  const shareToFacebook = (testimonial: Testimonial) => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`${testimonial.title} - ${testimonial.content.substring(0, 100)}...`);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+  };
+
+  const shareToInstagram = () => {
+    toast.info('Instagram does not support direct link sharing. Please copy the link and share in your Instagram story or bio.');
+    navigator.clipboard.writeText(window.location.href);
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied to clipboard');
   };
 
   return (
@@ -249,14 +253,31 @@ const Testimonials = () => {
                         <Quote className="w-8 h-8 text-primary mb-2" />
                         <h3 className="text-xl font-bold mb-2">{testimonial.title}</h3>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => shareTestimonial(testimonial)}
-                        className="flex-shrink-0"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex-shrink-0"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => shareToFacebook(testimonial)}>
+                            <Facebook className="w-4 h-4 mr-2" />
+                            Share to Facebook
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={shareToInstagram}>
+                            <Instagram className="w-4 h-4 mr-2" />
+                            Share to Instagram
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={copyLink}>
+                            <Link2 className="w-4 h-4 mr-2" />
+                            Copy Link
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                     <div className="text-foreground/90 leading-loose space-y-3">
                       {testimonial.content.split('\n\n').map((paragraph, idx) => (
