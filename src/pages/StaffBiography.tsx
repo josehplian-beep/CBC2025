@@ -161,7 +161,7 @@ const StaffBiography = () => {
             enlargedText ? "text-xl font-semibold leading-loose" : "text-base leading-loose"
           }`}>
             {staff.biography_content.split('\n\n').map((paragraph, idx) => (
-              <p key={idx} className="pl-4 border-l-2 border-primary/30 italic text-foreground/90">
+              <p key={idx} className="italic text-foreground/90">
                 {paragraph}
               </p>
             ))}
