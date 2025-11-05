@@ -530,8 +530,8 @@ const AdminStaff = () => {
               />
               {formData.biography_content && (
                 <div className="mt-3 p-4 border rounded-lg bg-muted/30">
-                  <p className="text-sm font-semibold mb-2 text-muted-foreground">Preview (as shown on Biography page):</p>
-                  <div className="max-w-none text-base leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>
+                  <p className="text-sm font-semibold mb-2 text-muted-foreground">Preview:</p>
+                  <div className="max-w-none space-y-4 text-base leading-relaxed">
                     {formData.biography_content.split('\n\n').map((paragraph, idx) => {
                       const isBullet = paragraph.trimStart().startsWith('•');
                       const isSectionHeading = paragraph.match(/^\*\*[^*]+\*\*$/);
@@ -539,7 +539,7 @@ const AdminStaff = () => {
                       
                       if (isSectionHeading) {
                         return (
-                          <h3 key={idx} className="font-bold text-lg mt-6 mb-2" style={{ marginTop: idx === 0 ? '0' : '1.5rem' }}>
+                          <h3 key={idx} className="font-bold text-lg mt-6 mb-2">
                             {paragraph.slice(2, -2)}
                           </h3>
                         );
@@ -547,7 +547,7 @@ const AdminStaff = () => {
                       
                       if (isBullet) {
                         return (
-                          <li key={idx} className="text-foreground ml-6 list-disc" style={{ marginBottom: '0.5rem' }}>
+                          <li key={idx} className="text-foreground ml-6 list-disc">
                             {parts.map((part, partIdx) => {
                               if (part.startsWith('**') && part.endsWith('**')) {
                                 return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
@@ -561,7 +561,7 @@ const AdminStaff = () => {
                       }
                       
                       return (
-                        <p key={idx} className="text-foreground" style={{ marginBottom: '1rem' }}>
+                        <p key={idx} className="text-foreground">
                           {parts.map((part, partIdx) => {
                             if (part.startsWith('**') && part.endsWith('**')) {
                               return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
