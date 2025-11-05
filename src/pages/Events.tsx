@@ -228,24 +228,26 @@ const Events = () => {
                 Close
               </Button>
             </div>
-            <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
+            <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8">
               {/* Large Calendar */}
-              <Card className="p-6 border-2 shadow-xl">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    setSelectedDate(date);
-                    setWeekFilter(undefined);
-                  }}
-                  className="rounded-lg border-2 pointer-events-auto scale-150 shadow-lg mx-auto"
-                  modifiers={{
-                    hasEvent: eventDates
-                  }}
-                  modifiersClassNames={{
-                    hasEvent: "relative bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:scale-110 transition-all duration-200"
-                  }}
-                />
+              <Card className="p-8 border-2 shadow-xl">
+                <div className="flex items-center justify-center min-h-[500px]">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      setSelectedDate(date);
+                      setWeekFilter(undefined);
+                    }}
+                    className="rounded-lg pointer-events-auto w-full max-w-2xl"
+                    modifiers={{
+                      hasEvent: eventDates
+                    }}
+                    modifiersClassNames={{
+                      hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
+                    }}
+                  />
+                </div>
               </Card>
 
               {/* Events Slider */}
@@ -342,7 +344,7 @@ const Events = () => {
                       </button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6">
                     <Calendar
                       mode="single"
                       selected={selectedDate}
@@ -350,12 +352,12 @@ const Events = () => {
                         setSelectedDate(date);
                         setWeekFilter(undefined);
                       }}
-                      className="rounded-lg border-2 pointer-events-auto scale-110 shadow-sm"
+                      className="rounded-lg mx-auto w-full"
                       modifiers={{
                         hasEvent: eventDates
                       }}
                       modifiersClassNames={{
-                        hasEvent: "relative bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:scale-110 transition-all duration-200"
+                        hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
                       }}
                     />
                     <div className="mt-6 space-y-2 px-2">
