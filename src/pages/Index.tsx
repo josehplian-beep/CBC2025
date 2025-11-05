@@ -101,9 +101,11 @@ const Index = () => {
           <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">
             "Bawipa kan cungah aa lawmh ahcun" 14:8
           </p>
-          <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-            Join Us This Sunday
-          </Button>
+          <Link to="/media">
+            <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+              Join Us This Sunday
+            </Button>
+          </Link>
           
           {/* Social Media Icons */}
           <div className="flex justify-center gap-4 mt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
