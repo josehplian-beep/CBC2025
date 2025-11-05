@@ -40,7 +40,7 @@ const Index = () => {
       .select('*')
       .gte('date_obj', new Date().toISOString())
       .order('date_obj', { ascending: true })
-      .limit(6);
+      .limit(3);
     
     if (!error && data) {
       setUpcomingEvents(data);
