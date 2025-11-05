@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { toast } from "sonner";
 import { Pencil, Trash2, Upload } from "lucide-react";
 
@@ -27,6 +28,9 @@ const AdminDepartments = () => {
   const [editingMember, setEditingMember] = useState<DepartmentMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
+  const [currentMemberId, setCurrentMemberId] = useState<string>("");
 
   const departments = [
     { value: "deacons", label: "Deacons" },
@@ -62,20 +66,31 @@ const AdminDepartments = () => {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, memberId: string) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>, memberId: string) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+      setCurrentMemberId(memberId);
+      setCropDialogOpen(true);
+    };
+    
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedImage = async (croppedImage: Blob) => {
     setUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${memberId}-${Date.now()}.${fileExt}`;
+      const fileName = `${currentMemberId}-${Date.now()}.jpg`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("department-photos")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, croppedImage, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -86,7 +101,7 @@ const AdminDepartments = () => {
       const { error: updateError } = await supabase
         .from("department_members")
         .update({ profile_image_url: publicUrl })
-        .eq("id", memberId);
+        .eq("id", currentMemberId);
 
       if (updateError) throw updateError;
 
@@ -251,7 +266,7 @@ const AdminDepartments = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleImageUpload(e, member.id)}
+                    onChange={(e) => handleImageSelect(e, member.id)}
                   />
                   <Button
                     variant="outline"
@@ -284,6 +299,13 @@ const AdminDepartments = () => {
       </div>
 
       <Footer />
+      
+      <ImageCropDialog
+        open={cropDialogOpen}
+        onOpenChange={setCropDialogOpen}
+        imageSrc={imageToCrop}
+        onCropComplete={handleCroppedImage}
+      />
     </div>
   );
 };
