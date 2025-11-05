@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye } from "lucide-react";
 import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
@@ -24,6 +24,9 @@ const Events = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [fullscreenCalendar, setFullscreenCalendar] = useState(false);
+  const [viewEventDialog, setViewEventDialog] = useState(false);
+  const [viewingEvent, setViewingEvent] = useState<any>(null);
 
   useEffect(() => {
     checkAdminStatus();
@@ -131,6 +134,34 @@ const Events = () => {
     setEventToDelete(null);
   };
 
+  const shareEventToCalendar = (event: any) => {
+    // Generate ICS file for calendar apps
+    const startDate = format(event.dateObj, "yyyyMMdd");
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Chin Bethel Church//Events//EN',
+      'BEGIN:VEVENT',
+      `UID:${event.id}@chinbethelchurch.org`,
+      `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
+      `DTSTART:${startDate}`,
+      `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description || ''}`,
+      `LOCATION:${event.location}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${event.title.replace(/\s+/g, '-')}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Calendar event downloaded');
+  };
+
   let filteredEvents = events;
   
   if (weekFilter) {
@@ -174,11 +205,114 @@ const Events = () => {
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <CalendarIcon className="w-12 h-12 mx-auto mb-3" />
           <h1 className="font-display text-4xl md:text-5xl font-bold">Church Calendar</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFullscreenCalendar(!fullscreenCalendar)}
+            className="mt-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
+          >
+            {fullscreenCalendar ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}
+            {fullscreenCalendar ? 'Exit' : 'Expand'} Calendar View
+          </Button>
         </div>
       </section>
 
+      {/* Fullscreen Calendar View */}
+      {fullscreenCalendar && (
+        <section className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-auto">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold">Calendar View</h2>
+              <Button onClick={() => setFullscreenCalendar(false)}>
+                <Minimize2 className="w-4 h-4 mr-2" />
+                Close
+              </Button>
+            </div>
+            <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
+              {/* Large Calendar */}
+              <Card className="p-6 border-2 shadow-xl">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    setSelectedDate(date);
+                    setWeekFilter(undefined);
+                  }}
+                  className="rounded-lg border-2 pointer-events-auto scale-150 shadow-lg mx-auto"
+                  modifiers={{
+                    hasEvent: eventDates
+                  }}
+                  modifiersClassNames={{
+                    hasEvent: "relative bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:scale-110 transition-all duration-200"
+                  }}
+                />
+              </Card>
+
+              {/* Events Slider */}
+              <Card className="border-2 shadow-xl max-h-[600px] overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 sticky top-0 z-10">
+                  <CardTitle>
+                    {selectedDate ? format(selectedDate, 'MMMM dd, yyyy') : 'All Events'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-y-auto max-h-[520px] space-y-3 p-4">
+                  {filteredEvents.length === 0 ? (
+                    <div className="text-center py-12">
+                      <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-muted-foreground">No events found</p>
+                    </div>
+                  ) : (
+                    filteredEvents.map((event, index) => (
+                      <Card key={index} className="hover:shadow-lg transition-all duration-200 border-2">
+                        <CardContent className="p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <h3 className="font-semibold">{event.title}</h3>
+                            <Badge className={typeColors[event.type]}>{event.type}</Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <div className="flex items-center gap-2">
+                              <CalendarIcon className="w-3 h-3" />
+                              {event.date}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-3 h-3" />
+                              {event.time}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => {
+                                setViewingEvent(event);
+                                setViewEventDialog(true);
+                              }}
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              View Event
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => shareEventToCalendar(event)}
+                            >
+                              <Share2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Main Content with Sidebar */}
-      <section className="py-8 bg-background">
+      <section className={`py-8 bg-background ${fullscreenCalendar ? 'hidden' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
@@ -391,6 +525,28 @@ const Events = () => {
                           </div>
                         </div>
 
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => {
+                              setViewingEvent(event);
+                              setViewEventDialog(true);
+                            }}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Event
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => shareEventToCalendar(event)}
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
                         {isAdmin && (
                           <div className="flex gap-2">
                             <Button 
@@ -444,6 +600,75 @@ const Events = () => {
           </Button>
         </div>
       </section>
+
+      {/* View Event Dialog */}
+      <AlertDialog open={viewEventDialog} onOpenChange={setViewEventDialog}>
+        <AlertDialogContent className="max-w-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl">{viewingEvent?.title}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-base">
+                  <Badge className={typeColors[viewingEvent?.type]}>{viewingEvent?.type}</Badge>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CalendarIcon className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Date</p>
+                      <p className="text-muted-foreground">{viewingEvent?.date}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Time</p>
+                      <p className="text-muted-foreground">{viewingEvent?.time}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Location</p>
+                      <p className="text-muted-foreground">{viewingEvent?.location}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {viewingEvent?.description && (
+                  <div className="pt-4 border-t">
+                    <p className="font-semibold mb-2">Description</p>
+                    <p className="text-muted-foreground">{viewingEvent.description}</p>
+                  </div>
+                )}
+
+                {viewingEvent?.image_url && (
+                  <div className="pt-4">
+                    <img 
+                      src={viewingEvent.image_url} 
+                      alt={viewingEvent.title}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => shareEventToCalendar(viewingEvent)}
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Add to Calendar
+            </Button>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <EventDialog 
         open={dialogOpen}
