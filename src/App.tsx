@@ -19,6 +19,8 @@ import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
 import Testimonials from "./pages/Testimonials";
 import ColorPalette from "./pages/ColorPalette";
+import AdminStaff from "./pages/AdminStaff";
+import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
@@ -50,6 +52,8 @@ const App = () => (
           <Route path="/departments" element={<Departments />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/admin/color-palette" element={<ColorPalette />} />
+          <Route path="/admin/staff" element={<AdminStaff />} />
+          <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

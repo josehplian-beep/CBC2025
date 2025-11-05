@@ -235,6 +235,63 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_biographies: {
+        Row: {
+          biography_content: string
+          children_count: number | null
+          created_at: string | null
+          display_order: number | null
+          email: string | null
+          hobbies: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          ministry_focus: string[] | null
+          name: string
+          phone: string | null
+          role: string
+          slug: string
+          spouse_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          biography_content: string
+          children_count?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          email?: string | null
+          hobbies?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          ministry_focus?: string[] | null
+          name: string
+          phone?: string | null
+          role: string
+          slug: string
+          spouse_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          biography_content?: string
+          children_count?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          email?: string | null
+          hobbies?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          ministry_focus?: string[] | null
+          name?: string
+          phone?: string | null
+          role?: string
+          slug?: string
+          spouse_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           author_name: string

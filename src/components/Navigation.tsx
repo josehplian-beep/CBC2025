@@ -62,7 +62,6 @@ const Navigation = () => {
   };
 
   const navLinks = [
-    { name: "Media", path: "/media" },
     { name: "Events", path: "/events" },
     { name: "Get Involved", path: "/get-involved" },
     { name: "Member Directory", path: "/members" },
@@ -72,6 +71,11 @@ const Navigation = () => {
     { name: "About", path: "/about" },
     { name: "Our Staffs", path: "/about#meet-our-staffs" },
     { name: "Departments", path: "/departments" },
+  ];
+
+  const mediaSubLinks = [
+    { name: "Media Gallery", path: "/media" },
+    { name: "Testimonials", path: "/testimonials" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -151,6 +155,25 @@ const Navigation = () => {
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
+                    Media
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      {mediaSubLinks.map((link) => (
+                        <NavigationMenuLink key={link.path} asChild>
+                          <Link
+                            to={link.path}
+                            className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
             {navLinks.map((link) => (
@@ -173,6 +196,11 @@ const Navigation = () => {
                     <Link to="/admin/albums">
                       <Button size="sm" variant="ghost">
                         Manage Albums
+                      </Button>
+                    </Link>
+                    <Link to="/admin/staff">
+                      <Button size="sm" variant="ghost">
+                        Manage Staff
                       </Button>
                     </Link>
                     <Link to="/admin/color-palette">
@@ -248,6 +276,19 @@ const Navigation = () => {
                   </Link>
                 ))}
               </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-muted-foreground px-2">Media</span>
+                {mediaSubLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium transition-colors hover:text-primary pl-6 text-muted-foreground"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -269,6 +310,11 @@ const Navigation = () => {
                       <Link to="/admin/albums" onClick={() => setIsOpen(false)}>
                         <Button size="sm" variant="ghost" className="w-full">
                           Manage Albums
+                        </Button>
+                      </Link>
+                      <Link to="/admin/staff" onClick={() => setIsOpen(false)}>
+                        <Button size="sm" variant="ghost" className="w-full">
+                          Manage Staff
                         </Button>
                       </Link>
                       <Link to="/admin/color-palette" onClick={() => setIsOpen(false)}>
