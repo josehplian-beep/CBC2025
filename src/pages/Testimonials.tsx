@@ -258,7 +258,13 @@ const Testimonials = () => {
                         <Share2 className="w-4 h-4" />
                       </Button>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed">{testimonial.content}</p>
+                    <div className="text-foreground/90 leading-loose space-y-3">
+                      {testimonial.content.split('\n\n').map((paragraph, idx) => (
+                        <p key={idx} className="pl-4 border-l-2 border-primary/30 italic">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
                     <div className="pt-4 border-t">
                       <p className="font-semibold">{testimonial.author_name}</p>
                       {testimonial.author_role && (
