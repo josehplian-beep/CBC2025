@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Bold, Italic, AtSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ const AdminStaff = () => {
   const [staffToDelete, setStaffToDelete] = useState<StaffBiography | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -241,6 +242,44 @@ const AdminStaff = () => {
     setDialogOpen(true);
   };
 
+  const insertTextFormat = (prefix: string, suffix: string = '') => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = formData.biography_content.substring(start, end);
+    const beforeText = formData.biography_content.substring(0, start);
+    const afterText = formData.biography_content.substring(end);
+
+    const newText = beforeText + prefix + selectedText + suffix + afterText;
+    setFormData({ ...formData, biography_content: newText });
+
+    // Set cursor position after insertion
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
+  const insertSymbol = (symbol: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const beforeText = formData.biography_content.substring(0, start);
+    const afterText = formData.biography_content.substring(start);
+
+    const newText = beforeText + symbol + afterText;
+    setFormData({ ...formData, biography_content: newText });
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + symbol.length, start + symbol.length);
+    }, 0);
+  };
+
   if (!isAdmin) {
     return (
       <AdminLayout>
@@ -406,7 +445,82 @@ const AdminStaff = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="biography">Biography Content *</Label>
+              <div className="flex gap-1 mb-2 flex-wrap">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertTextFormat('**', '**')}
+                  title="Bold"
+                >
+                  <Bold className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertTextFormat('*', '*')}
+                  title="Italic"
+                >
+                  <Italic className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('•')}
+                  title="Bullet"
+                >
+                  •
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('→')}
+                  title="Arrow"
+                >
+                  →
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('✓')}
+                  title="Checkmark"
+                >
+                  ✓
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('★')}
+                  title="Star"
+                >
+                  ★
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('❤')}
+                  title="Heart"
+                >
+                  ❤
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertSymbol('✝')}
+                  title="Cross"
+                >
+                  ✝
+                </Button>
+              </div>
               <Textarea
+                ref={textareaRef}
                 id="biography"
                 required
                 value={formData.biography_content}
