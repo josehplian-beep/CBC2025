@@ -253,14 +253,11 @@ const AdminDepartments = () => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {members.map(member => (
-            <Card key={member.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{member.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="aspect-square bg-muted rounded-lg overflow-hidden">
+            <Card key={member.id} className="overflow-hidden">
+              <CardContent className="p-3 space-y-2">
+                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
                   {member.profile_image_url ? (
                     <img 
                       src={member.profile_image_url} 
@@ -268,25 +265,34 @@ const AdminDepartments = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl font-bold">
+                    <div className="w-full h-full flex items-center justify-center text-lg font-bold">
                       {member.name.split(" ").map(n => n[0]).join("")}
                     </div>
                   )}
                 </div>
-                <p className="text-muted-foreground">{member.role}</p>
                 
-                <div className="flex gap-2">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-sm truncate" title={member.name}>
+                    {member.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground truncate" title={member.role}>
+                    {member.role}
+                  </p>
+                </div>
+                
+                <div className="flex gap-1">
                   <Label htmlFor={`upload-${member.id}`} className="flex-1">
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="w-full"
+                      size="sm"
+                      className="w-full text-xs"
                       disabled={uploading}
                       asChild
                     >
                       <span>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Photo
+                        <Upload className="w-3 h-3 mr-1" />
+                        Photo
                       </span>
                     </Button>
                   </Label>
@@ -299,31 +305,34 @@ const AdminDepartments = () => {
                   />
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
+                    className="px-2"
                     onClick={() => {
                       setEditingMember(member);
                       setIsDialogOpen(true);
                     }}
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="w-3 h-3" />
                   </Button>
                   {member.profile_image_url ? (
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
+                      className="px-2"
                       onClick={() => handleDeletePhoto(member)}
                       title="Delete photo"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </Button>
                   ) : (
                     <Button
                       variant="outline"
-                      size="icon"
+                      size="sm"
+                      className="px-2"
                       onClick={() => handleDeleteMember(member.id)}
                       title="Delete member"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </Button>
                   )}
                 </div>
