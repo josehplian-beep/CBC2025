@@ -161,11 +161,19 @@ const StaffBiography = () => {
             enlargedText ? "text-xl leading-relaxed" : "text-base leading-relaxed"
           }`}>
             {staff.biography_content.split('\n\n').map((paragraph, idx) => {
+              // Check if this is a bullet list item
+              const isBullet = paragraph.trimStart().startsWith('•');
+              
               // Parse markdown-style formatting
               const parts = paragraph.split(/(\*\*.*?\*\*|\*.*?\*)/g);
               
+              const Element = isBullet ? 'li' : 'p';
+              const className = isBullet 
+                ? "text-foreground ml-0" 
+                : "text-foreground indent-8 text-justify";
+              
               return (
-                <p key={idx} className="text-foreground indent-8 text-justify">
+                <Element key={idx} className={className}>
                   {parts.map((part, partIdx) => {
                     if (part.startsWith('**') && part.endsWith('**')) {
                       return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
@@ -174,7 +182,7 @@ const StaffBiography = () => {
                     }
                     return <span key={partIdx}>{part}</span>;
                   })}
-                </p>
+                </Element>
               );
             })}
           </div>
