@@ -163,7 +163,14 @@ const StaffBiography = () => {
             }`}
             style={{ whiteSpace: 'pre-wrap' }}
           >
-            {staff.biography_content}
+            {staff.biography_content.split(/(\*\*.*?\*\*|\*.*?\*)/g).map((part, idx) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={idx}>{part.slice(2, -2)}</strong>;
+              } else if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) {
+                return <em key={idx}>{part.slice(1, -1)}</em>;
+              }
+              return <span key={idx}>{part}</span>;
+            })}
           </div>
 
           {staff.spouse_name && (
