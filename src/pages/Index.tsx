@@ -35,13 +35,15 @@ const Index = () => {
   };
 
   const fetchEvents = async () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Start of today
-    
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0); // Start of today in UTC
+
+    const orFilter = `date_obj.gte.${todayUtc.toISOString()},title.ilike.*Sunday Service*`;
+
     const { data, error } = await supabase
       .from('events' as any)
       .select('*')
-      .gte('date_obj', today.toISOString())
+      .or(orFilter)
       .order('date_obj', { ascending: true })
       .limit(3);
     
