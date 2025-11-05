@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -98,6 +98,26 @@ const departmentMembers = [
 export const MigrateDepartments = () => {
   const [loading, setLoading] = useState(false);
   const [migrated, setMigrated] = useState(false);
+  const [showMigration, setShowMigration] = useState(false);
+
+  useEffect(() => {
+    checkIfMigrationNeeded();
+  }, []);
+
+  const checkIfMigrationNeeded = async () => {
+    try {
+      const { count, error } = await supabase
+        .from("department_members")
+        .select("*", { count: 'exact', head: true });
+
+      if (error) throw error;
+
+      // Only show migration if there are no members in the database
+      setShowMigration((count || 0) === 0);
+    } catch (error) {
+      console.error("Error checking migration status:", error);
+    }
+  };
 
   const handleMigrate = async () => {
     setLoading(true);
@@ -111,6 +131,7 @@ export const MigrateDepartments = () => {
 
       toast.success(`Successfully migrated ${data?.length} department members!`);
       setMigrated(true);
+      setTimeout(() => setShowMigration(false), 2000);
     } catch (error: any) {
       console.error("Migration error:", error);
       toast.error(`Migration failed: ${error.message}`);
@@ -118,6 +139,8 @@ export const MigrateDepartments = () => {
       setLoading(false);
     }
   };
+
+  if (!showMigration) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 p-4 bg-card border rounded-lg shadow-lg">
