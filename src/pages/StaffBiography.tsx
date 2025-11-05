@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ const StaffBiography = () => {
   const navigate = useNavigate();
   const [staff, setStaff] = useState<StaffBiography | null>(null);
   const [loading, setLoading] = useState(true);
+  const [enlargedText, setEnlargedText] = useState(false);
 
   useEffect(() => {
     fetchStaffBiography();
@@ -143,9 +144,22 @@ const StaffBiography = () => {
       {/* Biography Section */}
       <section className="py-20">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h2 className="font-display text-3xl font-bold mb-8">Biography</h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-3xl font-bold">Biography</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEnlargedText(!enlargedText)}
+              className="flex items-center gap-2"
+            >
+              <Type className="w-4 h-4" />
+              {enlargedText ? "Normal Text" : "Enlarge Text"}
+            </Button>
+          </div>
           
-          <div className="prose prose-lg max-w-none space-y-6 text-muted-foreground whitespace-pre-wrap">
+          <div className={`prose max-w-none space-y-6 text-muted-foreground whitespace-pre-wrap transition-all ${
+            enlargedText ? "text-xl font-semibold leading-relaxed" : "prose-lg"
+          }`}>
             {staff.biography_content}
           </div>
 
