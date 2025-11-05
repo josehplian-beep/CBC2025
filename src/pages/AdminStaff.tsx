@@ -526,7 +526,20 @@ const AdminStaff = () => {
                 value={formData.biography_content}
                 onChange={(e) => setFormData({ ...formData, biography_content: e.target.value })}
                 rows={8}
+                placeholder="Type your biography here. Use double line breaks (press Enter twice) to create new paragraphs."
               />
+              {formData.biography_content && (
+                <div className="mt-3 p-4 border rounded-lg bg-muted/30">
+                  <p className="text-sm font-semibold mb-2 text-muted-foreground">Preview:</p>
+                  <div className="max-w-none space-y-4 text-base leading-relaxed">
+                    {formData.biography_content.split('\n\n').map((paragraph, idx) => (
+                      <p key={idx} className="text-foreground indent-8 text-justify">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="ministry_focus">Ministry Focus (one per line)</Label>
