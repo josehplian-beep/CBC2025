@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AdminLayout } from "@/components/AdminLayout";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -201,10 +201,8 @@ const AdminDepartments = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="container mx-auto px-4 py-20 mt-20">
+    <AdminLayout>
+      <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Manage Department Members</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -348,15 +346,13 @@ const AdminDepartments = () => {
         )}
       </div>
 
-      <Footer />
-      
       <ImageCropDialog
         open={cropDialogOpen}
         onOpenChange={setCropDialogOpen}
         imageSrc={imageToCrop}
         onCropComplete={handleCroppedImage}
       />
-    </div>
+    </AdminLayout>
   );
 };
 

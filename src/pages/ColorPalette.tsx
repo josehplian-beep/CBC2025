@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette, Copy, Check } from "lucide-react";
@@ -126,21 +125,36 @@ const ColorPalette = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <AdminLayout>
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!isAdmin) {
-    return null;
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader className="text-center">
+              <CardTitle>Admin Access Required</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+                Return Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AdminLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
+    <AdminLayout>
+      <section className="relative h-[200px] flex items-center justify-center overflow-hidden bg-gradient-to-r from-primary to-primary/80">
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <Palette className="w-12 h-12 mx-auto mb-3" />
           <h1 className="font-display text-4xl md:text-5xl font-bold">Color Palette</h1>
@@ -242,9 +256,7 @@ const ColorPalette = () => {
           </Card>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -336,20 +335,18 @@ const AdminAlbums = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center mt-20">
+      <AdminLayout>
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 mt-20">
+      <AdminLayout>
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive" />
@@ -365,15 +362,13 @@ const AdminAlbums = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="container mx-auto px-4 py-24">
+    <AdminLayout>
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="font-display text-4xl font-bold mb-2">Manage Albums</h1>
@@ -588,9 +583,7 @@ const AdminAlbums = () => {
           </div>
         )}
       </div>
-
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 };
 

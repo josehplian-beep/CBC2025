@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
@@ -243,14 +242,27 @@ const AdminStaff = () => {
   };
 
   if (!isAdmin) {
-    return null;
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader className="text-center">
+              <CardTitle>Admin Access Required</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+                Return Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AdminLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <section className="pt-32 pb-16 bg-gradient-to-r from-primary to-primary/80">
+    <AdminLayout>
+      <section className="pt-8 pb-8 bg-gradient-to-r from-primary to-primary/80">
         <div className="container mx-auto px-4">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground">
             Manage Staff Biographies
@@ -499,9 +511,7 @@ const AdminStaff = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 };
 
