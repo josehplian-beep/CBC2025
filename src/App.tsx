@@ -24,6 +24,7 @@ import AdminStaff from "./pages/AdminStaff";
 import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
+import AdminDepartments from "./pages/AdminDepartments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/admin/color-palette" element={<ColorPalette />} />
           <Route path="/admin/staff" element={<AdminStaff />} />
+          <Route path="/admin/departments" element={<AdminDepartments />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
