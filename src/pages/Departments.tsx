@@ -5,6 +5,7 @@ import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { MigrateDepartments } from "@/components/MigrateDepartments";
 import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
@@ -111,6 +112,7 @@ const Departments = () => {
       </section>
 
       <Footer />
+      <MigrateDepartments />
     </div>
   );
 };
