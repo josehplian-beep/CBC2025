@@ -164,16 +164,37 @@ const StaffBiography = () => {
               // Check if this is a bullet list item
               const isBullet = paragraph.trimStart().startsWith('•');
               
+              // Check if this is a section heading (bold text on its own line)
+              const isSectionHeading = paragraph.match(/^\*\*[^*]+\*\*$/);
+              
               // Parse markdown-style formatting
               const parts = paragraph.split(/(\*\*.*?\*\*|\*.*?\*)/g);
               
-              const Element = isBullet ? 'li' : 'p';
-              const className = isBullet 
-                ? "text-foreground ml-0" 
-                : "text-foreground indent-8 text-justify";
+              if (isSectionHeading) {
+                return (
+                  <h3 key={idx} className="font-bold text-lg mt-6 mb-2">
+                    {paragraph.slice(2, -2)}
+                  </h3>
+                );
+              }
+              
+              if (isBullet) {
+                return (
+                  <li key={idx} className="text-foreground ml-6 list-disc">
+                    {parts.map((part, partIdx) => {
+                      if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+                      } else if (part.startsWith('*') && part.endsWith('*')) {
+                        return <em key={partIdx}>{part.slice(1, -1)}</em>;
+                      }
+                      return <span key={partIdx}>{part}</span>;
+                    })}
+                  </li>
+                );
+              }
               
               return (
-                <Element key={idx} className={className}>
+                <p key={idx} className="text-foreground">
                   {parts.map((part, partIdx) => {
                     if (part.startsWith('**') && part.endsWith('**')) {
                       return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
@@ -182,7 +203,7 @@ const StaffBiography = () => {
                     }
                     return <span key={partIdx}>{part}</span>;
                   })}
-                </Element>
+                </p>
               );
             })}
           </div>
