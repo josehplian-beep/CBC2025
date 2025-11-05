@@ -14,6 +14,71 @@ const ColorPalette = () => {
   const [copiedColor, setCopiedColor] = useState<string>('');
   const navigate = useNavigate();
 
+  const hslToHex = (hsl: string): string => {
+    const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
+    if (!match) return '#000000';
+    
+    const h = parseFloat(match[1]) / 360;
+    const s = parseFloat(match[2]) / 100;
+    const l = parseFloat(match[3]) / 100;
+    
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    
+    const toHex = (x: number) => {
+      const hex = Math.round(x * 255).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+  };
+
+  const hslToRgb = (hsl: string): string => {
+    const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
+    if (!match) return 'rgb(0, 0, 0)';
+    
+    const h = parseFloat(match[1]) / 360;
+    const s = parseFloat(match[2]) / 100;
+    const l = parseFloat(match[3]) / 100;
+    
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    
+    return `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+  };
+
   const colors = [
     { name: 'Primary', var: '--primary', value: 'hsl(221.2 83.2% 53.3%)' },
     { name: 'Primary Foreground', var: '--primary-foreground', value: 'hsl(210 40% 98%)' },
@@ -121,13 +186,21 @@ const ColorPalette = () => {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="font-semibold text-sm mb-1">{color.name}</p>
-                          <p className="text-xs text-muted-foreground font-mono break-all">
-                            {color.var}
-                          </p>
-                          <p className="text-xs text-muted-foreground font-mono mt-1 break-all">
-                            {color.value}
-                          </p>
+                          <p className="font-semibold text-sm mb-2">{color.name}</p>
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-semibold">Hex:</span>{' '}
+                              <span className="font-mono">{hslToHex(color.value)}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-semibold">RGB:</span>{' '}
+                              <span className="font-mono">{hslToRgb(color.value)}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-semibold">HSL:</span>{' '}
+                              <span className="font-mono break-all">{color.value}</span>
+                            </p>
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
