@@ -38,14 +38,14 @@ export function AdminSidebar() {
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
       ? "bg-primary text-primary-foreground font-medium" 
-      : "hover:bg-muted/50";
+      : "text-foreground hover:bg-muted/50";
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
 
       <SidebarContent>
-        <SidebarGroup>
+        <SidebarGroup className="text-foreground">
           <SidebarGroupLabel>Admin Panel</SidebarGroupLabel>
 
           <SidebarGroupContent>
@@ -62,7 +62,7 @@ export function AdminSidebar() {
               ))}
               
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleSignOut}>
+                <SidebarMenuButton onClick={handleSignOut} className="text-foreground hover:bg-muted/50">
                   <LogOut className="h-4 w-4" />
                   {!isCollapsed && <span>Sign Out</span>}
                 </SidebarMenuButton>
