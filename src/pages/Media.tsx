@@ -174,7 +174,7 @@ const Media = () => {
 
       <Tabs defaultValue="videos" className="w-full py-20">
         <div className="container mx-auto px-4">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-12">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-12">
             <TabsTrigger value="videos" className="flex items-center gap-2">
               <Video className="w-4 h-4" />
               Videos
@@ -186,10 +186,6 @@ const Media = () => {
             <TabsTrigger value="albums" className="flex items-center gap-2">
               <Images className="w-4 h-4" />
               Albums
-            </TabsTrigger>
-            <TabsTrigger value="testimonials" className="flex items-center gap-2" onClick={() => window.location.href = '/testimonials'}>
-              <Video className="w-4 h-4" />
-              Testimonials
             </TabsTrigger>
           </TabsList>
 
