@@ -157,55 +157,13 @@ const StaffBiography = () => {
             </Button>
           </div>
           
-          <div className={`max-w-none space-y-4 transition-all ${
-            enlargedText ? "text-xl leading-relaxed" : "text-base leading-relaxed"
-          }`}>
-            {staff.biography_content.split('\n\n').map((paragraph, idx) => {
-              // Check if this is a bullet list item
-              const isBullet = paragraph.trimStart().startsWith('•');
-              
-              // Check if this is a section heading (bold text on its own line)
-              const isSectionHeading = paragraph.match(/^\*\*[^*]+\*\*$/);
-              
-              // Parse markdown-style formatting
-              const parts = paragraph.split(/(\*\*.*?\*\*|\*.*?\*)/g);
-              
-              if (isSectionHeading) {
-                return (
-                  <h3 key={idx} className="font-bold text-lg mt-6 mb-2">
-                    {paragraph.slice(2, -2)}
-                  </h3>
-                );
-              }
-              
-              if (isBullet) {
-                return (
-                  <li key={idx} className="text-foreground ml-6 list-disc">
-                    {parts.map((part, partIdx) => {
-                      if (part.startsWith('**') && part.endsWith('**')) {
-                        return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
-                      } else if (part.startsWith('*') && part.endsWith('*')) {
-                        return <em key={partIdx}>{part.slice(1, -1)}</em>;
-                      }
-                      return <span key={partIdx}>{part}</span>;
-                    })}
-                  </li>
-                );
-              }
-              
-              return (
-                <p key={idx} className="text-foreground">
-                  {parts.map((part, partIdx) => {
-                    if (part.startsWith('**') && part.endsWith('**')) {
-                      return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
-                    } else if (part.startsWith('*') && part.endsWith('*')) {
-                      return <em key={partIdx}>{part.slice(1, -1)}</em>;
-                    }
-                    return <span key={partIdx}>{part}</span>;
-                  })}
-                </p>
-              );
-            })}
+          <div 
+            className={`max-w-none transition-all ${
+              enlargedText ? "text-xl leading-relaxed" : "text-base leading-relaxed"
+            }`}
+            style={{ whiteSpace: 'pre-wrap' }}
+          >
+            {staff.biography_content}
           </div>
 
           {staff.spouse_name && (
