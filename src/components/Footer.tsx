@@ -58,12 +58,16 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">Service Times</h3>
             <div className="space-y-3 text-sm">
               <div>
-                <p className="font-medium">Saturday Service</p>
+                <p className="font-medium">Sunday Service</p>
+                <p className="text-primary-foreground/80">1:00 PM - 3:00 PM</p>
+              </div>
+              <div>
+                <p className="font-medium">Wednesday Service</p>
                 <p className="text-primary-foreground/80">7:00 PM - 9:00 PM</p>
               </div>
               <div>
-                <p className="font-medium">Sunday Service</p>
-                <p className="text-primary-foreground/80">1:00 PM - 3:00 PM</p>
+                <p className="font-medium">Saturday Service</p>
+                <p className="text-primary-foreground/80">7:00 PM - 9:00 PM</p>
               </div>
             </div>
           </div>
