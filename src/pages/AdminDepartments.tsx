@@ -31,6 +31,7 @@ const AdminDepartments = () => {
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>("");
   const [currentMemberId, setCurrentMemberId] = useState<string>("");
+  const [deduping, setDeduping] = useState(false);
 
   const departments = [
     { value: "deacons", label: "Deacons" },
@@ -161,6 +162,65 @@ const AdminDepartments = () => {
       toast.error("Failed to delete member");
     }
   };
+  
+  const removeDuplicates = async () => {
+    if (!confirm("Remove duplicate names (per department), keeping the best entry?")) return;
+    setDeduping(true);
+    try {
+      const { data, error } = await supabase
+        .from("department_members")
+        .select("id, name, department, created_at, display_order")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      type Row = { id: string; name: string; department: string; created_at: string | null; display_order: number | null };
+      const map = new Map<string, { id: string; order: number; created: string }>();
+      const toDelete: string[] = [];
+
+      (data as Row[] | null)?.forEach((row) => {
+        const key = `${row.name}__${row.department}`;
+        const created = row.created_at || "1970-01-01T00:00:00Z";
+        const order = row.display_order ?? 0;
+        const current = map.get(key);
+        if (!current) {
+          map.set(key, { id: row.id, order, created });
+        } else {
+          const isBetter = order < current.order || (order === current.order && created < current.created);
+          if (isBetter) {
+            toDelete.push(current.id);
+            map.set(key, { id: row.id, order, created });
+          } else {
+            toDelete.push(row.id);
+          }
+        }
+      });
+
+      if (toDelete.length === 0) {
+        toast.info("No duplicates found");
+        return;
+      }
+
+      // Delete in chunks to avoid payload limits
+      const chunkSize = 100;
+      for (let i = 0; i < toDelete.length; i += chunkSize) {
+        const chunk = toDelete.slice(i, i + chunkSize);
+        const { error: delError } = await supabase
+          .from("department_members")
+          .delete()
+          .in("id", chunk);
+        if (delError) throw delError;
+      }
+
+      toast.success(`Removed ${toDelete.length} duplicate entr${toDelete.length === 1 ? "y" : "ies"}`);
+      fetchMembers();
+    } catch (err) {
+      console.error("Error removing duplicates:", err);
+      toast.error("Failed to remove duplicates");
+    } finally {
+      setDeduping(false);
+    }
+  };
 
   const handleSaveMember = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -205,14 +265,18 @@ const AdminDepartments = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Manage Department Members</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingMember(null)}>Add Member</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingMember ? "Edit" : "Add"} Member</DialogTitle>
-              </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={removeDuplicates} disabled={deduping}>
+              {deduping ? "Removing duplicates..." : "Remove Duplicates"}
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingMember(null)}>Add Member</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingMember ? "Edit" : "Add"} Member</DialogTitle>
+                </DialogHeader>
               <form onSubmit={handleSaveMember} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Name</Label>
@@ -236,8 +300,9 @@ const AdminDepartments = () => {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
 
-        <div className="mb-6">
+      <div className="mb-6">
           <Label>Select Department</Label>
           <Select value={selectedDept} onValueChange={setSelectedDept}>
             <SelectTrigger className="w-64">
