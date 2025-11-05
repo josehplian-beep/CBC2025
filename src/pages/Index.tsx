@@ -35,10 +35,13 @@ const Index = () => {
   };
 
   const fetchEvents = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
     const { data, error } = await supabase
       .from('events' as any)
       .select('*')
-      .gte('date_obj', new Date().toISOString())
+      .gte('date_obj', today.toISOString())
       .order('date_obj', { ascending: true })
       .limit(3);
     
