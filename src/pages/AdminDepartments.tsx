@@ -115,6 +115,35 @@ const AdminDepartments = () => {
     }
   };
 
+  const handleDeletePhoto = async (member: DepartmentMember) => {
+    if (!confirm(`Delete photo for ${member.name}?`)) return;
+
+    try {
+      // Delete from storage if exists
+      if (member.profile_image_url) {
+        const fileName = member.profile_image_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from("department-photos")
+            .remove([fileName]);
+        }
+      }
+
+      // Remove URL from database
+      const { error } = await supabase
+        .from("department_members")
+        .update({ profile_image_url: null })
+        .eq("id", member.id);
+
+      if (error) throw error;
+      toast.success("Photo deleted successfully");
+      fetchMembers();
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+      toast.error("Failed to delete photo");
+    }
+  };
+
   const handleDeleteMember = async (id: string) => {
     if (!confirm("Are you sure you want to delete this member?")) return;
 
@@ -278,13 +307,25 @@ const AdminDepartments = () => {
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDeleteMember(member.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {member.profile_image_url ? (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleDeletePhoto(member)}
+                      title="Delete photo"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleDeleteMember(member.id)}
+                      title="Delete member"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
