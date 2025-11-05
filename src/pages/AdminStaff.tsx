@@ -155,7 +155,7 @@ const AdminStaff = () => {
         children_count: formData.children_count ? parseInt(formData.children_count) : null,
         hobbies: formData.hobbies || null,
         slug: formData.slug,
-        display_order: parseInt(formData.display_order),
+        display_order: parseInt(formData.display_order) || 0,
         is_published: formData.is_published
       };
 
@@ -235,7 +235,7 @@ const AdminStaff = () => {
       children_count: staffMember.children_count?.toString() || '',
       hobbies: staffMember.hobbies || '',
       slug: staffMember.slug,
-      display_order: staffMember.display_order.toString(),
+      display_order: (staffMember.display_order ?? 0).toString(),
       is_published: staffMember.is_published
     });
     setImagePreview(staffMember.image_url || '');
