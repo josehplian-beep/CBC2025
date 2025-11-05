@@ -28,14 +28,14 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         head_row: "flex justify-around mb-2",
         head_cell: "text-muted-foreground rounded-md w-12 font-semibold text-sm",
         row: "flex w-full justify-around mt-1",
-        cell: "h-12 w-12 text-center p-0 relative hover:bg-accent/20 rounded-lg transition-all duration-200",
+        cell: "h-12 w-12 text-center p-0 relative transition-all duration-200",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-12 w-12 p-0 font-semibold text-base hover:bg-accent hover:scale-110 transition-all duration-200 cursor-pointer"
+          "h-12 w-12 p-0 font-semibold text-base hover:bg-accent/20 hover:rounded-xl transition-all duration-200 cursor-pointer"
         ),
         day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground scale-105 shadow-lg",
+          "bg-[hsl(var(--primary))] text-primary-foreground hover:bg-[hsl(var(--primary))] hover:text-primary-foreground focus:bg-[hsl(var(--primary))] focus:text-primary-foreground rounded-xl border-2 border-[hsl(var(--primary))]/20",
         day_today: "bg-accent text-accent-foreground font-bold border-2 border-primary",
         day_outside:
           "day-outside text-muted-foreground/40 hover:text-muted-foreground/60",
