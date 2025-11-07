@@ -153,4 +153,8 @@ All colors MUST be HSL.
       opacity: 0.55;
     }
   }
+
+  #lovable-badge {
+    display: none !important;
+  }
 }
