@@ -1,0 +1,4 @@
+project_id = "auztoefiuddwerfbpcpm"
+
+[functions.youtube-search]
+verify_jwt = false

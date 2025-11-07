@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 45% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 45% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 45% 20%;
+
+    --primary: 210 45% 25%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 92%;
+    --secondary-foreground: 210 45% 20%;
+
+    --muted: 210 10% 90%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 50% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 210 45% 25%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar tokens (for Admin layout) */
+    --sidebar-background: 220 15% 25%;
+    --sidebar-foreground: 210 10% 95%;
+    --sidebar-primary: 210 50% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 30%;
+    --sidebar-accent-foreground: 210 10% 95%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 210 50% 50%;
+
+    /* Custom design tokens */
+    --hero-gradient: linear-gradient(135deg, hsl(210 45% 25%) 0%, hsl(210 50% 35%) 100%);
+    --accent-gradient: linear-gradient(135deg, hsl(210 50% 40%) 0%, hsl(210 55% 50%) 100%);
+    --overlay-gradient: linear-gradient(180deg, rgba(33, 51, 74, 0.5) 0%, rgba(33, 51, 74, 0.8) 100%);
+    
+    --shadow-soft: 0 2px 8px rgba(33, 51, 74, 0.08);
+    --shadow-medium: 0 4px 16px rgba(33, 51, 74, 0.12);
+    --shadow-large: 0 8px 32px rgba(33, 51, 74, 0.16);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 210 35% 8%;
+    --foreground: 210 10% 95%;
+
+    --card: 210 30% 12%;
+    --card-foreground: 210 10% 95%;
+
+    --popover: 210 30% 12%;
+    --popover-foreground: 210 10% 95%;
+
+    --primary: 210 50% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 18%;
+    --secondary-foreground: 210 10% 95%;
+
+    --muted: 210 20% 18%;
+    --muted-foreground: 210 10% 65%;
+
+    --accent: 210 55% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 20%;
+    --input: 210 20% 20%;
+    --ring: 210 50% 50%;
+
+    /* Sidebar tokens - dark */
+    --sidebar-background: 210 20% 12%;
+    --sidebar-foreground: 210 10% 95%;
+    --sidebar-primary: 210 50% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 18%;
+    --sidebar-accent-foreground: 210 10% 95%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 210 50% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  @keyframes haze-float-1 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(100px, -80px) scale(1.2);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes haze-float-2 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translate(-120px, 100px) scale(1.3);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes haze-float-3 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.25;
+    }
+    50% {
+      transform: translate(80px, 60px) scale(1.15);
+      opacity: 0.45;
+    }
+  }
+
+  @keyframes haze-float-4 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.35;
+    }
+    50% {
+      transform: translate(-90px, -70px) scale(1.25);
+      opacity: 0.55;
+    }
+  }
+
+  #lovable-badge {
+    display: none !important;
+  }
+}
