@@ -142,7 +142,7 @@ const Events = () => {
       'VERSION:2.0',
       'PRODID:-//Chin Bethel Church//Events//EN',
       'BEGIN:VEVENT',
-      `UID:${event.id}@chinbethelchurch.org`,
+      `UID:${event.id}@chinbethelchurch.com`,
       `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
       `DTSTART:${startDate}`,
       `SUMMARY:${event.title}`,
