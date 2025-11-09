@@ -196,12 +196,6 @@ const Events = () => {
 
   const eventDates = events.map(e => e.dateObj);
 
-  // Function to check if a date is a service day (Wednesday, Saturday, or Sunday)
-  const isServiceDay = (date: Date) => {
-    const day = date.getDay();
-    return day === 0 || day === 3 || day === 6; // 0 = Sunday, 3 = Wednesday, 6 = Saturday
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -247,12 +241,10 @@ const Events = () => {
                     }}
                     className="rounded-lg pointer-events-auto w-full max-w-2xl"
                     modifiers={{
-                      hasEvent: eventDates,
-                      serviceDay: (date) => isServiceDay(date)
+                      hasEvent: eventDates
                     }}
                     modifiersClassNames={{
-                      hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4",
-                      serviceDay: "bg-accent/30 font-semibold"
+                      hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
                     }}
                   />
                 </div>
@@ -367,12 +359,10 @@ const Events = () => {
                       }}
                       className="rounded-lg mx-auto w-full pointer-events-auto"
                       modifiers={{
-                        hasEvent: eventDates,
-                        serviceDay: (date) => isServiceDay(date)
+                        hasEvent: eventDates
                       }}
                       modifiersClassNames={{
-                        hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4",
-                        serviceDay: "bg-accent/30 font-semibold"
+                        hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
                       }}
                     />
                     <div className="mt-6 space-y-2 px-2">
