@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye } from "lucide-react";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -580,30 +579,25 @@ const Members = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      {/* Hero Section */}
-      <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-primary">
-        <div className="relative z-10 text-center text-primary-foreground px-4">
-          <User className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-2">Member Directory</h1>
-          <p className="text-lg text-primary-foreground/90">
-            Connect with our church family
-          </p>
+    <div className="p-6">
+      {/* Page Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <User className="w-8 h-8 text-primary" />
+          <h1 className="font-display text-3xl font-bold">Member Directory</h1>
         </div>
-      </section>
+        <p className="text-muted-foreground">
+          Connect with our church family
+        </p>
+      </div>
 
       {/* Upcoming Birthdays */}
-      <section className="py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <UpcomingBirthdays />
-        </div>
-      </section>
+      <div className="mb-8">
+        <UpcomingBirthdays />
+      </div>
 
       {/* Members Directory */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
+      <div>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h2 className="font-display text-2xl font-bold">
               {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
@@ -1341,10 +1335,10 @@ const Members = () => {
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          {/* Search and Filter Controls */}
+          <div className="flex gap-2 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, email, or phone..."
                 value={searchQuery}
@@ -1352,24 +1346,57 @@ const Members = () => {
                 className="pl-10"
               />
             </div>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Filter by city..."
-                value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Filter by county..."
-                value={countyFilter}
-                onChange={(e) => setCountyFilter(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <h4 className="font-medium leading-none">Filter Options</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="city-filter">City</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="city-filter"
+                        placeholder="Filter by city..."
+                        value={cityFilter}
+                        onChange={(e) => setCityFilter(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="county-filter">County</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="county-filter"
+                        placeholder="Filter by county..."
+                        value={countyFilter}
+                        onChange={(e) => setCountyFilter(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  {(cityFilter || countyFilter) && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        setCityFilter("");
+                        setCountyFilter("");
+                      }}
+                      className="w-full"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {members.length === 0 ? (
@@ -1457,11 +1484,13 @@ const Members = () => {
                           <div className="flex justify-end gap-2">
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
                               onClick={() => navigate(`/members/${member.id}`)}
                               title="View profile"
+                              className="gap-2"
                             >
                               <Eye className="w-4 h-4" />
+                              <span>View Profile</span>
                             </Button>
                             {isAdmin && (
                               <>
@@ -1494,7 +1523,7 @@ const Members = () => {
             </Card>
           )}
         </div>
-      </section>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
@@ -1513,8 +1542,6 @@ const Members = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Footer />
     </div>
   );
 };
