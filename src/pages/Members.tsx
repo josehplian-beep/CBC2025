@@ -14,7 +14,70 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import * as XLSX from 'xlsx';
+
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+  "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+  "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+  "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
+
+const memberFormSchema = z.object({
+  first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
+  last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
+  email: z.string().email("Invalid email address").max(255, "Email must be less than 255 characters").optional().or(z.literal("")),
+  area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
+  phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
+  street_address: z.string().max(200, "Street address must be less than 200 characters").optional().or(z.literal("")),
+  street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
+  city: z.string().max(100, "City must be less than 100 characters").optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  county: z.string().max(100, "County must be less than 100 characters").optional().or(z.literal("")),
+  postal_code: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)").optional().or(z.literal("")),
+  birth_month: z.string().optional().or(z.literal("")),
+  birth_day: z.string().optional().or(z.literal("")),
+  birth_year: z.string().optional().or(z.literal("")),
+  church_groups: z.string().max(500, "Church groups must be less than 500 characters").optional().or(z.literal(""))
+}).refine((data) => {
+  // If area code is provided, phone number must be provided and vice versa
+  if (data.area_code && !data.phone_number) return false;
+  if (data.phone_number && !data.area_code) return false;
+  return true;
+}, {
+  message: "Both area code and phone number must be provided together",
+  path: ["phone_number"]
+}).refine((data) => {
+  // If any birth field is provided, all must be provided
+  const hasAnyBirthField = data.birth_month || data.birth_day || data.birth_year;
+  const hasAllBirthFields = data.birth_month && data.birth_day && data.birth_year;
+  if (hasAnyBirthField && !hasAllBirthFields) return false;
+  return true;
+}, {
+  message: "All birth date fields (month, day, year) must be provided",
+  path: ["birth_year"]
+}).refine((data) => {
+  // Validate birth date is a valid date
+  if (data.birth_month && data.birth_day && data.birth_year) {
+    const month = parseInt(data.birth_month);
+    const day = parseInt(data.birth_day);
+    const year = parseInt(data.birth_year);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+  }
+  return true;
+}, {
+  message: "Invalid birth date",
+  path: ["birth_day"]
+});
 
 interface Member {
   id: string;
@@ -36,24 +99,29 @@ const Members = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newMember, setNewMember] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    area_code: "",
-    phone_number: "",
-    street_address: "",
-    street_address_line2: "",
-    city: "",
-    state: "",
-    postal_code: "",
-    birth_month: "",
-    birth_day: "",
-    birth_year: "",
-    church_groups: ""
-  });
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const form = useForm<z.infer<typeof memberFormSchema>>({
+    resolver: zodResolver(memberFormSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      area_code: "",
+      phone_number: "",
+      street_address: "",
+      street_address_line2: "",
+      city: "",
+      state: "",
+      county: "",
+      postal_code: "",
+      birth_month: "",
+      birth_day: "",
+      birth_year: "",
+      church_groups: ""
+    }
+  });
 
   useEffect(() => {
     checkAccessAndLoadMembers();
@@ -137,33 +205,34 @@ const Members = () => {
     setFilteredMembers(filtered);
   }, [searchQuery, groupFilter, members]);
 
-  const handleAddMember = async () => {
+  const handleAddMember = async (values: z.infer<typeof memberFormSchema>) => {
     try {
-      const churchGroupsArray = newMember.church_groups
-        .split(',')
-        .map(g => g.trim())
-        .filter(g => g.length > 0);
+      const churchGroupsArray = values.church_groups
+        ? values.church_groups.split(',').map(g => g.trim()).filter(g => g.length > 0)
+        : [];
 
       // Combine name fields
-      const fullName = `${newMember.first_name} ${newMember.last_name}`.trim();
+      const fullName = `${values.first_name} ${values.last_name}`.trim();
       
-      // Combine address fields
+      // Combine address fields - include county if provided
       const addressParts = [
-        newMember.street_address,
-        newMember.street_address_line2,
-        [newMember.city, newMember.state].filter(Boolean).join(', '),
-        newMember.postal_code
+        values.street_address,
+        values.street_address_line2,
+        values.city,
+        values.county ? `${values.county} County` : null,
+        values.state,
+        values.postal_code
       ].filter(Boolean);
       const fullAddress = addressParts.join(', ');
       
       // Combine phone fields
-      const fullPhone = newMember.area_code && newMember.phone_number 
-        ? `${newMember.area_code}-${newMember.phone_number}`
+      const fullPhone = values.area_code && values.phone_number 
+        ? `${values.area_code}-${values.phone_number}`
         : null;
       
       // Combine birth date fields
-      const birthDate = newMember.birth_year && newMember.birth_month && newMember.birth_day
-        ? `${newMember.birth_year}-${newMember.birth_month.padStart(2, '0')}-${newMember.birth_day.padStart(2, '0')}`
+      const birthDate = values.birth_year && values.birth_month && values.birth_day
+        ? `${values.birth_year}-${values.birth_month.padStart(2, '0')}-${values.birth_day.padStart(2, '0')}`
         : null;
 
       const { error } = await supabase
@@ -172,7 +241,7 @@ const Members = () => {
           name: fullName,
           address: fullAddress || null,
           phone: fullPhone,
-          email: newMember.email || null,
+          email: values.email || null,
           date_of_birth: birthDate,
           church_groups: churchGroupsArray.length > 0 ? churchGroupsArray : null
         }]);
@@ -185,22 +254,7 @@ const Members = () => {
       });
 
       setIsAddDialogOpen(false);
-      setNewMember({
-        first_name: "",
-        last_name: "",
-        email: "",
-        area_code: "",
-        phone_number: "",
-        street_address: "",
-        street_address_line2: "",
-        city: "",
-        state: "",
-        postal_code: "",
-        birth_month: "",
-        birth_day: "",
-        birth_year: "",
-        church_groups: ""
-      });
+      form.reset();
       
       checkAccessAndLoadMembers();
     } catch (error: unknown) {
@@ -357,194 +411,284 @@ const Members = () => {
                       Add Member
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Member</DialogTitle>
                       <DialogDescription>
-                        Add a new member to the church directory
+                        Add a new member to the church directory. Fields marked with * are required.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      {/* Name Section */}
-                      <div>
-                        <Label className="text-sm font-semibold">Name</Label>
-                        <div className="grid grid-cols-2 gap-4 mt-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="first_name" className="text-xs text-muted-foreground">First Name</Label>
-                            <Input
-                              id="first_name"
-                              value={newMember.first_name}
-                              onChange={(e) => setNewMember({ ...newMember, first_name: e.target.value })}
-                              required
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(handleAddMember)} className="space-y-4 py-4">
+                        {/* Name Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Name *</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="first_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="last_name" className="text-xs text-muted-foreground">Last Name</Label>
-                            <Input
-                              id="last_name"
-                              value={newMember.last_name}
-                              onChange={(e) => setNewMember({ ...newMember, last_name: e.target.value })}
-                              required
+                            <FormField
+                              control={form.control}
+                              name="last_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
                           </div>
                         </div>
-                      </div>
 
-                      {/* Email Section */}
-                      <div className="grid gap-2">
-                        <Label htmlFor="email" className="text-sm font-semibold">E-mail</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={newMember.email}
-                          onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                          placeholder="ex: myname@example.com"
-                          className="text-sm"
+                        {/* Email Section */}
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold">E-mail</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="email" placeholder="ex: myname@example.com" />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">example@example.com</p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                        <p className="text-xs text-muted-foreground">example@example.com</p>
-                      </div>
 
-                      {/* Phone Number Section */}
-                      <div>
-                        <Label className="text-sm font-semibold">Phone Number</Label>
-                        <div className="grid grid-cols-3 gap-4 mt-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="area_code" className="text-xs text-muted-foreground">Area Code</Label>
-                            <Input
-                              id="area_code"
-                              type="tel"
-                              value={newMember.area_code}
-                              onChange={(e) => setNewMember({ ...newMember, area_code: e.target.value })}
-                              maxLength={3}
+                        {/* Phone Number Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Phone Number</Label>
+                          <div className="grid grid-cols-3 gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="area_code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Area Code</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="tel" maxLength={3} placeholder="123" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
-                          </div>
-                          <div className="grid gap-2 col-span-2">
-                            <Label htmlFor="phone_number" className="text-xs text-muted-foreground">Phone Number</Label>
-                            <Input
-                              id="phone_number"
-                              type="tel"
-                              value={newMember.phone_number}
-                              onChange={(e) => setNewMember({ ...newMember, phone_number: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Address Section */}
-                      <div>
-                        <Label className="text-sm font-semibold">Address</Label>
-                        <div className="grid gap-3 mt-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="street_address" className="text-xs text-muted-foreground">Street Address</Label>
-                            <Input
-                              id="street_address"
-                              value={newMember.street_address}
-                              onChange={(e) => setNewMember({ ...newMember, street_address: e.target.value })}
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="street_address_line2" className="text-xs text-muted-foreground">Street Address Line 2</Label>
-                            <Input
-                              id="street_address_line2"
-                              value={newMember.street_address_line2}
-                              onChange={(e) => setNewMember({ ...newMember, street_address_line2: e.target.value })}
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="city" className="text-xs text-muted-foreground">City</Label>
-                              <Input
-                                id="city"
-                                value={newMember.city}
-                                onChange={(e) => setNewMember({ ...newMember, city: e.target.value })}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="state" className="text-xs text-muted-foreground">State / Province</Label>
-                              <Input
-                                id="state"
-                                value={newMember.state}
-                                onChange={(e) => setNewMember({ ...newMember, state: e.target.value })}
+                            <div className="col-span-2">
+                              <FormField
+                                control={form.control}
+                                name="phone_number"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">Phone Number</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} type="tel" placeholder="4567890" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
                               />
                             </div>
                           </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="postal_code" className="text-xs text-muted-foreground">Postal / Zip Code</Label>
-                            <Input
-                              id="postal_code"
-                              value={newMember.postal_code}
-                              onChange={(e) => setNewMember({ ...newMember, postal_code: e.target.value })}
+                        </div>
+
+                        {/* Address Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Address</Label>
+                          <div className="grid gap-3 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="street_address"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="123 Main Street" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="street_address_line2"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="Apt, Suite, Unit, etc." />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="county"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., Howard" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="state"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select a state" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="max-h-[300px]">
+                                        {US_STATES.map((state) => (
+                                          <SelectItem key={state} value={state}>
+                                            {state}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="postal_code"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="12345 or 12345-6789" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Birth Date Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Birth Date</Label>
+                          <div className="grid grid-cols-3 gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="birth_month"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Month</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1" max="12" placeholder="MM" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="birth_day"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Day</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1" max="31" placeholder="DD" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="birth_year"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Year</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1900" max={new Date().getFullYear()} placeholder="YYYY" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
                             />
                           </div>
                         </div>
-                      </div>
 
-                      {/* Birth Date Section */}
-                      <div>
-                        <Label className="text-sm font-semibold">Birth Date</Label>
-                        <div className="grid grid-cols-3 gap-4 mt-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="birth_month" className="text-xs text-muted-foreground">Month</Label>
-                            <Input
-                              id="birth_month"
-                              type="number"
-                              min="1"
-                              max="12"
-                              value={newMember.birth_month}
-                              onChange={(e) => setNewMember({ ...newMember, birth_month: e.target.value })}
-                              placeholder="MM"
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="birth_day" className="text-xs text-muted-foreground">Day</Label>
-                            <Input
-                              id="birth_day"
-                              type="number"
-                              min="1"
-                              max="31"
-                              value={newMember.birth_day}
-                              onChange={(e) => setNewMember({ ...newMember, birth_day: e.target.value })}
-                              placeholder="DD"
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="birth_year" className="text-xs text-muted-foreground">Year</Label>
-                            <Input
-                              id="birth_year"
-                              type="number"
-                              min="1900"
-                              max={new Date().getFullYear()}
-                              value={newMember.birth_year}
-                              onChange={(e) => setNewMember({ ...newMember, birth_year: e.target.value })}
-                              placeholder="YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Church Groups Section */}
-                      <div className="grid gap-2">
-                        <Label htmlFor="church_groups" className="text-sm font-semibold">Church Groups/Activities</Label>
-                        <Textarea
-                          id="church_groups"
-                          value={newMember.church_groups}
-                          onChange={(e) => setNewMember({ ...newMember, church_groups: e.target.value })}
-                          placeholder="Youth Group, Choir, Volunteer (comma separated)"
-                          rows={3}
+                        {/* Church Groups Section */}
+                        <FormField
+                          control={form.control}
+                          name="church_groups"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold">Church Groups/Activities</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  placeholder="Youth Group, Choir, Volunteer (comma separated)"
+                                  rows={3}
+                                />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                Separate multiple groups with commas
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                        <p className="text-xs text-muted-foreground">
-                          Separate multiple groups with commas
-                        </p>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleAddMember} disabled={!newMember.first_name || !newMember.last_name}>
-                        Add Member
-                      </Button>
-                    </DialogFooter>
+
+                        <DialogFooter>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                              setIsAddDialogOpen(false);
+                              form.reset();
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit">
+                            Add Member
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
                   </DialogContent>
                 </Dialog>
               )}
