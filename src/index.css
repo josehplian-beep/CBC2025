@@ -39,7 +39,7 @@ All colors MUST be HSL.
     --radius: 0.75rem;
 
     /* Sidebar tokens (for Admin layout) */
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 214 32% 91%;
     --sidebar-foreground: 210 45% 20%;
     --sidebar-primary: 210 50% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
