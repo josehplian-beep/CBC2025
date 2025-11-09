@@ -494,7 +494,6 @@ const Members = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="min-h-[calc(100vh-80px)] flex items-center justify-center mt-20">
           <div className="text-center">
             <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
@@ -508,8 +507,6 @@ const Members = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
-        
         <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 mt-20">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
@@ -544,8 +541,6 @@ const Members = () => {
   if (!hasAccess) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
-        
         <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 mt-20">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
@@ -1523,7 +1518,6 @@ const Members = () => {
             </Card>
           )}
         </div>
-      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
