@@ -18,6 +18,11 @@ interface Member {
   email: string | null;
   date_of_birth: string | null;
   church_groups: string[] | null;
+  gender: string | null;
+  profile_image_url: string | null;
+  position: string | null;
+  ministry: string | null;
+  service_year: string | null;
 }
 
 const MemberProfile = () => {
@@ -159,81 +164,113 @@ const MemberProfile = () => {
           Back to Members
         </Button>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-3xl">{member.name}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Contact Information</h3>
+        <div className="grid md:grid-cols-[400px_1fr] gap-8">
+          {/* Left side - Profile Image */}
+          <div className="bg-muted rounded-lg overflow-hidden aspect-square flex items-center justify-center">
+            {member.profile_image_url ? (
+              <img
+                src={member.profile_image_url}
+                alt={member.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full bg-muted">
+                <Users className="w-32 h-32 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+
+          {/* Right side - Member Info */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-6">{member.name}</h1>
               
-              {member.email && (
+              {member.gender && (
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground uppercase mb-1">GENDER</p>
+                  <p className="text-base text-foreground">{member.gender}</p>
+                </div>
+              )}
+              
+              {member.phone && (
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-foreground uppercase mb-1">PHONE NUMBER</p>
+                  <p className="text-base text-foreground">{member.phone}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Position/Ministry/Year Table */}
+            {(member.position || member.ministry || member.service_year) && (
+              <div className="mt-6">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-primary text-primary-foreground">
+                      <th className="py-3 px-4 text-left font-semibold">Position</th>
+                      <th className="py-3 px-4 text-left font-semibold">Ministry</th>
+                      <th className="py-3 px-4 text-left font-semibold">Year</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="py-4 px-4">{member.position || '—'}</td>
+                      <td className="py-4 px-4">{member.ministry || '—'}</td>
+                      <td className="py-4 px-4">{member.service_year || '—'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Additional Contact Information */}
+            {member.email && (
+              <div className="pt-6 border-t">
                 <div className="flex items-start gap-3">
                   <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="text-sm font-semibold text-muted-foreground uppercase">Email</p>
                     <a href={`mailto:${member.email}`} className="text-foreground hover:text-primary">
                       {member.email}
                     </a>
                   </div>
                 </div>
-              )}
-              
-              {member.phone && (
-                <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <a href={`tel:${member.phone}`} className="text-foreground hover:text-primary">
-                      {member.phone}
-                    </a>
+              </div>
+            )}
+            
+            {member.address && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-muted-foreground uppercase">Address</p>
+                  <div className="text-foreground space-y-1">
+                    {address.street && <p>{address.street}</p>}
+                    <p>
+                      {address.city && `${address.city}, `}
+                      {address.county && `${address.county} County, `}
+                      {address.state} {address.zip}
+                    </p>
                   </div>
                 </div>
-              )}
-              
-              {member.address && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Address</p>
-                    <div className="text-foreground space-y-1">
-                      {address.street && <p>{address.street}</p>}
-                      <p>
-                        {address.city && `${address.city}, `}
-                        {address.county && `${address.county} County, `}
-                        {address.state} {address.zip}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Personal Information */}
-            <div className="space-y-4 pt-6 border-t">
-              <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
-              
-              {member.date_of_birth && (
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Date of Birth</p>
-                    <p className="text-foreground">{formatDate(member.date_of_birth)}</p>
-                  </div>
+            {member.date_of_birth && (
+              <div className="flex items-start gap-3">
+                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-muted-foreground uppercase">Date of Birth</p>
+                  <p className="text-foreground">{formatDate(member.date_of_birth)}</p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Church Groups */}
             {member.church_groups && member.church_groups.length > 0 && (
-              <div className="space-y-4 pt-6 border-t">
+              <div className="pt-6 border-t">
                 <div className="flex items-start gap-3">
                   <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-2">Church Groups</p>
+                    <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Church Groups</p>
                     <div className="flex flex-wrap gap-2">
                       {member.church_groups.map((group, index) => (
                         <Badge key={index} variant="secondary">
@@ -245,8 +282,8 @@ const MemberProfile = () => {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

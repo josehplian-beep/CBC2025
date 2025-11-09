@@ -152,9 +152,14 @@ export type Database = {
           created_at: string | null
           date_of_birth: string | null
           email: string | null
+          gender: string | null
           id: string
+          ministry: string | null
           name: string
           phone: string | null
+          position: string | null
+          profile_image_url: string | null
+          service_year: string | null
           updated_at: string | null
         }
         Insert: {
@@ -163,9 +168,14 @@ export type Database = {
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
+          gender?: string | null
           id?: string
+          ministry?: string | null
           name: string
           phone?: string | null
+          position?: string | null
+          profile_image_url?: string | null
+          service_year?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -174,9 +184,14 @@ export type Database = {
           created_at?: string | null
           date_of_birth?: string | null
           email?: string | null
+          gender?: string | null
           id?: string
+          ministry?: string | null
           name?: string
           phone?: string | null
+          position?: string | null
+          profile_image_url?: string | null
+          service_year?: string | null
           updated_at?: string | null
         }
         Relationships: []
