@@ -5,10 +5,11 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users } from "lucide-react";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -99,6 +100,11 @@ const Members = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -205,46 +211,45 @@ const Members = () => {
     setFilteredMembers(filtered);
   }, [searchQuery, groupFilter, members]);
 
+  const parseMemberData = (values: z.infer<typeof memberFormSchema>) => {
+    const churchGroupsArray = values.church_groups
+      ? values.church_groups.split(',').map(g => g.trim()).filter(g => g.length > 0)
+      : [];
+
+    const fullName = `${values.first_name} ${values.last_name}`.trim();
+    
+    const addressParts = [
+      values.street_address,
+      values.street_address_line2,
+      values.city,
+      values.county ? `${values.county} County` : null,
+      values.state,
+      values.postal_code
+    ].filter(Boolean);
+    const fullAddress = addressParts.join(', ');
+    
+    const fullPhone = values.area_code && values.phone_number 
+      ? `${values.area_code}-${values.phone_number}`
+      : null;
+    
+    const birthDate = values.birth_year && values.birth_month && values.birth_day
+      ? `${values.birth_year}-${values.birth_month.padStart(2, '0')}-${values.birth_day.padStart(2, '0')}`
+      : null;
+
+    return {
+      name: fullName,
+      address: fullAddress || null,
+      phone: fullPhone,
+      email: values.email || null,
+      date_of_birth: birthDate,
+      church_groups: churchGroupsArray.length > 0 ? churchGroupsArray : null
+    };
+  };
+
   const handleAddMember = async (values: z.infer<typeof memberFormSchema>) => {
     try {
-      const churchGroupsArray = values.church_groups
-        ? values.church_groups.split(',').map(g => g.trim()).filter(g => g.length > 0)
-        : [];
-
-      // Combine name fields
-      const fullName = `${values.first_name} ${values.last_name}`.trim();
-      
-      // Combine address fields - include county if provided
-      const addressParts = [
-        values.street_address,
-        values.street_address_line2,
-        values.city,
-        values.county ? `${values.county} County` : null,
-        values.state,
-        values.postal_code
-      ].filter(Boolean);
-      const fullAddress = addressParts.join(', ');
-      
-      // Combine phone fields
-      const fullPhone = values.area_code && values.phone_number 
-        ? `${values.area_code}-${values.phone_number}`
-        : null;
-      
-      // Combine birth date fields
-      const birthDate = values.birth_year && values.birth_month && values.birth_day
-        ? `${values.birth_year}-${values.birth_month.padStart(2, '0')}-${values.birth_day.padStart(2, '0')}`
-        : null;
-
-      const { error } = await supabase
-        .from('members')
-        .insert([{
-          name: fullName,
-          address: fullAddress || null,
-          phone: fullPhone,
-          email: values.email || null,
-          date_of_birth: birthDate,
-          church_groups: churchGroupsArray.length > 0 ? churchGroupsArray : null
-        }]);
+      const memberData = parseMemberData(values);
+      const { error } = await supabase.from('members').insert([memberData]);
 
       if (error) throw error;
 
@@ -255,7 +260,6 @@ const Members = () => {
 
       setIsAddDialogOpen(false);
       form.reset();
-      
       checkAccessAndLoadMembers();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -264,6 +268,181 @@ const Members = () => {
         description: message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEditMember = (member: Member) => {
+    // Parse existing data to populate form
+    const nameParts = member.name.split(' ');
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(' ') || "";
+    
+    const phoneParts = member.phone?.split('-') || [];
+    const areaCode = phoneParts[0] || "";
+    const phoneNumber = phoneParts.slice(1).join('-') || "";
+    
+    // Parse address
+    const addressParts = member.address?.split(', ') || [];
+    let streetAddress = "";
+    let streetAddressLine2 = "";
+    let city = "";
+    let county = "";
+    let state = "";
+    let postalCode = "";
+    
+    if (addressParts.length > 0) {
+      streetAddress = addressParts[0] || "";
+      if (addressParts.length > 1) streetAddressLine2 = addressParts[1] || "";
+      if (addressParts.length > 2) city = addressParts[2] || "";
+      if (addressParts.length > 3) {
+        const countyPart = addressParts[3] || "";
+        county = countyPart.replace(' County', '');
+      }
+      if (addressParts.length > 4) state = addressParts[4] || "";
+      if (addressParts.length > 5) postalCode = addressParts[5] || "";
+    }
+    
+    // Parse birth date
+    const birthParts = member.date_of_birth?.split('-') || [];
+    const birthYear = birthParts[0] || "";
+    const birthMonth = birthParts[1] || "";
+    const birthDay = birthParts[2] || "";
+    
+    form.reset({
+      first_name: firstName,
+      last_name: lastName,
+      email: member.email || "",
+      area_code: areaCode,
+      phone_number: phoneNumber,
+      street_address: streetAddress,
+      street_address_line2: streetAddressLine2,
+      city: city,
+      state: state,
+      county: county,
+      postal_code: postalCode,
+      birth_month: birthMonth,
+      birth_day: birthDay,
+      birth_year: birthYear,
+      church_groups: member.church_groups?.join(', ') || ""
+    });
+    
+    setSelectedMember(member);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateMember = async (values: z.infer<typeof memberFormSchema>) => {
+    if (!selectedMember) return;
+    
+    try {
+      const memberData = parseMemberData(values);
+      const { error } = await supabase
+        .from('members')
+        .update(memberData)
+        .eq('id', selectedMember.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Member updated successfully",
+      });
+
+      setIsEditDialogOpen(false);
+      setSelectedMember(null);
+      form.reset();
+      checkAccessAndLoadMembers();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('members')
+        .delete()
+        .eq('id', memberToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Member deleted successfully",
+      });
+
+      setMemberToDelete(null);
+      checkAccessAndLoadMembers();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      const membersToImport = jsonData.map((row: any) => {
+        const churchGroups = row['Church Groups'] 
+          ? String(row['Church Groups']).split(',').map((g: string) => g.trim())
+          : null;
+
+        return {
+          name: row['Name'] || '',
+          email: row['Email'] || null,
+          phone: row['Phone'] || null,
+          address: row['Address'] || null,
+          date_of_birth: row['Date of Birth'] || null,
+          church_groups: churchGroups
+        };
+      }).filter(m => m.name); // Only import rows with names
+
+      if (membersToImport.length === 0) {
+        throw new Error('No valid members found in the file');
+      }
+
+      const { error } = await supabase
+        .from('members')
+        .insert(membersToImport);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `${membersToImport.length} members imported successfully`,
+      });
+
+      setIsBulkImportDialogOpen(false);
+      checkAccessAndLoadMembers();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
@@ -398,19 +577,55 @@ const Members = () => {
               {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
               {(searchQuery || groupFilter) && ` (filtered from ${members.length})`}
             </h2>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button onClick={handleExportToExcel} variant="outline" disabled={filteredMembers.length === 0}>
                 <Download className="w-4 h-4 mr-2" />
                 Export to Excel
               </Button>
               {isAdmin && (
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Member
-                    </Button>
-                  </DialogTrigger>
+                <>
+                  <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Bulk Import
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Bulk Import Members</DialogTitle>
+                        <DialogDescription>
+                          Upload an Excel file to import multiple members at once. The file should have columns: Name, Email, Phone, Address, Date of Birth, Church Groups.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="bulk-import">Select Excel File</Label>
+                          <Input
+                            id="bulk-import"
+                            type="file"
+                            accept=".xlsx,.xls"
+                            onChange={handleBulkImport}
+                            disabled={isImporting}
+                          />
+                        </div>
+                        {isImporting && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Importing members...
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Member
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Member</DialogTitle>
@@ -691,6 +906,7 @@ const Members = () => {
                     </Form>
                   </DialogContent>
                 </Dialog>
+                </>
               )}
             </div>
           </div>
@@ -755,6 +971,7 @@ const Members = () => {
                       <TableHead>Date of Birth</TableHead>
                       <TableHead>Address</TableHead>
                       <TableHead>Church Groups</TableHead>
+                      {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -811,6 +1028,29 @@ const Members = () => {
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
+                        {isAdmin && (
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditMember(member)}
+                                title="Edit member"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setMemberToDelete(member)}
+                                title="Delete member"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -820,6 +1060,24 @@ const Members = () => {
           )}
         </div>
       </section>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{memberToDelete?.name}</strong> from the member directory. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMember} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Footer />
     </div>
