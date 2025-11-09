@@ -11,6 +11,7 @@ import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
+import MemberProfile from "./pages/MemberProfile";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import AdminAlbums from "./pages/AdminAlbums";
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/members/:id" element={<MemberProfile />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

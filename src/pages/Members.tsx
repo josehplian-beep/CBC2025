@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload } from "lucide-react";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -98,7 +98,8 @@ const Members = () => {
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [groupFilter, setGroupFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [countyFilter, setCountyFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -199,17 +200,22 @@ const Members = () => {
       );
     }
 
-    // Filter by church group
-    if (groupFilter) {
+    // Filter by city
+    if (cityFilter) {
       filtered = filtered.filter(member =>
-        member.church_groups?.some(group =>
-          group.toLowerCase().includes(groupFilter.toLowerCase())
-        )
+        member.address?.toLowerCase().includes(cityFilter.toLowerCase())
+      );
+    }
+
+    // Filter by county
+    if (countyFilter) {
+      filtered = filtered.filter(member =>
+        member.address?.toLowerCase().includes(countyFilter.toLowerCase())
       );
     }
 
     setFilteredMembers(filtered);
-  }, [searchQuery, groupFilter, members]);
+  }, [searchQuery, cityFilter, countyFilter, members]);
 
   const parseMemberData = (values: z.infer<typeof memberFormSchema>) => {
     const churchGroupsArray = values.church_groups
@@ -575,7 +581,7 @@ const Members = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h2 className="font-display text-2xl font-bold">
               {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-              {(searchQuery || groupFilter) && ` (filtered from ${members.length})`}
+              {(searchQuery || cityFilter || countyFilter) && ` (filtered from ${members.length})`}
             </h2>
             <div className="flex flex-wrap gap-2">
               <Button onClick={handleExportToExcel} variant="outline" disabled={filteredMembers.length === 0}>
@@ -912,7 +918,7 @@ const Members = () => {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -923,11 +929,20 @@ const Members = () => {
               />
             </div>
             <div className="relative">
-              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Filter by church group..."
-                value={groupFilter}
-                onChange={(e) => setGroupFilter(e.target.value)}
+                placeholder="Filter by city..."
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Filter by county..."
+                value={countyFilter}
+                onChange={(e) => setCountyFilter(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -971,7 +986,7 @@ const Members = () => {
                       <TableHead>Date of Birth</TableHead>
                       <TableHead>Address</TableHead>
                       <TableHead>Church Groups</TableHead>
-                      {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1028,29 +1043,39 @@ const Members = () => {
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                        {isAdmin && (
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditMember(member)}
-                                title="Edit member"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setMemberToDelete(member)}
-                                title="Delete member"
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => navigate(`/members/${member.id}`)}
+                              title="View profile"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {isAdmin && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditMember(member)}
+                                  title="Edit member"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setMemberToDelete(member)}
+                                  title="Delete member"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
