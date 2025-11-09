@@ -3,10 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, X, Download, Share2, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,6 +31,7 @@ const AlbumGallery = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -113,6 +113,82 @@ const AlbumGallery = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handlePhotoClick = (index: number) => {
+    setSelectedPhoto(index);
+    setCurrentPhotoIndex(index);
+  };
+
+  const handlePrevPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
+  };
+
+  const handleNextPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleDownload = async () => {
+    if (photos[currentPhotoIndex]) {
+      const photo = photos[currentPhotoIndex];
+      try {
+        const response = await fetch(photo.image_url);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${album?.title || 'photo'}-${currentPhotoIndex + 1}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast({
+          title: "Downloaded",
+          description: "Photo downloaded successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to download photo.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    if (photos[currentPhotoIndex]) {
+      const photo = photos[currentPhotoIndex];
+      const shareData = {
+        title: album?.title || 'Photo',
+        text: photo.caption || `Photo from ${album?.title}`,
+        url: window.location.href,
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          toast({
+            title: "Shared",
+            description: "Photo shared successfully.",
+          });
+        } catch (error) {
+          if ((error as Error).name !== 'AbortError') {
+            copyToClipboard();
+          }
+        }
+      } else {
+        copyToClipboard();
+      }
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied",
+      description: "Album link copied to clipboard.",
+    });
   };
 
   if (loading) {
@@ -208,12 +284,13 @@ const AlbumGallery = () => {
               <div
                 key={photo.id}
                 className="aspect-square rounded-lg overflow-hidden cursor-pointer group relative"
-                onClick={() => setSelectedPhoto(index)}
+                onClick={() => handlePhotoClick(index)}
               >
                 <img
                   src={photo.image_url}
                   alt={photo.caption || `Photo ${index + 1}`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
               </div>
@@ -222,48 +299,110 @@ const AlbumGallery = () => {
         )}
       </div>
 
-      {/* Lightbox Dialog */}
+      {/* Modern Photo Viewer */}
       <Dialog open={selectedPhoto !== null} onOpenChange={() => setSelectedPhoto(null)}>
-        <DialogContent className="max-w-7xl w-full h-[90vh] p-0 bg-black/95 border-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <X className="w-6 h-6" />
-          </Button>
-          
-          {selectedPhoto !== null && (
-            <Carousel
-              opts={{
-                startIndex: selectedPhoto,
-                loop: true,
-              }}
-              className="w-full h-full"
-            >
-              <CarouselContent className="h-full">
-                {photos.map((photo, index) => (
-                  <CarouselItem key={photo.id} className="h-full flex items-center justify-center p-8">
-                    <div className="relative w-full h-full flex flex-col items-center justify-center">
-                      <img
-                        src={photo.image_url}
-                        alt={photo.caption || `Photo ${index + 1}`}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                      {photo.caption && (
-                        <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-center bg-black/50 px-4 py-2 rounded-lg max-w-2xl">
-                          {photo.caption}
-                        </p>
-                      )}
+        <DialogContent className="max-w-full w-full h-full p-0 bg-black border-0 sm:max-w-full sm:h-screen">
+          <div className="relative w-full h-full flex flex-col">
+            {/* Header with controls */}
+            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                  onClick={() => setSelectedPhoto(null)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+                <span className="text-white text-sm font-medium">
+                  {currentPhotoIndex + 1} / {photos.length}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                  onClick={handleShare}
+                >
+                  <Share2 className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                  onClick={handleDownload}
+                >
+                  <Download className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Main image area */}
+            <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+              {selectedPhoto !== null && photos[currentPhotoIndex] && (
+                <div className="relative w-full h-full flex flex-col items-center justify-center">
+                  <img
+                    src={photos[currentPhotoIndex].image_url}
+                    alt={photos[currentPhotoIndex].caption || `Photo ${currentPhotoIndex + 1}`}
+                    className="max-w-full max-h-full object-contain transition-opacity duration-300"
+                  />
+                  
+                  {/* Caption */}
+                  {photos[currentPhotoIndex].caption && (
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                      <p className="text-white text-center text-sm sm:text-base">
+                        {photos[currentPhotoIndex].caption}
+                      </p>
                     </div>
-                  </CarouselItem>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Navigation buttons */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm h-10 w-10 sm:h-12 sm:w-12"
+              onClick={handlePrevPhoto}
+            >
+              <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm h-10 w-10 sm:h-12 sm:w-12"
+              onClick={handleNextPhoto}
+            >
+              <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+            </Button>
+
+            {/* Thumbnail strip for desktop */}
+            <div className="hidden sm:block absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
+                {photos.map((photo, index) => (
+                  <button
+                    key={photo.id}
+                    onClick={() => setCurrentPhotoIndex(index)}
+                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                      index === currentPhotoIndex
+                        ? 'border-white scale-110'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={photo.image_url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-4 bg-white/20 border-0 text-white hover:bg-white/30" />
-              <CarouselNext className="right-4 bg-white/20 border-0 text-white hover:bg-white/30" />
-            </Carousel>
-          )}
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
