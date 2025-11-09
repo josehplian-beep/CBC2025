@@ -25,6 +25,7 @@ import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import AdminDepartments from "./pages/AdminDepartments";
+import AdminDashboard from "./pages/AdminDashboard";
 import AlbumGallery from "./pages/AlbumGallery";
 import NotFound from "./pages/NotFound";
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/members" element={<Members />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/albums" element={<AdminAlbums />} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />

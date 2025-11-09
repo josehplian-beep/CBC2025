@@ -17,10 +17,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const adminMenuItems = [
+  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Profile", url: "/profile", icon: User },
   { title: "Manage Albums", url: "/admin/albums", icon: Image },
   { title: "Manage Staff", url: "/admin/staff", icon: Users },
-  { title: "Manage Departments", url: "/admin/departments", icon: LayoutDashboard },
+  { title: "Manage Departments", url: "/admin/departments", icon: Users },
   { title: "Color Palette", url: "/admin/color-palette", icon: Palette },
 ];
 
