@@ -38,8 +38,8 @@ export function AdminSidebar() {
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary text-primary-foreground font-medium" 
-      : "text-foreground hover:bg-muted/50";
+      ? "bg-primary text-primary-foreground font-medium shadow-sm" 
+      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors";
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -47,10 +47,12 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-foreground font-semibold">Admin Panel</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-primary font-bold text-base mb-2 px-2">
+            Admin Panel
+          </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {adminMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -62,8 +64,11 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
               
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleSignOut} className="text-foreground hover:bg-muted/50">
+              <SidebarMenuItem className="mt-4">
+                <SidebarMenuButton 
+                  onClick={handleSignOut} 
+                  className="text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                >
                   <LogOut className="h-4 w-4" />
                   {!isCollapsed && <span>Sign Out</span>}
                 </SidebarMenuButton>
