@@ -50,6 +50,22 @@ const Departments = () => {
     }
   };
 
+  const formatDepartmentName = (dept: string) => {
+    const nameMap: Record<string, string> = {
+      "deacons": "Deacon",
+      "women": "Women",
+      "youth": "Youth",
+      "children": "Children",
+      "praise-worship": "Praise & Worship",
+      "mission": "Mission",
+      "building": "Building",
+      "culture": "Culture",
+      "media": "Media",
+      "auditors": "Auditors"
+    };
+    return nameMap[dept] || dept.replace(/-/g, ' ');
+  };
+
   const fetchMembers = async () => {
     setLoading(true);
     try {
@@ -110,10 +126,10 @@ const Departments = () => {
                 <TabsTrigger 
                   key={dept} 
                   value={dept} 
-                  className="capitalize px-4 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] font-medium"
-                  title={dept.replace(/-/g, ' ')}
+                  className="px-4 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] font-medium"
+                  title={formatDepartmentName(dept)}
                 >
-                  <span className="truncate block">{dept.replace(/-/g, ' ')}</span>
+                  <span className="truncate block">{formatDepartmentName(dept)}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
