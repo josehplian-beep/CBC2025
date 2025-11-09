@@ -37,8 +37,8 @@ const EVENT_TYPES = [
 
 const RECURRING_PATTERNS = [
   { value: 'none', label: 'Does not repeat' },
-  { value: 'daily', label: 'Daily' },
   { value: 'weekly', label: 'Weekly' },
+  { value: 'biweekly', label: 'Every 2 weeks' },
   { value: 'monthly', label: 'Monthly' },
   { value: 'yearly', label: 'Yearly' }
 ];
@@ -140,7 +140,8 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         recurring_pattern: formData.recurring_pattern !== 'none' ? formData.recurring_pattern : null,
         recurring_end_date: formData.recurring_pattern !== 'none' && formData.recurring_end_date 
           ? formData.recurring_end_date 
-          : null
+          : null,
+        is_recurring_parent: formData.recurring_pattern !== 'none'
       };
 
       if (event) {
@@ -150,14 +151,66 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
           .eq("id", event.id);
         
         if (error) throw error;
-        toast.success("Event updated successfully");
+
+        // If it's a recurring event, regenerate instances
+        if (formData.recurring_pattern !== 'none' && formData.recurring_end_date) {
+          const { error: generateError } = await supabase.rpc('generate_recurring_events', {
+            p_event_id: event.id,
+            p_title: formData.title,
+            p_description: formData.description || '',
+            p_start_date: formData.date_obj,
+            p_end_date: formData.recurring_end_date,
+            p_time: formData.time,
+            p_location: formData.location,
+            p_type: formData.type,
+            p_recurring_pattern: formData.recurring_pattern,
+            p_image_url: imageUrl || null,
+            p_created_by: null
+          });
+
+          if (generateError) {
+            console.error('Error generating recurring events:', generateError);
+            toast.error('Event updated but failed to generate recurring instances');
+          } else {
+            toast.success("Event and recurring instances updated successfully");
+          }
+        } else {
+          toast.success("Event updated successfully");
+        }
       } else {
-        const { error } = await supabase
+        const { data: newEvent, error } = await supabase
           .from("events" as any)
-          .insert([eventData]);
+          .insert([eventData])
+          .select()
+          .single();
         
         if (error) throw error;
-        toast.success("Event created successfully");
+
+        // Generate recurring instances if it's a recurring event
+        if (formData.recurring_pattern !== 'none' && formData.recurring_end_date && newEvent && 'id' in newEvent) {
+          const { error: generateError } = await supabase.rpc('generate_recurring_events', {
+            p_event_id: newEvent.id as string,
+            p_title: formData.title,
+            p_description: formData.description || '',
+            p_start_date: formData.date_obj,
+            p_end_date: formData.recurring_end_date,
+            p_time: formData.time,
+            p_location: formData.location,
+            p_type: formData.type,
+            p_recurring_pattern: formData.recurring_pattern,
+            p_image_url: imageUrl || null,
+            p_created_by: null
+          });
+
+          if (generateError) {
+            console.error('Error generating recurring events:', generateError);
+            toast.error('Event created but failed to generate recurring instances');
+          } else {
+            toast.success("Event and recurring instances created successfully");
+          }
+        } else {
+          toast.success("Event created successfully");
+        }
       }
 
       onSuccess();
@@ -312,14 +365,18 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
 
             {formData.recurring_pattern !== 'none' && (
               <div className="space-y-2">
-                <Label htmlFor="recurring_end_date">Repeat Until</Label>
+                <Label htmlFor="recurring_end_date">Repeat Until *</Label>
                 <Input
                   id="recurring_end_date"
                   type="date"
                   value={formData.recurring_end_date}
                   onChange={(e) => setFormData({ ...formData, recurring_end_date: e.target.value })}
                   min={formData.date_obj}
+                  required
                 />
+                <p className="text-sm text-muted-foreground">
+                  This will automatically create event instances from {formData.date_obj && format(new Date(formData.date_obj), 'MMM d, yyyy')} until the end date.
+                </p>
               </div>
             )}
           </div>

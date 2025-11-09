@@ -89,7 +89,9 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_recurring_parent: boolean | null
           location: string
+          parent_event_id: string | null
           recurring_end_date: string | null
           recurring_pattern: string | null
           time: string
@@ -105,7 +107,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_recurring_parent?: boolean | null
           location: string
+          parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
           time: string
@@ -121,7 +125,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_recurring_parent?: boolean | null
           location?: string
+          parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
           time?: string
@@ -129,7 +135,15 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_parent_event_id_fkey"
+            columns: ["parent_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       members: {
         Row: {
@@ -357,6 +371,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_recurring_events: {
+        Args: {
+          p_created_by?: string
+          p_description: string
+          p_end_date: string
+          p_event_id: string
+          p_image_url?: string
+          p_location: string
+          p_recurring_pattern: string
+          p_start_date: string
+          p_time: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       get_album_photo_count: { Args: { album_uuid: string }; Returns: number }
       has_role: {
         Args: {

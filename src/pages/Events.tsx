@@ -277,7 +277,12 @@ const Events = () => {
                         <CardContent className="p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <h3 className="font-semibold">{event.title}</h3>
-                            <Badge className={typeColors[event.type]}>{event.type}</Badge>
+                            <div className="flex items-center gap-1">
+                              <Badge className={typeColors[event.type]}>{event.type}</Badge>
+                              {(event.is_recurring_parent || event.parent_event_id) && (
+                                <Badge variant="outline" className="text-xs">🔄</Badge>
+                              )}
+                            </div>
                           </div>
                           <div className="text-sm text-muted-foreground space-y-1">
                             <div className="flex items-center gap-2">
@@ -533,7 +538,14 @@ const Events = () => {
                         <div className="flex-1 p-6">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
-                              <Badge className={`${typeColors[event.type]} mb-2`}>{event.type}</Badge>
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <Badge className={`${typeColors[event.type]}`}>{event.type}</Badge>
+                                {(event.is_recurring_parent || event.parent_event_id) && (
+                                  <Badge variant="outline" className="text-xs">
+                                    🔄 Recurring
+                                  </Badge>
+                                )}
+                              </div>
                               <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">
                                 {event.title}
                               </h3>
@@ -543,6 +555,11 @@ const Events = () => {
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                             <CalendarIcon className="w-4 h-4 text-primary" />
                             <span className="font-medium">{event.date}</span>
+                            {event.recurring_pattern && event.recurring_pattern !== 'none' && (
+                              <span className="text-xs">
+                                • Repeats {event.recurring_pattern}
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex flex-wrap gap-4 items-center">
