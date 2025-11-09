@@ -86,8 +86,11 @@ const Index = () => {
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
           </h1>
-          <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">"Bawipa kan cungah aa lawmh ahcun"
- Num 14:8</p>
+          <p className="text-xl mb-8 text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 md:text-xl text-center">
+            "Bawipa kan cungah aa lawmh ahcun"
+            <br />
+            Num 14:8
+          </p>
           <Link to="/media">
             <Button size="lg" className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
               Join Us This Sunday
