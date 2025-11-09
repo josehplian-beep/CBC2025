@@ -151,10 +151,10 @@ export type Database = {
           church_groups: string[] | null
           created_at: string | null
           date_of_birth: string | null
+          department: string | null
           email: string | null
           gender: string | null
           id: string
-          ministry: string | null
           name: string
           phone: string | null
           position: string | null
@@ -167,10 +167,10 @@ export type Database = {
           church_groups?: string[] | null
           created_at?: string | null
           date_of_birth?: string | null
+          department?: string | null
           email?: string | null
           gender?: string | null
           id?: string
-          ministry?: string | null
           name: string
           phone?: string | null
           position?: string | null
@@ -183,10 +183,10 @@ export type Database = {
           church_groups?: string[] | null
           created_at?: string | null
           date_of_birth?: string | null
+          department?: string | null
           email?: string | null
           gender?: string | null
           id?: string
-          ministry?: string | null
           name?: string
           phone?: string | null
           position?: string | null

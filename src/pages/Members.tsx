@@ -36,6 +36,7 @@ const US_STATES = [
 const memberFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
   last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
+  gender: z.string().optional().or(z.literal("")),
   email: z.string().email("Invalid email address").max(255, "Email must be less than 255 characters").optional().or(z.literal("")),
   area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
   phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
@@ -48,7 +49,9 @@ const memberFormSchema = z.object({
   birth_month: z.string().optional().or(z.literal("")),
   birth_day: z.string().optional().or(z.literal("")),
   birth_year: z.string().optional().or(z.literal("")),
-  church_groups: z.string().max(500, "Church groups must be less than 500 characters").optional().or(z.literal(""))
+  position: z.string().max(100, "Position must be less than 100 characters").optional().or(z.literal("")),
+  department: z.string().max(100, "Department must be less than 100 characters").optional().or(z.literal("")),
+  service_year: z.string().max(50, "Service year must be less than 50 characters").optional().or(z.literal(""))
 }).refine((data) => {
   // If area code is provided, phone number must be provided and vice versa
   if (data.area_code && !data.phone_number) return false;
@@ -89,6 +92,11 @@ interface Member {
   email: string | null;
   date_of_birth: string | null;
   church_groups: string[] | null;
+  gender: string | null;
+  profile_image_url: string | null;
+  position: string | null;
+  department: string | null;
+  service_year: string | null;
 }
 
 const Members = () => {
@@ -115,6 +123,7 @@ const Members = () => {
     defaultValues: {
       first_name: "",
       last_name: "",
+      gender: "",
       email: "",
       area_code: "",
       phone_number: "",
@@ -127,7 +136,9 @@ const Members = () => {
       birth_month: "",
       birth_day: "",
       birth_year: "",
-      church_groups: ""
+      position: "",
+      department: "",
+      service_year: ""
     }
   });
 
@@ -218,11 +229,7 @@ const Members = () => {
     setFilteredMembers(filtered);
   }, [searchQuery, cityFilter, countyFilter, members]);
 
-  const parseMemberData = (values: z.infer<typeof memberFormSchema>) => {
-    const churchGroupsArray = values.church_groups
-      ? values.church_groups.split(',').map(g => g.trim()).filter(g => g.length > 0)
-      : [];
-
+  const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
     
     const addressParts = [
@@ -249,7 +256,12 @@ const Members = () => {
       phone: fullPhone,
       email: values.email || null,
       date_of_birth: birthDate,
-      church_groups: churchGroupsArray.length > 0 ? churchGroupsArray : null
+      gender: values.gender || null,
+      position: values.position || null,
+      department: values.department || null,
+      service_year: values.service_year || null,
+      profile_image_url: profileImageUrl || null,
+      church_groups: null
     };
   };
 
@@ -318,6 +330,7 @@ const Members = () => {
     form.reset({
       first_name: firstName,
       last_name: lastName,
+      gender: member.gender || "",
       email: member.email || "",
       area_code: areaCode,
       phone_number: phoneNumber,
@@ -330,7 +343,9 @@ const Members = () => {
       birth_month: birthMonth,
       birth_day: birthDay,
       birth_year: birthYear,
-      church_groups: member.church_groups?.join(', ') || ""
+      position: member.position || "",
+      department: member.department || "",
+      service_year: member.service_year || ""
     });
     
     setSelectedMember(member);
@@ -408,17 +423,17 @@ const Members = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       const membersToImport = jsonData.map((row: any) => {
-        const churchGroups = row['Church Groups'] 
-          ? String(row['Church Groups']).split(',').map((g: string) => g.trim())
-          : null;
-
         return {
           name: row['Name'] || '',
+          gender: row['Gender'] || null,
           email: row['Email'] || null,
           phone: row['Phone'] || null,
           address: row['Address'] || null,
           date_of_birth: row['Date of Birth'] || null,
-          church_groups: churchGroups
+          position: row['Position'] || null,
+          department: row['Department'] || null,
+          service_year: row['Service Year'] || null,
+          church_groups: null
         };
       }).filter(m => m.name); // Only import rows with names
 
@@ -456,11 +471,14 @@ const Members = () => {
   const handleExportToExcel = () => {
     const exportData = filteredMembers.map(member => ({
       Name: member.name,
+      Gender: member.gender || '',
       Address: member.address || '',
       Phone: member.phone || '',
       Email: member.email || '',
       'Date of Birth': member.date_of_birth || '',
-      'Church Groups': member.church_groups?.join(', ') || ''
+      Position: member.position || '',
+      Department: member.department || '',
+      'Service Year': member.service_year || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -682,6 +700,86 @@ const Members = () => {
                           </div>
                         </div>
 
+                        {/* Gender & Profile Image Section */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Gender</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="bg-muted/30 border-border/50 hover:border-primary/50 transition-colors">
+                                      <SelectValue placeholder="Select gender" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Male">Male</SelectItem>
+                                    <SelectItem value="Female">Female</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div>
+                            <Label className="text-sm font-semibold">Profile Image (Optional)</Label>
+                            <div className="mt-2">
+                              <Input 
+                                type="file" 
+                                accept="image/*"
+                                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Position & Department Section */}
+                        <div className="grid md:grid-cols-2 gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                          <FormField
+                            control={form.control}
+                            name="position"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Position</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., Vice Chairman, Member" className="bg-background" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="department"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Department</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., Deacon, Youth" className="bg-background" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="service_year"
+                            render={({ field }) => (
+                              <FormItem className="md:col-span-2">
+                                <FormLabel className="text-sm font-semibold">Service Year</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., 2025 - 2026" className="bg-background" />
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">Enter the service period</p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
                         {/* Email Section */}
                         <FormField
                           control={form.control}
@@ -879,30 +977,8 @@ const Members = () => {
                           </div>
                         </div>
 
-                        {/* Church Groups Section */}
-                        <FormField
-                          control={form.control}
-                          name="church_groups"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold">Church Groups/Activities</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  {...field}
-                                  placeholder="Youth Group, Choir, Volunteer (comma separated)"
-                                  rows={3}
-                                />
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">
-                                Separate multiple groups with commas
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
                         <DialogFooter>
-                          <Button 
+                          <Button
                             type="button" 
                             variant="outline" 
                             onClick={() => {
@@ -993,7 +1069,6 @@ const Members = () => {
                       <TableHead>Phone</TableHead>
                       <TableHead>Date of Birth</TableHead>
                       <TableHead>Address</TableHead>
-                      <TableHead>Church Groups</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1033,19 +1108,6 @@ const Members = () => {
                           {member.address ? (
                             <div className="max-w-xs truncate" title={member.address}>
                               {member.address}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.church_groups && member.church_groups.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {member.church_groups.map((group, idx) => (
-                                <Badge key={idx} variant="secondary" className="text-xs">
-                                  {group}
-                                </Badge>
-                              ))}
                             </div>
                           ) : (
                             <span className="text-muted-foreground">—</span>

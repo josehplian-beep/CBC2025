@@ -17,11 +17,10 @@ interface Member {
   phone: string | null;
   email: string | null;
   date_of_birth: string | null;
-  church_groups: string[] | null;
   gender: string | null;
   profile_image_url: string | null;
   position: string | null;
-  ministry: string | null;
+  department: string | null;
   service_year: string | null;
 }
 
@@ -200,21 +199,21 @@ const MemberProfile = () => {
               )}
             </div>
 
-            {/* Position/Ministry/Year Table */}
-            {(member.position || member.ministry || member.service_year) && (
+            {/* Position/Department/Year Table */}
+            {(member.position || member.department || member.service_year) && (
               <div className="mt-6">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-primary text-primary-foreground">
                       <th className="py-3 px-4 text-left font-semibold">Position</th>
-                      <th className="py-3 px-4 text-left font-semibold">Ministry</th>
+                      <th className="py-3 px-4 text-left font-semibold">Department</th>
                       <th className="py-3 px-4 text-left font-semibold">Year</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="border-b">
                       <td className="py-4 px-4">{member.position || '—'}</td>
-                      <td className="py-4 px-4">{member.ministry || '—'}</td>
+                      <td className="py-4 px-4">{member.department || '—'}</td>
                       <td className="py-4 px-4">{member.service_year || '—'}</td>
                     </tr>
                   </tbody>
@@ -260,25 +259,6 @@ const MemberProfile = () => {
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground uppercase">Date of Birth</p>
                   <p className="text-foreground">{formatDate(member.date_of_birth)}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Church Groups */}
-            {member.church_groups && member.church_groups.length > 0 && (
-              <div className="pt-6 border-t">
-                <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Church Groups</p>
-                    <div className="flex flex-wrap gap-2">
-                      {member.church_groups.map((group, index) => (
-                        <Badge key={index} variant="secondary">
-                          {group}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
