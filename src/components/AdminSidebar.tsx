@@ -19,6 +19,7 @@ import { toast } from "sonner";
 const adminMenuItems = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500" },
   { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500" },
+  { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500" },
   { title: "Manage Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500" },
   { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500" },
   { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500" },

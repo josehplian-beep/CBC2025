@@ -14,6 +14,7 @@ interface Stats {
   events: number;
   testimonials: number;
   departments: number;
+  members: number;
 }
 
 interface RecentItem {
@@ -31,6 +32,7 @@ export default function AdminDashboard() {
     events: 0,
     testimonials: 0,
     departments: 0,
+    members: 0,
   });
   const [recentActivity, setRecentActivity] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,13 +46,14 @@ export default function AdminDashboard() {
       setLoading(true);
 
       // Fetch counts for all entities
-      const [albumsRes, photosRes, staffRes, eventsRes, testimonialsRes, departmentsRes] = await Promise.all([
+      const [albumsRes, photosRes, staffRes, eventsRes, testimonialsRes, departmentsRes, membersRes] = await Promise.all([
         supabase.from("albums").select("*", { count: "exact", head: true }),
         supabase.from("photos").select("*", { count: "exact", head: true }),
         supabase.from("staff_biographies").select("*", { count: "exact", head: true }),
         supabase.from("events").select("*", { count: "exact", head: true }),
         supabase.from("testimonials").select("*", { count: "exact", head: true }),
         supabase.from("department_members").select("department", { count: "exact" }),
+        supabase.from("members").select("*", { count: "exact", head: true }),
       ]);
 
       // Get unique department count
@@ -63,6 +66,7 @@ export default function AdminDashboard() {
         events: eventsRes.count || 0,
         testimonials: testimonialsRes.count || 0,
         departments: uniqueDepartments.size,
+        members: membersRes.count || 0,
       });
 
       // Fetch recent activity from multiple tables
@@ -131,6 +135,7 @@ export default function AdminDashboard() {
     { title: "Albums", value: stats.albums, icon: Image, color: "text-blue-500" },
     { title: "Photos", value: stats.photos, icon: Image, color: "text-purple-500" },
     { title: "Staff Members", value: stats.staff, icon: Users, color: "text-green-500" },
+    { title: "Members", value: stats.members, icon: Users, color: "text-emerald-500" },
     { title: "Events", value: stats.events, icon: Calendar, color: "text-orange-500" },
     { title: "Testimonials", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500" },
     { title: "Departments", value: stats.departments, icon: Briefcase, color: "text-cyan-500" },
