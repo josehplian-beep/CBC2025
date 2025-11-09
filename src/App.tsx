@@ -25,6 +25,7 @@ import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import AdminDepartments from "./pages/AdminDepartments";
+import AlbumGallery from "./pages/AlbumGallery";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/media" element={<Media />} />
+          <Route path="/media/album/:albumId" element={<AlbumGallery />} />
           <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
           <Route path="/get-involved" element={<GetInvolved />} />
