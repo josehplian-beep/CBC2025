@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye } from "lucide-react";
 import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ import * as XLSX from "xlsx";
 const Events = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [events, setEvents] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -164,6 +166,7 @@ const Events = () => {
 
   let filteredEvents = events;
   
+  // Filter by date
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
     const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
@@ -172,6 +175,11 @@ const Events = () => {
     );
   } else if (selectedDate) {
     filteredEvents = events.filter(event => isSameDay(event.dateObj, selectedDate));
+  }
+  
+  // Filter by event type
+  if (eventTypeFilter !== "all") {
+    filteredEvents = filteredEvents.filter(event => event.type === eventTypeFilter);
   }
 
   const upcomingEvents = events
@@ -462,7 +470,7 @@ const Events = () => {
                 </Card>
               )}
 
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-display font-bold">
                     {weekFilter 
@@ -475,18 +483,41 @@ const Events = () => {
                     {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
-                {(selectedDate || weekFilter) && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedDate(undefined);
-                      setWeekFilter(undefined);
-                    }}
-                    className="transition-all hover:scale-105"
-                  >
-                    Clear Filter
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                      <SelectValue placeholder="Filter by type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Worship">Worship</SelectItem>
+                      <SelectItem value="Youth">Youth</SelectItem>
+                      <SelectItem value="Children">Children</SelectItem>
+                      <SelectItem value="Study">Study</SelectItem>
+                      <SelectItem value="Deacon">Deacon</SelectItem>
+                      <SelectItem value="Mission">Mission</SelectItem>
+                      <SelectItem value="Building Committee">Building Committee</SelectItem>
+                      <SelectItem value="Media">Media</SelectItem>
+                      <SelectItem value="Culture">Culture</SelectItem>
+                      <SelectItem value="CBCUSA">CBCUSA</SelectItem>
+                      <SelectItem value="Special">Special</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {(selectedDate || weekFilter || eventTypeFilter !== "all") && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedDate(undefined);
+                        setWeekFilter(undefined);
+                        setEventTypeFilter("all");
+                      }}
+                      className="transition-all hover:scale-105"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {filteredEvents.length === 0 ? (
