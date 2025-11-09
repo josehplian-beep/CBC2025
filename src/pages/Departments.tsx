@@ -105,10 +105,15 @@ const Departments = () => {
 
           {/* Ministry Tabs */}
           <Tabs value={selectedDepartment} className="w-full" onValueChange={setSelectedDepartment}>
-            <TabsList className="grid w-full max-w-4xl mx-auto mb-8" style={{ gridTemplateColumns: `repeat(${Math.min(departments.length, 10)}, minmax(0, 1fr))` }}>
+            <TabsList className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto mb-8 h-auto bg-muted/50 p-3 rounded-xl">
               {departments.map(dept => (
-                <TabsTrigger key={dept} value={dept} className="capitalize">
-                  {dept.replace(/-/g, ' ')}
+                <TabsTrigger 
+                  key={dept} 
+                  value={dept} 
+                  className="capitalize px-4 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] font-medium"
+                  title={dept.replace(/-/g, ' ')}
+                >
+                  <span className="truncate block">{dept.replace(/-/g, ' ')}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
