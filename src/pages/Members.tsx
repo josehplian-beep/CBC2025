@@ -37,11 +37,19 @@ const Members = () => {
   const [groupFilter, setGroupFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newMember, setNewMember] = useState({
-    name: "",
-    address: "",
-    phone: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    date_of_birth: "",
+    area_code: "",
+    phone_number: "",
+    street_address: "",
+    street_address_line2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    birth_month: "",
+    birth_day: "",
+    birth_year: "",
     church_groups: ""
   });
   const navigate = useNavigate();
@@ -136,14 +144,36 @@ const Members = () => {
         .map(g => g.trim())
         .filter(g => g.length > 0);
 
+      // Combine name fields
+      const fullName = `${newMember.first_name} ${newMember.last_name}`.trim();
+      
+      // Combine address fields
+      const addressParts = [
+        newMember.street_address,
+        newMember.street_address_line2,
+        [newMember.city, newMember.state].filter(Boolean).join(', '),
+        newMember.postal_code
+      ].filter(Boolean);
+      const fullAddress = addressParts.join(', ');
+      
+      // Combine phone fields
+      const fullPhone = newMember.area_code && newMember.phone_number 
+        ? `${newMember.area_code}-${newMember.phone_number}`
+        : null;
+      
+      // Combine birth date fields
+      const birthDate = newMember.birth_year && newMember.birth_month && newMember.birth_day
+        ? `${newMember.birth_year}-${newMember.birth_month.padStart(2, '0')}-${newMember.birth_day.padStart(2, '0')}`
+        : null;
+
       const { error } = await supabase
         .from('members')
         .insert([{
-          name: newMember.name,
-          address: newMember.address || null,
-          phone: newMember.phone || null,
+          name: fullName,
+          address: fullAddress || null,
+          phone: fullPhone,
           email: newMember.email || null,
-          date_of_birth: newMember.date_of_birth || null,
+          date_of_birth: birthDate,
           church_groups: churchGroupsArray.length > 0 ? churchGroupsArray : null
         }]);
 
@@ -156,11 +186,19 @@ const Members = () => {
 
       setIsAddDialogOpen(false);
       setNewMember({
-        name: "",
-        address: "",
-        phone: "",
+        first_name: "",
+        last_name: "",
         email: "",
-        date_of_birth: "",
+        area_code: "",
+        phone_number: "",
+        street_address: "",
+        street_address_line2: "",
+        city: "",
+        state: "",
+        postal_code: "",
+        birth_month: "",
+        birth_day: "",
+        birth_year: "",
         church_groups: ""
       });
       
@@ -327,57 +365,166 @@ const Members = () => {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="name">Name *</Label>
-                        <Input
-                          id="name"
-                          value={newMember.name}
-                          onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                          placeholder="John Doe"
-                          required
-                        />
+                      {/* Name Section */}
+                      <div>
+                        <Label className="text-sm font-semibold">Name</Label>
+                        <div className="grid grid-cols-2 gap-4 mt-2">
+                          <div className="grid gap-2">
+                            <Label htmlFor="first_name" className="text-xs text-muted-foreground">First Name</Label>
+                            <Input
+                              id="first_name"
+                              value={newMember.first_name}
+                              onChange={(e) => setNewMember({ ...newMember, first_name: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="last_name" className="text-xs text-muted-foreground">Last Name</Label>
+                            <Input
+                              id="last_name"
+                              value={newMember.last_name}
+                              onChange={(e) => setNewMember({ ...newMember, last_name: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Email Section */}
                       <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-sm font-semibold">E-mail</Label>
                         <Input
                           id="email"
                           type="email"
                           value={newMember.email}
                           onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                          placeholder="john@example.com"
+                          placeholder="ex: myname@example.com"
+                          className="text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">example@example.com</p>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={newMember.phone}
-                          onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                          placeholder="+1 (555) 123-4567"
-                        />
+
+                      {/* Phone Number Section */}
+                      <div>
+                        <Label className="text-sm font-semibold">Phone Number</Label>
+                        <div className="grid grid-cols-3 gap-4 mt-2">
+                          <div className="grid gap-2">
+                            <Label htmlFor="area_code" className="text-xs text-muted-foreground">Area Code</Label>
+                            <Input
+                              id="area_code"
+                              type="tel"
+                              value={newMember.area_code}
+                              onChange={(e) => setNewMember({ ...newMember, area_code: e.target.value })}
+                              maxLength={3}
+                            />
+                          </div>
+                          <div className="grid gap-2 col-span-2">
+                            <Label htmlFor="phone_number" className="text-xs text-muted-foreground">Phone Number</Label>
+                            <Input
+                              id="phone_number"
+                              type="tel"
+                              value={newMember.phone_number}
+                              onChange={(e) => setNewMember({ ...newMember, phone_number: e.target.value })}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="date_of_birth">Date of Birth</Label>
-                        <Input
-                          id="date_of_birth"
-                          type="date"
-                          value={newMember.date_of_birth}
-                          onChange={(e) => setNewMember({ ...newMember, date_of_birth: e.target.value })}
-                        />
+
+                      {/* Address Section */}
+                      <div>
+                        <Label className="text-sm font-semibold">Address</Label>
+                        <div className="grid gap-3 mt-2">
+                          <div className="grid gap-2">
+                            <Label htmlFor="street_address" className="text-xs text-muted-foreground">Street Address</Label>
+                            <Input
+                              id="street_address"
+                              value={newMember.street_address}
+                              onChange={(e) => setNewMember({ ...newMember, street_address: e.target.value })}
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="street_address_line2" className="text-xs text-muted-foreground">Street Address Line 2</Label>
+                            <Input
+                              id="street_address_line2"
+                              value={newMember.street_address_line2}
+                              onChange={(e) => setNewMember({ ...newMember, street_address_line2: e.target.value })}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="city" className="text-xs text-muted-foreground">City</Label>
+                              <Input
+                                id="city"
+                                value={newMember.city}
+                                onChange={(e) => setNewMember({ ...newMember, city: e.target.value })}
+                              />
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="state" className="text-xs text-muted-foreground">State / Province</Label>
+                              <Input
+                                id="state"
+                                value={newMember.state}
+                                onChange={(e) => setNewMember({ ...newMember, state: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="postal_code" className="text-xs text-muted-foreground">Postal / Zip Code</Label>
+                            <Input
+                              id="postal_code"
+                              value={newMember.postal_code}
+                              onChange={(e) => setNewMember({ ...newMember, postal_code: e.target.value })}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Textarea
-                          id="address"
-                          value={newMember.address}
-                          onChange={(e) => setNewMember({ ...newMember, address: e.target.value })}
-                          placeholder="123 Main St, City, State ZIP"
-                          rows={3}
-                        />
+
+                      {/* Birth Date Section */}
+                      <div>
+                        <Label className="text-sm font-semibold">Birth Date</Label>
+                        <div className="grid grid-cols-3 gap-4 mt-2">
+                          <div className="grid gap-2">
+                            <Label htmlFor="birth_month" className="text-xs text-muted-foreground">Month</Label>
+                            <Input
+                              id="birth_month"
+                              type="number"
+                              min="1"
+                              max="12"
+                              value={newMember.birth_month}
+                              onChange={(e) => setNewMember({ ...newMember, birth_month: e.target.value })}
+                              placeholder="MM"
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="birth_day" className="text-xs text-muted-foreground">Day</Label>
+                            <Input
+                              id="birth_day"
+                              type="number"
+                              min="1"
+                              max="31"
+                              value={newMember.birth_day}
+                              onChange={(e) => setNewMember({ ...newMember, birth_day: e.target.value })}
+                              placeholder="DD"
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="birth_year" className="text-xs text-muted-foreground">Year</Label>
+                            <Input
+                              id="birth_year"
+                              type="number"
+                              min="1900"
+                              max={new Date().getFullYear()}
+                              value={newMember.birth_year}
+                              onChange={(e) => setNewMember({ ...newMember, birth_year: e.target.value })}
+                              placeholder="YYYY"
+                            />
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Church Groups Section */}
                       <div className="grid gap-2">
-                        <Label htmlFor="church_groups">Church Groups/Activities</Label>
+                        <Label htmlFor="church_groups" className="text-sm font-semibold">Church Groups/Activities</Label>
                         <Textarea
                           id="church_groups"
                           value={newMember.church_groups}
@@ -394,7 +541,7 @@ const Members = () => {
                       <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={handleAddMember} disabled={!newMember.name}>
+                      <Button onClick={handleAddMember} disabled={!newMember.first_name || !newMember.last_name}>
                         Add Member
                       </Button>
                     </DialogFooter>
