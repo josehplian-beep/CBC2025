@@ -73,7 +73,7 @@ const Departments = () => {
 
           {/* Ministry Tabs */}
           <Tabs defaultValue="deacons" className="w-full" onValueChange={setSelectedDepartment}>
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-9 mb-8">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-10 mb-8">
               <TabsTrigger value="deacons">Deacons</TabsTrigger>
               <TabsTrigger value="women">Women</TabsTrigger>
               <TabsTrigger value="youth">Youth</TabsTrigger>
@@ -83,6 +83,7 @@ const Departments = () => {
               <TabsTrigger value="culture">Culture</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
               <TabsTrigger value="auditors">Auditors</TabsTrigger>
+              <TabsTrigger value="praise-worship">Praise & Worship</TabsTrigger>
             </TabsList>
 
             <TabsContent value={selectedDepartment}>

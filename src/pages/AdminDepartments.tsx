@@ -42,7 +42,8 @@ const AdminDepartments = () => {
     { value: "building", label: "Building" },
     { value: "culture", label: "Culture" },
     { value: "media", label: "Media" },
-    { value: "auditors", label: "Auditors" }
+    { value: "auditors", label: "Auditors" },
+    { value: "praise-worship", label: "Praise & Worship" }
   ];
 
   useEffect(() => {
