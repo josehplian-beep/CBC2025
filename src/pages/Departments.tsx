@@ -13,10 +13,42 @@ const Departments = () => {
   const [yearFilter, setYearFilter] = useState("current");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [departments, setDepartments] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchMembers();
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      fetchMembers();
+    }
   }, [selectedDepartment]);
+
+  const fetchDepartments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("department_members")
+        .select("department");
+
+      if (error) throw error;
+
+      const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
+      const orderedDepts = [
+        "deacons", "women", "youth", "children", "praise-worship",
+        "mission", "building", "culture", "media", "auditors"
+      ].filter(d => uniqueDepts.includes(d));
+      
+      const additionalDepts = uniqueDepts.filter(d => !orderedDepts.includes(d)).sort();
+      setDepartments([...orderedDepts, ...additionalDepts]);
+      
+      if (orderedDepts.length > 0 && !selectedDepartment) {
+        setSelectedDepartment(orderedDepts[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -72,18 +104,13 @@ const Departments = () => {
           </div>
 
           {/* Ministry Tabs */}
-          <Tabs defaultValue="deacons" className="w-full" onValueChange={setSelectedDepartment}>
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-10 mb-8">
-              <TabsTrigger value="deacons">Deacons</TabsTrigger>
-              <TabsTrigger value="women">Women</TabsTrigger>
-              <TabsTrigger value="youth">Youth</TabsTrigger>
-              <TabsTrigger value="children">Children</TabsTrigger>
-              <TabsTrigger value="mission">Mission</TabsTrigger>
-              <TabsTrigger value="building">Building</TabsTrigger>
-              <TabsTrigger value="culture">Culture</TabsTrigger>
-              <TabsTrigger value="media">Media</TabsTrigger>
-              <TabsTrigger value="auditors">Auditors</TabsTrigger>
-              <TabsTrigger value="praise-worship">Praise & Worship</TabsTrigger>
+          <Tabs value={selectedDepartment} className="w-full" onValueChange={setSelectedDepartment}>
+            <TabsList className="grid w-full max-w-4xl mx-auto mb-8" style={{ gridTemplateColumns: `repeat(${Math.min(departments.length, 10)}, minmax(0, 1fr))` }}>
+              {departments.map(dept => (
+                <TabsTrigger key={dept} value={dept} className="capitalize">
+                  {dept.replace(/-/g, ' ')}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             <TabsContent value={selectedDepartment}>

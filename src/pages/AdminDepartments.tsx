@@ -32,23 +32,82 @@ const AdminDepartments = () => {
   const [imageToCrop, setImageToCrop] = useState<string>("");
   const [currentMemberId, setCurrentMemberId] = useState<string>("");
   const [deduping, setDeduping] = useState(false);
-
-  const departments = [
-    { value: "deacons", label: "Deacons" },
-    { value: "women", label: "Women" },
-    { value: "youth", label: "Youth" },
-    { value: "children", label: "Children" },
-    { value: "mission", label: "Mission" },
-    { value: "building", label: "Building" },
-    { value: "culture", label: "Culture" },
-    { value: "media", label: "Media" },
-    { value: "auditors", label: "Auditors" },
-    { value: "praise-worship", label: "Praise & Worship" }
-  ];
+  const [departments, setDepartments] = useState<{ value: string; label: string }[]>([]);
+  const [newDeptDialogOpen, setNewDeptDialogOpen] = useState(false);
+  const [newDeptName, setNewDeptName] = useState("");
 
   useEffect(() => {
-    fetchMembers();
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDept) {
+      fetchMembers();
+    }
   }, [selectedDept]);
+
+  const fetchDepartments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("department_members")
+        .select("department");
+
+      if (error) throw error;
+
+      const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
+      const orderedDepts = [
+        "deacons", "women", "youth", "children", "praise-worship",
+        "mission", "building", "culture", "media", "auditors"
+      ];
+
+      const deptObjects = orderedDepts
+        .filter(d => uniqueDepts.includes(d))
+        .map(d => ({
+          value: d,
+          label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        }));
+
+      const additionalDepts = uniqueDepts
+        .filter(d => !orderedDepts.includes(d))
+        .sort()
+        .map(d => ({
+          value: d,
+          label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        }));
+
+      setDepartments([...deptObjects, ...additionalDepts]);
+      
+      if (deptObjects.length > 0 && !selectedDept) {
+        setSelectedDept(deptObjects[0].value);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const handleAddDepartment = async () => {
+    if (!newDeptName.trim()) {
+      toast.error("Department name is required");
+      return;
+    }
+
+    const deptValue = newDeptName.toLowerCase().replace(/\s+/g, '-');
+    
+    if (departments.some(d => d.value === deptValue)) {
+      toast.error("Department already exists");
+      return;
+    }
+
+    setDepartments([...departments, {
+      value: deptValue,
+      label: newDeptName.trim()
+    }]);
+    
+    setSelectedDept(deptValue);
+    setNewDeptName("");
+    setNewDeptDialogOpen(false);
+    toast.success("Department added! Now you can add members to it.");
+  };
 
   const fetchMembers = async () => {
     try {
@@ -270,6 +329,30 @@ const AdminDepartments = () => {
             <Button variant="outline" onClick={removeDuplicates} disabled={deduping}>
               {deduping ? "Removing duplicates..." : "Remove Duplicates"}
             </Button>
+            <Dialog open={newDeptDialogOpen} onOpenChange={setNewDeptDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Add Department</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Department</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-dept-name">Department Name</Label>
+                    <Input 
+                      id="new-dept-name" 
+                      value={newDeptName}
+                      onChange={(e) => setNewDeptName(e.target.value)}
+                      placeholder="e.g., Sunday School"
+                    />
+                  </div>
+                  <Button onClick={handleAddDepartment} className="w-full">
+                    Add Department
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingMember(null)}>Add Member</Button>
