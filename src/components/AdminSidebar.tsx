@@ -39,7 +39,7 @@ export function AdminSidebar() {
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
       ? "bg-primary text-primary-foreground font-semibold shadow-sm" 
-      : "text-sidebar-foreground hover:bg-sidebar-accent transition-colors";
+      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors";
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -47,7 +47,7 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-primary font-bold text-base mb-2 px-2">
+          <SidebarGroupLabel className="text-white font-bold text-base mb-2 px-2">
             Admin Panel
           </SidebarGroupLabel>
 
@@ -67,9 +67,9 @@ export function AdminSidebar() {
               <SidebarMenuItem className="mt-4">
                 <SidebarMenuButton 
                   onClick={handleSignOut} 
-                  className="text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors font-medium"
+                  className="text-white hover:bg-destructive/90 hover:text-white transition-colors font-medium"
                 >
-                  <LogOut className="h-5 w-5 flex-shrink-0 text-red-500" />
+                  <LogOut className="h-5 w-5 flex-shrink-0 text-red-300" />
                   {!isCollapsed && <span>Sign Out</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>

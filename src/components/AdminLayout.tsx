@@ -10,7 +10,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full">
-        <AdminSidebar />
+        <div className="shadow-[4px_0_12px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_12px_rgba(0,0,0,0.3)] z-20">
+          <AdminSidebar />
+        </div>
         
         <div className="flex-1 flex flex-col">
           <header className="h-14 border-b flex items-center px-4 bg-background sticky top-0 z-10">
