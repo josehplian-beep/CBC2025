@@ -189,6 +189,18 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/admin")
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Admin Dashboard
+              </Link>
+            )}
             {user ? (
               <div className="flex items-center gap-2 ml-4">
                 <Button size="sm" variant="outline" onClick={handleSignOut}>
@@ -279,6 +291,19 @@ const Navigation = () => {
                   {link.name}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive("/admin")
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  Admin Dashboard
+                </Link>
+              )}
               {user ? (
                 <>
                   <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
