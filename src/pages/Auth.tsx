@@ -20,20 +20,34 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const checkSessionAndRedirect = async (session: any) => {
+      if (session) {
+        // Check if user is admin
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id);
+        
+        const isAdmin = roles?.some(r => r.role === 'admin');
+        
+        if (isAdmin) {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }
+    };
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) {
-        navigate("/");
-      }
+      checkSessionAndRedirect(session);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) {
-        navigate("/");
-      }
+      checkSessionAndRedirect(session);
     });
 
     return () => subscription.unsubscribe();

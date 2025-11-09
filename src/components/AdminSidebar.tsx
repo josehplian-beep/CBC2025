@@ -46,8 +46,8 @@ export function AdminSidebar() {
       <SidebarTrigger className="m-2 self-end" />
 
       <SidebarContent>
-        <SidebarGroup className="text-foreground">
-          <SidebarGroupLabel>Admin Panel</SidebarGroupLabel>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-foreground font-semibold">Admin Panel</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
