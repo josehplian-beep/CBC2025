@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { UpcomingBirthdays } from "@/components/UpcomingBirthdays";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -572,6 +573,13 @@ const Members = () => {
           <p className="text-lg text-primary-foreground/90">
             Connect with our church family
           </p>
+        </div>
+      </section>
+
+      {/* Upcoming Birthdays */}
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <UpcomingBirthdays />
         </div>
       </section>
 
