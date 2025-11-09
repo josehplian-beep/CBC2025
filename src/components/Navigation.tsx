@@ -191,9 +191,9 @@ const Navigation = () => {
             ))}
             {isAdmin && (
               <Link
-                to="/admin"
+                to="/admin/dashboard"
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive("/admin")
+                  location.pathname.startsWith("/admin")
                     ? "text-primary font-semibold"
                     : "text-muted-foreground"
                 }`}
@@ -293,10 +293,10 @@ const Navigation = () => {
               ))}
               {isAdmin && (
                 <Link
-                  to="/admin"
+                  to="/admin/dashboard"
                   onClick={() => setIsOpen(false)}
                   className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive("/admin")
+                    location.pathname.startsWith("/admin")
                       ? "text-primary font-semibold"
                       : "text-muted-foreground"
                   }`}
