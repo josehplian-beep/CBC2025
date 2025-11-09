@@ -196,6 +196,12 @@ const Events = () => {
 
   const eventDates = events.map(e => e.dateObj);
 
+  // Function to check if a date is a service day (Wednesday, Saturday, or Sunday)
+  const isServiceDay = (date: Date) => {
+    const day = date.getDay();
+    return day === 0 || day === 3 || day === 6; // 0 = Sunday, 3 = Wednesday, 6 = Saturday
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -230,7 +236,7 @@ const Events = () => {
             </div>
             <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8">
               {/* Large Calendar */}
-              <Card className="p-8 border-2 shadow-xl">
+              <Card className="p-4 md:p-8 border-2 shadow-xl">
                 <div className="flex items-center justify-center min-h-[500px]">
                   <Calendar
                     mode="single"
@@ -241,10 +247,12 @@ const Events = () => {
                     }}
                     className="rounded-lg pointer-events-auto w-full max-w-2xl"
                     modifiers={{
-                      hasEvent: eventDates
+                      hasEvent: eventDates,
+                      serviceDay: (date) => isServiceDay(date)
                     }}
                     modifiersClassNames={{
-                      hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
+                      hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4",
+                      serviceDay: "bg-accent/30 font-semibold"
                     }}
                   />
                 </div>
@@ -344,7 +352,7 @@ const Events = () => {
                       </button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-3 md:p-6 overflow-x-auto">
                     <Calendar
                       mode="single"
                       selected={selectedDate}
@@ -352,12 +360,14 @@ const Events = () => {
                         setSelectedDate(date);
                         setWeekFilter(undefined);
                       }}
-                      className="rounded-lg mx-auto w-full"
+                      className="rounded-lg mx-auto w-full pointer-events-auto"
                       modifiers={{
-                        hasEvent: eventDates
+                        hasEvent: eventDates,
+                        serviceDay: (date) => isServiceDay(date)
                       }}
                       modifiersClassNames={{
-                        hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4"
+                        hasEvent: "bg-primary/90 text-primary-foreground font-bold ring-2 ring-primary ring-offset-2 hover:ring-4",
+                        serviceDay: "bg-accent/30 font-semibold"
                       }}
                     />
                     <div className="mt-6 space-y-2 px-2">
@@ -496,88 +506,93 @@ const Events = () => {
                   </Button>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
                   {filteredEvents.map((event, index) => (
                     <Card 
                       key={index} 
-                      className="hover:shadow-xl transition-all duration-300 hover:scale-[1.03] animate-fade-in border-2 hover:border-primary/50"
+                      className="hover:shadow-xl transition-all duration-300 animate-fade-in border-2 hover:border-primary/50 overflow-hidden"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-2">
-                          <CardTitle className="text-xl font-display">{event.title}</CardTitle>
-                          <Badge className={typeColors[event.type]}>{event.type}</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-muted-foreground">{event.description}</p>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-start gap-2">
-                            <CalendarIcon className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.date}</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.time}</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.location}</span>
-                          </div>
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Event Image */}
+                        <div className="sm:w-64 h-48 sm:h-auto flex-shrink-0 bg-muted relative overflow-hidden">
+                          {event.image_url ? (
+                            <img 
+                              src={event.image_url} 
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+                              <CalendarIcon className="w-16 h-16 text-muted-foreground/40" />
+                            </div>
+                          )}
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => {
-                              setViewingEvent(event);
-                              setViewEventDialog(true);
-                            }}
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Event
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => shareEventToCalendar(event)}
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-
-                        {isAdmin && (
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => {
-                                setSelectedEvent(event);
-                                setDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </Button>
-                            <Button 
-                              variant="destructive" 
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => {
-                                setEventToDelete(event);
-                                setDeleteDialogOpen(true);
-                              }}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </Button>
+                        {/* Event Details */}
+                        <div className="flex-1 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <Badge className={`${typeColors[event.type]} mb-2`}>{event.type}</Badge>
+                              <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                                {event.title}
+                              </h3>
+                            </div>
                           </div>
-                        )}
-                      </CardContent>
+
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                            <CalendarIcon className="w-4 h-4 text-primary" />
+                            <span className="font-medium">{event.date}</span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-4 items-center">
+                            <Button 
+                              variant="outline"
+                              size="default"
+                              onClick={() => {
+                                setViewingEvent(event);
+                                setViewEventDialog(true);
+                              }}
+                            >
+                              VIEW EVENT
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => shareEventToCalendar(event)}
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+
+                            {isAdmin && (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedEvent(event);
+                                    setDialogOpen(true);
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setEventToDelete(event);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </Card>
                   ))}
                 </div>
