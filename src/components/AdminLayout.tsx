@@ -62,7 +62,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         
         <div className="flex-1 flex flex-col">
           <header className="h-14 border-b flex items-center px-4 bg-background sticky top-0 z-10">
-            <SidebarTrigger className="mr-4" />
             <h1 className="text-lg font-semibold">Admin Dashboard</h1>
           </header>
           
