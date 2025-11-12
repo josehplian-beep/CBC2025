@@ -283,14 +283,39 @@ const Members = () => {
     const areaCode = phoneParts[0] || "";
     const phoneNumber = phoneParts.slice(1).join('-') || "";
     
-    // Parse address
-    const addressParts = member.address?.split('|||') || [];
-    let streetAddress = addressParts[0] || "";
-    let streetAddressLine2 = addressParts[1] || "";
-    let city = addressParts[2] || "";
-    let county = (addressParts[3] || "").replace(' County', '');
-    let state = addressParts[4] || "";
-    let postalCode = addressParts[5] || "";
+    // Parse address - handle both new (|||) and old (comma) format
+    let streetAddress = "";
+    let streetAddressLine2 = "";
+    let city = "";
+    let county = "";
+    let state = "";
+    let postalCode = "";
+    
+    if (member.address) {
+      // Check if it's the new format with |||
+      if (member.address.includes('|||')) {
+        const addressParts = member.address.split('|||');
+        streetAddress = addressParts[0] || "";
+        streetAddressLine2 = addressParts[1] || "";
+        city = addressParts[2] || "";
+        county = (addressParts[3] || "").replace(' County', '');
+        state = addressParts[4] || "";
+        postalCode = addressParts[5] || "";
+      } else {
+        // Old format with commas - try to parse it
+        // Expected format: "Street, City, County, State, ZIP"
+        const parts = member.address.split(',').map(p => p.trim());
+        if (parts.length >= 4) {
+          streetAddress = parts[0] || "";
+          city = parts[1] || "";
+          // The county might have " County" suffix
+          const countyPart = parts[2] || "";
+          county = countyPart.replace(' County', '');
+          state = parts[3] || "";
+          postalCode = parts[4] || "";
+        }
+      }
+    }
     
     // Parse birth date
     const birthParts = member.date_of_birth?.split('-') || [];
