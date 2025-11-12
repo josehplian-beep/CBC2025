@@ -215,15 +215,15 @@ const Members = () => {
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
     
-    const addressParts = [
+    // Build address with proper structure, using empty string for optional line2
+    const fullAddress = [
       values.street_address,
-      values.street_address_line2,
+      values.street_address_line2 || "",
       values.city,
-      values.county ? `${values.county} County` : null,
+      values.county ? `${values.county} County` : "",
       values.state,
       values.postal_code
-    ].filter(Boolean);
-    const fullAddress = addressParts.join(', ');
+    ].join('|||');
     
     const fullPhone = values.area_code && values.phone_number 
       ? `${values.area_code}-${values.phone_number}`
@@ -284,25 +284,13 @@ const Members = () => {
     const phoneNumber = phoneParts.slice(1).join('-') || "";
     
     // Parse address
-    const addressParts = member.address?.split(', ') || [];
-    let streetAddress = "";
-    let streetAddressLine2 = "";
-    let city = "";
-    let county = "";
-    let state = "";
-    let postalCode = "";
-    
-    if (addressParts.length > 0) {
-      streetAddress = addressParts[0] || "";
-      if (addressParts.length > 1) streetAddressLine2 = addressParts[1] || "";
-      if (addressParts.length > 2) city = addressParts[2] || "";
-      if (addressParts.length > 3) {
-        const countyPart = addressParts[3] || "";
-        county = countyPart.replace(' County', '');
-      }
-      if (addressParts.length > 4) state = addressParts[4] || "";
-      if (addressParts.length > 5) postalCode = addressParts[5] || "";
-    }
+    const addressParts = member.address?.split('|||') || [];
+    let streetAddress = addressParts[0] || "";
+    let streetAddressLine2 = addressParts[1] || "";
+    let city = addressParts[2] || "";
+    let county = (addressParts[3] || "").replace(' County', '');
+    let state = addressParts[4] || "";
+    let postalCode = addressParts[5] || "";
     
     // Parse birth date
     const birthParts = member.date_of_birth?.split('-') || [];
