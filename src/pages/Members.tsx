@@ -1895,7 +1895,7 @@ const Members = () => {
                                         <Button
                                           variant="ghost"
                                           size="sm"
-                                          onClick={() => navigate(`/member-profile/${member.id}`)}
+                                          onClick={() => navigate(`/members/${member.id}`)}
                                           title="View profile"
                                           className="gap-2"
                                         >
@@ -2022,7 +2022,7 @@ const Members = () => {
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => navigate(`/member-profile/${member.id}`)}
+                                        onClick={() => navigate(`/members/${member.id}`)}
                                         title="View profile"
                                         className="gap-2"
                                       >
@@ -2146,7 +2146,7 @@ const Members = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/member-profile/${member.id}`)}
+                              onClick={() => navigate(`/members/${member.id}`)}
                               title="View profile"
                               className="gap-2"
                             >
