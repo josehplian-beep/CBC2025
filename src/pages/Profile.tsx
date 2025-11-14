@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, User as UserIcon, Save, AlertTriangle } from "lucide-react";
+import { Loader2, User as UserIcon, Save, AlertTriangle, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PasswordResetDialog } from "@/components/PasswordResetDialog";
 
 interface Profile {
   id: string;
@@ -27,6 +28,7 @@ const Profile = () => {
   const [fullName, setFullName] = useState("");
   const [title, setTitle] = useState("");
   const [email, setEmail] = useState("");
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -270,10 +272,42 @@ const Profile = () => {
               </form>
             </CardContent>
           </Card>
+
+          {/* Password Change Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5" />
+                Password & Security
+              </CardTitle>
+              <CardDescription>
+                Manage your account password and security settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    For security reasons, we recommend changing your password regularly. Your password must be at least 6 characters long.
+                  </p>
+                  <Button onClick={() => setPasswordDialogOpen(true)} variant="outline">
+                    <Lock className="mr-2 h-4 w-4" />
+                    Change Password
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       <Footer />
+
+      {/* Password Reset Dialog */}
+      <PasswordResetDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
+      />
     </div>
   );
 };

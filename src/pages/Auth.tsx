@@ -15,6 +15,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetMode, setResetMode] = useState(false);
   const [session, setSession] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -82,6 +83,45 @@ const Auth = () => {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (!email) {
+        toast({
+          title: "Email Required",
+          description: "Please enter your email address",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your email for a password reset link",
+      });
+      
+      setResetMode(false);
+      setEmail("");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Reset failed",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -90,13 +130,55 @@ const Auth = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">Staff Sign In</CardTitle>
+              <CardTitle className="text-2xl text-center">
+                {resetMode ? "Reset Password" : "Staff Sign In"}
+              </CardTitle>
               <CardDescription className="text-center">
-                Sign in with your staff credentials to access the member directory
+                {resetMode
+                  ? "Enter your email to receive a password reset link"
+                  : "Sign in with your staff credentials to access the member directory"}
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <form onSubmit={handleSignIn} className="space-y-4">
+              {resetMode ? (
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => {
+                      setResetMode(false);
+                      setEmail("");
+                    }}
+                    disabled={loading}
+                  >
+                    Back to Sign In
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <Input
@@ -132,9 +214,20 @@ const Auth = () => {
                   )}
                 </Button>
               </form>
-              <p className="text-sm text-muted-foreground text-center mt-4">
-                Contact church administration for access credentials.
-              </p>
+              <div className="mt-4 space-y-2">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full text-sm"
+                  onClick={() => setResetMode(true)}
+                >
+                  Forgot your password?
+                </Button>
+                <p className="text-sm text-muted-foreground text-center">
+                  Contact church administration for access credentials.
+                </p>
+              </div>
+              )}
             </CardContent>
           </Card>
         </div>

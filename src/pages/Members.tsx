@@ -116,6 +116,7 @@ const Members = () => {
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
   const [grantingAccessFor, setGrantingAccessFor] = useState<string | null>(null);
+  const [resettingPasswordFor, setResettingPasswordFor] = useState<string | null>(null);
   const [user, setUser] = useState(null);
   const { role, isAdmin, canEdit, canCreate, canDelete } = useUserRole();
   const [searchQuery, setSearchQuery] = useState("");
@@ -638,6 +639,33 @@ const Members = () => {
       });
     } finally {
       setGrantingAccessFor(null);
+    }
+  };
+
+  const handlePasswordReset = async (memberEmail: string, memberName: string, memberId: string) => {
+    try {
+      setResettingPasswordFor(memberId);
+
+      // Send password reset email
+      const { error } = await supabase.auth.resetPasswordForEmail(memberEmail, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Email Sent",
+        description: `A password reset link has been sent to ${memberEmail}`,
+      });
+    } catch (error: any) {
+      console.error('Error sending password reset:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send password reset email",
+        variant: "destructive",
+      });
+    } finally {
+      setResettingPasswordFor(null);
     }
   };
 
@@ -1941,7 +1969,27 @@ const Members = () => {
                                           </Button>
                                         )}
                                         {isAdmin && member.user_id && (
-                                          <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                          <>
+                                            <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                            {member.email && (
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handlePasswordReset(member.email!, member.name, member.id)}
+                                                disabled={resettingPasswordFor === member.id}
+                                                title="Send password reset email"
+                                              >
+                                                {resettingPasswordFor === member.id ? (
+                                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                  <>
+                                                    <Lock className="w-4 h-4 mr-1" />
+                                                    Reset Password
+                                                  </>
+                                                )}
+                                              </Button>
+                                            )}
+                                          </>
                                         )}
                                         {canEdit && (
                                           <Button
@@ -2068,7 +2116,27 @@ const Members = () => {
                                         </Button>
                                       )}
                                       {isAdmin && member.user_id && (
-                                        <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                        <>
+                                          <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                          {member.email && (
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => handlePasswordReset(member.email!, member.name, member.id)}
+                                              disabled={resettingPasswordFor === member.id}
+                                              title="Send password reset email"
+                                            >
+                                              {resettingPasswordFor === member.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                              ) : (
+                                                <>
+                                                  <Lock className="w-4 h-4 mr-1" />
+                                                  Reset Password
+                                                </>
+                                              )}
+                                            </Button>
+                                          )}
+                                        </>
                                       )}
                                       {canEdit && (
                                         <Button
@@ -2192,7 +2260,27 @@ const Members = () => {
                               </Button>
                             )}
                             {isAdmin && member.user_id && (
-                              <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                              <>
+                                <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                {member.email && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePasswordReset(member.email!, member.name, member.id)}
+                                    disabled={resettingPasswordFor === member.id}
+                                    title="Send password reset email"
+                                  >
+                                    {resettingPasswordFor === member.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <>
+                                        <Lock className="w-4 h-4 mr-1" />
+                                        Reset Password
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
+                              </>
                             )}
                             {canEdit && (
                               <Button
