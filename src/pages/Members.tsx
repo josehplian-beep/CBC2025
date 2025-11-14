@@ -52,6 +52,7 @@ const memberFormSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address").max(255, "Email must be less than 255 characters"),
   area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
   phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
+  family_id: z.string().optional().or(z.literal("")),
   street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
   street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
   city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
@@ -292,7 +293,8 @@ const Members = () => {
       department: values.department || null,
       service_year: values.service_year || null,
       profile_image_url: profileImageUrl || null,
-      church_groups: null
+      church_groups: null,
+      family_id: values.family_id || null
     };
   };
 
@@ -378,6 +380,7 @@ const Members = () => {
       email: member.email || "",
       area_code: areaCode,
       phone_number: phoneNumber,
+      family_id: member.family_id || "",
       street_address: streetAddress,
       street_address_line2: streetAddressLine2,
       city: city,
@@ -1086,6 +1089,33 @@ const Members = () => {
                           </div>
                         </div>
 
+                        {/* Family Selection */}
+                        <FormField
+                          control={form.control}
+                          name="family_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assign to Family (Optional)</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a family or leave unassigned" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="">No Family (Individual)</SelectItem>
+                                  {families.map((family) => (
+                                    <SelectItem key={family.id} value={family.id}>
+                                      {family.family_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
                         {/* Address Section */}
                         <div>
                           <Label className="text-sm font-semibold">Address *</Label>
@@ -1435,6 +1465,33 @@ const Members = () => {
                             />
                           </div>
                         </div>
+
+                        {/* Family Selection */}
+                        <FormField
+                          control={form.control}
+                          name="family_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assign to Family (Optional)</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a family or leave unassigned" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="">No Family (Individual)</SelectItem>
+                                  {families.map((family) => (
+                                    <SelectItem key={family.id} value={family.id}>
+                                      {family.family_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
                         {/* Address Section */}
                         <div>
@@ -1869,14 +1926,18 @@ const Members = () => {
                                       <span className="text-muted-foreground">—</span>
                                     )}
                                   </TableCell>
-                                  <TableCell>
-                                    {member.address ? (
-                                      <div className="max-w-xs truncate" title={member.address}>
-                                        {member.address}
-                                      </div>
-                                    ) : (
-                                      <span className="text-muted-foreground">—</span>
-                                    )}
+                        <TableCell>
+                          {member.families ? (
+                            <div className="max-w-xs truncate">
+                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
+                            </div>
+                          ) : member.address ? (
+                            <div className="max-w-xs truncate" title={member.address}>
+                              {member.address.split('|||').filter(p => p).join(', ')}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                                   </TableCell>
                                   <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
@@ -1971,14 +2032,18 @@ const Members = () => {
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          {member.address ? (
-                            <div className="max-w-xs truncate" title={member.address}>
-                              {member.address}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
+                      <TableCell>
+                        {member.families ? (
+                          <div className="max-w-xs truncate">
+                            {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
+                          </div>
+                        ) : member.address ? (
+                          <div className="max-w-xs truncate" title={member.address}>
+                            {member.address.split('|||').filter(p => p).join(', ')}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
