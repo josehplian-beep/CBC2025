@@ -5,10 +5,11 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, Building2, UserCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 interface Member {
   id: string;
@@ -24,6 +25,14 @@ interface Member {
   service_year: string | null;
 }
 
+interface RelatedMember {
+  id: string;
+  name: string;
+  position: string | null;
+  department: string | null;
+  profile_image_url: string | null;
+}
+
 const MemberProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,6 +40,8 @@ const MemberProfile = () => {
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
+  const [relatedMembers, setRelatedMembers] = useState<RelatedMember[]>([]);
+  const [departmentMembers, setDepartmentMembers] = useState<RelatedMember[]>([]);
 
   useEffect(() => {
     checkAccessAndLoadMember();
@@ -82,6 +93,39 @@ const MemberProfile = () => {
       }
 
       setMember(memberData);
+
+      // Load related members from the same department
+      if (memberData.department) {
+        const { data: deptMembers } = await supabase
+          .from('members')
+          .select('id, name, position, department, profile_image_url')
+          .eq('department', memberData.department)
+          .neq('id', id)
+          .limit(6);
+        
+        if (deptMembers) setDepartmentMembers(deptMembers);
+      }
+
+      // Load related members with similar positions or from address
+      const address = memberData.address;
+      if (address) {
+        const addressParts = address.split('|||');
+        const city = addressParts[2];
+        
+        const { data: cityMembers } = await supabase
+          .from('members')
+          .select('id, name, position, department, profile_image_url')
+          .neq('id', id)
+          .limit(6);
+        
+        if (cityMembers) {
+          const filtered = cityMembers.filter(m => 
+            m.department === memberData.department || 
+            (m.position && memberData.position && m.position === memberData.position)
+          );
+          setRelatedMembers(filtered.slice(0, 6));
+        }
+      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       toast({
@@ -153,6 +197,23 @@ const MemberProfile = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       <div className="container mx-auto px-4 py-20">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink to="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink to="/members">Members Directory</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{member.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex justify-between items-center mb-6">
           <Button
             variant="ghost"
@@ -271,6 +332,137 @@ const MemberProfile = () => {
             )}
           </div>
         </div>
+
+        {/* Department Link Section */}
+        {member.department && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Department
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => navigate('/departments')}
+              >
+                <Building2 className="mr-2 h-4 w-4" />
+                {member.department} Department
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">
+                View all members and information about the {member.department} department
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Department Members Section */}
+        {departmentMembers.length > 0 && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Other Members in {member.department}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {departmentMembers.map((relMember) => (
+                  <div
+                    key={relMember.id}
+                    className="group cursor-pointer"
+                    onClick={() => navigate(`/members/${relMember.id}`)}
+                  >
+                    <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-2 group-hover:ring-2 group-hover:ring-primary transition-all">
+                      {relMember.profile_image_url ? (
+                        <img
+                          src={relMember.profile_image_url}
+                          alt={relMember.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <UserCircle2 className="w-12 h-12 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-center line-clamp-2 group-hover:text-primary transition-colors">
+                      {relMember.name}
+                    </p>
+                    {relMember.position && (
+                      <p className="text-xs text-muted-foreground text-center line-clamp-1">
+                        {relMember.position}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {departmentMembers.length >= 6 && (
+                <Button
+                  variant="link"
+                  className="w-full mt-4"
+                  onClick={() => navigate('/departments')}
+                >
+                  View all {member.department} members →
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Related Members Section */}
+        {relatedMembers.length > 0 && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Related Members
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {relatedMembers.map((relMember) => (
+                  <div
+                    key={relMember.id}
+                    className="group cursor-pointer"
+                    onClick={() => navigate(`/members/${relMember.id}`)}
+                  >
+                    <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-2 group-hover:ring-2 group-hover:ring-primary transition-all">
+                      {relMember.profile_image_url ? (
+                        <img
+                          src={relMember.profile_image_url}
+                          alt={relMember.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <UserCircle2 className="w-12 h-12 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-center line-clamp-2 group-hover:text-primary transition-colors">
+                      {relMember.name}
+                    </p>
+                    {relMember.position && (
+                      <p className="text-xs text-muted-foreground text-center line-clamp-1">
+                        {relMember.position}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <Button
+                variant="link"
+                className="w-full mt-4"
+                onClick={() => navigate('/members')}
+              >
+                View all members →
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
       <Footer />
     </div>

@@ -121,6 +121,7 @@ const Members = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
   const [groupByFamily, setGroupByFamily] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -260,8 +261,15 @@ const Members = () => {
       );
     }
 
+    // Filter by department
+    if (departmentFilter) {
+      filtered = filtered.filter(member =>
+        member.department?.toLowerCase() === departmentFilter.toLowerCase()
+      );
+    }
+
     setFilteredMembers(filtered);
-  }, [searchQuery, cityFilter, countyFilter, members]);
+  }, [searchQuery, cityFilter, countyFilter, departmentFilter, members]);
 
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
@@ -758,7 +766,7 @@ const Members = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h2 className="font-display text-2xl font-bold">
               {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-              {(searchQuery || cityFilter || countyFilter) && ` (filtered from ${members.length})`}
+              {(searchQuery || cityFilter || countyFilter || departmentFilter) && ` (filtered from ${members.length})`}
             </h2>
             <div className="flex flex-wrap gap-2">
               <Button 
@@ -1756,6 +1764,20 @@ const Members = () => {
                 <div className="space-y-4">
                   <h4 className="font-medium leading-none">Filter Options</h4>
                   <div className="space-y-2">
+                    <Label htmlFor="department-filter">Department</Label>
+                    <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                      <SelectTrigger id="department-filter">
+                        <SelectValue placeholder="All departments" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Departments</SelectItem>
+                        {Array.from(new Set(members.map(m => m.department).filter(Boolean))).sort().map((dept) => (
+                          <SelectItem key={dept} value={dept as string}>{dept}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="city-filter">City</Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -1781,13 +1803,14 @@ const Members = () => {
                       />
                     </div>
                   </div>
-                  {(cityFilter || countyFilter) && (
+                  {(cityFilter || countyFilter || departmentFilter) && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={() => {
                         setCityFilter("");
                         setCountyFilter("");
+                        setDepartmentFilter("");
                       }}
                       className="w-full"
                     >
