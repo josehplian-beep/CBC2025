@@ -294,7 +294,7 @@ const Members = () => {
       service_year: values.service_year || null,
       profile_image_url: profileImageUrl || null,
       church_groups: null,
-      family_id: values.family_id || null
+      family_id: values.family_id && values.family_id !== "none" ? values.family_id : null
     };
   };
 
@@ -380,7 +380,7 @@ const Members = () => {
       email: member.email || "",
       area_code: areaCode,
       phone_number: phoneNumber,
-      family_id: member.family_id || "",
+      family_id: member.family_id || "none",
       street_address: streetAddress,
       street_address_line2: streetAddressLine2,
       city: city,
@@ -1096,14 +1096,14 @@ const Members = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Assign to Family (Optional)</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || "none"}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a family or leave unassigned" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="">No Family (Individual)</SelectItem>
+                                  <SelectItem value="none">No Family (Individual)</SelectItem>
                                   {families.map((family) => (
                                     <SelectItem key={family.id} value={family.id}>
                                       {family.family_name}
@@ -1473,14 +1473,14 @@ const Members = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Assign to Family (Optional)</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || "none"}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a family or leave unassigned" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="">No Family (Individual)</SelectItem>
+                                  <SelectItem value="none">No Family (Individual)</SelectItem>
                                   {families.map((family) => (
                                     <SelectItem key={family.id} value={family.id}>
                                       {family.family_name}
