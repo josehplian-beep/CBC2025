@@ -5,11 +5,12 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, Building2, UserCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, Building2, UserCircle2, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { MessageDialog } from "@/components/MessageDialog";
 
 interface Member {
   id: string;
@@ -42,6 +43,8 @@ const MemberProfile = () => {
   const [member, setMember] = useState<Member | null>(null);
   const [relatedMembers, setRelatedMembers] = useState<RelatedMember[]>([]);
   const [departmentMembers, setDepartmentMembers] = useState<RelatedMember[]>([]);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAccessAndLoadMember();
@@ -72,6 +75,7 @@ const MemberProfile = () => {
       }
 
       setHasAccess(true);
+      setCurrentUserId(session.user.id);
 
       // Load member
       const { data: memberData, error: memberError } = await supabase
@@ -222,12 +226,21 @@ const MemberProfile = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Members
           </Button>
-          {hasAccess && (
-            <Button onClick={() => navigate(`/members/${id}/edit`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {/* Message Button - show to all members except when viewing own profile */}
+            {hasAccess && member.user_id && currentUserId !== member.user_id && (
+              <Button variant="outline" onClick={() => setMessageDialogOpen(true)}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Send Message
+              </Button>
+            )}
+            {hasAccess && (
+              <Button onClick={() => navigate(`/members/${id}/edit`)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-[400px_1fr] gap-8">
@@ -465,6 +478,16 @@ const MemberProfile = () => {
         )}
       </div>
       <Footer />
+
+      {/* Message Dialog */}
+      {member && (
+        <MessageDialog
+          open={messageDialogOpen}
+          onOpenChange={setMessageDialogOpen}
+          recipientId={member.id}
+          recipientName={member.name}
+        />
+      )}
     </div>
   );
 };

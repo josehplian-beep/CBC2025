@@ -13,6 +13,7 @@ import Events from "./pages/Events";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
 import MemberProfile from "./pages/MemberProfile";
+import Messages from "./pages/Messages";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import AdminAlbums from "./pages/AdminAlbums";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/members" element={<AdminLayout><Members /></AdminLayout>} />
           <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
           <Route path="/members/:id/edit" element={<AdminLayout><ProfileEdit /></AdminLayout>} />
+          <Route path="/messages" element={<AdminLayout><Messages /></AdminLayout>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<AdminLayout><Profile /></AdminLayout>} />
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />

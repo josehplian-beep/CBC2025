@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, Sun, Moon, MessageSquare } from "lucide-react";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
@@ -38,9 +39,33 @@ const Navigation = () => {
   }, []);
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     checkAdminStatus();
+    if (user) {
+      loadUnreadCount();
+      // Set up real-time subscription for new messages
+      const subscription = supabase
+        .channel('messages_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'messages',
+            filter: `recipient_id=eq.${user.id}`
+          },
+          () => {
+            loadUnreadCount();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
   }, [user]);
 
   const checkAdminStatus = async () => {
@@ -58,6 +83,25 @@ const Navigation = () => {
       setIsAdmin(roles?.some(r => r.role === 'admin') || false);
     } catch (error) {
       setIsAdmin(false);
+    }
+  };
+
+  const loadUnreadCount = async () => {
+    if (!user) {
+      setUnreadMessages(0);
+      return;
+    }
+
+    try {
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipient_id', user.id)
+        .eq('read', false);
+
+      setUnreadMessages(count || 0);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
     }
   };
 
@@ -203,6 +247,19 @@ const Navigation = () => {
             )}
             {user ? (
               <div className="flex items-center gap-2 ml-4">
+                <Link to="/messages">
+                  <Button size="sm" variant="ghost" className="relative">
+                    <MessageSquare className="w-4 h-4" />
+                    {unreadMessages > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                      >
+                        {unreadMessages > 9 ? '9+' : unreadMessages}
+                      </Badge>
+                    )}
+                  </Button>
+                </Link>
                 <Button size="sm" variant="outline" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -306,6 +363,17 @@ const Navigation = () => {
               )}
               {user ? (
                 <>
+                  <Link to="/messages" onClick={() => setIsOpen(false)} className="w-full">
+                    <Button size="sm" variant="ghost" className="w-full justify-start relative">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Messages
+                      {unreadMessages > 0 && (
+                        <Badge variant="destructive" className="ml-auto">
+                          {unreadMessages > 9 ? '9+' : unreadMessages}
+                        </Badge>
+                      )}
+                    </Button>
+                  </Link>
                   <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
