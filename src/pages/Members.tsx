@@ -105,6 +105,7 @@ interface Member {
   department: string | null;
   service_year: string | null;
   family_id: string | null;
+  user_id: string | null;
   families?: Family;
 }
 
@@ -114,6 +115,7 @@ const Members = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
+  const [grantingAccessFor, setGrantingAccessFor] = useState<string | null>(null);
   const [user, setUser] = useState(null);
   const { role, isAdmin, canEdit, canCreate, canDelete } = useUserRole();
   const [searchQuery, setSearchQuery] = useState("");
@@ -541,17 +543,19 @@ const Members = () => {
 
   const handleAddFamily = async (values: z.infer<typeof familyFormSchema>) => {
     try {
-      const familyData = {
-        family_name: values.family_name,
-        street_address: values.street_address,
-        street_address_line2: values.street_address_line2 || null,
-        city: values.city,
-        county: values.county,
-        state: values.state,
-        postal_code: values.postal_code
-      };
-
-      const { error } = await supabase.from('families').insert([familyData]);
+      const { data, error } = await supabase
+        .from('families')
+        .insert([{
+          family_name: values.family_name,
+          street_address: values.street_address,
+          street_address_line2: values.street_address_line2 || null,
+          city: values.city,
+          county: values.county,
+          state: values.state,
+          postal_code: values.postal_code,
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -560,16 +564,72 @@ const Members = () => {
         description: "Family added successfully",
       });
 
-      setIsFamilyDialogOpen(false);
+      setFamilies([...families, data]);
       familyForm.reset();
-      checkAccessAndLoadMembers();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      setIsFamilyDialogOpen(false);
+      await checkAccessAndLoadMembers();
+    } catch (error: any) {
+      console.error('Error adding family:', error);
       toast({
         title: "Error",
-        description: message,
+        description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleGrantAccess = async (memberId: string, memberEmail: string, memberName: string) => {
+    try {
+      setGrantingAccessFor(memberId);
+      
+      // Generate a temporary password
+      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: memberEmail,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: {
+          full_name: memberName
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Link member to user
+      const { error: updateError } = await supabase
+        .from('members')
+        .update({ user_id: authData.user.id })
+        .eq('id', memberId);
+
+      if (updateError) throw updateError;
+
+      // Assign member role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: authData.user.id,
+          role: 'member'
+        });
+
+      if (roleError) throw roleError;
+
+      toast({
+        title: "Access Granted",
+        description: `Login credentials sent to ${memberEmail}. Temporary password: ${tempPassword}`,
+      });
+
+      await checkAccessAndLoadMembers();
+    } catch (error: any) {
+      console.error('Error granting access:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGrantingAccessFor(null);
     }
   };
 
@@ -1835,13 +1895,31 @@ const Members = () => {
                                         <Button
                                           variant="ghost"
                                           size="sm"
-                                          onClick={() => navigate(`/members/${member.id}`)}
+                                          onClick={() => navigate(`/member-profile/${member.id}`)}
                                           title="View profile"
                                           className="gap-2"
                                         >
                                           <Eye className="w-4 h-4" />
                                           <span>View Profile</span>
                                         </Button>
+                                        {isAdmin && !member.user_id && member.email && (
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleGrantAccess(member.id, member.email!, member.name)}
+                                            disabled={grantingAccessFor === member.id}
+                                            title="Grant login access to this member"
+                                          >
+                                            {grantingAccessFor === member.id ? (
+                                              <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                              "Grant Access"
+                                            )}
+                                          </Button>
+                                        )}
+                                        {isAdmin && member.user_id && (
+                                          <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                        )}
                                         {canEdit && (
                                           <Button
                                             variant="ghost"
@@ -1944,13 +2022,31 @@ const Members = () => {
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => navigate(`/members/${member.id}`)}
+                                        onClick={() => navigate(`/member-profile/${member.id}`)}
                                         title="View profile"
                                         className="gap-2"
                                       >
                                         <Eye className="w-4 h-4" />
                                         <span>View Profile</span>
                                       </Button>
+                                      {isAdmin && !member.user_id && member.email && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => handleGrantAccess(member.id, member.email!, member.name)}
+                                          disabled={grantingAccessFor === member.id}
+                                          title="Grant login access to this member"
+                                        >
+                                          {grantingAccessFor === member.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                          ) : (
+                                            "Grant Access"
+                                          )}
+                                        </Button>
+                                      )}
+                                      {isAdmin && member.user_id && (
+                                        <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                                      )}
                                       {canEdit && (
                                         <Button
                                           variant="ghost"
@@ -2050,13 +2146,31 @@ const Members = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/members/${member.id}`)}
+                              onClick={() => navigate(`/member-profile/${member.id}`)}
                               title="View profile"
                               className="gap-2"
                             >
                               <Eye className="w-4 h-4" />
                               <span>View Profile</span>
                             </Button>
+                            {isAdmin && !member.user_id && member.email && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleGrantAccess(member.id, member.email!, member.name)}
+                                disabled={grantingAccessFor === member.id}
+                                title="Grant login access to this member"
+                              >
+                                {grantingAccessFor === member.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  "Grant Access"
+                                )}
+                              </Button>
+                            )}
+                            {isAdmin && member.user_id && (
+                              <Badge variant="secondary" className="text-xs">Has Access</Badge>
+                            )}
                             {canEdit && (
                               <Button
                                 variant="ghost"
