@@ -38,25 +38,23 @@ const MemberProfile = () => {
 
   const checkAccessAndLoadMember = async () => {
     try {
-      // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
+        setHasAccess(false);
         setLoading(false);
         return;
       }
 
-      // Check if user has staff or admin role
-      const { data: roles, error: rolesError } = await supabase
+      // Check if user has staff, admin, or member role
+      const { data: roles } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id);
 
-      if (rolesError) throw rolesError;
-
-      const hasStaffAccess = roles?.some(r => r.role === 'staff' || r.role === 'admin');
+      const hasRequiredRole = roles?.some(r => r.role === 'staff' || r.role === 'admin' || r.role === 'member');
       
-      if (!hasStaffAccess) {
+      if (!hasRequiredRole) {
         setHasAccess(false);
         setLoading(false);
         return;
