@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, BookOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ const adminMenuItems = [
   { title: "Manage Albums", url: "/admin/albums", icon: Image },
   { title: "Manage Staff", url: "/admin/staff", icon: Users },
   { title: "Manage Departments", url: "/admin/departments", icon: LayoutDashboard },
+  { title: "Manage Blog", url: "/admin/blog", icon: BookOpen },
   { title: "Color Palette", url: "/admin/color-palette", icon: Palette },
 ];
 
