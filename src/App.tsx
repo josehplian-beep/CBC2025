@@ -18,7 +18,7 @@ import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
-import Testimonials from "./pages/Testimonials";
+import Blog from "./pages/Blog";
 import ColorPalette from "./pages/ColorPalette";
 import AdminStaff from "./pages/AdminStaff";
 import StaffBiography from "./pages/StaffBiography";
@@ -53,7 +53,7 @@ const App = () => (
           <Route path="/beliefs/salvation" element={<Salvation />} />
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
-          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/admin/color-palette" element={<ColorPalette />} />
           <Route path="/admin/staff" element={<AdminStaff />} />
           <Route path="/admin/departments" element={<AdminDepartments />} />
