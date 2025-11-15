@@ -60,13 +60,15 @@ const MemberProfile = () => {
         return;
       }
 
-      // Check if user has staff, admin, or member role
+      // Check if user has staff, admin, member, or viewer role
       const { data: roles } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id);
 
-      const hasRequiredRole = roles?.some(r => r.role === 'staff' || r.role === 'admin' || r.role === 'member');
+      const hasRequiredRole = roles?.some(r =>
+        r.role === 'staff' || r.role === 'admin' || r.role === 'member' || r.role === 'viewer'
+      );
       
       if (!hasRequiredRole) {
         setHasAccess(false);
@@ -182,7 +184,7 @@ const MemberProfile = () => {
           <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              You need to be logged in as staff or admin to view member profiles.
+              You need to be signed in to view member profiles.
             </AlertDescription>
           </Alert>
         </div>
