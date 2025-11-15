@@ -43,12 +43,8 @@ const Blog = () => {
       <section className="relative bg-gradient-to-br from-primary/90 to-primary py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center text-primary-foreground">
-            <h1 className="font-display text-5xl md:text-6xl font-bold mb-6">
-              Church Blog
-            </h1>
-            <p className="text-xl text-primary-foreground/90">
-              Stories, reflections, and updates from our community
-            </p>
+            <h1 className="font-display text-5xl md:text-6xl font-bold mb-6">Church Blog</h1>
+            <p className="text-xl text-primary-foreground/90">Stories, reflections, and updates from our community</p>
           </div>
         </div>
       </section>
@@ -64,20 +60,14 @@ const Blog = () => {
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                       {post.image && (
                         <div className="aspect-video bg-muted overflow-hidden">
-                          <img
-                            src={post.image}
-                            alt={post.title}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <CardHeader>
                         <div className="flex items-center justify-between mb-2">
                           <Badge>{post.category}</Badge>
                         </div>
-                        <CardTitle className="text-xl font-semibold leading-tight">
-                          {post.title}
-                        </CardTitle>
+                        <CardTitle className="text-xl font-semibold leading-tight">{post.title}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <p className="text-muted-foreground">{post.excerpt}</p>
@@ -98,9 +88,7 @@ const Blog = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">
-                  No blog posts available yet. Check back soon!
-                </p>
+                <p className="text-muted-foreground text-lg">No blog posts available yet. Check back soon!</p>
               </div>
             )}
           </div>
