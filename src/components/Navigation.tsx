@@ -119,7 +119,7 @@ const Navigation = () => {
 
   const mediaSubLinks = [
     { name: "Media Gallery", path: "/media" },
-    { name: "Testimonials", path: "/testimonials" },
+    { name: "Testimony", path: "/testimonials" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

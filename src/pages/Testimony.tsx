@@ -23,7 +23,7 @@ interface Testimonial {
   created_at: string;
 }
 
-const Testimonials = () => {
+const Testimony = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -209,7 +209,7 @@ const Testimonials = () => {
       <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <Quote className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="font-display text-4xl md:text-5xl font-bold">Testimonials</h1>
+          <h1 className="font-display text-4xl md:text-5xl font-bold">Testimony</h1>
         </div>
       </section>
 
@@ -415,4 +415,4 @@ const Testimonials = () => {
   );
 };
 
-export default Testimonials;
+export default Testimony;
