@@ -5,8 +5,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Pencil, Trash2, Home } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -25,18 +24,6 @@ interface Member {
   email: string | null;
   date_of_birth: string | null;
   church_groups: string[] | null;
-  family_id: string | null;
-}
-
-interface Family {
-  id: string;
-  family_name: string;
-  street_address: string;
-  street_address_line2: string | null;
-  city: string;
-  county: string;
-  state: string;
-  postal_code: string;
 }
 
 const Members = () => {
@@ -48,11 +35,7 @@ const Members = () => {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
-  const [families, setFamilies] = useState<Family[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditFamilyDialogOpen, setIsEditFamilyDialogOpen] = useState(false);
-  const [deletingFamilyId, setDeletingFamilyId] = useState<string | null>(null);
-  const [editingFamily, setEditingFamily] = useState<Family | null>(null);
   const [newMember, setNewMember] = useState({
     name: "",
     address: "",
@@ -100,18 +83,16 @@ const Members = () => {
       setHasAccess(true);
       setIsAdmin(isAdminUser);
 
-      // Load members and families
-      const [membersResult, familiesResult] = await Promise.all([
-        supabase.from('members').select('*').order('name'),
-        supabase.from('families').select('*').order('family_name')
-      ]);
+      // Load members
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('*')
+        .order('name');
 
-      if (membersResult.error) throw membersResult.error;
-      if (familiesResult.error) throw familiesResult.error;
+      if (membersError) throw membersError;
 
-      setMembers(membersResult.data || []);
-      setFilteredMembers(membersResult.data || []);
-      setFamilies(familiesResult.data || []);
+      setMembers(membersData || []);
+      setFilteredMembers(membersData || []);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       toast({
@@ -183,43 +164,6 @@ const Members = () => {
         church_groups: ""
       });
       
-      checkAccessAndLoadMembers();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateFamily = async () => {
-    if (!editingFamily) return;
-
-    try {
-      const { error } = await supabase
-        .from('families')
-        .update({
-          family_name: editingFamily.family_name,
-          street_address: editingFamily.street_address,
-          street_address_line2: editingFamily.street_address_line2 || null,
-          city: editingFamily.city,
-          county: editingFamily.county,
-          state: editingFamily.state,
-          postal_code: editingFamily.postal_code,
-        })
-        .eq('id', editingFamily.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family updated successfully",
-      });
-
-      setIsEditFamilyDialogOpen(false);
-      setEditingFamily(null);
       checkAccessAndLoadMembers();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -585,54 +529,6 @@ const Members = () => {
           )}
         </div>
       </section>
-
-      {/* Edit Family Dialog */}
-      <Dialog open={isEditFamilyDialogOpen} onOpenChange={setIsEditFamilyDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Family</DialogTitle>
-            <DialogDescription>Update family information and address</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-family-name">Family Name *</Label>
-              <Input id="edit-family-name" value={editingFamily?.family_name || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, family_name: e.target.value })} placeholder="Smith Family" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-street">Street Address *</Label>
-              <Input id="edit-street" value={editingFamily?.street_address || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, street_address: e.target.value })} placeholder="123 Main Street" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-street2">Street Address Line 2</Label>
-              <Input id="edit-street2" value={editingFamily?.street_address_line2 || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, street_address_line2: e.target.value })} placeholder="Apt 4B" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-city">City *</Label>
-                <Input id="edit-city" value={editingFamily?.city || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, city: e.target.value })} placeholder="Springfield" required />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-county">County *</Label>
-                <Input id="edit-county" value={editingFamily?.county || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, county: e.target.value })} placeholder="Sangamon" required />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-state">State *</Label>
-                <Input id="edit-state" value={editingFamily?.state || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, state: e.target.value })} placeholder="IL" required />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-postal">Postal Code *</Label>
-                <Input id="edit-postal" value={editingFamily?.postal_code || ""} onChange={(e) => setEditingFamily({ ...editingFamily!, postal_code: e.target.value })} placeholder="62701" required />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditFamilyDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdateFamily} disabled={!editingFamily?.family_name || !editingFamily?.street_address || !editingFamily?.city || !editingFamily?.county || !editingFamily?.state || !editingFamily?.postal_code}>Update Family</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Footer />
     </div>
