@@ -145,45 +145,6 @@ export type Database = {
           },
         ]
       }
-      families: {
-        Row: {
-          city: string
-          county: string
-          created_at: string | null
-          family_name: string
-          id: string
-          postal_code: string
-          state: string
-          street_address: string
-          street_address_line2: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          city: string
-          county: string
-          created_at?: string | null
-          family_name: string
-          id?: string
-          postal_code: string
-          state: string
-          street_address: string
-          street_address_line2?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          city?: string
-          county?: string
-          created_at?: string | null
-          family_name?: string
-          id?: string
-          postal_code?: string
-          state?: string
-          street_address?: string
-          street_address_line2?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       members: {
         Row: {
           address: string | null
@@ -192,7 +153,6 @@ export type Database = {
           date_of_birth: string | null
           department: string | null
           email: string | null
-          family_id: string | null
           gender: string | null
           id: string
           name: string
@@ -209,7 +169,6 @@ export type Database = {
           date_of_birth?: string | null
           department?: string | null
           email?: string | null
-          family_id?: string | null
           gender?: string | null
           id?: string
           name: string
@@ -226,7 +185,6 @@ export type Database = {
           date_of_birth?: string | null
           department?: string | null
           email?: string | null
-          family_id?: string | null
           gender?: string | null
           id?: string
           name?: string
@@ -236,15 +194,7 @@ export type Database = {
           service_year?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "members_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       photos: {
         Row: {

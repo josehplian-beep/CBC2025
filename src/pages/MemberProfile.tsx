@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -97,17 +97,16 @@ const MemberProfile = () => {
   };
 
   const parseAddress = (address: string | null) => {
-    if (!address) return { street: null, street2: null, city: null, county: null, state: null, zip: null };
+    if (!address) return { street: null, city: null, county: null, state: null, zip: null };
     
-    const parts = address.split('|||');
-    const street = parts[0] || null;
-    const street2 = parts[1] || null;
-    const city = parts[2] || null;
-    const county = parts[3]?.replace(' County', '') || null;
-    const state = parts[4] || null;
-    const zip = parts[5] || null;
+    const parts = address.split(', ');
+    const street = parts.slice(0, -4).join(', ') || null;
+    const city = parts[parts.length - 4] || null;
+    const county = parts[parts.length - 3]?.replace(' County', '') || null;
+    const state = parts[parts.length - 2] || null;
+    const zip = parts[parts.length - 1] || null;
     
-    return { street, street2, city, county, state, zip };
+    return { street, city, county, state, zip };
   };
 
   const formatDate = (dateString: string | null) => {
@@ -155,21 +154,14 @@ const MemberProfile = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       <div className="container mx-auto px-4 py-20">
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/members')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Members
-          </Button>
-          {hasAccess && (
-            <Button onClick={() => navigate(`/members/${id}/edit`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
-            </Button>
-          )}
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/members')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Members
+        </Button>
 
         <div className="grid md:grid-cols-[400px_1fr] gap-8">
           {/* Left side - Profile Image */}
@@ -251,7 +243,6 @@ const MemberProfile = () => {
                   <p className="text-sm font-semibold text-muted-foreground uppercase">Address</p>
                   <div className="text-foreground space-y-1">
                     {address.street && <p>{address.street}</p>}
-                    {address.street2 && <p>{address.street2}</p>}
                     <p>
                       {address.city && `${address.city}, `}
                       {address.county && `${address.county} County, `}

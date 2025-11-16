@@ -35,16 +35,6 @@ const US_STATES = [
 
 const COUNTY_OPTIONS = ["Howard", "Baltimore", "Anne Arundel", "Other"];
 
-const familyFormSchema = z.object({
-  family_name: z.string().min(1, "Family name is required").max(100, "Family name must be less than 100 characters"),
-  street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
-  street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
-  city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
-  state: z.string().min(1, "State is required"),
-  county: z.string().min(1, "County is required"),
-  postal_code: z.string().min(1, "ZIP code is required").regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)")
-});
-
 const memberFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
   last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
@@ -52,7 +42,6 @@ const memberFormSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address").max(255, "Email must be less than 255 characters"),
   area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
   phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
-  family_id: z.string().optional().or(z.literal("")),
   street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
   street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
   city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
@@ -80,17 +69,6 @@ const memberFormSchema = z.object({
   path: ["birth_day"]
 });
 
-interface Family {
-  id: string;
-  family_name: string;
-  street_address: string;
-  street_address_line2: string | null;
-  city: string;
-  county: string;
-  state: string;
-  postal_code: string;
-}
-
 interface Member {
   id: string;
   name: string;
@@ -104,8 +82,6 @@ interface Member {
   position: string | null;
   department: string | null;
   service_year: string | null;
-  family_id: string | null;
-  families?: Family;
 }
 
 const Members = () => {
@@ -113,16 +89,13 @@ const Members = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
-  const [families, setFamilies] = useState<Family[]>([]);
   const [user, setUser] = useState(null);
   const { role, isAdmin, canEdit, canCreate, canDelete } = useUserRole();
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
-  const [groupByFamily, setGroupByFamily] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
@@ -151,19 +124,6 @@ const Members = () => {
       position: "",
       department: "",
       service_year: ""
-    }
-  });
-
-  const familyForm = useForm<z.infer<typeof familyFormSchema>>({
-    resolver: zodResolver(familyFormSchema),
-    defaultValues: {
-      family_name: "",
-      street_address: "",
-      street_address_line2: "",
-      city: "",
-      state: "",
-      county: "",
-      postal_code: ""
     }
   });
 
@@ -201,19 +161,10 @@ const Members = () => {
 
       setHasAccess(true);
 
-      // Load families
-      const { data: familiesData, error: familiesError } = await supabase
-        .from('families')
-        .select('*')
-        .order('family_name');
-
-      if (familiesError) console.error('Error loading families:', familiesError);
-      else setFamilies(familiesData || []);
-
-      // Load members with family data
+      // Load members
       const { data: membersData, error: membersError } = await supabase
         .from('members')
-        .select('*, families(*)')
+        .select('*')
         .order('name');
 
       if (membersError) throw membersError;
@@ -264,15 +215,15 @@ const Members = () => {
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
     
-    // Build address with proper structure, using empty string for optional line2
-    const fullAddress = [
+    const addressParts = [
       values.street_address,
-      values.street_address_line2 || "",
+      values.street_address_line2,
       values.city,
-      values.county ? `${values.county} County` : "",
+      values.county ? `${values.county} County` : null,
       values.state,
       values.postal_code
-    ].join('|||');
+    ].filter(Boolean);
+    const fullAddress = addressParts.join(', ');
     
     const fullPhone = values.area_code && values.phone_number 
       ? `${values.area_code}-${values.phone_number}`
@@ -293,8 +244,7 @@ const Members = () => {
       department: values.department || null,
       service_year: values.service_year || null,
       profile_image_url: profileImageUrl || null,
-      church_groups: null,
-      family_id: values.family_id || null
+      church_groups: null
     };
   };
 
@@ -333,7 +283,8 @@ const Members = () => {
     const areaCode = phoneParts[0] || "";
     const phoneNumber = phoneParts.slice(1).join('-') || "";
     
-    // Parse address - handle both new (|||) and old (comma) format
+    // Parse address
+    const addressParts = member.address?.split(', ') || [];
     let streetAddress = "";
     let streetAddressLine2 = "";
     let city = "";
@@ -341,30 +292,16 @@ const Members = () => {
     let state = "";
     let postalCode = "";
     
-    if (member.address) {
-      // Check if it's the new format with |||
-      if (member.address.includes('|||')) {
-        const addressParts = member.address.split('|||');
-        streetAddress = addressParts[0] || "";
-        streetAddressLine2 = addressParts[1] || "";
-        city = addressParts[2] || "";
-        county = (addressParts[3] || "").replace(' County', '');
-        state = addressParts[4] || "";
-        postalCode = addressParts[5] || "";
-      } else {
-        // Old format with commas - try to parse it
-        // Expected format: "Street, City, County, State, ZIP"
-        const parts = member.address.split(',').map(p => p.trim());
-        if (parts.length >= 4) {
-          streetAddress = parts[0] || "";
-          city = parts[1] || "";
-          // The county might have " County" suffix
-          const countyPart = parts[2] || "";
-          county = countyPart.replace(' County', '');
-          state = parts[3] || "";
-          postalCode = parts[4] || "";
-        }
+    if (addressParts.length > 0) {
+      streetAddress = addressParts[0] || "";
+      if (addressParts.length > 1) streetAddressLine2 = addressParts[1] || "";
+      if (addressParts.length > 2) city = addressParts[2] || "";
+      if (addressParts.length > 3) {
+        const countyPart = addressParts[3] || "";
+        county = countyPart.replace(' County', '');
       }
+      if (addressParts.length > 4) state = addressParts[4] || "";
+      if (addressParts.length > 5) postalCode = addressParts[5] || "";
     }
     
     // Parse birth date
@@ -380,7 +317,6 @@ const Members = () => {
       email: member.email || "",
       area_code: areaCode,
       phone_number: phoneNumber,
-      family_id: member.family_id || "",
       street_address: streetAddress,
       street_address_line2: streetAddressLine2,
       city: city,
@@ -539,60 +475,6 @@ const Members = () => {
     });
   };
 
-  const handleAddFamily = async (values: z.infer<typeof familyFormSchema>) => {
-    try {
-      const familyData = {
-        family_name: values.family_name,
-        street_address: values.street_address,
-        street_address_line2: values.street_address_line2 || null,
-        city: values.city,
-        county: values.county,
-        state: values.state,
-        postal_code: values.postal_code
-      };
-
-      const { error } = await supabase.from('families').insert([familyData]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Family added successfully",
-      });
-
-      setIsFamilyDialogOpen(false);
-      familyForm.reset();
-      checkAccessAndLoadMembers();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Group members by family
-  const getMembersByFamily = () => {
-    const grouped = new Map<string, Member[]>();
-    const noFamily: Member[] = [];
-
-    filteredMembers.forEach(member => {
-      if (member.family_id && member.families) {
-        const familyId = member.family_id;
-        if (!grouped.has(familyId)) {
-          grouped.set(familyId, []);
-        }
-        grouped.get(familyId)!.push(member);
-      } else {
-        noFamily.push(member);
-      }
-    });
-
-    return { grouped, noFamily };
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -701,179 +583,12 @@ const Members = () => {
               {(searchQuery || cityFilter || countyFilter) && ` (filtered from ${members.length})`}
             </h2>
             <div className="flex flex-wrap gap-2">
-              <Button 
-                onClick={() => setGroupByFamily(!groupByFamily)} 
-                variant={groupByFamily ? "default" : "outline"}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                {groupByFamily ? "Show All" : "Group by Family"}
-              </Button>
               <Button onClick={handleExportToExcel} variant="outline" disabled={filteredMembers.length === 0}>
                 <Download className="w-4 h-4 mr-2" />
                 Export to Excel
               </Button>
               {canCreate && (
                 <>
-                  <Dialog open={isFamilyDialogOpen} onOpenChange={setIsFamilyDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">
-                        <Users className="w-4 h-4 mr-2" />
-                        Add Family
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Add New Family</DialogTitle>
-                        <DialogDescription>
-                          Create a family group with a shared address. Members can then be assigned to this family.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <Form {...familyForm}>
-                        <form onSubmit={familyForm.handleSubmit(handleAddFamily)} className="space-y-4 py-4">
-                          <FormField
-                            control={familyForm.control}
-                            name="family_name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Family Name *</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="The Smith Family" autoComplete="off" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <div>
-                            <Label className="text-sm font-semibold">Family Address *</Label>
-                            <div className="grid gap-3 mt-2">
-                              <FormField
-                                control={familyForm.control}
-                                name="street_address"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} placeholder="123 Main Street" autoComplete="off" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={familyForm.control}
-                                name="street_address_line2"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} placeholder="Apt, Suite, Unit, etc." autoComplete="off" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                  control={familyForm.control}
-                                  name="city"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
-                                      <FormControl>
-                                        <Input {...field} autoComplete="off" />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={familyForm.control}
-                                  name="county"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select county" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {COUNTY_OPTIONS.map((county) => (
-                                            <SelectItem key={county} value={county}>
-                                              {county}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                  control={familyForm.control}
-                                  name="state"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select a state" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent className="max-h-[300px]">
-                                          {US_STATES.map((state) => (
-                                            <SelectItem key={state} value={state}>
-                                              {state}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={familyForm.control}
-                                  name="postal_code"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
-                                      <FormControl>
-                                        <Input {...field} placeholder="12345 or 12345-6789" autoComplete="off" />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <DialogFooter>
-                            <Button
-                              type="button" 
-                              variant="outline" 
-                              onClick={() => {
-                                setIsFamilyDialogOpen(false);
-                                familyForm.reset();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button type="submit">
-                              Create Family
-                            </Button>
-                          </DialogFooter>
-                        </form>
-                      </Form>
-                    </DialogContent>
-                  </Dialog>
-                  
                   <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline">
@@ -1089,33 +804,6 @@ const Members = () => {
                           </div>
                         </div>
 
-                        {/* Family Selection */}
-                        <FormField
-                          control={form.control}
-                          name="family_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Assign to Family (Optional)</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a family or leave unassigned" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="">No Family (Individual)</SelectItem>
-                                  {families.map((family) => (
-                                    <SelectItem key={family.id} value={family.id}>
-                                      {family.family_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
                         {/* Address Section */}
                         <div>
                           <Label className="text-sm font-semibold">Address *</Label>
@@ -1127,7 +815,7 @@ const Members = () => {
                                 <FormItem>
                                   <FormLabel className="text-xs text-muted-foreground">Street Address *</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="123 Main Street" autoComplete="off" />
+                                    <Input {...field} placeholder="123 Main Street" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1140,7 +828,7 @@ const Members = () => {
                                 <FormItem>
                                   <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Apt, Suite, Unit, etc." autoComplete="off" />
+                                    <Input {...field} placeholder="Apt, Suite, Unit, etc." />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1154,7 +842,7 @@ const Members = () => {
                                   <FormItem>
                                     <FormLabel className="text-xs text-muted-foreground">City *</FormLabel>
                                     <FormControl>
-                                      <Input {...field} autoComplete="off" />
+                                      <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -1217,7 +905,7 @@ const Members = () => {
                                   <FormItem>
                                     <FormLabel className="text-xs text-muted-foreground">Zip Code *</FormLabel>
                                     <FormControl>
-                                      <Input {...field} placeholder="12345 or 12345-6789" autoComplete="off" />
+                                      <Input {...field} placeholder="12345 or 12345-6789" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -1466,33 +1154,6 @@ const Members = () => {
                           </div>
                         </div>
 
-                        {/* Family Selection */}
-                        <FormField
-                          control={form.control}
-                          name="family_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Assign to Family (Optional)</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a family or leave unassigned" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="">No Family (Individual)</SelectItem>
-                                  {families.map((family) => (
-                                    <SelectItem key={family.id} value={family.id}>
-                                      {family.family_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
                         {/* Address Section */}
                         <div>
                           <Label className="text-sm font-semibold">Address *</Label>
@@ -1504,7 +1165,7 @@ const Members = () => {
                                 <FormItem>
                                   <FormLabel className="text-xs text-muted-foreground">Street Address *</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="123 Main St" autoComplete="off" />
+                                    <Input {...field} placeholder="123 Main St" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1517,7 +1178,7 @@ const Members = () => {
                                 <FormItem>
                                   <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="Apt, suite, etc. (optional)" autoComplete="off" />
+                                    <Input {...field} placeholder="Apt, suite, etc. (optional)" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -1531,7 +1192,7 @@ const Members = () => {
                                   <FormItem>
                                     <FormLabel className="text-xs text-muted-foreground">City *</FormLabel>
                                     <FormControl>
-                                      <Input {...field} autoComplete="off" />
+                                      <Input {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -1594,7 +1255,7 @@ const Members = () => {
                                   <FormItem>
                                     <FormLabel className="text-xs text-muted-foreground">Zip Code *</FormLabel>
                                     <FormControl>
-                                      <Input {...field} placeholder="12345 or 12345-6789" autoComplete="off" />
+                                      <Input {...field} placeholder="12345 or 12345-6789" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -1765,228 +1426,7 @@ const Members = () => {
                 </p>
               </CardContent>
             </Card>
-          ) : groupByFamily ? (
-            // Family-grouped view
-            <div className="space-y-6">
-              {(() => {
-                const { grouped, noFamily } = getMembersByFamily();
-                return (
-                  <>
-                    {Array.from(grouped.entries()).map(([familyId, familyMembers]) => {
-                      const family = familyMembers[0]?.families;
-                      if (!family) return null;
-                      return (
-                        <Card key={familyId}>
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <Users className="w-5 h-5 text-primary" />
-                              {family.family_name}
-                            </CardTitle>
-                            <p className="text-sm text-muted-foreground">
-                              <MapPin className="w-3 h-3 inline mr-1" />
-                              {family.street_address}{family.street_address_line2 && `, ${family.street_address_line2}`}, {family.city}, {family.county} County, {family.state} {family.postal_code}
-                            </p>
-                          </CardHeader>
-                          <CardContent>
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Name</TableHead>
-                                  <TableHead>Email</TableHead>
-                                  <TableHead>Phone</TableHead>
-                                  <TableHead>Date of Birth</TableHead>
-                                  <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {familyMembers.map((member) => (
-                                  <TableRow key={member.id}>
-                                    <TableCell className="font-medium">{member.name}</TableCell>
-                                    <TableCell>
-                                      {member.email ? (
-                                        <a href={`mailto:${member.email}`} className="text-primary hover:underline">
-                                          {member.email}
-                                        </a>
-                                      ) : (
-                                        <span className="text-muted-foreground">—</span>
-                                      )}
-                                    </TableCell>
-                                    <TableCell>
-                                      {member.phone ? (
-                                        <a href={`tel:${member.phone}`} className="text-primary hover:underline">
-                                          {member.phone}
-                                        </a>
-                                      ) : (
-                                        <span className="text-muted-foreground">—</span>
-                                      )}
-                                    </TableCell>
-                                    <TableCell>
-                                      {member.date_of_birth ? (
-                                        <div className="flex items-center gap-1">
-                                          <Calendar className="w-3 h-3 text-muted-foreground" />
-                                          {new Date(member.date_of_birth).toLocaleDateString()}
-                                        </div>
-                                      ) : (
-                                        <span className="text-muted-foreground">—</span>
-                                      )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      <div className="flex justify-end gap-2">
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => navigate(`/members/${member.id}`)}
-                                          title="View profile"
-                                          className="gap-2"
-                                        >
-                                          <Eye className="w-4 h-4" />
-                                          <span>View Profile</span>
-                                        </Button>
-                                        {canEdit && (
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleEditMember(member)}
-                                            title="Edit member"
-                                          >
-                                            <Edit className="w-4 h-4" />
-                                          </Button>
-                                        )}
-                                        {canDelete && (
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => setMemberToDelete(member)}
-                                            title="Delete member"
-                                            className="text-destructive hover:text-destructive"
-                                          >
-                                            <Trash2 className="w-4 h-4" />
-                                          </Button>
-                                        )}
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                    {noFamily.length > 0 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <User className="w-5 h-5 text-muted-foreground" />
-                            Individual Members
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground">Members not assigned to a family</p>
-                        </CardHeader>
-                        <CardContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Phone</TableHead>
-                                <TableHead>Date of Birth</TableHead>
-                                <TableHead>Address</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {noFamily.map((member) => (
-                                <TableRow key={member.id}>
-                                  <TableCell className="font-medium">{member.name}</TableCell>
-                                  <TableCell>
-                                    {member.email ? (
-                                      <a href={`mailto:${member.email}`} className="text-primary hover:underline">
-                                        {member.email}
-                                      </a>
-                                    ) : (
-                                      <span className="text-muted-foreground">—</span>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    {member.phone ? (
-                                      <a href={`tel:${member.phone}`} className="text-primary hover:underline">
-                                        {member.phone}
-                                      </a>
-                                    ) : (
-                                      <span className="text-muted-foreground">—</span>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    {member.date_of_birth ? (
-                                      <div className="flex items-center gap-1">
-                                        <Calendar className="w-3 h-3 text-muted-foreground" />
-                                        {new Date(member.date_of_birth).toLocaleDateString()}
-                                      </div>
-                                    ) : (
-                                      <span className="text-muted-foreground">—</span>
-                                    )}
-                                  </TableCell>
-                        <TableCell>
-                          {member.families ? (
-                            <div className="max-w-xs truncate">
-                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
-                            </div>
-                          ) : member.address ? (
-                            <div className="max-w-xs truncate" title={member.address}>
-                              {member.address.split('|||').filter(p => p).join(', ')}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => navigate(`/members/${member.id}`)}
-                                        title="View profile"
-                                        className="gap-2"
-                                      >
-                                        <Eye className="w-4 h-4" />
-                                        <span>View Profile</span>
-                                      </Button>
-                                      {canEdit && (
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => handleEditMember(member)}
-                                          title="Edit member"
-                                        >
-                                          <Edit className="w-4 h-4" />
-                                        </Button>
-                                      )}
-                                      {canDelete && (
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => setMemberToDelete(member)}
-                                          title="Delete member"
-                                          className="text-destructive hover:text-destructive"
-                                        >
-                                          <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                      )}
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
           ) : (
-            // Regular table view
             <Card>
               <div className="overflow-x-auto">
                 <Table>
@@ -2032,18 +1472,14 @@ const Members = () => {
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                      <TableCell>
-                        {member.families ? (
-                          <div className="max-w-xs truncate">
-                            {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
-                          </div>
-                        ) : member.address ? (
-                          <div className="max-w-xs truncate" title={member.address}>
-                            {member.address.split('|||').filter(p => p).join(', ')}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
+                        <TableCell>
+                          {member.address ? (
+                            <div className="max-w-xs truncate" title={member.address}>
+                              {member.address}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">

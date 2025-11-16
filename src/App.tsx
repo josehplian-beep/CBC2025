@@ -21,8 +21,6 @@ import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
 import Testimonials from "./pages/Testimonials";
-import Blog from "./pages/Blog";
-import ProfileEdit from "./pages/ProfileEdit";
 import ColorPalette from "./pages/ColorPalette";
 import AdminStaff from "./pages/AdminStaff";
 import StaffBiography from "./pages/StaffBiography";
@@ -52,7 +50,6 @@ const App = () => (
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<AdminLayout><Members /></AdminLayout>} />
           <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
-          <Route path="/members/:id/edit" element={<AdminLayout><ProfileEdit /></AdminLayout>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<AdminLayout><Profile /></AdminLayout>} />
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
@@ -64,7 +61,6 @@ const App = () => (
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/blog" element={<Blog />} />
           <Route path="/admin/color-palette" element={<AdminLayout><ColorPalette /></AdminLayout>} />
           <Route path="/admin/staff" element={<AdminLayout><AdminStaff /></AdminLayout>} />
           <Route path="/admin/departments" element={<AdminLayout><AdminDepartments /></AdminLayout>} />
