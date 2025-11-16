@@ -124,21 +124,21 @@ const Testimonials = () => {
           .eq('id', selectedTestimonial.id);
 
         if (error) throw error;
-        toast.success('Testimonial updated successfully');
+        toast.success('Testimony updated successfully');
       } else {
         const { error } = await supabase
           .from('testimonials' as any)
           .insert([testimonialData]);
 
         if (error) throw error;
-        toast.success('Testimonial created successfully');
+        toast.success('Testimony created successfully');
       }
 
       fetchTestimonials();
       setDialogOpen(false);
       resetForm();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save testimonial');
+      toast.error(error.message || 'Failed to save testimony');
     }
   };
 
@@ -151,9 +151,9 @@ const Testimonials = () => {
       .eq('id', testimonialToDelete.id);
 
     if (error) {
-      toast.error('Failed to delete testimonial');
+      toast.error('Failed to delete testimony');
     } else {
-      toast.success('Testimonial deleted successfully');
+      toast.success('Testimony deleted successfully');
       fetchTestimonials();
     }
     setDeleteDialogOpen(false);
@@ -209,7 +209,7 @@ const Testimonials = () => {
       <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <Quote className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="font-display text-4xl md:text-5xl font-bold">Testimonials</h1>
+          <h1 className="font-display text-4xl md:text-5xl font-bold">Testimony</h1>
         </div>
       </section>
 
@@ -219,19 +219,19 @@ const Testimonials = () => {
             <div className="mb-8">
               <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Testimonial
+                Add Testimony
               </Button>
             </div>
           )}
 
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Loading testimonials...</p>
+              <p className="text-muted-foreground">Loading testimony...</p>
             </div>
           ) : testimonials.length === 0 ? (
             <div className="text-center py-12">
               <Quote className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">No Testimonials Yet</h3>
+              <h3 className="text-xl font-semibold mb-2">No Testimony Yet</h3>
               <p className="text-muted-foreground">Check back soon for inspiring stories.</p>
             </div>
           ) : (
@@ -328,7 +328,7 @@ const Testimonials = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedTestimonial ? 'Edit' : 'Add'} Testimonial</DialogTitle>
+            <DialogTitle>{selectedTestimonial ? 'Edit' : 'Add'} Testimony</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -341,7 +341,7 @@ const Testimonials = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="content">Testimonial Content</Label>
+              <Label htmlFor="content">Testimony Content</Label>
               <Textarea
                 id="content"
                 required
@@ -396,7 +396,7 @@ const Testimonials = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Testimonial</AlertDialogTitle>
+            <AlertDialogTitle>Delete Testimony</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{testimonialToDelete?.title}"? This action cannot be undone.
             </AlertDialogDescription>
