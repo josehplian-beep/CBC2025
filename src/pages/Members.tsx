@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search } from "lucide-react";
@@ -102,10 +101,10 @@ interface Member {
 const Members = () => {
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [user, setUser] = useState(null);
-  const { role, isAdmin, canEdit, canCreate, canDelete } = useUserRole();
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
@@ -158,7 +157,7 @@ const Members = () => {
 
       setUser(session.user);
 
-      // Check if user has any role (admin, staff, or viewer)
+      // Check if user has staff or admin role
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
@@ -166,15 +165,17 @@ const Members = () => {
 
       if (rolesError) throw rolesError;
 
-      const hasAnyRole = roles?.some(r => r.role === 'staff' || r.role === 'admin' || r.role === 'viewer');
+      const hasStaffAccess = roles?.some(r => r.role === 'staff' || r.role === 'admin');
+      const isAdminUser = roles?.some(r => r.role === 'admin');
       
-      if (!hasAnyRole) {
+      if (!hasStaffAccess) {
         setHasAccess(false);
         setLoading(false);
         return;
       }
 
       setHasAccess(true);
+      setIsAdmin(isAdminUser);
 
       // Load members
       const { data: membersData, error: membersError } = await supabase
@@ -602,7 +603,7 @@ const Members = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Export to Excel
               </Button>
-              {canCreate && (
+              {isAdmin && (
                 <>
                   <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
                     <DialogTrigger asChild>
@@ -1401,7 +1402,7 @@ const Members = () => {
                 <p className="text-muted-foreground mb-4">
                   The member directory is currently empty.
                 </p>
-                {canCreate && (
+                {isAdmin && (
                   <Button onClick={() => setIsAddDialogOpen(true)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add First Member
@@ -1486,26 +1487,26 @@ const Members = () => {
                               <Eye className="w-4 h-4" />
                               <span>View Profile</span>
                             </Button>
-                            {canEdit && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditMember(member)}
-                                title="Edit member"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            )}
-                            {canDelete && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setMemberToDelete(member)}
-                                title="Delete member"
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                            {isAdmin && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditMember(member)}
+                                  title="Edit member"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setMemberToDelete(member)}
+                                  title="Delete member"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
                             )}
                           </div>
                         </TableCell>

@@ -15,28 +15,21 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useUserRole } from "@/hooks/useUserRole";
-import { Badge } from "@/components/ui/badge";
 
 const adminMenuItems = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500", roles: ["admin", "staff", "viewer"] },
-  { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500", roles: ["admin", "staff", "viewer"] },
-  { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500", roles: ["admin", "staff", "viewer"] },
-  { title: "Manage Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", roles: ["admin", "staff"] },
-  { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", roles: ["admin"] },
-  { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", roles: ["admin", "staff"] },
-  { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", roles: ["admin"] },
+  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500" },
+  { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500" },
+  { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500" },
+  { title: "Manage Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500" },
+  { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500" },
+  { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500" },
+  { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500" },
 ];
 
 export function AdminSidebar() {
   const { state, isMobile } = useSidebar();
   const navigate = useNavigate();
   const isCollapsed = state === "collapsed";
-  const { role } = useUserRole();
-
-  const filteredMenuItems = adminMenuItems.filter(item => 
-    role && item.roles.includes(role)
-  );
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -55,18 +48,13 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white font-bold text-base mb-2 px-2 flex items-center justify-between">
-            <span>Admin Panel</span>
-            {!isCollapsed && role && (
-              <Badge variant="secondary" className="text-xs">
-                {role}
-              </Badge>
-            )}
+          <SidebarGroupLabel className="text-white font-bold text-base mb-2 px-2">
+            Admin Panel
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {filteredMenuItems.map((item) => (
+              {adminMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
