@@ -39,6 +39,8 @@ const AdminAlbums = () => {
   const [newAlbumTitle, setNewAlbumTitle] = useState("");
   const [newAlbumDescription, setNewAlbumDescription] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -305,6 +307,34 @@ const AdminAlbums = () => {
     }
   };
 
+  const updateAlbumTitle = async (albumId: string) => {
+    if (!editTitle.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('albums')
+        .update({ title: editTitle.trim() })
+        .eq('id', albumId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Album title updated successfully.",
+      });
+
+      await loadAlbums();
+      setEditingAlbumId(null);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const deleteAlbum = async (albumId: string) => {
     if (!confirm("Are you sure? This will delete the album and all its photos.")) return;
 
@@ -457,7 +487,50 @@ const AdminAlbums = () => {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{album.title}</CardTitle>
+                        {editingAlbumId === album.id ? (
+                          <div className="flex gap-2 items-center mb-2">
+                            <Input
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') updateAlbumTitle(album.id);
+                                if (e.key === 'Escape') setEditingAlbumId(null);
+                              }}
+                              className="text-lg font-semibold"
+                              autoFocus
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateAlbumTitle(album.id);
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingAlbumId(null);
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <CardTitle 
+                            className="text-lg cursor-pointer hover:text-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingAlbumId(album.id);
+                              setEditTitle(album.title);
+                            }}
+                          >
+                            {album.title}
+                          </CardTitle>
+                        )}
                         {album.description && (
                           <CardDescription className="mt-1 line-clamp-2">
                             {album.description}

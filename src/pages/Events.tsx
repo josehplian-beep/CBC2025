@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye } from "lucide-react";
 import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ import * as XLSX from "xlsx";
 const Events = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [events, setEvents] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -142,7 +144,7 @@ const Events = () => {
       'VERSION:2.0',
       'PRODID:-//Chin Bethel Church//Events//EN',
       'BEGIN:VEVENT',
-      `UID:${event.id}@chinbethelchurch.org`,
+      `UID:${event.id}@chinbethelchurch.com`,
       `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
       `DTSTART:${startDate}`,
       `SUMMARY:${event.title}`,
@@ -164,6 +166,7 @@ const Events = () => {
 
   let filteredEvents = events;
   
+  // Filter by date
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
     const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
@@ -172,6 +175,11 @@ const Events = () => {
     );
   } else if (selectedDate) {
     filteredEvents = events.filter(event => isSameDay(event.dateObj, selectedDate));
+  }
+  
+  // Filter by event type
+  if (eventTypeFilter !== "all") {
+    filteredEvents = filteredEvents.filter(event => event.type === eventTypeFilter);
   }
 
   const upcomingEvents = events
@@ -230,7 +238,7 @@ const Events = () => {
             </div>
             <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8">
               {/* Large Calendar */}
-              <Card className="p-8 border-2 shadow-xl">
+              <Card className="p-4 md:p-8 border-2 shadow-xl">
                 <div className="flex items-center justify-center min-h-[500px]">
                   <Calendar
                     mode="single"
@@ -269,7 +277,12 @@ const Events = () => {
                         <CardContent className="p-4 space-y-2">
                           <div className="flex items-start justify-between">
                             <h3 className="font-semibold">{event.title}</h3>
-                            <Badge className={typeColors[event.type]}>{event.type}</Badge>
+                            <div className="flex items-center gap-1">
+                              <Badge className={typeColors[event.type]}>{event.type}</Badge>
+                              {(event.is_recurring_parent || event.parent_event_id) && (
+                                <Badge variant="outline" className="text-xs">🔄</Badge>
+                              )}
+                            </div>
                           </div>
                           <div className="text-sm text-muted-foreground space-y-1">
                             <div className="flex items-center gap-2">
@@ -344,7 +357,7 @@ const Events = () => {
                       </button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-3 md:p-6 overflow-x-auto">
                     <Calendar
                       mode="single"
                       selected={selectedDate}
@@ -352,7 +365,7 @@ const Events = () => {
                         setSelectedDate(date);
                         setWeekFilter(undefined);
                       }}
-                      className="rounded-lg mx-auto w-full"
+                      className="rounded-lg mx-auto w-full pointer-events-auto"
                       modifiers={{
                         hasEvent: eventDates
                       }}
@@ -457,7 +470,7 @@ const Events = () => {
                 </Card>
               )}
 
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-display font-bold">
                     {weekFilter 
@@ -470,18 +483,41 @@ const Events = () => {
                     {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
-                {(selectedDate || weekFilter) && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedDate(undefined);
-                      setWeekFilter(undefined);
-                    }}
-                    className="transition-all hover:scale-105"
-                  >
-                    Clear Filter
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                      <SelectValue placeholder="Filter by type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Worship">Worship</SelectItem>
+                      <SelectItem value="Youth">Youth</SelectItem>
+                      <SelectItem value="Children">Children</SelectItem>
+                      <SelectItem value="Study">Study</SelectItem>
+                      <SelectItem value="Deacon">Deacon</SelectItem>
+                      <SelectItem value="Mission">Mission</SelectItem>
+                      <SelectItem value="Building Committee">Building Committee</SelectItem>
+                      <SelectItem value="Media">Media</SelectItem>
+                      <SelectItem value="Culture">Culture</SelectItem>
+                      <SelectItem value="CBCUSA">CBCUSA</SelectItem>
+                      <SelectItem value="Special">Special</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {(selectedDate || weekFilter || eventTypeFilter !== "all") && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedDate(undefined);
+                        setWeekFilter(undefined);
+                        setEventTypeFilter("all");
+                      }}
+                      className="transition-all hover:scale-105"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {filteredEvents.length === 0 ? (
@@ -496,88 +532,105 @@ const Events = () => {
                   </Button>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
                   {filteredEvents.map((event, index) => (
                     <Card 
                       key={index} 
-                      className="hover:shadow-xl transition-all duration-300 hover:scale-[1.03] animate-fade-in border-2 hover:border-primary/50"
+                      className="hover:shadow-xl transition-all duration-300 animate-fade-in border-2 hover:border-primary/50 overflow-hidden"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-2">
-                          <CardTitle className="text-xl font-display">{event.title}</CardTitle>
-                          <Badge className={typeColors[event.type]}>{event.type}</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-muted-foreground">{event.description}</p>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-start gap-2">
-                            <CalendarIcon className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.date}</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.time}</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                            <span>{event.location}</span>
-                          </div>
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Event Image */}
+                        <div className="sm:w-64 h-48 sm:h-auto flex-shrink-0 bg-muted relative overflow-hidden">
+                          {event.image_url ? (
+                            <img 
+                              src={event.image_url} 
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+                              <CalendarIcon className="w-16 h-16 text-muted-foreground/40" />
+                            </div>
+                          )}
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => {
-                              setViewingEvent(event);
-                              setViewEventDialog(true);
-                            }}
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Event
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => shareEventToCalendar(event)}
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-
-                        {isAdmin && (
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => {
-                                setSelectedEvent(event);
-                                setDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </Button>
-                            <Button 
-                              variant="destructive" 
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => {
-                                setEventToDelete(event);
-                                setDeleteDialogOpen(true);
-                              }}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </Button>
+                        {/* Event Details */}
+                        <div className="flex-1 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <Badge className={`${typeColors[event.type]}`}>{event.type}</Badge>
+                                {(event.is_recurring_parent || event.parent_event_id) && (
+                                  <Badge variant="outline" className="text-xs">
+                                    🔄 Recurring
+                                  </Badge>
+                                )}
+                              </div>
+                              <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                                {event.title}
+                              </h3>
+                            </div>
                           </div>
-                        )}
-                      </CardContent>
+
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                            <CalendarIcon className="w-4 h-4 text-primary" />
+                            <span className="font-medium">{event.date}</span>
+                            {event.recurring_pattern && event.recurring_pattern !== 'none' && (
+                              <span className="text-xs">
+                                • Repeats {event.recurring_pattern}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap gap-4 items-center">
+                            <Button 
+                              variant="outline"
+                              size="default"
+                              onClick={() => {
+                                setViewingEvent(event);
+                                setViewEventDialog(true);
+                              }}
+                            >
+                              VIEW EVENT
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => shareEventToCalendar(event)}
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+
+                            {isAdmin && (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedEvent(event);
+                                    setDialogOpen(true);
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setEventToDelete(event);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </Card>
                   ))}
                 </div>

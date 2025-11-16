@@ -89,7 +89,9 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_recurring_parent: boolean | null
           location: string
+          parent_event_id: string | null
           recurring_end_date: string | null
           recurring_pattern: string | null
           time: string
@@ -105,7 +107,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_recurring_parent?: boolean | null
           location: string
+          parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
           time: string
@@ -121,13 +125,62 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_recurring_parent?: boolean | null
           location?: string
+          parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
           time?: string
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_parent_event_id_fkey"
+            columns: ["parent_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      families: {
+        Row: {
+          city: string
+          county: string
+          created_at: string | null
+          family_name: string
+          id: string
+          postal_code: string
+          state: string
+          street_address: string
+          street_address_line2: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          city: string
+          county: string
+          created_at?: string | null
+          family_name: string
+          id?: string
+          postal_code: string
+          state: string
+          street_address: string
+          street_address_line2?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string
+          county?: string
+          created_at?: string | null
+          family_name?: string
+          id?: string
+          postal_code?: string
+          state?: string
+          street_address?: string
+          street_address_line2?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -137,10 +190,16 @@ export type Database = {
           church_groups: string[] | null
           created_at: string | null
           date_of_birth: string | null
+          department: string | null
           email: string | null
+          family_id: string | null
+          gender: string | null
           id: string
           name: string
           phone: string | null
+          position: string | null
+          profile_image_url: string | null
+          service_year: string | null
           updated_at: string | null
         }
         Insert: {
@@ -148,10 +207,16 @@ export type Database = {
           church_groups?: string[] | null
           created_at?: string | null
           date_of_birth?: string | null
+          department?: string | null
           email?: string | null
+          family_id?: string | null
+          gender?: string | null
           id?: string
           name: string
           phone?: string | null
+          position?: string | null
+          profile_image_url?: string | null
+          service_year?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -159,13 +224,27 @@ export type Database = {
           church_groups?: string[] | null
           created_at?: string | null
           date_of_birth?: string | null
+          department?: string | null
           email?: string | null
+          family_id?: string | null
+          gender?: string | null
           id?: string
           name?: string
           phone?: string | null
+          position?: string | null
+          profile_image_url?: string | null
+          service_year?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       photos: {
         Row: {
@@ -357,6 +436,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_recurring_events: {
+        Args: {
+          p_created_by?: string
+          p_description: string
+          p_end_date: string
+          p_event_id: string
+          p_image_url?: string
+          p_location: string
+          p_recurring_pattern: string
+          p_start_date: string
+          p_time: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       get_album_photo_count: { Args: { album_uuid: string }; Returns: number }
       has_role: {
         Args: {
@@ -367,7 +462,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "staff" | "admin"
+      app_role: "staff" | "admin" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -495,7 +590,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["staff", "admin"],
+      app_role: ["staff", "admin", "viewer"],
     },
   },
 } as const

@@ -75,7 +75,7 @@ const Navigation = () => {
 
   const mediaSubLinks = [
     { name: "Media Gallery", path: "/media" },
-    { name: "Blog", path: "/blog" },
+    { name: "Testimonials", path: "/testimonials" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -189,32 +189,20 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin/dashboard"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  location.pathname.startsWith("/admin")
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Admin Dashboard
+              </Link>
+            )}
             {user ? (
               <div className="flex items-center gap-2 ml-4">
-                {isAdmin && (
-                  <>
-                    <Link to="/admin/albums">
-                      <Button size="sm" variant="ghost">
-                        Manage Albums
-                      </Button>
-                    </Link>
-                    <Link to="/admin/staff">
-                      <Button size="sm" variant="ghost">
-                        Manage Staff
-                      </Button>
-                    </Link>
-                    <Link to="/admin/color-palette">
-                      <Button size="sm" variant="ghost">
-                        Color Palette
-                      </Button>
-                    </Link>
-                  </>
-                )}
-                <Link to="/profile">
-                  <Button size="sm" variant="ghost">
-                    Profile
-                  </Button>
-                </Link>
                 <Button size="sm" variant="outline" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -303,32 +291,21 @@ const Navigation = () => {
                   {link.name}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    location.pathname.startsWith("/admin")
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  Admin Dashboard
+                </Link>
+              )}
               {user ? (
                 <>
-                  {isAdmin && (
-                    <>
-                      <Link to="/admin/albums" onClick={() => setIsOpen(false)}>
-                        <Button size="sm" variant="ghost" className="w-full">
-                          Manage Albums
-                        </Button>
-                      </Link>
-                      <Link to="/admin/staff" onClick={() => setIsOpen(false)}>
-                        <Button size="sm" variant="ghost" className="w-full">
-                          Manage Staff
-                        </Button>
-                      </Link>
-                      <Link to="/admin/color-palette" onClick={() => setIsOpen(false)}>
-                        <Button size="sm" variant="ghost" className="w-full">
-                          Color Palette
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                  <Link to="/profile" onClick={() => setIsOpen(false)}>
-                    <Button size="sm" variant="ghost" className="w-full">
-                      Profile
-                    </Button>
-                  </Link>
                   <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out

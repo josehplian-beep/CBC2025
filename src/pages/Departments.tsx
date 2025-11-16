@@ -13,10 +13,58 @@ const Departments = () => {
   const [yearFilter, setYearFilter] = useState("current");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [departments, setDepartments] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchMembers();
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      fetchMembers();
+    }
   }, [selectedDepartment]);
+
+  const fetchDepartments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("department_members")
+        .select("department");
+
+      if (error) throw error;
+
+      const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
+      const orderedDepts = [
+        "deacons", "women", "youth", "children", "praise-worship",
+        "mission", "building", "culture", "media", "auditors"
+      ].filter(d => uniqueDepts.includes(d));
+      
+      const additionalDepts = uniqueDepts.filter(d => !orderedDepts.includes(d)).sort();
+      setDepartments([...orderedDepts, ...additionalDepts]);
+      
+      if (orderedDepts.length > 0 && !selectedDepartment) {
+        setSelectedDepartment(orderedDepts[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
+  const formatDepartmentName = (dept: string) => {
+    const nameMap: Record<string, string> = {
+      "deacons": "Deacon",
+      "women": "Women",
+      "youth": "Youth",
+      "children": "Children",
+      "praise-worship": "Praise & Worship",
+      "mission": "Mission",
+      "building": "Building",
+      "culture": "Culture",
+      "media": "Media",
+      "auditors": "Auditors"
+    };
+    return nameMap[dept] || dept.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -72,17 +120,18 @@ const Departments = () => {
           </div>
 
           {/* Ministry Tabs */}
-          <Tabs defaultValue="deacons" className="w-full" onValueChange={setSelectedDepartment}>
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 lg:grid-cols-9 mb-8">
-              <TabsTrigger value="deacons">Deacons</TabsTrigger>
-              <TabsTrigger value="women">Women</TabsTrigger>
-              <TabsTrigger value="youth">Youth</TabsTrigger>
-              <TabsTrigger value="children">Children</TabsTrigger>
-              <TabsTrigger value="mission">Mission</TabsTrigger>
-              <TabsTrigger value="building">Building</TabsTrigger>
-              <TabsTrigger value="culture">Culture</TabsTrigger>
-              <TabsTrigger value="media">Media</TabsTrigger>
-              <TabsTrigger value="auditors">Auditors</TabsTrigger>
+          <Tabs value={selectedDepartment} className="w-full" onValueChange={setSelectedDepartment}>
+            <TabsList className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto mb-8 h-auto bg-muted/50 p-3 rounded-xl">
+              {departments.map(dept => (
+                <TabsTrigger 
+                  key={dept} 
+                  value={dept} 
+                  className="px-4 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] font-medium"
+                  title={formatDepartmentName(dept)}
+                >
+                  <span className="truncate block">{formatDepartmentName(dept)}</span>
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             <TabsContent value={selectedDepartment}>

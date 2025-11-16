@@ -2,3 +2,6 @@ project_id = "auztoefiuddwerfbpcpm"
 
 [functions.youtube-search]
 verify_jwt = false
+
+[functions.birthday-reminder]
+verify_jwt = false

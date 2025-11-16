@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
@@ -19,6 +20,7 @@ interface Album {
 }
 
 const Media = () => {
+  const navigate = useNavigate();
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -278,7 +280,11 @@ const Media = () => {
             ) : albums.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {albums.map((album) => (
-                  <div key={album.id} className="group cursor-pointer">
+                  <div 
+                    key={album.id} 
+                    className="group cursor-pointer"
+                    onClick={() => navigate(`/media/album/${album.id}`)}
+                  >
                     <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
                       <img 
                         src={album.cover_image_url || communityImage} 
