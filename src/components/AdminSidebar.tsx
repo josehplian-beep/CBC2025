@@ -51,9 +51,8 @@ export function AdminSidebar() {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <div className="p-2 flex justify-end">
-        <SidebarTrigger />
-      </div>
+      <SidebarTrigger className="m-2 self-end" />
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-white font-bold text-base mb-2 px-2 flex items-center justify-between">

@@ -33,27 +33,42 @@ const US_STATES = [
   "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
-const COUNTY_OPTIONS = ["Howard", "Baltimore", "Anne Arundel", "Other"];
-
 const memberFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
   last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
-  gender: z.string().min(1, "Gender is required"),
-  email: z.string().min(1, "Email is required").email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
-  phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
-  street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
+  gender: z.string().optional().or(z.literal("")),
+  email: z.string().email("Invalid email address").max(255, "Email must be less than 255 characters").optional().or(z.literal("")),
+  area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
+  phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
+  street_address: z.string().max(200, "Street address must be less than 200 characters").optional().or(z.literal("")),
   street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
-  city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
-  state: z.string().min(1, "State is required"),
-  county: z.string().min(1, "County is required"),
-  postal_code: z.string().min(1, "ZIP code is required").regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)"),
-  birth_month: z.string().min(1, "Birth month is required"),
-  birth_day: z.string().min(1, "Birth day is required"),
-  birth_year: z.string().min(1, "Birth year is required"),
-  position: z.string().min(1, "Position is required").max(100, "Position must be less than 100 characters"),
+  city: z.string().max(100, "City must be less than 100 characters").optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  county: z.string().max(100, "County must be less than 100 characters").optional().or(z.literal("")),
+  postal_code: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)").optional().or(z.literal("")),
+  birth_month: z.string().optional().or(z.literal("")),
+  birth_day: z.string().optional().or(z.literal("")),
+  birth_year: z.string().optional().or(z.literal("")),
+  position: z.string().max(100, "Position must be less than 100 characters").optional().or(z.literal("")),
   department: z.string().max(100, "Department must be less than 100 characters").optional().or(z.literal("")),
   service_year: z.string().max(50, "Service year must be less than 50 characters").optional().or(z.literal(""))
+}).refine((data) => {
+  // If area code is provided, phone number must be provided and vice versa
+  if (data.area_code && !data.phone_number) return false;
+  if (data.phone_number && !data.area_code) return false;
+  return true;
+}, {
+  message: "Both area code and phone number must be provided together",
+  path: ["phone_number"]
+}).refine((data) => {
+  // If any birth field is provided, all must be provided
+  const hasAnyBirthField = data.birth_month || data.birth_day || data.birth_year;
+  const hasAllBirthFields = data.birth_month && data.birth_day && data.birth_year;
+  if (hasAnyBirthField && !hasAllBirthFields) return false;
+  return true;
+}, {
+  message: "All birth date fields (month, day, year) must be provided",
+  path: ["birth_year"]
 }).refine((data) => {
   // Validate birth date is a valid date
   if (data.birth_month && data.birth_day && data.birth_year) {
@@ -680,7 +695,7 @@ const Members = () => {
                             name="gender"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Gender *</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Gender</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger className="bg-muted/30 border-border/50 hover:border-primary/50 transition-colors">
@@ -716,7 +731,7 @@ const Members = () => {
                             name="position"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Position *</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Position</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., Vice Chairman, Member" className="bg-background" />
                                 </FormControl>
@@ -729,7 +744,7 @@ const Members = () => {
                             name="department"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Department (Optional)</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Department</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., Deacon, Youth" className="bg-background" />
                                 </FormControl>
@@ -742,7 +757,7 @@ const Members = () => {
                             name="service_year"
                             render={({ field }) => (
                               <FormItem className="md:col-span-2">
-                                <FormLabel className="text-sm font-semibold">Service Year (Optional)</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Service Year</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., 2025 - 2026" className="bg-background" />
                                 </FormControl>
@@ -759,7 +774,7 @@ const Members = () => {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-semibold">E-mail *</FormLabel>
+                              <FormLabel className="text-sm font-semibold">E-mail</FormLabel>
                               <FormControl>
                                 <Input {...field} type="email" placeholder="ex: myname@example.com" />
                               </FormControl>
@@ -771,14 +786,14 @@ const Members = () => {
 
                         {/* Phone Number Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Phone Number *</Label>
+                          <Label className="text-sm font-semibold">Phone Number</Label>
                           <div className="grid grid-cols-3 gap-4 mt-2">
                             <FormField
                               control={form.control}
                               name="area_code"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Area Code *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Area Code</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="tel" maxLength={3} placeholder="123" />
                                   </FormControl>
@@ -792,7 +807,7 @@ const Members = () => {
                                 name="phone_number"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">Phone Number *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">Phone Number</FormLabel>
                                     <FormControl>
                                       <Input {...field} type="tel" placeholder="4567890" />
                                     </FormControl>
@@ -806,14 +821,14 @@ const Members = () => {
 
                         {/* Address Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Address *</Label>
+                          <Label className="text-sm font-semibold">Address</Label>
                           <div className="grid gap-3 mt-2">
                             <FormField
                               control={form.control}
                               name="street_address"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Street Address *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="123 Main Street" />
                                   </FormControl>
@@ -826,7 +841,7 @@ const Members = () => {
                               name="street_address_line2"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="Apt, Suite, Unit, etc." />
                                   </FormControl>
@@ -840,7 +855,7 @@ const Members = () => {
                                 name="city"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">City *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
                                     <FormControl>
                                       <Input {...field} />
                                     </FormControl>
@@ -853,21 +868,10 @@ const Members = () => {
                                 name="county"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">County *</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select county" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {COUNTY_OPTIONS.map((county) => (
-                                          <SelectItem key={county} value={county}>
-                                            {county}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
+                                    <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="e.g., Howard" />
+                                    </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -879,7 +883,7 @@ const Members = () => {
                                 name="state"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">State *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
@@ -903,7 +907,7 @@ const Members = () => {
                                 name="postal_code"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">Zip Code *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
                                     <FormControl>
                                       <Input {...field} placeholder="12345 or 12345-6789" />
                                     </FormControl>
@@ -917,14 +921,14 @@ const Members = () => {
 
                         {/* Birth Date Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Birth Date *</Label>
+                          <Label className="text-sm font-semibold">Birth Date</Label>
                           <div className="grid grid-cols-3 gap-4 mt-2">
                             <FormField
                               control={form.control}
                               name="birth_month"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Month *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Month</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1" max="12" placeholder="MM" />
                                   </FormControl>
@@ -937,7 +941,7 @@ const Members = () => {
                               name="birth_day"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Day *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Day</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1" max="31" placeholder="DD" />
                                   </FormControl>
@@ -950,7 +954,7 @@ const Members = () => {
                               name="birth_year"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Year *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Year</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1900" max={new Date().getFullYear()} placeholder="YYYY" />
                                   </FormControl>
@@ -1032,7 +1036,7 @@ const Members = () => {
                             name="gender"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Gender *</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Gender</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger className="bg-muted/30 border-border/50 hover:border-primary/50 transition-colors">
@@ -1068,7 +1072,7 @@ const Members = () => {
                             name="position"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Position *</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Position</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., Vice Chairman, Member" className="bg-background" />
                                 </FormControl>
@@ -1081,7 +1085,7 @@ const Members = () => {
                             name="department"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold">Department (Optional)</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Department</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., Deacon, Youth" className="bg-background" />
                                 </FormControl>
@@ -1094,7 +1098,7 @@ const Members = () => {
                             name="service_year"
                             render={({ field }) => (
                               <FormItem className="md:col-span-2">
-                                <FormLabel className="text-sm font-semibold">Service Year (Optional)</FormLabel>
+                                <FormLabel className="text-sm font-semibold">Service Year</FormLabel>
                                 <FormControl>
                                   <Input {...field} placeholder="e.g., 2025 - 2026" className="bg-background" />
                                 </FormControl>
@@ -1111,7 +1115,7 @@ const Members = () => {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-semibold">E-mail *</FormLabel>
+                              <FormLabel className="text-sm font-semibold">E-mail</FormLabel>
                               <FormControl>
                                 <Input {...field} type="email" placeholder="ex: myname@example.com" />
                               </FormControl>
@@ -1123,14 +1127,14 @@ const Members = () => {
 
                         {/* Phone Number Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Phone Number *</Label>
+                          <Label className="text-sm font-semibold">Phone Number</Label>
                           <div className="grid grid-cols-[120px_1fr] gap-4 mt-2">
                             <FormField
                               control={form.control}
                               name="area_code"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Area Code *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Area Code</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="515" maxLength={3} />
                                   </FormControl>
@@ -1143,7 +1147,7 @@ const Members = () => {
                               name="phone_number"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Phone Number *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Phone Number</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="318-4281" />
                                   </FormControl>
@@ -1156,14 +1160,14 @@ const Members = () => {
 
                         {/* Address Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Address *</Label>
+                          <Label className="text-sm font-semibold">Address</Label>
                           <div className="space-y-4 mt-2">
                             <FormField
                               control={form.control}
                               name="street_address"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Street Address *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="123 Main St" />
                                   </FormControl>
@@ -1176,7 +1180,7 @@ const Members = () => {
                               name="street_address_line2"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2</FormLabel>
                                   <FormControl>
                                     <Input {...field} placeholder="Apt, suite, etc. (optional)" />
                                   </FormControl>
@@ -1190,7 +1194,7 @@ const Members = () => {
                                 name="city"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">City *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
                                     <FormControl>
                                       <Input {...field} />
                                     </FormControl>
@@ -1203,21 +1207,10 @@ const Members = () => {
                                 name="county"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">County *</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select county" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {COUNTY_OPTIONS.map((county) => (
-                                          <SelectItem key={county} value={county}>
-                                            {county}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
+                                    <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} />
+                                    </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
@@ -1229,7 +1222,7 @@ const Members = () => {
                                 name="state"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">State *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
@@ -1253,7 +1246,7 @@ const Members = () => {
                                 name="postal_code"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">Zip Code *</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
                                     <FormControl>
                                       <Input {...field} placeholder="12345 or 12345-6789" />
                                     </FormControl>
@@ -1267,14 +1260,14 @@ const Members = () => {
 
                         {/* Birth Date Section */}
                         <div>
-                          <Label className="text-sm font-semibold">Birth Date *</Label>
+                          <Label className="text-sm font-semibold">Birth Date</Label>
                           <div className="grid grid-cols-3 gap-4 mt-2">
                             <FormField
                               control={form.control}
                               name="birth_month"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Month *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Month</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1" max="12" placeholder="MM" />
                                   </FormControl>
@@ -1287,7 +1280,7 @@ const Members = () => {
                               name="birth_day"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Day *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Day</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1" max="31" placeholder="DD" />
                                   </FormControl>
@@ -1300,7 +1293,7 @@ const Members = () => {
                               name="birth_year"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Year *</FormLabel>
+                                  <FormLabel className="text-xs text-muted-foreground">Year</FormLabel>
                                   <FormControl>
                                     <Input {...field} type="number" min="1900" max={new Date().getFullYear()} placeholder="YYYY" />
                                   </FormControl>
