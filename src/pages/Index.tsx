@@ -79,12 +79,12 @@ const Index = () => {
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <iframe
           className="absolute inset-0 w-full h-full pointer-events-none"
-          src="https://www.youtube.com/embed/C2iF2xNjtIs?autoplay=1&mute=1&loop=1&playlist=C2iF2xNjtIs&controls=0&modestbranding=1&playsinline=1&rel=0"
+          src="https://www.youtube.com/embed/C2iF2xNjtIs?autoplay=1&mute=1&loop=1&playlist=C2iF2xNjtIs&controls=0&modestbranding=1&playsinline=1&rel=0&vq=hd2160"
           title="Church Video"
           allow="autoplay; encrypted-media"
           style={{ border: 0, transform: 'scale(1.5)' }}
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60" />
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
