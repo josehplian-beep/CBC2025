@@ -84,7 +84,7 @@ const Index = () => {
           allow="autoplay; encrypted-media"
           style={{ border: 0, transform: 'scale(1.5)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70" />
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             Welcome to CBC!
