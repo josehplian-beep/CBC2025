@@ -201,6 +201,7 @@ export type Database = {
           profile_image_url: string | null
           service_year: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -218,6 +219,7 @@ export type Database = {
           profile_image_url?: string | null
           service_year?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -235,6 +237,7 @@ export type Database = {
           profile_image_url?: string | null
           service_year?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -245,6 +248,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       photos: {
         Row: {
@@ -462,7 +498,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "staff" | "admin" | "viewer"
+      app_role: "staff" | "admin" | "viewer" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -590,7 +626,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["staff", "admin", "viewer"],
+      app_role: ["staff", "admin", "viewer", "member"],
     },
   },
 } as const
