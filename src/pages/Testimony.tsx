@@ -32,6 +32,7 @@ const Testimony = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string>('');
+  const [zoomLevel, setZoomLevel] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -359,19 +360,53 @@ const Testimony = () => {
       </Dialog>
 
       {/* Image Lightbox */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 overflow-hidden bg-black/95 border-0">
+      <Dialog open={lightboxOpen} onOpenChange={(open) => { setLightboxOpen(open); if (!open) setZoomLevel(1); }}>
+        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 overflow-hidden bg-black/98 border-0">
           <button
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 z-50 text-white/80 hover:text-white bg-black/50 rounded-full p-2 backdrop-blur-sm transition-colors"
+            onClick={() => { setLightboxOpen(false); setZoomLevel(1); }}
+            className="absolute top-4 right-4 z-50 text-white hover:text-white bg-black/80 rounded-full p-3 backdrop-blur-sm transition-colors shadow-lg"
           >
             <X className="w-6 h-6" />
           </button>
-          <div className="w-full h-full flex items-center justify-center p-4">
+          
+          {/* Zoom Controls */}
+          <div className="absolute top-4 left-4 z-50 flex flex-col gap-2">
+            <button
+              onClick={() => setZoomLevel(prev => Math.min(prev + 0.25, 3))}
+              className="text-white hover:text-white bg-black/80 rounded-full p-3 backdrop-blur-sm transition-all hover:bg-black shadow-lg"
+              title="Zoom In"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(prev => Math.max(prev - 0.25, 0.5))}
+              className="text-white hover:text-white bg-black/80 rounded-full p-3 backdrop-blur-sm transition-all hover:bg-black shadow-lg"
+              title="Zoom Out"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setZoomLevel(1)}
+              className="text-white hover:text-white bg-black/80 rounded-lg px-3 py-2 backdrop-blur-sm transition-all hover:bg-black shadow-lg text-xs font-medium"
+              title="Reset Zoom"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+          </div>
+
+          <div className="w-full h-full flex items-center justify-center p-4 overflow-auto">
             <img
               src={lightboxImage}
               alt="Full size"
-              className="max-w-full max-h-full object-contain"
+              className="transition-transform duration-300"
+              style={{ 
+                transform: `scale(${zoomLevel})`,
+                maxWidth: zoomLevel > 1 ? 'none' : '100%',
+                maxHeight: zoomLevel > 1 ? 'none' : '100%',
+                objectFit: 'contain'
+              }}
             />
           </div>
         </DialogContent>
