@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,8 @@ const adminMenuItems = [
   { title: "Manage Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", roles: ["admin", "staff"] },
   { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", roles: ["admin"] },
   { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", roles: ["admin", "staff"] },
+  { title: "Manage Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", roles: ["admin", "staff"] },
+  { title: "Manage Testimonials", url: "/testimonials", icon: MessageSquare, iconColor: "text-rose-500", roles: ["admin", "staff"] },
   { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", roles: ["admin"] },
 ];
 
@@ -50,11 +52,11 @@ export function AdminSidebar() {
       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors";
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon">
-      <div className="p-2 flex justify-end">
+    <Sidebar variant="sidebar" collapsible="icon" className="bg-slate-900 dark:bg-slate-950">
+      <div className="p-2 flex justify-end bg-slate-900 dark:bg-slate-950">
         <SidebarTrigger />
       </div>
-      <SidebarContent>
+      <SidebarContent className="bg-slate-900 dark:bg-slate-950">
         <SidebarGroup>
           <SidebarGroupLabel className="text-white font-bold text-base mb-2 px-2 flex items-center justify-between">
             <span>Admin Panel</span>
