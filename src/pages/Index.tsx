@@ -79,7 +79,7 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative w-screen h-screen flex items-center justify-center overflow-hidden" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw', maxWidth: '100vw' }}>
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
             className="absolute top-1/2 left-1/2 pointer-events-none"
@@ -90,7 +90,7 @@ const Index = () => {
               border: 0,
               transform: "translate(-50%, -50%)",
               width: "100vw",
-              height: "50.25vw",
+              height: "56.25vw",
               minHeight: "100vh",
               minWidth: "177.78vh",
             }}
