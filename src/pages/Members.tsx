@@ -123,7 +123,9 @@ const Members = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
+  const [isEditFamilyDialogOpen, setIsEditFamilyDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -574,6 +576,60 @@ const Members = () => {
     }
   };
 
+  const handleEditFamily = (family: Family) => {
+    familyForm.reset({
+      family_name: family.family_name,
+      street_address: family.street_address,
+      street_address_line2: family.street_address_line2 || "",
+      city: family.city,
+      county: family.county,
+      state: family.state,
+      postal_code: family.postal_code
+    });
+    setSelectedFamily(family);
+    setIsEditFamilyDialogOpen(true);
+  };
+
+  const handleUpdateFamily = async (values: z.infer<typeof familyFormSchema>) => {
+    if (!selectedFamily) return;
+    
+    try {
+      const familyData = {
+        family_name: values.family_name,
+        street_address: values.street_address,
+        street_address_line2: values.street_address_line2 || null,
+        city: values.city,
+        county: values.county,
+        state: values.state,
+        postal_code: values.postal_code
+      };
+
+      const { error } = await supabase
+        .from('families')
+        .update(familyData)
+        .eq('id', selectedFamily.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Family updated successfully",
+      });
+
+      setIsEditFamilyDialogOpen(false);
+      setSelectedFamily(null);
+      familyForm.reset();
+      checkAccessAndLoadMembers();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   // Group members by family
   const getMembersByFamily = () => {
     const grouped = new Map<string, Member[]>();
@@ -868,6 +924,162 @@ const Members = () => {
                             </Button>
                             <Button type="submit">
                               Create Family
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  {/* Edit Family Dialog */}
+                  <Dialog open={isEditFamilyDialogOpen} onOpenChange={setIsEditFamilyDialogOpen}>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Family</DialogTitle>
+                        <DialogDescription>
+                          Update the family information. Members assigned to this family will see the updated details.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...familyForm}>
+                        <form onSubmit={familyForm.handleSubmit(handleUpdateFamily)} className="space-y-4 py-4">
+                          <FormField
+                            control={familyForm.control}
+                            name="family_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Family Name *</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="The Smith Family" autoComplete="off" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <div>
+                            <Label className="text-sm font-semibold">Family Address *</Label>
+                            <div className="grid gap-3 mt-2">
+                              <FormField
+                                control={familyForm.control}
+                                name="street_address"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="123 Main Street" autoComplete="off" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={familyForm.control}
+                                name="street_address_line2"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">Street Address Line 2 (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="Apt, Suite, Unit, etc." autoComplete="off" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                  control={familyForm.control}
+                                  name="city"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} autoComplete="off" />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={familyForm.control}
+                                  name="county"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
+                                      <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select a county" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {COUNTY_OPTIONS.map((county) => (
+                                            <SelectItem key={county} value={county}>
+                                              {county}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                  control={familyForm.control}
+                                  name="state"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
+                                      <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select a state" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="max-h-[300px]">
+                                          {US_STATES.map((state) => (
+                                            <SelectItem key={state} value={state}>
+                                              {state}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={familyForm.control}
+                                  name="postal_code"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} placeholder="12345 or 12345-6789" autoComplete="off" />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <DialogFooter>
+                            <Button
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => {
+                                setIsEditFamilyDialogOpen(false);
+                                setSelectedFamily(null);
+                                familyForm.reset();
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="submit">
+                              Update Family
                             </Button>
                           </DialogFooter>
                         </form>
@@ -1779,10 +1991,22 @@ const Members = () => {
                       return (
                         <Card key={familyId}>
                           <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                              <Users className="w-5 h-5 text-primary" />
-                              {family.family_name}
-                            </CardTitle>
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="flex items-center gap-2">
+                                <Users className="w-5 h-5 text-primary" />
+                                {family.family_name}
+                              </CardTitle>
+                              {isAdmin && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleEditFamily(family)}
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit Family
+                                </Button>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                               <MapPin className="w-3 h-3 inline mr-1" />
                               {family.street_address}{family.street_address_line2 && `, ${family.street_address_line2}`}, {family.city}, {family.county} County, {family.state} {family.postal_code}
