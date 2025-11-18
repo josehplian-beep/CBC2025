@@ -76,10 +76,10 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
-            className="absolute top-1/2 left-1/2 min-w-[177.77vh] min-h-[56.25vw] w-[177.77vh] h-[56.25vw] pointer-events-none"
+            className="absolute top-1/2 left-1/2 w-full h-full pointer-events-none"
             src="https://www.youtube.com/embed/C2iF2xNjtIs?autoplay=1&mute=1&loop=1&playlist=C2iF2xNjtIs&controls=0&modestbranding=1&playsinline=1&rel=0&vq=hd2160&hd=1"
             title="Church Video"
             allow="autoplay; encrypted-media"
