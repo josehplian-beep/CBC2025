@@ -76,7 +76,7 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
             className="absolute top-1/2 left-1/2 min-w-[177.77vh] min-h-[56.25vw] w-[177.77vh] h-[56.25vw] pointer-events-none"
