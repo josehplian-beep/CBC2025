@@ -37,6 +37,7 @@ const TestimonyPost = () => {
   const [liked, setLiked] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [textSize, setTextSize] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -237,7 +238,7 @@ const TestimonyPost = () => {
 
       {/* Main Content */}
       <article className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="bg-card rounded-2xl shadow-2xl p-8 md:p-12 -mt-32 relative z-10 border-2">
+        <div className="bg-card/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 -mt-32 relative z-10 border-2 border-border/50" style={{ backgroundColor: 'hsl(var(--card) / 0.98)' }}>
           {/* Header */}
           <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
             <div className="flex-1">
@@ -263,7 +264,36 @@ const TestimonyPost = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Text Size Controls */}
+              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTextSize(prev => Math.max(prev - 0.1, 0.8))}
+                  className="h-8 w-8"
+                  title="Decrease text size"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <text x="12" y="18" fontSize="14" textAnchor="middle" fill="currentColor">A</text>
+                  </svg>
+                </Button>
+                <span className="text-xs font-medium min-w-[3rem] text-center">
+                  {Math.round(textSize * 100)}%
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTextSize(prev => Math.min(prev + 0.1, 1.5))}
+                  className="h-8 w-8"
+                  title="Increase text size"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <text x="12" y="18" fontSize="18" textAnchor="middle" fill="currentColor" fontWeight="bold">A</text>
+                  </svg>
+                </Button>
+              </div>
+
               <Button
                 variant={liked ? "default" : "outline"}
                 size="icon"
@@ -321,7 +351,8 @@ const TestimonyPost = () => {
             {testimony.content.split('\n\n').map((paragraph, idx) => (
               <p 
                 key={idx} 
-                className="text-foreground/90 leading-loose mb-6 pl-6 border-l-4 border-primary/30 text-lg"
+                className="text-foreground/95 leading-relaxed mb-6 text-lg"
+                style={{ fontSize: `${textSize}rem`, lineHeight: '1.8' }}
               >
                 {paragraph}
               </p>
