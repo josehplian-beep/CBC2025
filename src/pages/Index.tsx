@@ -90,7 +90,7 @@ const Index = () => {
               border: 0,
               transform: "translate(-50%, -50%)",
               width: "100vw",
-              height: "50.25vw",
+              height: "40.25vw",
               minHeight: "100vh",
               minWidth: "177.78vh",
             }}
