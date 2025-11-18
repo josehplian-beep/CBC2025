@@ -217,13 +217,19 @@ const TestimonyPost = () => {
 
       {/* Hero Image Section */}
       {testimony.image_url && (
-        <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+        <div 
+          className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center cursor-pointer group"
+          onClick={() => window.open(testimony.image_url, '_blank')}
+        >
           <img 
             src={testimony.image_url} 
             alt={testimony.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-100 group-hover:opacity-50 transition-opacity duration-300" />
+          <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Click to view full size
+          </div>
         </div>
       )}
 

@@ -204,14 +204,19 @@ const Testimony = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {testimony.image_url && (
-                    <div className="relative h-64 overflow-hidden">
+                    <Link to={`/testimony/${testimony.id}`} className="relative h-64 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center">
                       <img 
                         src={testimony.image_url} 
                         alt={testimony.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-pointer"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                          <ArrowRight className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+                    </Link>
                   )}
                   <CardContent className="p-8 space-y-4 bg-card">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
