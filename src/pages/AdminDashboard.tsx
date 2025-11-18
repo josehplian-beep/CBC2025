@@ -125,7 +125,7 @@ export default function AdminDashboard() {
       case "event":
         return `/events`;
       case "testimonial":
-        return `/testimonials`;
+        return `/testimony`;
       default:
         return "#";
     }

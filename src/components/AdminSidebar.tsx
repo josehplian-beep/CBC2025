@@ -26,7 +26,7 @@ const adminMenuItems = [
   { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", roles: ["admin"] },
   { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", roles: ["admin", "staff"] },
   { title: "Manage Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", roles: ["admin", "staff"] },
-  { title: "Manage Testimonials", url: "/testimonials", icon: MessageSquare, iconColor: "text-rose-500", roles: ["admin", "staff"] },
+  { title: "Manage Testimony", url: "/testimony", icon: MessageSquare, iconColor: "text-rose-500", roles: ["admin", "staff"] },
   { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", roles: ["admin"] },
 ];
 

@@ -20,7 +20,8 @@ import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
 import Salvation from "./pages/Salvation";
-import Testimonials from "./pages/Testimonials";
+import Testimony from "./pages/Testimony";
+import TestimonyPost from "./pages/TestimonyPost";
 import Blog from "./pages/Blog";
 import ProfileEdit from "./pages/ProfileEdit";
 import ColorPalette from "./pages/ColorPalette";
@@ -63,7 +64,8 @@ const App = () => (
           <Route path="/beliefs/salvation" element={<Salvation />} />
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
-          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/testimony" element={<Testimony />} />
+          <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/admin/color-palette" element={<AdminLayout><ColorPalette /></AdminLayout>} />
           <Route path="/admin/staff" element={<AdminLayout><AdminStaff /></AdminLayout>} />
