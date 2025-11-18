@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye, Facebook, Twitter, Instagram, Link2 } from "lucide-react";
 import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
@@ -164,6 +165,28 @@ const Events = () => {
     toast.success('Calendar event downloaded');
   };
 
+  const shareEventToFacebook = (event: any) => {
+    const url = encodeURIComponent(window.location.origin + '/events');
+    const text = encodeURIComponent(`${event.title} - ${event.date} at ${event.time}`);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+  };
+
+  const shareEventToTwitter = (event: any) => {
+    const text = encodeURIComponent(`Join us for ${event.title} on ${event.date} at ${event.time}!`);
+    const url = encodeURIComponent(window.location.origin + '/events');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  };
+
+  const shareEventToInstagram = () => {
+    toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
+    navigator.clipboard.writeText(window.location.origin + '/events');
+  };
+
+  const copyEventLink = () => {
+    navigator.clipboard.writeText(window.location.origin + '/events');
+    toast.success('Event link copied to clipboard');
+  };
+
   let filteredEvents = events;
   
   // Filter by date
@@ -307,13 +330,35 @@ const Events = () => {
                               <Eye className="w-3 h-3 mr-1" />
                               View Event
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => shareEventToCalendar(event)}
-                            >
-                              <Share2 className="w-3 h-3" />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="ghost">
+                                  <Share2 className="w-3 h-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => shareEventToCalendar(event)}>
+                                  <CalendarIcon className="w-4 h-4 mr-2" />
+                                  Add to Calendar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
+                                  <Facebook className="w-4 h-4 mr-2" />
+                                  Share to Facebook
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
+                                  <Twitter className="w-4 h-4 mr-2" />
+                                  Share to Twitter
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={shareEventToInstagram}>
+                                  <Instagram className="w-4 h-4 mr-2" />
+                                  Share to Instagram
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={copyEventLink}>
+                                  <Link2 className="w-4 h-4 mr-2" />
+                                  Copy Link
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </CardContent>
                       </Card>
@@ -594,13 +639,36 @@ const Events = () => {
                             >
                               VIEW EVENT
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => shareEventToCalendar(event)}
-                            >
-                              <Share2 className="w-4 h-4" />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <Share2 className="w-4 h-4 mr-2" />
+                                  Share
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start">
+                                <DropdownMenuItem onClick={() => shareEventToCalendar(event)}>
+                                  <CalendarIcon className="w-4 h-4 mr-2" />
+                                  Add to Calendar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
+                                  <Facebook className="w-4 h-4 mr-2" />
+                                  Share to Facebook
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
+                                  <Twitter className="w-4 h-4 mr-2" />
+                                  Share to Twitter
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={shareEventToInstagram}>
+                                  <Instagram className="w-4 h-4 mr-2" />
+                                  Share to Instagram
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={copyEventLink}>
+                                  <Link2 className="w-4 h-4 mr-2" />
+                                  Copy Link
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
 
                             {isAdmin && (
                               <>
@@ -713,13 +781,36 @@ const Events = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => shareEventToCalendar(viewingEvent)}
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              Add to Calendar
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share Event
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => shareEventToCalendar(viewingEvent)}>
+                  <CalendarIcon className="w-4 h-4 mr-2" />
+                  Add to Calendar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => shareEventToFacebook(viewingEvent)}>
+                  <Facebook className="w-4 h-4 mr-2" />
+                  Share to Facebook
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => shareEventToTwitter(viewingEvent)}>
+                  <Twitter className="w-4 h-4 mr-2" />
+                  Share to Twitter
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={shareEventToInstagram}>
+                  <Instagram className="w-4 h-4 mr-2" />
+                  Share to Instagram
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={copyEventLink}>
+                  <Link2 className="w-4 h-4 mr-2" />
+                  Copy Link
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <AlertDialogCancel>Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
