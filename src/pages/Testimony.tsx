@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Quote, Calendar, User, ArrowRight } from "lucide-react";
+import { Plus, Quote, Calendar, User, ArrowRight, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,8 @@ const Testimony = () => {
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string>('');
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -204,19 +206,26 @@ const Testimony = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {testimony.image_url && (
-                    <Link to={`/testimony/${testimony.id}`} className="relative h-64 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center">
+                    <div 
+                      className="relative h-64 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setLightboxImage(testimony.image_url!);
+                        setLightboxOpen(true);
+                      }}
+                    >
                       <img 
                         src={testimony.image_url} 
                         alt={testimony.title}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                         <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-                          <ArrowRight className="w-8 h-8 text-white" />
+                          <Quote className="w-8 h-8 text-white" />
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   )}
                   <CardContent className="p-8 space-y-4 bg-card">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -346,6 +355,25 @@ const Testimony = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Lightbox */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 overflow-hidden bg-black/95 border-0">
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 z-50 text-white/80 hover:text-white bg-black/50 rounded-full p-2 backdrop-blur-sm transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="w-full h-full flex items-center justify-center p-4">
+            <img
+              src={lightboxImage}
+              alt="Full size"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

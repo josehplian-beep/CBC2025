@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Quote, Calendar, User, Share2, Facebook, Instagram, Link2, Edit, Trash2, Heart } from "lucide-react";
+import { ArrowLeft, Quote, Calendar, User, Share2, Facebook, Instagram, Link2, Edit, Trash2, Heart, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -35,6 +35,7 @@ const TestimonyPost = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [liked, setLiked] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -219,7 +220,7 @@ const TestimonyPost = () => {
       {testimony.image_url && (
         <div 
           className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center cursor-pointer group"
-          onClick={() => window.open(testimony.image_url, '_blank')}
+          onClick={() => setLightboxOpen(true)}
         >
           <img 
             src={testimony.image_url} 
@@ -448,6 +449,27 @@ const TestimonyPost = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Lightbox */}
+      {testimony?.image_url && (
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 overflow-hidden bg-black/95 border-0">
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 z-50 text-white/80 hover:text-white bg-black/50 rounded-full p-2 backdrop-blur-sm transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <img
+                src={testimony.image_url}
+                alt={testimony.title}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <Footer />
     </div>
