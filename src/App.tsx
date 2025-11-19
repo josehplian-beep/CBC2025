@@ -15,6 +15,7 @@ import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
 import MemberProfile from "./pages/MemberProfile";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import AdminAlbums from "./pages/AdminAlbums";
 import RevVanDuhCeu from "./pages/RevVanDuhCeu";
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
           <Route path="/members/:id/edit" element={<AdminLayout><ProfileEdit /></AdminLayout>} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<AdminLayout><Profile /></AdminLayout>} />
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/albums" element={<AdminLayout><AdminAlbums /></AdminLayout>} />
