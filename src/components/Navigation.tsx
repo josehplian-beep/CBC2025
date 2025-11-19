@@ -63,8 +63,6 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Events", path: "/events" },
-    { name: "Resources", path: "/resources" },
-    { name: "Get Involved", path: "/get-involved" },
     { name: "Member Directory", path: "/members" },
   ];
 
@@ -77,6 +75,11 @@ const Navigation = () => {
   const mediaSubLinks = [
     { name: "Media Gallery", path: "/media" },
     { name: "Testimony", path: "/testimony" },
+  ];
+
+  const resourcesSubLinks = [
+    { name: "Get Involved", path: "/get-involved" },
+    { name: "Prayer Request", path: "/resources" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -163,6 +166,25 @@ const Navigation = () => {
                   <NavigationMenuContent>
                     <div className="w-48 p-2">
                       {mediaSubLinks.map((link) => (
+                        <NavigationMenuLink key={link.path} asChild>
+                          <Link
+                            to={link.path}
+                            className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
+                    Resources
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      {resourcesSubLinks.map((link) => (
                         <NavigationMenuLink key={link.path} asChild>
                           <Link
                             to={link.path}
@@ -268,6 +290,19 @@ const Navigation = () => {
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-muted-foreground px-2">Media</span>
                 {mediaSubLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium transition-colors hover:text-primary pl-6 text-muted-foreground"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-muted-foreground px-2">Resources</span>
+                {resourcesSubLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
