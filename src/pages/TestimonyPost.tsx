@@ -8,21 +8,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import type { Tables } from "@/integrations/supabase/types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-interface Testimony {
-  id: string;
-  title: string;
-  content: string;
-  author_name: string;
-  author_role?: string;
-  image_url?: string;
-  created_at: string;
-}
+type Testimony = Tables<'testimonials'>;
 
 const TestimonyPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -67,13 +60,13 @@ const TestimonyPost = () => {
     
     setLoading(true);
     const { data, error } = await supabase
-      .from('testimonials' as any)
+      .from('testimonials')
       .select('*')
       .eq('id', id)
       .single();
     
     if (!error && data) {
-      setTestimony(data as any);
+      setTestimony(data);
       setFormData({
         title: data.title,
         content: data.content,
@@ -129,7 +122,7 @@ const TestimonyPost = () => {
       }
 
       const { error } = await supabase
-        .from('testimonials' as any)
+        .from('testimonials')
         .update({
           title: formData.title,
           content: formData.content,
@@ -153,7 +146,7 @@ const TestimonyPost = () => {
     if (!testimony) return;
 
     const { error } = await supabase
-      .from('testimonials' as any)
+      .from('testimonials')
       .delete()
       .eq('id', testimony.id);
 
