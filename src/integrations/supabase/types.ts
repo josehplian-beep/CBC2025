@@ -320,6 +320,42 @@ export type Database = {
           },
         ]
       }
+      prayer_requests: {
+        Row: {
+          author_id: string
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          is_answered: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_answered?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          is_answered?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
