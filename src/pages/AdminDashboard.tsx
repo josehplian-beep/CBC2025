@@ -99,7 +99,7 @@ export default function AdminDashboard() {
 
       setRecentActivity(allRecent.slice(0, 8));
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      // Silently handle fetch error
     } finally {
       setLoading(false);
     }

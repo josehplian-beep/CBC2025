@@ -63,7 +63,7 @@ const Media = () => {
       setYoutubeVideos(videos);
       console.log('Successfully set videos:', videos.length);
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      // Silently handle fetch error
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ const Media = () => {
 
       setAlbums(albumsWithCounts);
     } catch (error) {
-      console.error('Error fetching albums:', error);
+      // Silently handle fetch error
     } finally {
       setAlbumsLoading(false);
     }

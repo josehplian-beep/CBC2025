@@ -72,7 +72,6 @@ const AdminUsers = () => {
       const data = await response.json();
       setUsers(data.users);
     } catch (error) {
-      console.error("Error fetching users:", error);
       toast({
         title: "Error",
         description: "Failed to fetch users.",
@@ -116,7 +115,6 @@ const AdminUsers = () => {
         description: "A password reset email has been sent to the user.",
       });
     } catch (error) {
-      console.error("Error resetting password:", error);
       toast({
         title: "Error",
         description: "Failed to send password reset email.",

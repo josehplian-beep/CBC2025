@@ -169,7 +169,6 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
           });
 
           if (generateError) {
-            console.error('Error generating recurring events:', generateError);
             toast.error('Event updated but failed to generate recurring instances');
           } else {
             toast.success("Event and recurring instances updated successfully");
@@ -203,7 +202,6 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
           });
 
           if (generateError) {
-            console.error('Error generating recurring events:', generateError);
             toast.error('Event created but failed to generate recurring instances');
           } else {
             toast.success("Event and recurring instances created successfully");

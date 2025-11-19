@@ -24,13 +24,11 @@ export async function searchYouTubeVideos(params: YouTubeSearchParams): Promise<
     });
 
     if (error) {
-      console.error('Error calling YouTube search function:', error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error fetching YouTube videos:', error);
     return [];
   }
 }

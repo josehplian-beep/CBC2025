@@ -124,8 +124,7 @@ const Profile = () => {
 
       await loadProfile();
     } catch (error: unknown) {
-      console.error('Profile save error:', error);
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : 'Failed to save profile';
       toast({
         title: "Error",
         description: message,

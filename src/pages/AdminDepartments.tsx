@@ -81,7 +81,7 @@ const AdminDepartments = () => {
         setSelectedDept(deptObjects[0].value);
       }
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      // Silently handle fetch error
     }
   };
 
@@ -120,7 +120,6 @@ const AdminDepartments = () => {
       if (error) throw error;
       setMembers(data || []);
     } catch (error) {
-      console.error("Error fetching members:", error);
       toast.error("Failed to load members");
     } finally {
       setLoading(false);
@@ -169,7 +168,6 @@ const AdminDepartments = () => {
       toast.success("Photo uploaded successfully");
       fetchMembers();
     } catch (error) {
-      console.error("Error uploading image:", error);
       toast.error("Failed to upload photo");
     } finally {
       setUploading(false);
@@ -200,7 +198,6 @@ const AdminDepartments = () => {
       toast.success("Photo deleted successfully");
       fetchMembers();
     } catch (error) {
-      console.error("Error deleting photo:", error);
       toast.error("Failed to delete photo");
     }
   };
@@ -218,7 +215,6 @@ const AdminDepartments = () => {
       toast.success("Member deleted successfully");
       fetchMembers();
     } catch (error) {
-      console.error("Error deleting member:", error);
       toast.error("Failed to delete member");
     }
   };
@@ -275,7 +271,6 @@ const AdminDepartments = () => {
       toast.success(`Removed ${toDelete.length} duplicate entr${toDelete.length === 1 ? "y" : "ies"}`);
       fetchMembers();
     } catch (err) {
-      console.error("Error removing duplicates:", err);
       toast.error("Failed to remove duplicates");
     } finally {
       setDeduping(false);
@@ -315,7 +310,6 @@ const AdminDepartments = () => {
       setEditingMember(null);
       fetchMembers();
     } catch (error) {
-      console.error("Error saving member:", error);
       toast.error("Failed to save member");
     }
   };
