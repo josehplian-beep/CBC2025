@@ -63,6 +63,7 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Events", path: "/events" },
+    { name: "Media", path: "/media", hasSubmenu: true },
     { name: "Member Directory", path: "/members" },
   ];
 
@@ -178,6 +179,20 @@ const Navigation = () => {
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            <Link
+              to="/events"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/events")
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Events
+            </Link>
+            <NavigationMenu>
+              <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
                     Media
@@ -199,7 +214,17 @@ const Navigation = () => {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            {navLinks.map((link) => (
+            <Link
+              to="/members"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/members")
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Member Directory
+            </Link>
+            {navLinks.filter((link) => false).map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -300,6 +325,17 @@ const Navigation = () => {
                   </Link>
                 ))}
               </div>
+              <Link
+                to="/events"
+                onClick={() => setIsOpen(false)}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/events")
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Events
+              </Link>
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-muted-foreground px-2">Media</span>
                 {mediaSubLinks.map((link) => (
@@ -313,7 +349,18 @@ const Navigation = () => {
                   </Link>
                 ))}
               </div>
-              {navLinks.map((link) => (
+              <Link
+                to="/members"
+                onClick={() => setIsOpen(false)}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/members")
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Member Directory
+              </Link>
+              {navLinks.filter((link) => false).map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
