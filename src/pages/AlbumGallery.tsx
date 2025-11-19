@@ -78,7 +78,6 @@ const AlbumGallery = () => {
       if (photosError) throw photosError;
       setPhotos(photosData || []);
     } catch (error) {
-      console.error('Error fetching album:', error);
       toast({
         title: "Error",
         description: "Failed to load album. It may not exist or is not published.",

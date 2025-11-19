@@ -209,9 +209,7 @@ const Members = () => {
         .from('families')
         .select('*')
         .order('family_name');
-
-      if (familiesError) console.error('Error loading families:', familiesError);
-      else setFamilies(familiesData || []);
+      if (!familiesError) setFamilies(familiesData || []);
 
       // Load members with family data
       const { data: membersData, error: membersError } = await supabase

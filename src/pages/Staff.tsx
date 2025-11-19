@@ -33,7 +33,7 @@ const Staff = () => {
       if (error) throw error;
       setStaff(data || []);
     } catch (error) {
-      console.error('Error fetching staff:', error);
+      // Silently handle fetch error
     } finally {
       setLoading(false);
     }

@@ -24,7 +24,6 @@ export function useUserRole() {
           .eq('user_id', session.user.id);
 
         if (error) {
-          console.error('Error fetching user role:', error);
           setRole(null);
         } else if (roles && roles.length > 0) {
           // Priority: admin > staff > viewer
@@ -37,7 +36,6 @@ export function useUserRole() {
           }
         }
       } catch (error) {
-        console.error('Error in fetchUserRole:', error);
         setRole(null);
       } finally {
         setLoading(false);

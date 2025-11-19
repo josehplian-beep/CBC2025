@@ -46,7 +46,7 @@ const Departments = () => {
         setSelectedDepartment(orderedDepts[0]);
       }
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      // Silently handle fetch error
     }
   };
 
@@ -78,7 +78,7 @@ const Departments = () => {
       if (error) throw error;
       setMembers(data || []);
     } catch (error) {
-      console.error("Error fetching members:", error);
+      // Silently handle fetch error
     } finally {
       setLoading(false);
     }

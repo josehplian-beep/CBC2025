@@ -89,7 +89,7 @@ export const ImageCropDialog = ({
       onCropComplete(croppedImage);
       onOpenChange(false);
     } catch (e) {
-      console.error(e);
+      // Silently handle cleanup errors
     }
   };
 

@@ -115,7 +115,7 @@ export const MigrateDepartments = () => {
       // Only show migration if there are no members in the database
       setShowMigration((count || 0) === 0);
     } catch (error) {
-      console.error("Error checking migration status:", error);
+      // Silently handle check failure
     }
   };
 
@@ -133,7 +133,6 @@ export const MigrateDepartments = () => {
       setMigrated(true);
       setTimeout(() => setShowMigration(false), 2000);
     } catch (error: any) {
-      console.error("Migration error:", error);
       toast.error(`Migration failed: ${error.message}`);
     } finally {
       setLoading(false);
