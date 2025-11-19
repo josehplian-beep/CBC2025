@@ -143,25 +143,6 @@ const Navigation = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
-                    Resources
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="w-48 p-2">
-                      {resourcesSubLinks.map((link) => (
-                        <NavigationMenuLink key={link.path} asChild>
-                          <Link
-                            to={link.path}
-                            className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors"
-                          >
-                            {link.name}
-                          </Link>
-                        </NavigationMenuLink>
-                      ))}
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
                     CBC
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -224,6 +205,29 @@ const Navigation = () => {
             >
               Member Directory
             </Link>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-transparent">
+                    Resources
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      {resourcesSubLinks.map((link) => (
+                        <NavigationMenuLink key={link.path} asChild>
+                          <Link
+                            to={link.path}
+                            className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
             {navLinks.filter((link) => false).map((link) => (
               <Link
                 key={link.path}
@@ -300,19 +304,6 @@ const Navigation = () => {
                 Home
               </Link>
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-muted-foreground px-2">Resources</span>
-                {resourcesSubLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-medium transition-colors hover:text-primary pl-6 text-muted-foreground"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-              <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-muted-foreground px-2">CBC</span>
                 {cbcSubLinks.map((link) => (
                   <Link
@@ -360,6 +351,19 @@ const Navigation = () => {
               >
                 Member Directory
               </Link>
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-muted-foreground px-2">Resources</span>
+                {resourcesSubLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium transition-colors hover:text-primary pl-6 text-muted-foreground"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
               {navLinks.filter((link) => false).map((link) => (
                 <Link
                   key={link.path}
