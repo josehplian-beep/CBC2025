@@ -33,6 +33,7 @@ import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import AdminDepartments from "./pages/AdminDepartments";
 import AdminPrayerRequests from "./pages/AdminPrayerRequests";
+import AdminUsers from "./pages/AdminUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 import AlbumGallery from "./pages/AlbumGallery";
 import NotFound from "./pages/NotFound";
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/admin/staff" element={<AdminLayout><AdminStaff /></AdminLayout>} />
           <Route path="/admin/departments" element={<AdminLayout><AdminDepartments /></AdminLayout>} />
           <Route path="/admin/prayer-requests" element={<AdminLayout><AdminPrayerRequests /></AdminLayout>} />
+          <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
