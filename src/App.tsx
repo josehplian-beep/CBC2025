@@ -10,6 +10,7 @@ import Staff from "./pages/Staff";
 import Media from "./pages/Media";
 import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
+import PrayerRequests from "./pages/PrayerRequests";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
 import MemberProfile from "./pages/MemberProfile";
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/media/album/:albumId" element={<AlbumGallery />} />
           <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/prayer-requests" element={<PrayerRequests />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<AdminLayout><Members /></AdminLayout>} />
           <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
