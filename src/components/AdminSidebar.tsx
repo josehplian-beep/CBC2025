@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ const adminMenuItems = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500", roles: ["admin", "staff", "viewer"] },
   { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500", roles: ["admin", "staff", "viewer"] },
   { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500", roles: ["admin", "staff", "viewer"] },
+  { title: "Prayer Requests", url: "/admin/prayer-requests", icon: Heart, iconColor: "text-red-500", roles: ["admin", "staff"] },
   { title: "Manage Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", roles: ["admin", "staff"] },
   { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", roles: ["admin"] },
   { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", roles: ["admin", "staff"] },
