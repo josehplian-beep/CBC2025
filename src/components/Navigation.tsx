@@ -63,7 +63,7 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Events", path: "/events" },
-    { name: "Prayer Requests", path: "/prayer-requests" },
+    { name: "Resources", path: "/resources" },
     { name: "Get Involved", path: "/get-involved" },
     { name: "Member Directory", path: "/members" },
   ];

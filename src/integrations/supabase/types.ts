@@ -322,7 +322,7 @@ export type Database = {
       }
       prayer_requests: {
         Row: {
-          author_id: string
+          author_id: string | null
           author_name: string
           content: string
           created_at: string
@@ -333,7 +333,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          author_id: string
+          author_id?: string | null
           author_name: string
           content: string
           created_at?: string
@@ -344,7 +344,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          author_id?: string
+          author_id?: string | null
           author_name?: string
           content?: string
           created_at?: string

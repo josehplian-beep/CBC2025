@@ -10,7 +10,7 @@ import Staff from "./pages/Staff";
 import Media from "./pages/Media";
 import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
-import PrayerRequests from "./pages/PrayerRequests";
+import Resources from "./pages/Resources";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
 import MemberProfile from "./pages/MemberProfile";
@@ -31,6 +31,7 @@ import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import AdminDepartments from "./pages/AdminDepartments";
+import AdminPrayerRequests from "./pages/AdminPrayerRequests";
 import AdminDashboard from "./pages/AdminDashboard";
 import AlbumGallery from "./pages/AlbumGallery";
 import NotFound from "./pages/NotFound";
@@ -51,7 +52,7 @@ const App = () => (
           <Route path="/media/album/:albumId" element={<AlbumGallery />} />
           <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/prayer-requests" element={<PrayerRequests />} />
+          <Route path="/resources" element={<Resources />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<AdminLayout><Members /></AdminLayout>} />
           <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
@@ -72,6 +73,7 @@ const App = () => (
           <Route path="/admin/color-palette" element={<AdminLayout><ColorPalette /></AdminLayout>} />
           <Route path="/admin/staff" element={<AdminLayout><AdminStaff /></AdminLayout>} />
           <Route path="/admin/departments" element={<AdminLayout><AdminDepartments /></AdminLayout>} />
+          <Route path="/admin/prayer-requests" element={<AdminLayout><AdminPrayerRequests /></AdminLayout>} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
