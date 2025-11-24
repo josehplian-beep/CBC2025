@@ -32,6 +32,7 @@ import StaffBiography from "./pages/StaffBiography";
 import Mission from "./pages/Mission";
 import Departments from "./pages/Departments";
 import AdminDepartments from "./pages/AdminDepartments";
+import MemberProfileDepartment from "./pages/MemberProfileDepartment";
 import AdminPrayerRequests from "./pages/AdminPrayerRequests";
 import AdminUsers from "./pages/AdminUsers";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -70,6 +71,7 @@ const App = () => (
           <Route path="/beliefs/salvation" element={<Salvation />} />
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/departments" element={<Departments />} />
+          <Route path="/department-member/:id" element={<MemberProfileDepartment />} />
           <Route path="/testimony" element={<Testimony />} />
           <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
