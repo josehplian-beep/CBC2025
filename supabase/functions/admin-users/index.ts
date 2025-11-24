@@ -50,7 +50,7 @@ serve(async (req) => {
       .select("role")
       .eq("user_id", user.id);
 
-    const isAdmin = roles?.some((r) => r.role === "admin");
+    const isAdmin = roles?.some((r) => r.role === "admin" || r.role === "administrator");
     if (!isAdmin) {
       throw new Error("Unauthorized - Admin only");
     }
