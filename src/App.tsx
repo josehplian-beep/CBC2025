@@ -46,6 +46,9 @@ import AdminSchoolClassEdit from "./pages/AdminSchoolClassEdit";
 import AdminSchoolReports from "./pages/AdminSchoolReports";
 import TakeAttendance from "./pages/TakeAttendance";
 import NotFound from "./pages/NotFound";
+import Forbidden from "./pages/Forbidden";
+import AdminRoleManagement from "./pages/AdminRoleManagement";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
 const queryClient = new QueryClient();
@@ -72,8 +75,8 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-          <Route path="/admin/albums" element={<AdminLayout><AdminAlbums /></AdminLayout>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute permission="view_admin_panel"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/albums" element={<ProtectedRoute permission="manage_albums"><AdminLayout><AdminAlbums /></AdminLayout></ProtectedRoute>} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />
@@ -84,19 +87,21 @@ const App = () => (
           <Route path="/testimony" element={<Testimony />} />
           <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/admin/color-palette" element={<AdminLayout><ColorPalette /></AdminLayout>} />
-          <Route path="/admin/staff" element={<AdminLayout><AdminStaff /></AdminLayout>} />
-          <Route path="/admin/departments" element={<AdminLayout><AdminDepartments /></AdminLayout>} />
-          <Route path="/admin/prayer-requests" element={<AdminLayout><AdminPrayerRequests /></AdminLayout>} />
-          <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
-            <Route path="/admin/school/teachers" element={<AdminSchoolTeachers />} />
-            <Route path="/admin/school/teachers/:id/edit" element={<AdminSchoolTeacherEdit />} />
-            <Route path="/admin/school/students" element={<AdminSchoolStudents />} />
-            <Route path="/admin/school/students/:id/edit" element={<AdminSchoolStudentEdit />} />
-            <Route path="/admin/school/classes" element={<AdminSchoolClasses />} />
-            <Route path="/admin/school/classes/:id/edit" element={<AdminSchoolClassEdit />} />
-            <Route path="/admin/school/classes/:classId/attendance" element={<TakeAttendance />} />
-            <Route path="/admin/school/reports" element={<AdminSchoolReports />} />
+          <Route path="/admin/color-palette" element={<ProtectedRoute permission="manage_users"><AdminLayout><ColorPalette /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/staff" element={<ProtectedRoute permission="manage_staff"><AdminLayout><AdminStaff /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/departments" element={<ProtectedRoute permission="manage_departments"><AdminLayout><AdminDepartments /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/prayer-requests" element={<ProtectedRoute permission="manage_prayer_requests"><AdminLayout><AdminPrayerRequests /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminUsers /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/roles" element={<ProtectedRoute permission="manage_roles"><AdminLayout><AdminRoleManagement /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminSchoolTeachers /></ProtectedRoute>} />
+          <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminSchoolTeacherEdit /></ProtectedRoute>} />
+          <Route path="/admin/school/students" element={<ProtectedRoute permission="manage_students"><AdminSchoolStudents /></ProtectedRoute>} />
+          <Route path="/admin/school/students/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminSchoolStudentEdit /></ProtectedRoute>} />
+          <Route path="/admin/school/classes" element={<ProtectedRoute permission="manage_classes"><AdminSchoolClasses /></ProtectedRoute>} />
+          <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminSchoolClassEdit /></ProtectedRoute>} />
+          <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><TakeAttendance /></ProtectedRoute>} />
+          <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminSchoolReports /></ProtectedRoute>} />
+          <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

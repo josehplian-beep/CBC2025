@@ -16,11 +16,13 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
+import { getRoleDisplayName } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
+import type { Permission } from "@/lib/permissions";
 
 interface MenuSection {
   label: string;
@@ -32,48 +34,49 @@ interface MenuItem {
   url: string;
   icon: any;
   iconColor: string;
-  roles: string[];
+  permissions: Permission[];
 }
 
 const adminMenuSections: MenuSection[] = [
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500", roles: ["admin", "staff", "viewer"] },
-      { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500", roles: ["admin", "staff", "viewer"] },
+      { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, iconColor: "text-blue-500", permissions: ['view_admin_panel'] },
+      { title: "Profile", url: "/profile", icon: User, iconColor: "text-green-500", permissions: ['view_public_content'] },
     ],
   },
   {
     label: "Management",
     items: [
-      { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500", roles: ["admin", "staff", "viewer"] },
-      { title: "User Management", url: "/admin/users", icon: Shield, iconColor: "text-indigo-500", roles: ["admin"] },
-      { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", roles: ["admin"] },
-      { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", roles: ["admin", "staff"] },
+      { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500", permissions: ['manage_members', 'manage_staff'] },
+      { title: "User Management", url: "/admin/users", icon: Shield, iconColor: "text-indigo-500", permissions: ['manage_users'] },
+      { title: "Role Management", url: "/admin/roles", icon: Shield, iconColor: "text-violet-500", permissions: ['manage_roles'] },
+      { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", permissions: ['manage_staff'] },
+      { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", permissions: ['manage_departments'] },
     ],
   },
   {
     label: "Content",
     items: [
-      { title: "Prayer Requests", url: "/admin/prayer-requests", icon: Heart, iconColor: "text-red-500", roles: ["admin", "staff"] },
-      { title: "Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", roles: ["admin", "staff"] },
-      { title: "Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", roles: ["admin", "staff"] },
-      { title: "Testimonies", url: "/testimony", icon: MessageSquare, iconColor: "text-rose-500", roles: ["admin", "staff"] },
+      { title: "Prayer Requests", url: "/admin/prayer-requests", icon: Heart, iconColor: "text-red-500", permissions: ['manage_prayer_requests'] },
+      { title: "Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", permissions: ['manage_albums'] },
+      { title: "Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", permissions: ['manage_events'] },
+      { title: "Testimonies", url: "/testimony", icon: MessageSquare, iconColor: "text-rose-500", permissions: ['manage_testimonies'] },
     ],
   },
   {
     label: "School Management",
     items: [
-      { title: "Teachers", url: "/admin/school/teachers", icon: GraduationCap, iconColor: "text-violet-500", roles: ["admin", "staff"] },
-      { title: "Students", url: "/admin/school/students", icon: Users, iconColor: "text-sky-500", roles: ["admin", "staff"] },
-      { title: "Classes", url: "/admin/school/classes", icon: BookOpen, iconColor: "text-teal-500", roles: ["admin", "staff"] },
-      { title: "Attendance Reports", url: "/admin/school/reports", icon: BarChart3, iconColor: "text-fuchsia-500", roles: ["admin", "staff"] },
+      { title: "Teachers", url: "/admin/school/teachers", icon: GraduationCap, iconColor: "text-violet-500", permissions: ['manage_students', 'manage_classes'] },
+      { title: "Students", url: "/admin/school/students", icon: Users, iconColor: "text-sky-500", permissions: ['manage_students'] },
+      { title: "Classes", url: "/admin/school/classes", icon: BookOpen, iconColor: "text-teal-500", permissions: ['manage_classes'] },
+      { title: "Attendance Reports", url: "/admin/school/reports", icon: BarChart3, iconColor: "text-fuchsia-500", permissions: ['take_attendance'] },
     ],
   },
   {
     label: "System",
     items: [
-      { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", roles: ["admin"] },
+      { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", permissions: ['manage_users'] },
     ],
   },
 ];
@@ -82,7 +85,7 @@ export function AdminSidebar() {
   const { state } = useSidebar();
   const navigate = useNavigate();
   const isCollapsed = state === "collapsed";
-  const { role } = useUserRole();
+  const { role, canAny } = usePermissions();
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
@@ -105,7 +108,7 @@ export function AdminSidebar() {
 
   const filteredSections = adminMenuSections.map(section => ({
     ...section,
-    items: section.items.filter(item => role && item.roles.includes(role))
+    items: section.items.filter(item => canAny(item.permissions))
   })).filter(section => section.items.length > 0);
 
   const handleSignOut = async () => {
@@ -145,7 +148,7 @@ export function AdminSidebar() {
               <p className="text-sm font-semibold text-white">Admin Panel</p>
               {role && (
                 <Badge variant="outline" className="text-xs mt-0.5 h-4 px-1 border-slate-400 text-slate-200 bg-white/5">
-                  {role}
+                  {getRoleDisplayName(role)}
                 </Badge>
               )}
             </div>
@@ -202,7 +205,7 @@ export function AdminSidebar() {
                   {userName || "Admin User"}
                 </p>
                 <p className="text-xs text-slate-300 capitalize">
-                  {role || "User"}
+                  {role ? getRoleDisplayName(role) : "User"}
                 </p>
               </div>
             </div>
