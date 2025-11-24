@@ -15,6 +15,18 @@ const Departments = () => {
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState<string[]>([]);
 
+  // Calculate current year range
+  const getCurrentYearRange = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    return `${currentYear}-${currentYear + 1}`;
+  };
+
+  const yearRangeMap: Record<string, string> = {
+    "current": getCurrentYearRange(),
+    "2023-2025": "2022-2023"
+  };
+
   useEffect(() => {
     fetchDepartments();
   }, []);
@@ -23,7 +35,7 @@ const Departments = () => {
     if (selectedDepartment) {
       fetchMembers();
     }
-  }, [selectedDepartment]);
+  }, [selectedDepartment, yearFilter]);
 
   const fetchDepartments = async () => {
     try {
@@ -69,10 +81,13 @@ const Departments = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
+      const yearRange = yearRangeMap[yearFilter] || getCurrentYearRange();
+      
       const { data, error } = await supabase
         .from("department_members")
         .select("*")
         .eq("department", selectedDepartment)
+        .eq("year_range", yearRange)
         .order("display_order");
 
       if (error) throw error;
