@@ -62,7 +62,7 @@ const App = () => (
           <Route path="/members/:id/edit" element={<AdminLayout><ProfileEdit /></AdminLayout>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/profile" element={<AdminLayout><Profile /></AdminLayout>} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/albums" element={<AdminLayout><AdminAlbums /></AdminLayout>} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
