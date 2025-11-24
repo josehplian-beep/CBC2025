@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -94,15 +93,12 @@ export default function AdminRoleManagement() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="p-6 text-center">Loading users...</div>
-      </AdminLayout>
+      <div className="p-6 text-center">Loading users...</div>
     );
   }
 
   return (
-    <AdminLayout>
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
         <div className="flex items-center gap-3">
           <Shield className="h-8 w-8 text-primary" />
           <div>
@@ -203,6 +199,5 @@ export default function AdminRoleManagement() {
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
   );
 }
