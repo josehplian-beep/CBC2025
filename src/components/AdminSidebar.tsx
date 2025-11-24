@@ -107,8 +107,8 @@ export function AdminSidebar() {
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-gray-100 text-gray-900 font-semibold border-l-4 border-primary shadow-sm" 
-      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200";
+      ? "bg-white/20 text-white font-semibold border-l-4 border-white shadow-sm" 
+      : "text-slate-100 hover:bg-white/10 hover:text-white transition-all duration-200";
 
   const getInitials = (name: string) => {
     return name
@@ -123,37 +123,38 @@ export function AdminSidebar() {
     <Sidebar 
       variant="sidebar" 
       collapsible="icon" 
-      className="border-r border-gray-200 bg-white shadow-sm"
+      className="border-r border-slate-700 shadow-lg"
+      style={{ backgroundColor: 'hsl(210 45% 25%)' }}
     >
-      <div className="p-3 flex justify-between items-center border-b border-gray-200">
+      <div className="p-3 flex justify-between items-center border-b border-slate-700">
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-              <FileText className="h-4 w-4 text-primary" />
+            <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Admin Panel</p>
+              <p className="text-sm font-semibold text-white">Admin Panel</p>
               {role && (
-                <Badge variant="outline" className="text-xs mt-0.5 h-4 px-1 border-gray-300 text-gray-700 bg-gray-50">
+                <Badge variant="outline" className="text-xs mt-0.5 h-4 px-1 border-slate-400 text-slate-200 bg-white/5">
                   {role}
                 </Badge>
               )}
             </div>
           </div>
         )}
-        <SidebarTrigger className="ml-auto text-gray-700 hover:bg-gray-100 hover:text-gray-900" />
+        <SidebarTrigger className="ml-auto text-white hover:bg-white/10 hover:text-white" />
       </div>
 
-      <SidebarContent className="px-2 py-4 bg-white">
+      <SidebarContent className="px-2 py-4" style={{ backgroundColor: 'hsl(210 45% 25%)' }}>
         {filteredSections.map((section, sectionIndex) => (
           <SidebarGroup key={section.label} className={sectionIndex > 0 ? "mt-6" : ""}>
             {!isCollapsed && (
-              <SidebarGroupLabel className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-200 uppercase tracking-wider px-3 mb-2">
                 {section.label}
               </SidebarGroupLabel>
             )}
             {isCollapsed && sectionIndex > 0 && (
-              <Separator className="my-2 bg-gray-200" />
+              <Separator className="my-2 bg-slate-700" />
             )}
 
             <SidebarGroupContent>
@@ -162,7 +163,7 @@ export function AdminSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild className="h-10">
                       <NavLink to={item.url} end className={getNavCls}>
-                        <div className="p-1.5 rounded-md bg-gray-50">
+                        <div className="p-1.5 rounded-md bg-white/5">
                           <item.icon className={`h-4 w-4 ${item.iconColor}`} />
                         </div>
                         {!isCollapsed && (
@@ -178,27 +179,27 @@ export function AdminSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-gray-200 p-3 bg-white">
+      <SidebarFooter className="border-t border-slate-700 p-3" style={{ backgroundColor: 'hsl(210 45% 25%)' }}>
         {!isCollapsed ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-50">
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-white/5">
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary/15 text-primary font-semibold text-sm">
+                <AvatarFallback className="bg-white/10 text-white font-semibold text-sm">
                   {userName ? getInitials(userName) : "AD"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-white truncate">
                   {userName || "Admin User"}
                 </p>
-                <p className="text-xs text-gray-600 capitalize">
+                <p className="text-xs text-slate-300 capitalize">
                   {role || "User"}
                 </p>
               </div>
             </div>
             <SidebarMenuButton 
               onClick={handleSignOut} 
-              className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 h-9"
+              className="w-full justify-start text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all duration-200 h-9"
             >
               <LogOut className="h-4 w-4" />
               <span className="font-medium text-sm">Sign Out</span>
@@ -207,13 +208,13 @@ export function AdminSidebar() {
         ) : (
           <div className="space-y-2">
             <Avatar className="h-9 w-9 mx-auto">
-              <AvatarFallback className="bg-primary/15 text-primary font-semibold text-xs">
+              <AvatarFallback className="bg-white/10 text-white font-semibold text-xs">
                 {userName ? getInitials(userName) : "AD"}
               </AvatarFallback>
             </Avatar>
             <SidebarMenuButton 
               onClick={handleSignOut} 
-              className="w-full justify-center text-red-600 hover:bg-red-50 h-9"
+              className="w-full justify-center text-red-300 hover:bg-red-500/20 h-9"
             >
               <LogOut className="h-4 w-4" />
             </SidebarMenuButton>
