@@ -33,10 +33,10 @@ export default function AdminSchoolReports() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    classId: "",
+    classId: "all",
     startDate: "",
     endDate: "",
-    status: ""
+    status: "all"
   });
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function AdminSchoolReports() {
         .select("*, students(full_name), classes(class_name)")
         .order("date", { ascending: false });
 
-      if (filters.classId) {
+      if (filters.classId && filters.classId !== "all") {
         query = query.eq("class_id", filters.classId);
       }
       if (filters.startDate) {
@@ -78,7 +78,7 @@ export default function AdminSchoolReports() {
       if (filters.endDate) {
         query = query.lte("date", filters.endDate);
       }
-      if (filters.status) {
+      if (filters.status && filters.status !== "all") {
         query = query.eq("status", filters.status);
       }
 
@@ -224,7 +224,7 @@ export default function AdminSchoolReports() {
                     <SelectValue placeholder="All classes" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All classes</SelectItem>
+                    <SelectItem value="all">All classes</SelectItem>
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
                         {cls.class_name}
@@ -261,7 +261,7 @@ export default function AdminSchoolReports() {
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All statuses</SelectItem>
+                    <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="Present">Present</SelectItem>
                     <SelectItem value="Absent">Absent</SelectItem>
                     <SelectItem value="Late">Late</SelectItem>
