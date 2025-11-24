@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Image as ImageIcon, X, CheckSquare } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Image as ImageIcon, X, CheckSquare, Download, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 interface Event {
   id: string;
@@ -40,6 +41,7 @@ const AdminEvents = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -224,6 +226,100 @@ const AdminEvents = () => {
     }
   };
 
+  const handleExport = () => {
+    const exportData = events.map(event => ({
+      'Title': event.title,
+      'Description': event.description || '',
+      'Date': event.date,
+      'Time': event.time,
+      'Location': event.location,
+      'Type': event.type,
+      'Image URL': event.image_url || '',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Events');
+    
+    // Auto-size columns
+    const maxWidth = 50;
+    const wscols = Object.keys(exportData[0] || {}).map(() => ({ wch: maxWidth }));
+    ws['!cols'] = wscols;
+    
+    XLSX.writeFile(wb, `CBC_Events_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    toast.success('Events exported successfully');
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const data = new Uint8Array(event.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+
+          if (jsonData.length === 0) {
+            toast.error('No data found in the file');
+            return;
+          }
+
+          // Validate required fields
+          const requiredFields = ['Title', 'Date', 'Time', 'Location', 'Type'];
+          const firstRow = jsonData[0];
+          const missingFields = requiredFields.filter(field => !(field in firstRow));
+          
+          if (missingFields.length > 0) {
+            toast.error(`Missing required columns: ${missingFields.join(', ')}`);
+            return;
+          }
+
+          // Process and insert events
+          const eventsToInsert = jsonData.map((row: any) => {
+            const eventDate = new Date(row['Date']);
+            const dateString = format(eventDate, "MMMM dd, yyyy");
+            
+            return {
+              title: row['Title'],
+              description: row['Description'] || null,
+              date: dateString,
+              date_obj: eventDate.toISOString(),
+              time: row['Time'],
+              location: row['Location'],
+              type: row['Type'],
+              image_url: row['Image URL'] || null,
+            };
+          });
+
+          const { error } = await supabase
+            .from('events')
+            .insert(eventsToInsert);
+
+          if (error) throw error;
+
+          toast.success(`Successfully imported ${eventsToInsert.length} event(s)`);
+          fetchEvents();
+        } catch (error: any) {
+          console.error('Import error:', error);
+          toast.error(error.message || 'Failed to import events');
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to read file');
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -253,13 +349,41 @@ const AdminEvents = () => {
           <h1 className="font-display text-4xl font-bold mb-2">Manage Events</h1>
           <p className="text-muted-foreground">Create, edit, and manage all church events</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Event
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleImport}
+              className="hidden"
+              id="import-file"
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Import
             </Button>
-          </DialogTrigger>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Event
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{selectedEvent ? "Edit Event" : "Create New Event"}</DialogTitle>
@@ -377,7 +501,6 @@ const AdminEvents = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       <div className="mb-6 flex justify-between items-center">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
