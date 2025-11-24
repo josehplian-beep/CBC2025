@@ -1,17 +1,11 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { AdminLayout } from "@/components/AdminLayout";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette, Copy, Check } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const ColorPalette = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [copiedColor, setCopiedColor] = useState<string>('');
-  const navigate = useNavigate();
 
   const hslToHex = (hsl: string): string => {
     const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
@@ -89,34 +83,6 @@ const ColorPalette = () => {
     { name: 'Destructive (Red)', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' }
   ];
 
-  useEffect(() => {
-    checkAdminAccess();
-  }, []);
-
-  const checkAdminAccess = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error('Access denied');
-      navigate('/');
-      return;
-    }
-
-    const { data } = await supabase.rpc('has_role', {
-      _user_id: user.id,
-      _role: 'admin'
-    });
-
-    if (!data) {
-      toast.error('Admin access required');
-      navigate('/');
-      return;
-    }
-
-    setIsAdmin(true);
-    setLoading(false);
-  };
-
   const copyToClipboard = (colorVar: string, value: string) => {
     navigator.clipboard.writeText(value);
     setCopiedColor(colorVar);
@@ -124,37 +90,8 @@ const ColorPalette = () => {
     setTimeout(() => setCopiedColor(''), 2000);
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader className="text-center">
-              <CardTitle>Admin Access Required</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
-                Return Home
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
-    <AdminLayout>
+    <>
       <section className="relative h-[200px] flex items-center justify-center overflow-hidden bg-gradient-to-r from-primary to-primary/80">
         <div className="relative z-10 text-center text-primary-foreground px-4">
           <Palette className="w-12 h-12 mx-auto mb-3" />
@@ -296,7 +233,7 @@ const ColorPalette = () => {
           </Card>
         </div>
       </section>
-    </AdminLayout>
+    </>
   );
 };
 
