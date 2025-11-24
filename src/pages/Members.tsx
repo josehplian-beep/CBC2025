@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search } from "lucide-react";
@@ -115,7 +115,7 @@ const Members = () => {
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
   const [user, setUser] = useState(null);
-  const { role, isAdmin, canEdit, canCreate, canDelete } = useUserRole();
+  const { can, isAdministrator, isStaff } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
@@ -186,7 +186,7 @@ const Members = () => {
 
       setUser(session.user);
 
-      // Check if user has any role (admin, staff, or viewer)
+      // Check if user has permission to view members
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
@@ -194,7 +194,13 @@ const Members = () => {
 
       if (rolesError) throw rolesError;
 
-      const hasAnyRole = roles?.some(r => r.role === 'staff' || r.role === 'admin' || r.role === 'viewer');
+      const hasAnyRole = roles?.some(r => 
+        r.role === 'staff' || 
+        r.role === 'admin' || 
+        r.role === 'viewer' || 
+        r.role === 'administrator' ||
+        r.role === 'member'
+      );
       
       if (!hasAnyRole) {
         setHasAccess(false);
@@ -767,7 +773,7 @@ const Members = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Export to Excel
               </Button>
-              {canCreate && (
+              {can('manage_members') && (
                 <>
                   <Dialog open={isFamilyDialogOpen} onOpenChange={setIsFamilyDialogOpen}>
                     <DialogTrigger asChild>
@@ -1958,7 +1964,7 @@ const Members = () => {
                 <p className="text-muted-foreground mb-4">
                   The member directory is currently empty.
                 </p>
-                {canCreate && (
+                {can('manage_members') && (
                   <Button onClick={() => setIsAddDialogOpen(true)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add First Member
@@ -1994,7 +2000,7 @@ const Members = () => {
                                 <Users className="w-5 h-5 text-primary" />
                                 {family.family_name}
                               </CardTitle>
-                              {isAdmin && (
+                              {can('manage_members') && (
                                 <Button 
                                   variant="ghost" 
                                   size="sm"
@@ -2065,7 +2071,7 @@ const Members = () => {
                                           <Eye className="w-4 h-4" />
                                           <span>View Profile</span>
                                         </Button>
-                                        {canEdit && (
+                                        {can('manage_members') && (
                                           <Button
                                             variant="ghost"
                                             size="icon"
@@ -2075,7 +2081,7 @@ const Members = () => {
                                             <Edit className="w-4 h-4" />
                                           </Button>
                                         )}
-                                        {canDelete && (
+                                        {can('manage_members') && (
                                           <Button
                                             variant="ghost"
                                             size="icon"
@@ -2174,7 +2180,7 @@ const Members = () => {
                                         <Eye className="w-4 h-4" />
                                         <span>View Profile</span>
                                       </Button>
-                                      {canEdit && (
+                                      {can('manage_members') && (
                                         <Button
                                           variant="ghost"
                                           size="icon"
@@ -2184,7 +2190,7 @@ const Members = () => {
                                           <Edit className="w-4 h-4" />
                                         </Button>
                                       )}
-                                      {canDelete && (
+                                      {can('manage_members') && (
                                         <Button
                                           variant="ghost"
                                           size="icon"
@@ -2280,7 +2286,7 @@ const Members = () => {
                               <Eye className="w-4 h-4" />
                               <span>View Profile</span>
                             </Button>
-                            {canEdit && (
+                            {can('manage_members') && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -2290,7 +2296,7 @@ const Members = () => {
                                 <Edit className="w-4 h-4" />
                               </Button>
                             )}
-                            {canDelete && (
+                            {can('manage_members') && (
                               <Button
                                 variant="ghost"
                                 size="icon"
