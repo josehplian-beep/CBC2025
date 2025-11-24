@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText, GraduationCap, BookOpen, ClipboardList, BarChart3 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -59,6 +59,15 @@ const adminMenuSections: MenuSection[] = [
       { title: "Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", roles: ["admin", "staff"] },
       { title: "Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", roles: ["admin", "staff"] },
       { title: "Testimonies", url: "/testimony", icon: MessageSquare, iconColor: "text-rose-500", roles: ["admin", "staff"] },
+    ],
+  },
+  {
+    label: "School Management",
+    items: [
+      { title: "Teachers", url: "/admin/school/teachers", icon: GraduationCap, iconColor: "text-violet-500", roles: ["admin", "staff"] },
+      { title: "Students", url: "/admin/school/students", icon: Users, iconColor: "text-sky-500", roles: ["admin", "staff"] },
+      { title: "Classes", url: "/admin/school/classes", icon: BookOpen, iconColor: "text-teal-500", roles: ["admin", "staff"] },
+      { title: "Attendance Reports", url: "/admin/school/reports", icon: BarChart3, iconColor: "text-fuchsia-500", roles: ["admin", "staff"] },
     ],
   },
   {
