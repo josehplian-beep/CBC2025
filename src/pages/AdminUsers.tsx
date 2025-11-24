@@ -137,7 +137,7 @@ const AdminUsers = () => {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case "admin":
+      case "administrator":
         return "default";
       case "staff":
         return "secondary";
