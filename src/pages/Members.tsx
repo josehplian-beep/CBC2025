@@ -195,10 +195,11 @@ const Members = () => {
       if (rolesError) throw rolesError;
 
       const hasAnyRole = roles?.some(r => 
+        r.role === 'administrator' || 
         r.role === 'staff' || 
-        r.role === 'admin' || 
         r.role === 'viewer' || 
-        r.role === 'administrator' ||
+        r.role === 'editor' ||
+        r.role === 'teacher' ||
         r.role === 'member'
       );
       

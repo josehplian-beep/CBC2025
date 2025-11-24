@@ -31,11 +31,10 @@ export function useUserRole() {
 
         const roleValues = roles.map(r => r.role as AppUserRole);
 
-        // Priority: administrator > admin > staff > editor > teacher > member > viewer
+        // Priority: administrator > staff > editor > teacher > member > viewer
+        // Note: 'admin' is legacy and should not exist in the database anymore
         if (roleValues.includes('administrator')) {
           setRole('administrator');
-        } else if (roleValues.includes('admin')) {
-          setRole('admin');
         } else if (roleValues.includes('staff')) {
           setRole('staff');
         } else if (roleValues.includes('editor')) {
@@ -46,6 +45,9 @@ export function useUserRole() {
           setRole('member');
         } else if (roleValues.includes('viewer')) {
           setRole('viewer');
+        } else if (roleValues.includes('admin')) {
+          // Legacy fallback - this should not happen
+          setRole('admin');
         } else {
           setRole(null);
         }
@@ -68,11 +70,11 @@ export function useUserRole() {
   return {
     role,
     loading,
-    isAdmin: role === 'admin' || role === 'administrator',
+    isAdmin: role === 'administrator',
     isStaff: role === 'staff',
     isViewer: role === 'viewer',
-    canEdit: role === 'admin' || role === 'administrator' || role === 'staff',
-    canDelete: role === 'admin' || role === 'administrator',
-    canCreate: role === 'admin' || role === 'administrator' || role === 'staff',
+    canEdit: role === 'administrator' || role === 'staff',
+    canDelete: role === 'administrator',
+    canCreate: role === 'administrator' || role === 'staff',
   };
 }
