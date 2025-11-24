@@ -79,12 +79,13 @@ const ColorPalette = () => {
   };
 
   const colors = [
-    { name: 'Primary (Brand Blue)', var: '--primary', value: 'hsl(221.2 83.2% 53.3%)' },
+    { name: 'Primary (Deep Navy)', var: '--primary', value: 'hsl(210 45% 25%)' },
     { name: 'Background (White)', var: '--background', value: 'hsl(0 0% 100%)' },
-    { name: 'Foreground (Dark Text)', var: '--foreground', value: 'hsl(222.2 84% 4.9%)' },
-    { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 40% 96.1%)' },
+    { name: 'Foreground (Dark Blue-Gray)', var: '--foreground', value: 'hsl(210 45% 20%)' },
+    { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 15% 92%)' },
+    { name: 'Accent (Medium Blue)', var: '--accent', value: 'hsl(210 50% 40%)' },
     { name: 'Muted Foreground (Gray Text)', var: '--muted-foreground', value: 'hsl(215.4 16.3% 46.9%)' },
-    { name: 'Border (Light Gray)', var: '--border', value: 'hsl(214.3 31.8% 91.4%)' },
+    { name: 'Border (Light Gray)', var: '--border', value: 'hsl(210 15% 88%)' },
     { name: 'Destructive (Red)', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' }
   ];
 
