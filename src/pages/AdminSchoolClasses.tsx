@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Search, Users, BookOpen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Search, Users, BookOpen, Pencil, ClipboardList } from "lucide-react";
 
 interface Class {
   id: string;
@@ -197,15 +197,25 @@ export default function AdminSchoolClasses() {
                       <span className="font-medium">Teacher:</span>
                       <span className="text-muted-foreground">{cls.teachers.full_name}</span>
                     </div>
-                  )}
-                  <Button
+                   )}
+                </CardContent>
+                <div className="p-6 pt-0 space-y-2">
+                  <Button 
                     variant="outline"
+                    className="w-full"
+                    onClick={() => navigate(`/admin/school/classes/${cls.id}/edit`)}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit Class
+                  </Button>
+                  <Button 
                     className="w-full"
                     onClick={() => navigate(`/admin/school/classes/${cls.id}/attendance`)}
                   >
+                    <ClipboardList className="h-4 w-4 mr-2" />
                     Take Attendance
                   </Button>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
