@@ -59,8 +59,8 @@ const adminMenuSections: MenuSection[] = [
     items: [
       { title: "Prayer Requests", url: "/admin/prayer-requests", icon: Heart, iconColor: "text-red-500", permissions: ['manage_prayer_requests'] },
       { title: "Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", permissions: ['manage_albums'] },
-      { title: "Events", url: "/events", icon: Calendar, iconColor: "text-amber-500", permissions: ['manage_events'] },
-      { title: "Testimonies", url: "/testimony", icon: MessageSquare, iconColor: "text-rose-500", permissions: ['manage_testimonies'] },
+      { title: "Events", url: "/admin/events", icon: Calendar, iconColor: "text-amber-500", permissions: ['manage_events'] },
+      { title: "Testimonies", url: "/admin/testimonies", icon: MessageSquare, iconColor: "text-rose-500", permissions: ['manage_testimonies'] },
     ],
   },
   {
