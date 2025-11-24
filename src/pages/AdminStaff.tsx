@@ -73,14 +73,19 @@ const AdminStaff = () => {
       return;
     }
 
-    const { data } = await supabase.rpc('has_role', {
-      _user_id: user.id,
-      _role: 'administrator'
-    });
+    // Check if user has administrator or editor role
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
 
-    if (!data) {
+    const hasAccess = roles?.some(r => 
+      r.role === 'administrator' || r.role === 'editor'
+    );
+
+    if (!hasAccess) {
       navigate('/');
-      toast.error('Access denied. Administrator privileges required.');
+      toast.error('Access denied. Administrator or Editor privileges required.');
       return;
     }
 
