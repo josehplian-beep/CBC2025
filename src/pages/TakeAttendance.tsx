@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
+import { ArrowLeft, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 
 interface Student {
   id: string;
@@ -18,30 +17,28 @@ interface Student {
   photo_url: string | null;
 }
 
-interface AttendanceStatus {
+interface AttendanceRecord {
   student_id: string;
-  status: "Present" | "Absent" | "Late" | "Excused";
-  notes: string;
+  status: string;
 }
 
 export default function TakeAttendance() {
   const { classId } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [className, setClassName] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [attendance, setAttendance] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (classId) {
-      fetchClassData();
-    }
-  }, [classId]);
+    fetchData();
+  }, [classId, selectedDate]);
 
-  const fetchClassData = async () => {
+  const fetchData = async () => {
     try {
-      // Fetch class details
+      // Fetch class info
       const { data: classData, error: classError } = await supabase
         .from("classes")
         .select("class_name")
@@ -51,92 +48,89 @@ export default function TakeAttendance() {
       if (classError) throw classError;
       setClassName(classData.class_name);
 
-      // Fetch students in this class
-      const { data: studentClassData, error: studentError } = await supabase
+      // Fetch students assigned to this class
+      const { data: studentData, error: studentError } = await supabase
         .from("student_classes")
-        .select("students(id, full_name, photo_url)")
+        .select("student_id, students(id, full_name, photo_url)")
         .eq("class_id", classId);
 
       if (studentError) throw studentError;
 
-      const studentList = studentClassData
+      const studentList = studentData
         .map(sc => sc.students)
-        .filter((s): s is Student => s !== null);
-
+        .filter(s => s !== null) as Student[];
+      
       setStudents(studentList);
 
-      // Initialize attendance
-      const initialAttendance: Record<string, AttendanceStatus> = {};
-      studentList.forEach(student => {
-        initialAttendance[student.id] = {
-          student_id: student.id,
-          status: "Present",
-          notes: ""
-        };
+      // Fetch existing attendance for this date
+      const { data: attendanceData } = await supabase
+        .from("attendance_records")
+        .select("student_id, status")
+        .eq("class_id", classId)
+        .eq("date", selectedDate);
+
+      const attendanceMap: Record<string, string> = {};
+      attendanceData?.forEach((record: AttendanceRecord) => {
+        attendanceMap[record.student_id] = record.status;
       });
-      setAttendance(initialAttendance);
+      setAttendance(attendanceMap);
+
     } catch (error) {
-      console.error("Error fetching class data:", error);
-      toast.error("Failed to load class data");
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load attendance data");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusChange = (studentId: string, status: AttendanceStatus["status"]) => {
+  const handleStatusChange = (studentId: string, status: string) => {
     setAttendance(prev => ({
       ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        status
-      }
-    }));
-  };
-
-  const handleNotesChange = (studentId: string, notes: string) => {
-    setAttendance(prev => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        notes
-      }
+      [studentId]: status
     }));
   };
 
   const handleMarkAllPresent = () => {
-    const updatedAttendance: Record<string, AttendanceStatus> = {};
+    const allPresent: Record<string, string> = {};
     students.forEach(student => {
-      updatedAttendance[student.id] = {
-        student_id: student.id,
-        status: "Present",
-        notes: attendance[student.id]?.notes || ""
-      };
+      allPresent[student.id] = "Present";
     });
-    setAttendance(updatedAttendance);
-    toast.success("Marked all students as present");
+    setAttendance(allPresent);
+    toast.success("All students marked as present");
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setSaving(true);
+
     try {
-      const records = Object.values(attendance).map(record => ({
-        student_id: record.student_id,
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Delete existing attendance for this date
+      await supabase
+        .from("attendance_records")
+        .delete()
+        .eq("class_id", classId)
+        .eq("date", selectedDate);
+
+      // Insert new attendance records
+      const records = Object.entries(attendance).map(([studentId, status]) => ({
+        student_id: studentId,
         class_id: classId,
         date: selectedDate,
-        status: record.status,
-        notes: record.notes || null,
-        taken_by: null // You can get the current teacher ID from auth context
+        status,
+        taken_by: user?.id || null
       }));
 
       const { error } = await supabase
         .from("attendance_records")
-        .upsert(records, {
-          onConflict: "student_id,class_id,date"
-        });
+        .insert(records);
 
       if (error) throw error;
 
       toast.success("Attendance saved successfully");
+      navigate("/admin/school/classes");
     } catch (error) {
       console.error("Error saving attendance:", error);
       toast.error("Failed to save attendance");
@@ -145,60 +139,34 @@ export default function TakeAttendance() {
     }
   };
 
-  const getStatusIcon = (status: AttendanceStatus["status"]) => {
-    switch (status) {
-      case "Present":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case "Absent":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case "Late":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case "Excused":
-        return <AlertCircle className="h-5 w-5 text-blue-500" />;
-    }
-  };
-
-  const getStatusColor = (status: AttendanceStatus["status"]) => {
-    switch (status) {
-      case "Present":
-        return "bg-green-500/10 text-green-700 border-green-500/20 hover:bg-green-500/20";
-      case "Absent":
-        return "bg-red-500/10 text-red-700 border-red-500/20 hover:bg-red-500/20";
-      case "Late":
-        return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20 hover:bg-yellow-500/20";
-      case "Excused":
-        return "bg-blue-500/10 text-blue-700 border-blue-500/20 hover:bg-blue-500/20";
-    }
-  };
-
   if (loading) {
     return (
       <AdminLayout>
-        <div className="p-6 flex items-center justify-center min-h-screen">
-          <p>Loading...</p>
-        </div>
+        <div className="p-6 text-center">Loading...</div>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{className}</h1>
-          <p className="text-muted-foreground">Take attendance for class</p>
+      <div className="p-6 space-y-6 max-w-5xl">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/school/classes")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Take Attendance</h1>
+            <p className="text-muted-foreground">{className}</p>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <CardTitle>Attendance Sheet</CardTitle>
-                <CardDescription>Mark attendance for {selectedDate}</CardDescription>
-              </div>
+              <CardTitle>Attendance Record</CardTitle>
               <div className="flex items-center gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="date">Date:</Label>
                   <Input
                     id="date"
                     type="date"
@@ -207,57 +175,76 @@ export default function TakeAttendance() {
                     className="w-auto"
                   />
                 </div>
-                <Button variant="outline" onClick={handleMarkAllPresent}>
+                <Button variant="outline" size="sm" onClick={handleMarkAllPresent}>
+                  <UserCheck className="h-4 w-4 mr-2" />
                   Mark All Present
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {students.map((student) => (
-              <Card key={student.id} className="p-4">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={student.photo_url || undefined} />
-                    <AvatarFallback>{student.full_name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{student.full_name}</h3>
-                      <div className="flex gap-2">
-                        {(["Present", "Absent", "Late", "Excused"] as const).map((status) => (
-                          <Button
-                            key={status}
-                            variant={attendance[student.id]?.status === status ? "default" : "outline"}
-                            size="sm"
-                            className={attendance[student.id]?.status === status ? getStatusColor(status) : ""}
-                            onClick={() => handleStatusChange(student.id, status)}
-                          >
-                            {getStatusIcon(status)}
-                            <span className="ml-2">{status}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                    <Textarea
-                      placeholder="Add notes (optional)"
-                      value={attendance[student.id]?.notes || ""}
-                      onChange={(e) => handleNotesChange(student.id, e.target.value)}
-                      rows={2}
-                    />
-                  </div>
+          <CardContent>
+            {students.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No students assigned to this class
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left p-4 font-medium">Student</th>
+                        <th className="text-left p-4 font-medium w-48">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {students.map((student) => (
+                        <tr key={student.id} className="hover:bg-muted/50">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={student.photo_url || undefined} />
+                                <AvatarFallback>
+                                  {student.full_name.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{student.full_name}</span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Select
+                              value={attendance[student.id] || ""}
+                              onValueChange={(value) => handleStatusChange(student.id, value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Present">Present</SelectItem>
+                                <SelectItem value="Absent">Absent</SelectItem>
+                                <SelectItem value="Late">Late</SelectItem>
+                                <SelectItem value="Excused">Excused</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </Card>
-            ))}
+
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={() => navigate("/admin/school/classes")}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={saving || Object.keys(attendance).length === 0}>
+                    {saving ? "Saving..." : "Save Attendance"}
+                  </Button>
+                </div>
+              </form>
+            )}
           </CardContent>
         </Card>
-
-        <div className="flex justify-end gap-4">
-          <Button variant="outline">Cancel</Button>
-          <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Saving..." : "Submit Attendance"}
-          </Button>
-        </div>
       </div>
     </AdminLayout>
   );
