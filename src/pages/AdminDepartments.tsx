@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { toast } from "sonner";
 import { Pencil, Trash2, Upload } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface DepartmentMember {
   id: string;
@@ -19,6 +20,7 @@ interface DepartmentMember {
   department: string;
   profile_image_url?: string;
   display_order: number;
+  year_range: string;
 }
 
 const AdminDepartments = () => {
@@ -35,6 +37,23 @@ const AdminDepartments = () => {
   const [departments, setDepartments] = useState<{ value: string; label: string }[]>([]);
   const [newDeptDialogOpen, setNewDeptDialogOpen] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
+  
+  // Calculate current year range based on current date
+  const getCurrentYearRange = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    return `${currentYear}-${currentYear + 1}`;
+  };
+  
+  const [selectedYearRange, setSelectedYearRange] = useState(getCurrentYearRange());
+  
+  // Available year ranges
+  const yearRanges = [
+    "2024-2025",
+    "2022-2023", 
+    "2020-2021",
+    "2018-2019"
+  ];
 
   useEffect(() => {
     fetchDepartments();
@@ -44,7 +63,7 @@ const AdminDepartments = () => {
     if (selectedDept) {
       fetchMembers();
     }
-  }, [selectedDept]);
+  }, [selectedDept, selectedYearRange]);
 
   const fetchDepartments = async () => {
     try {
@@ -115,6 +134,7 @@ const AdminDepartments = () => {
         .from("department_members")
         .select("*")
         .eq("department", selectedDept)
+        .eq("year_range", selectedYearRange)
         .order("display_order");
 
       if (error) throw error;
@@ -285,7 +305,8 @@ const AdminDepartments = () => {
       name: formData.get("name") as string,
       role: formData.get("role") as string,
       department: selectedDept,
-      display_order: parseInt(formData.get("display_order") as string) || 0
+      display_order: parseInt(formData.get("display_order") as string) || 0,
+      year_range: formData.get("year_range") as string
     };
 
     try {
@@ -365,6 +386,19 @@ const AdminDepartments = () => {
                   <Input id="role" name="role" defaultValue={editingMember?.role} required />
                 </div>
                 <div>
+                  <Label htmlFor="year_range">Year Range</Label>
+                  <Select name="year_range" defaultValue={editingMember?.year_range || selectedYearRange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearRanges.map(range => (
+                        <SelectItem key={range} value={range}>{range}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label htmlFor="display_order">Display Order</Label>
                   <Input 
                     id="display_order" 
@@ -380,18 +414,40 @@ const AdminDepartments = () => {
         </div>
       </div>
 
-      <div className="mb-6">
-          <Label>Select Department</Label>
-          <Select value={selectedDept} onValueChange={setSelectedDept}>
-            <SelectTrigger className="w-64">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {departments.map(dept => (
-                <SelectItem key={dept.value} value={dept.value}>{dept.label}</SelectItem>
+      <div className="mb-6 space-y-6">
+          <div>
+            <Label>Select Department</Label>
+            <Select value={selectedDept} onValueChange={setSelectedDept}>
+              <SelectTrigger className="w-64">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map(dept => (
+                  <SelectItem key={dept.value} value={dept.value}>{dept.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="mb-3 block">Year Range Filter</Label>
+            <ToggleGroup 
+              type="single" 
+              value={selectedYearRange} 
+              onValueChange={(value) => value && setSelectedYearRange(value)}
+              className="justify-start flex-wrap gap-2"
+            >
+              {yearRanges.map(range => (
+                <ToggleGroupItem 
+                  key={range} 
+                  value={range}
+                  className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                >
+                  {range}
+                </ToggleGroupItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ToggleGroup>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">

@@ -57,6 +57,7 @@ export type Database = {
           profile_image_url: string | null
           role: string
           updated_at: string | null
+          year_range: string | null
         }
         Insert: {
           created_at?: string | null
@@ -67,6 +68,7 @@ export type Database = {
           profile_image_url?: string | null
           role: string
           updated_at?: string | null
+          year_range?: string | null
         }
         Update: {
           created_at?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           profile_image_url?: string | null
           role?: string
           updated_at?: string | null
+          year_range?: string | null
         }
         Relationships: []
       }
