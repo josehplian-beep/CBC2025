@@ -138,7 +138,7 @@ export default function AdminDashboard() {
     { title: "Staff Members", value: stats.staff, icon: Users, color: "text-green-500" },
     { title: "Members", value: stats.members, icon: Users, color: "text-emerald-500" },
     { title: "Events", value: stats.events, icon: Calendar, color: "text-orange-500" },
-    { title: "Testimonials", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500" },
+    { title: "Testimonies", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500" },
     { title: "Departments", value: stats.departments, icon: Briefcase, color: "text-cyan-500" },
   ];
 
