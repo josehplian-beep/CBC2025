@@ -63,9 +63,11 @@ const AdminAlbums = () => {
 
       if (rolesError) throw rolesError;
 
-      const isAdministrator = roles?.some(r => r.role === 'administrator');
+      const hasManageAccess = roles?.some(r => 
+        r.role === 'administrator' || r.role === 'editor'
+      );
       
-      if (!isAdministrator) {
+      if (!hasManageAccess) {
         setHasAccess(false);
         setLoading(false);
         return;
