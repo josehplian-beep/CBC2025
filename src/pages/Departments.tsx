@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
@@ -9,6 +10,7 @@ import { MigrateDepartments } from "@/components/MigrateDepartments";
 import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
+  const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
   const [yearFilter, setYearFilter] = useState("2024-2025");
   const [members, setMembers] = useState<any[]>([]);
@@ -146,12 +148,17 @@ const Departments = () => {
               ) : members.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {members.map((member) => (
-                    <StaffCard 
-                      key={member.id} 
-                      name={member.name}
-                      role={member.role}
-                      image={member.profile_image_url}
-                    />
+                    <div 
+                      key={member.id}
+                      onClick={() => navigate(`/department-member/${member.id}`)}
+                      className="cursor-pointer"
+                    >
+                      <StaffCard 
+                        name={member.name}
+                        role={member.role}
+                        image={member.profile_image_url}
+                      />
+                    </div>
                   ))}
                 </div>
               ) : (
