@@ -6,15 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+
+interface Class {
+  id: string;
+  class_name: string;
+}
 
 export default function AdminSchoolStudentEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [assignedClasses, setAssignedClasses] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -25,29 +33,33 @@ export default function AdminSchoolStudentEdit() {
   });
 
   useEffect(() => {
-    fetchStudent();
+    fetchData();
   }, [id]);
 
-  const fetchStudent = async () => {
+  const fetchData = async () => {
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const [studentRes, classesRes, assignedRes] = await Promise.all([
+        supabase.from("students").select("*").eq("id", id).single(),
+        supabase.from("classes").select("id, class_name").order("class_name"),
+        supabase.from("student_classes").select("class_id").eq("student_id", id)
+      ]);
 
-      if (error) throw error;
+      if (studentRes.error) throw studentRes.error;
+      if (classesRes.error) throw classesRes.error;
       
       setFormData({
-        full_name: data.full_name || "",
-        date_of_birth: data.date_of_birth || "",
-        guardian_name: data.guardian_name || "",
-        guardian_phone: data.guardian_phone || "",
-        photo_url: data.photo_url || "",
-        notes: data.notes || "",
+        full_name: studentRes.data.full_name || "",
+        date_of_birth: studentRes.data.date_of_birth || "",
+        guardian_name: studentRes.data.guardian_name || "",
+        guardian_phone: studentRes.data.guardian_phone || "",
+        photo_url: studentRes.data.photo_url || "",
+        notes: studentRes.data.notes || "",
       });
+      
+      setClasses(classesRes.data || []);
+      setAssignedClasses((assignedRes.data || []).map(ac => ac.class_id));
     } catch (error) {
-      console.error("Error fetching student:", error);
+      console.error("Error fetching data:", error);
       toast.error("Failed to load student");
       navigate("/admin/school/students");
     } finally {
@@ -55,17 +67,47 @@ export default function AdminSchoolStudentEdit() {
     }
   };
 
+  const handleToggleClass = (classId: string) => {
+    setAssignedClasses(prev =>
+      prev.includes(classId)
+        ? prev.filter(id => id !== classId)
+        : [...prev, classId]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
-      const { error } = await supabase
+      // Update student info
+      const { error: updateError } = await supabase
         .from("students")
         .update(formData)
         .eq("id", id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // Delete existing class assignments
+      const { error: deleteError } = await supabase
+        .from("student_classes")
+        .delete()
+        .eq("student_id", id);
+
+      if (deleteError) throw deleteError;
+
+      // Insert new class assignments
+      if (assignedClasses.length > 0) {
+        const { error: insertError } = await supabase
+          .from("student_classes")
+          .insert(assignedClasses.map(classId => ({
+            student_id: id,
+            class_id: classId,
+            year: new Date().getFullYear().toString()
+          })));
+
+        if (insertError) throw insertError;
+      }
 
       toast.success("Student updated successfully");
       navigate("/admin/school/students");
@@ -171,6 +213,35 @@ export default function AdminSchoolStudentEdit() {
                 </Button>
               </div>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Class Assignments</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {classes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No classes available</p>
+            ) : (
+              <div className="space-y-3">
+                {classes.map((cls) => (
+                  <div key={cls.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`class-${cls.id}`}
+                      checked={assignedClasses.includes(cls.id)}
+                      onCheckedChange={() => handleToggleClass(cls.id)}
+                    />
+                    <Label
+                      htmlFor={`class-${cls.id}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {cls.class_name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
