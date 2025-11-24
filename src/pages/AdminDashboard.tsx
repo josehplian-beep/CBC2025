@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Image, Users, Calendar, MessageSquare, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -143,8 +142,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <AdminLayout>
-      <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
+    <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
         {/* Header */}
         <div className="space-y-2 animate-fade-in">
           <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
@@ -227,6 +225,5 @@ export default function AdminDashboard() {
           <DashboardQuickActions />
         </div>
       </div>
-    </AdminLayout>
   );
 }

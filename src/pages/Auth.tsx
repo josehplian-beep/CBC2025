@@ -23,15 +23,16 @@ const Auth = () => {
   useEffect(() => {
     const checkSessionAndRedirect = async (session: any) => {
       if (session) {
-        // Check if user is admin
+        // Check user role
         const { data: roles } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id);
         
-        const isAdmin = roles?.some(r => r.role === 'admin');
+        const isAdministrator = roles?.some(r => r.role === 'administrator');
+        const isStaff = roles?.some(r => r.role === 'staff');
         
-        if (isAdmin) {
+        if (isAdministrator || isStaff) {
           navigate("/admin/dashboard");
         } else {
           navigate("/");

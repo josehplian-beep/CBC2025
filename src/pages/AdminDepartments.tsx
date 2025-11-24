@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -337,7 +336,7 @@ const AdminDepartments = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Manage Department Members</h1>
@@ -559,7 +558,7 @@ const AdminDepartments = () => {
         imageSrc={imageToCrop}
         onCropComplete={handleCroppedImage}
       />
-    </AdminLayout>
+    </>
   );
 };
 
