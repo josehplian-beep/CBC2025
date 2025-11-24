@@ -49,8 +49,7 @@ const adminMenuSections: MenuSection[] = [
     label: "Management",
     items: [
       { title: "Member Directory", url: "/members", icon: Users, iconColor: "text-emerald-500", permissions: ['manage_members', 'manage_staff'] },
-      { title: "User Management", url: "/admin/users", icon: Shield, iconColor: "text-indigo-500", permissions: ['manage_users'] },
-      { title: "Role Management", url: "/admin/roles", icon: Shield, iconColor: "text-violet-500", permissions: ['manage_roles'] },
+      { title: "User & Role Management", url: "/admin/users", icon: Shield, iconColor: "text-indigo-500", permissions: ['manage_users', 'manage_roles'] },
       { title: "Manage Staff", url: "/admin/staff", icon: Users, iconColor: "text-orange-500", permissions: ['manage_staff'] },
       { title: "Manage Departments", url: "/admin/departments", icon: Users, iconColor: "text-cyan-500", permissions: ['manage_departments'] },
     ],
