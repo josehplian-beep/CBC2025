@@ -51,7 +51,9 @@ const AlbumGallery = () => {
         .select('role')
         .eq('user_id', session.user.id);
       
-      setIsAdmin(roles?.some(r => r.role === 'admin') || false);
+      setIsAdmin(roles?.some(r => 
+        r.role === 'administrator' || r.role === 'editor'
+      ) || false);
     }
   };
 
