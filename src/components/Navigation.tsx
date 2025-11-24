@@ -69,7 +69,7 @@ const Navigation = () => {
 
   const cbcSubLinks = [
     { name: "About", path: "/about" },
-    { name: "Our Staff", path: "/staff" },
+    { name: "Our Staffs", path: "/staff" },
     { name: "Departments", path: "/departments" },
   ];
 
