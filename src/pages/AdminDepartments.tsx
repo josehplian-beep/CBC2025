@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
-
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ interface DepartmentMember {
 }
 
 const AdminDepartments = () => {
+  const navigate = useNavigate();
   const [members, setMembers] = useState<DepartmentMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDept, setSelectedDept] = useState("deacons");
@@ -454,7 +455,10 @@ const AdminDepartments = () => {
           {members.map(member => (
             <Card key={member.id} className="overflow-hidden">
               <CardContent className="p-3 space-y-2">
-                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative group">
+                <div 
+                  className="aspect-square bg-muted rounded-lg overflow-hidden relative group cursor-pointer transition-transform hover:scale-105"
+                  onClick={() => navigate(`/department-member/${member.id}`)}
+                >
                   {member.profile_image_url ? (
                     <img 
                       src={member.profile_image_url} 
@@ -469,7 +473,11 @@ const AdminDepartments = () => {
                 </div>
                 
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-sm truncate" title={member.name}>
+                  <h3 
+                    className="font-semibold text-sm truncate cursor-pointer hover:text-primary transition-colors" 
+                    title={member.name}
+                    onClick={() => navigate(`/department-member/${member.id}`)}
+                  >
                     {member.name}
                   </h3>
                   <p className="text-xs text-muted-foreground truncate" title={member.role}>
