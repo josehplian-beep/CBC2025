@@ -196,10 +196,10 @@ const MemberProfileDepartment = () => {
             </CardContent>
           </Card>
 
-          {/* Leadership History Card */}
+          {/* Position History Card */}
           <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 border-b">
-              <CardTitle className="text-2xl font-display">Leadership History</CardTitle>
+              <CardTitle className="text-2xl font-display">Position History</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="rounded-xl overflow-hidden border border-border/50 shadow-sm">
