@@ -29,7 +29,10 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'view_member_directory',
     'manage_albums',
     'manage_events',
-    'manage_testimonies'
+    'manage_testimonies',
+    'manage_members',
+    'manage_staff',
+    'manage_departments'
   ],
   teacher: [
     'view_public_content',
