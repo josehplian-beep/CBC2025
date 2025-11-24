@@ -3,6 +3,7 @@ export type UserRole = 'member' | 'editor' | 'teacher' | 'staff' | 'administrato
 
 export type Permission =
   | 'view_public_content'
+  | 'view_member_directory'
   | 'manage_albums'
   | 'manage_events'
   | 'manage_testimonies'
@@ -19,11 +20,13 @@ export type Permission =
 
 export const RolePermissions: Record<UserRole, Permission[]> = {
   member: [
-    'view_public_content'
+    'view_public_content',
+    'view_member_directory'
   ],
   editor: [
     'view_public_content',
     'view_admin_panel',
+    'view_member_directory',
     'manage_albums',
     'manage_events',
     'manage_testimonies'
@@ -31,6 +34,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
   teacher: [
     'view_public_content',
     'view_admin_panel',
+    'view_member_directory',
     'manage_students',
     'manage_classes',
     'take_attendance'
@@ -38,6 +42,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
   staff: [
     'view_public_content',
     'view_admin_panel',
+    'view_member_directory',
     'manage_members',
     'manage_departments',
     'manage_staff',
@@ -46,6 +51,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
   administrator: [
     'view_public_content',
     'view_admin_panel',
+    'view_member_directory',
     'manage_albums',
     'manage_events',
     'manage_testimonies',
@@ -59,10 +65,11 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'manage_roles',
     'manage_prayer_requests'
   ],
-  // Legacy role mappings
+  // Legacy role mappings (kept for type compatibility, not assigned anymore)
   admin: [
     'view_public_content',
     'view_admin_panel',
+    'view_member_directory',
     'manage_albums',
     'manage_events',
     'manage_testimonies',
