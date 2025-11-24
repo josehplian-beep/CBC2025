@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -203,16 +202,11 @@ export default function TakeAttendance() {
   };
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="p-6 text-center">Loading...</div>
-      </AdminLayout>
-    );
+    return <div className="p-6 text-center">Loading...</div>;
   }
 
   return (
-    <AdminLayout>
-      <div className="p-6 space-y-6 max-w-5xl">
+    <div className="p-6 space-y-6 max-w-5xl">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/admin/school/classes")}>
             <ArrowLeft className="h-4 w-4" />
@@ -309,6 +303,5 @@ export default function TakeAttendance() {
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
   );
 }
