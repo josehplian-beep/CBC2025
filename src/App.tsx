@@ -47,6 +47,7 @@ import AdminSchoolReports from "./pages/AdminSchoolReports";
 import TakeAttendance from "./pages/TakeAttendance";
 import NotFound from "./pages/NotFound";
 
+// School Management Edit Pages
 const queryClient = new QueryClient();
 
 const App = () => (
