@@ -44,7 +44,7 @@ const Staff = () => {
       {/* Hero Section */}
       <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-primary">
         <div className="relative z-10 text-center text-primary-foreground px-4">
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Our Staff</h1>
+          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Our Staffs</h1>
           <p className="text-xl md:text-2xl text-primary-foreground/90">
             Meet our dedicated spiritual leaders who guide and shepherd our congregation
           </p>
