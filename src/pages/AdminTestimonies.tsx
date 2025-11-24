@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { MessageSquare, Plus, Edit, Trash2, User, Calendar, Eye, EyeOff, X } from "lucide-react";
@@ -28,11 +29,13 @@ const AdminTestimonies = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [selectedTestimony, setSelectedTestimony] = useState<Testimony | null>(null);
   const [testimonyToDelete, setTestimonyToDelete] = useState<Testimony | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [showUnpublished, setShowUnpublished] = useState(true);
+  const [selectedTestimonyIds, setSelectedTestimonyIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -191,6 +194,64 @@ const AdminTestimonies = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedTestimonyIds.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from("testimonials")
+        .delete()
+        .in("id", selectedTestimonyIds);
+
+      if (error) throw error;
+
+      toast.success(`${selectedTestimonyIds.length} testimon(y/ies) deleted successfully`);
+      setSelectedTestimonyIds([]);
+      fetchTestimonies();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete testimonies");
+    } finally {
+      setBulkDeleteDialogOpen(false);
+    }
+  };
+
+  const handleBulkPublish = async (publish: boolean) => {
+    if (selectedTestimonyIds.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from("testimonials")
+        .update({ is_published: publish })
+        .in("id", selectedTestimonyIds);
+
+      if (error) throw error;
+
+      toast.success(
+        `${selectedTestimonyIds.length} testimon(y/ies) ${publish ? "published" : "unpublished"} successfully`
+      );
+      setSelectedTestimonyIds([]);
+      fetchTestimonies();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update testimonies");
+    }
+  };
+
+  const toggleTestimonySelection = (testimonyId: string) => {
+    setSelectedTestimonyIds(prev =>
+      prev.includes(testimonyId)
+        ? prev.filter(id => id !== testimonyId)
+        : [...prev, testimonyId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedTestimonyIds.length === filteredTestimonies.length) {
+      setSelectedTestimonyIds([]);
+    } else {
+      setSelectedTestimonyIds(filteredTestimonies.map(t => t.id));
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -325,15 +386,59 @@ const AdminTestimonies = () => {
         </Dialog>
       </div>
 
-      <div className="mb-6 flex items-center gap-2">
-        <Switch
-          id="show-unpublished"
-          checked={showUnpublished}
-          onCheckedChange={setShowUnpublished}
-        />
-        <Label htmlFor="show-unpublished" className="cursor-pointer">
-          Show unpublished testimonies
-        </Label>
+      <div className="mb-6 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="show-unpublished"
+            checked={showUnpublished}
+            onCheckedChange={setShowUnpublished}
+          />
+          <Label htmlFor="show-unpublished" className="cursor-pointer">
+            Show unpublished testimonies
+          </Label>
+        </div>
+
+        {selectedTestimonyIds.length > 0 && (
+          <div className="flex items-center gap-3 px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
+            <span className="text-sm font-medium">
+              {selectedTestimonyIds.length} selected
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleBulkPublish(true)}
+              className="gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Publish
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleBulkPublish(false)}
+              className="gap-2"
+            >
+              <EyeOff className="h-4 w-4" />
+              Unpublish
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setBulkDeleteDialogOpen(true)}
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedTestimonyIds([])}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -348,21 +453,40 @@ const AdminTestimonies = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {filteredTestimonies.map((testimony) => (
-            <Card key={testimony.id} className={`hover:shadow-lg transition-shadow ${!testimony.is_published ? 'border-dashed border-2' : ''}`}>
-              <CardContent className="p-6">
-                <div className="flex gap-6">
-                  {testimony.image_url && (
-                    <div className="flex-shrink-0">
-                      <img
-                        src={testimony.image_url}
-                        alt={testimony.title}
-                        className="w-32 h-32 object-cover rounded-lg"
+        <>
+          {filteredTestimonies.length > 0 && (
+            <div className="mb-4 flex items-center gap-2">
+              <Checkbox
+                checked={selectedTestimonyIds.length === filteredTestimonies.length}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <Label htmlFor="select-all" className="cursor-pointer text-sm font-medium">
+                Select all testimonies
+              </Label>
+            </div>
+          )}
+          <div className="grid gap-4">
+            {filteredTestimonies.map((testimony) => (
+              <Card key={testimony.id} className={`hover:shadow-lg transition-shadow ${!testimony.is_published ? 'border-dashed border-2' : ''}`}>
+                <CardContent className="p-6">
+                  <div className="flex gap-6">
+                    <div className="flex items-start pt-1">
+                      <Checkbox
+                        checked={selectedTestimonyIds.includes(testimony.id)}
+                        onCheckedChange={() => toggleTestimonySelection(testimony.id)}
                       />
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
+                    {testimony.image_url && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={testimony.image_url}
+                          alt={testimony.title}
+                          className="w-32 h-32 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -425,7 +549,8 @@ const AdminTestimonies = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -440,6 +565,23 @@ const AdminTestimonies = () => {
             <AlertDialogCancel onClick={() => setTestimonyToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Multiple Testimonies</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedTestimonyIds.length} testimon(y/ies)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

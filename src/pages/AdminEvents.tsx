@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Image as ImageIcon, X } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, MapPin, Clock, Image as ImageIcon, X, CheckSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -32,11 +33,13 @@ const AdminEvents = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [selectedEventIds, setSelectedEventIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -181,6 +184,43 @@ const AdminEvents = () => {
     } finally {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedEventIds.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from("events")
+        .delete()
+        .in("id", selectedEventIds);
+
+      if (error) throw error;
+
+      toast.success(`${selectedEventIds.length} event(s) deleted successfully`);
+      setSelectedEventIds([]);
+      fetchEvents();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete events");
+    } finally {
+      setBulkDeleteDialogOpen(false);
+    }
+  };
+
+  const toggleEventSelection = (eventId: string) => {
+    setSelectedEventIds(prev =>
+      prev.includes(eventId)
+        ? prev.filter(id => id !== eventId)
+        : [...prev, eventId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedEventIds.length === filteredEvents.length) {
+      setSelectedEventIds([]);
+    } else {
+      setSelectedEventIds(filteredEvents.map(e => e.id));
     }
   };
 
@@ -339,7 +379,7 @@ const AdminEvents = () => {
         </Dialog>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filter by type" />
@@ -351,6 +391,30 @@ const AdminEvents = () => {
             ))}
           </SelectContent>
         </Select>
+
+        {selectedEventIds.length > 0 && (
+          <div className="flex items-center gap-3 px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
+            <span className="text-sm font-medium">
+              {selectedEventIds.length} selected
+            </span>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setBulkDeleteDialogOpen(true)}
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Selected
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedEventIds([])}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -365,21 +429,40 @@ const AdminEvents = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {filteredEvents.map((event) => (
-            <Card key={event.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex gap-6">
-                  {event.image_url && (
-                    <div className="flex-shrink-0">
-                      <img
-                        src={event.image_url}
-                        alt={event.title}
-                        className="w-32 h-32 object-cover rounded-lg"
+        <>
+          {filteredEvents.length > 0 && (
+            <div className="mb-4 flex items-center gap-2">
+              <Checkbox
+                checked={selectedEventIds.length === filteredEvents.length}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <Label htmlFor="select-all" className="cursor-pointer text-sm font-medium">
+                Select all events
+              </Label>
+            </div>
+          )}
+          <div className="grid gap-4">
+            {filteredEvents.map((event) => (
+              <Card key={event.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex gap-6">
+                    <div className="flex items-start pt-1">
+                      <Checkbox
+                        checked={selectedEventIds.includes(event.id)}
+                        onCheckedChange={() => toggleEventSelection(event.id)}
                       />
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
+                    {event.image_url && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={event.image_url}
+                          alt={event.title}
+                          className="w-32 h-32 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
                         <h3 className="font-semibold text-xl mb-1">{event.title}</h3>
@@ -433,7 +516,8 @@ const AdminEvents = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -448,6 +532,23 @@ const AdminEvents = () => {
             <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Multiple Events</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedEventIds.length} event(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
