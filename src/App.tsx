@@ -93,14 +93,14 @@ const App = () => (
           <Route path="/admin/prayer-requests" element={<ProtectedRoute permission="manage_prayer_requests"><AdminLayout><AdminPrayerRequests /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminUsers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/roles" element={<ProtectedRoute permission="manage_roles"><AdminLayout><AdminRoleManagement /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminSchoolTeachers /></ProtectedRoute>} />
-          <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminSchoolTeacherEdit /></ProtectedRoute>} />
-          <Route path="/admin/school/students" element={<ProtectedRoute permission="manage_students"><AdminSchoolStudents /></ProtectedRoute>} />
-          <Route path="/admin/school/students/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminSchoolStudentEdit /></ProtectedRoute>} />
-          <Route path="/admin/school/classes" element={<ProtectedRoute permission="manage_classes"><AdminSchoolClasses /></ProtectedRoute>} />
-          <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminSchoolClassEdit /></ProtectedRoute>} />
-          <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><TakeAttendance /></ProtectedRoute>} />
-          <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminSchoolReports /></ProtectedRoute>} />
+          <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeachers /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeacherEdit /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/students" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudents /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/students/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudentEdit /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/classes" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClasses /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClassEdit /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><AdminLayout><TakeAttendance /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminLayout><AdminSchoolReports /></AdminLayout></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
