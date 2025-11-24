@@ -158,7 +158,7 @@ export default function TakeAttendance() {
         class_id: classId,
         date: selectedDate,
         status,
-        taken_by: user?.id || null
+        taken_by: null
       }));
 
       const { error: insertError } = await supabase
