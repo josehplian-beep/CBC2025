@@ -36,7 +36,10 @@ export default function TakeAttendance() {
     fetchData();
   }, [classId, selectedDate]);
 
-  const fetchData = async () => {
+  const fetchData = async (retryCount = 0) => {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000; // Start with 1 second
+    
     try {
       // Fetch class info
       const { data: classData, error: classError } = await supabase
@@ -75,9 +78,32 @@ export default function TakeAttendance() {
       });
       setAttendance(attendanceMap);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching data:", error);
-      toast.error("Failed to load attendance data");
+      
+      // Retry logic for network errors
+      if (retryCount < MAX_RETRIES && (
+        error.message?.includes("Failed to fetch") ||
+        error.message?.includes("Network") ||
+        error.message?.includes("timeout")
+      )) {
+        const delay = RETRY_DELAY * Math.pow(2, retryCount); // Exponential backoff
+        toast.error(`Connection failed. Retrying in ${delay/1000}s... (${retryCount + 1}/${MAX_RETRIES})`);
+        
+        setTimeout(() => {
+          fetchData(retryCount + 1);
+        }, delay);
+        return;
+      }
+      
+      // Show specific error messages
+      if (error.message?.includes("Failed to fetch")) {
+        toast.error("Network connection failed. Please check your internet and try again.");
+      } else if (error.code === "PGRST116") {
+        toast.error("Class not found. Please check the class ID.");
+      } else {
+        toast.error(`Failed to load attendance data: ${error.message || "Unknown error"}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -99,20 +125,32 @@ export default function TakeAttendance() {
     toast.success("All students marked as present");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, retryCount = 0) => {
     e.preventDefault();
     setSaving(true);
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000;
 
     try {
+      // Validate that at least one student has attendance marked
+      if (Object.keys(attendance).length === 0) {
+        toast.error("Please mark attendance for at least one student");
+        setSaving(false);
+        return;
+      }
+
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
 
       // Delete existing attendance for this date
-      await supabase
+      const { error: deleteError } = await supabase
         .from("attendance_records")
         .delete()
         .eq("class_id", classId)
         .eq("date", selectedDate);
+
+      if (deleteError) throw deleteError;
 
       // Insert new attendance records
       const records = Object.entries(attendance).map(([studentId, status]) => ({
@@ -123,17 +161,42 @@ export default function TakeAttendance() {
         taken_by: user?.id || null
       }));
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from("attendance_records")
         .insert(records);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      toast.success("Attendance saved successfully");
+      toast.success(`Attendance saved successfully for ${records.length} student(s)`);
       navigate("/admin/school/classes");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving attendance:", error);
-      toast.error("Failed to save attendance");
+      
+      // Retry logic for network errors
+      if (retryCount < MAX_RETRIES && (
+        error.message?.includes("Failed to fetch") ||
+        error.message?.includes("Network") ||
+        error.message?.includes("timeout")
+      )) {
+        const delay = RETRY_DELAY * Math.pow(2, retryCount);
+        toast.error(`Save failed. Retrying in ${delay/1000}s... (${retryCount + 1}/${MAX_RETRIES})`);
+        
+        setTimeout(() => {
+          handleSubmit(e, retryCount + 1);
+        }, delay);
+        return;
+      }
+      
+      // Show specific error messages
+      if (error.message?.includes("Failed to fetch")) {
+        toast.error("Network connection failed. Please check your internet and try again.");
+      } else if (error.code === "23503") {
+        toast.error("Invalid student or class reference. Please refresh and try again.");
+      } else if (error.code === "23505") {
+        toast.error("Duplicate attendance record detected. Please refresh the page.");
+      } else {
+        toast.error(`Failed to save attendance: ${error.message || "Unknown error"}`);
+      }
     } finally {
       setSaving(false);
     }
