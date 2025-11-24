@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, User } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -112,79 +113,138 @@ const MemberProfileDepartment = () => {
     );
   }
 
+  // Get unique departments for badges
+  const uniqueDepartments = Array.from(new Set(positionHistory.map(p => p.department)));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container mx-auto px-4 py-20">
+        {/* Back Button */}
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="mb-6 gap-2"
+          className="mb-8 gap-2 group hover:gap-3 transition-all"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back
         </Button>
 
-        <Card className="max-w-4xl mx-auto">
-          <CardContent className="p-8">
-            {/* Member Info Section */}
-            <div className="flex flex-col items-center text-center mb-12">
-              <div className="w-32 h-32 rounded-full overflow-hidden mb-6 bg-muted">
-                {member.profile_image_url ? (
-                  <img 
-                    src={member.profile_image_url} 
-                    alt={member.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
-                    {member.name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                )}
-              </div>
-              <h1 className="text-4xl font-bold mb-2">{member.name}</h1>
-            </div>
-
-            {/* Position History Section */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">Position History</h2>
-              
-              <div className="rounded-lg overflow-hidden border border-border">
-                {/* Table Header with Gradient */}
-                <div className="bg-gradient-to-r from-primary/90 to-primary text-primary-foreground">
-                  <div className="grid grid-cols-3 gap-4 p-4 font-semibold">
-                    <div>Department</div>
-                    <div>Position</div>
-                    <div>Year</div>
+        <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
+          {/* Member Header Card */}
+          <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Square Profile Photo */}
+                <div className="flex-shrink-0">
+                  <div className="w-40 h-40 rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-border">
+                    {member.profile_image_url ? (
+                      <img 
+                        src={member.profile_image_url} 
+                        alt={member.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-20 h-20 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Table Body */}
-                <div className="divide-y divide-border">
-                  {positionHistory.length > 0 ? (
-                    positionHistory.map((position, index) => (
-                      <div 
-                        key={position.id}
-                        className={`grid grid-cols-3 gap-4 p-4 transition-colors hover:bg-muted/50 ${
-                          index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
-                        }`}
-                      >
-                        <div className="font-medium">{formatDepartmentName(position.department)}</div>
-                        <div className="text-muted-foreground">{position.role}</div>
-                        <div className="text-muted-foreground">{position.year_range}</div>
+                {/* Member Info */}
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h1 className="text-4xl font-display font-bold mb-2 text-foreground">
+                      {member.name}
+                    </h1>
+                    <p className="text-muted-foreground text-sm">Church Member</p>
+                  </div>
+
+                  {/* Department Badges */}
+                  {uniqueDepartments.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Departments:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {uniqueDepartments.map((dept) => (
+                          <Badge 
+                            key={dept} 
+                            variant="secondary"
+                            className="px-3 py-1 text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
+                            {formatDepartmentName(dept)}
+                          </Badge>
+                        ))}
                       </div>
-                    ))
-                  ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                      No position history available
+                    </div>
+                  )}
+
+                  {/* Current Role Badge */}
+                  {positionHistory.length > 0 && (
+                    <div className="pt-2">
+                      <Badge 
+                        variant="default"
+                        className="px-4 py-1.5 text-sm font-semibold"
+                      >
+                        {positionHistory[0].role}
+                      </Badge>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Leadership History Card */}
+          <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 border-b">
+              <CardTitle className="text-2xl font-display">Leadership History</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                {/* Table Header */}
+                <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+                    <div className="font-bold text-sm uppercase tracking-wide">Department</div>
+                    <div className="font-bold text-sm uppercase tracking-wide">Position</div>
+                    <div className="font-bold text-sm uppercase tracking-wide">Year</div>
+                  </div>
+                </div>
+
+                {/* Table Body */}
+                <div className="divide-y divide-border/30">
+                  {positionHistory.length > 0 ? (
+                    positionHistory.map((position, index) => (
+                      <div 
+                        key={position.id}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 transition-all duration-200 hover:bg-muted/40 hover:shadow-sm group"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <div className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {formatDepartmentName(position.department)}
+                        </div>
+                        <div className="text-muted-foreground font-medium">
+                          {position.role}
+                        </div>
+                        <div className="text-muted-foreground">
+                          <Badge variant="outline" className="font-mono">
+                            {position.year_range}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-12 text-center">
+                      <User className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
+                      <p className="text-muted-foreground">No leadership history available</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Footer />
