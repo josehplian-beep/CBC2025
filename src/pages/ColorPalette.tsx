@@ -230,6 +230,45 @@ const ColorPalette = () => {
             </CardContent>
           </Card>
 
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Typography System</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-6">
+                These are the font families used throughout the website.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Body Font</p>
+                    <p className="text-3xl font-sans mb-4">Outfit</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Used for body text, paragraphs, and general content.
+                    </p>
+                    <p className="text-xs text-muted-foreground pt-2 border-t">
+                      <span className="font-semibold">Tailwind class:</span> <code className="bg-muted px-2 py-1 rounded">font-sans</code>
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Display Font</p>
+                    <p className="text-3xl font-display mb-4">Montserrat</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Used for headings, titles, and emphasis.
+                    </p>
+                    <p className="text-xs text-muted-foreground pt-2 border-t">
+                      <span className="font-semibold">Tailwind class:</span> <code className="bg-muted px-2 py-1 rounded">font-display</code>
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Usage Guidelines</CardTitle>
