@@ -56,12 +56,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full">
-        <div className="shadow-[4px_0_12px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_12px_rgba(0,0,0,0.3)] z-20">
-          <AdminSidebar />
-        </div>
+        <AdminSidebar />
         
         <div className="flex-1 flex flex-col">
-          
           <main className="flex-1 overflow-auto">
             {children}
           </main>
