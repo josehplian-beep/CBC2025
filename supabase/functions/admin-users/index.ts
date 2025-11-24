@@ -81,6 +81,34 @@ serve(async (req) => {
       );
     }
 
+    // Handle role update action
+    if (action === "update_role" && req.method === "POST") {
+      const { userId, role } = await req.json();
+      
+      // First, delete existing roles for this user
+      const { error: deleteError } = await supabaseAdmin
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (deleteError) throw deleteError;
+
+      // Insert the new role
+      const { error: insertError } = await supabaseAdmin
+        .from('user_roles')
+        .insert({ user_id: userId, role });
+
+      if (insertError) throw insertError;
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    }
+
     // Get all users
     const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
 

@@ -22,6 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserWithRoles {
   id: string;
@@ -36,6 +43,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [resetUserId, setResetUserId] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,6 +87,50 @@ const AdminUsers = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingRole(userId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No session");
+      }
+
+      const supabaseUrl = "https://auztoefiuddwerfbpcpm.supabase.co";
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/admin-users?action=update_role`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, role: newRole }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update role");
+      }
+
+      toast({
+        title: "Role updated",
+        description: "User role has been updated successfully.",
+      });
+
+      // Refresh the users list
+      await fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update user role.",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingRole(null);
     }
   };
 
@@ -189,17 +241,23 @@ const AdminUsers = () => {
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {user.roles.length > 0 ? (
-                      user.roles.map((role) => (
-                        <Badge key={role} variant={getRoleBadgeVariant(role)}>
-                          {role}
-                        </Badge>
-                      ))
-                    ) : (
-                      <Badge variant="outline">No roles</Badge>
-                    )}
-                  </div>
+                  <Select
+                    value={user.roles[0] || ""}
+                    onValueChange={(value) => handleRoleChange(user.id, value)}
+                    disabled={updatingRole === user.id}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="administrator">Administrator</SelectItem>
+                      <SelectItem value="staff">Staff</SelectItem>
+                      <SelectItem value="editor">Editor</SelectItem>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </TableCell>
                 <TableCell>{formatDate(user.created_at)}</TableCell>
                 <TableCell>{formatDate(user.last_sign_in_at)}</TableCell>
