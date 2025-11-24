@@ -13,29 +13,42 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-const PRAYER_CATEGORIES = [
-  { id: "health", label: "Health", icon: "💚" },
-  { id: "family", label: "Family", icon: "👨‍👩‍👧‍👦" },
-  { id: "guidance", label: "Guidance", icon: "🧭" },
-  { id: "church", label: "Church", icon: "⛪" },
-  { id: "thanksgiving", label: "Thanksgiving", icon: "🙏" },
-  { id: "personal", label: "Personal Struggle", icon: "💪" }
-];
-
-const ENCOURAGING_MESSAGES = [
-  "God is near to the brokenhearted.",
-  "You are not alone.",
-  "Your church family cares for you.",
-  "Cast all your anxiety on Him because He cares for you.",
-  "The Lord is close to all who call on Him."
-];
-
-const SCRIPTURE_VERSES = [
-  { text: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.", reference: "Philippians 4:6" },
-  { text: "The Lord is close to the brokenhearted and saves those who are crushed in spirit.", reference: "Psalm 34:18" },
-  { text: "Cast all your anxiety on him because he cares for you.", reference: "1 Peter 5:7" }
-];
-
+const PRAYER_CATEGORIES = [{
+  id: "health",
+  label: "Health",
+  icon: "💚"
+}, {
+  id: "family",
+  label: "Family",
+  icon: "👨‍👩‍👧‍👦"
+}, {
+  id: "guidance",
+  label: "Guidance",
+  icon: "🧭"
+}, {
+  id: "church",
+  label: "Church",
+  icon: "⛪"
+}, {
+  id: "thanksgiving",
+  label: "Thanksgiving",
+  icon: "🙏"
+}, {
+  id: "personal",
+  label: "Personal Struggle",
+  icon: "💪"
+}];
+const ENCOURAGING_MESSAGES = ["God is near to the brokenhearted.", "You are not alone.", "Your church family cares for you.", "Cast all your anxiety on Him because He cares for you.", "The Lord is close to all who call on Him."];
+const SCRIPTURE_VERSES = [{
+  text: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.",
+  reference: "Philippians 4:6"
+}, {
+  text: "The Lord is close to the brokenhearted and saves those who are crushed in spirit.",
+  reference: "Psalm 34:18"
+}, {
+  text: "Cast all your anxiety on him because he cares for you.",
+  reference: "1 Peter 5:7"
+}];
 const Resources = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -49,24 +62,17 @@ const Resources = () => {
   const [urgency, setUrgency] = useState<"normal" | "urgent" | "critical">("normal");
   const [visibility, setVisibility] = useState<"team" | "public">("team");
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % ENCOURAGING_MESSAGES.length);
+      setCurrentMessageIndex(prev => (prev + 1) % ENCOURAGING_MESSAGES.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
-
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+    setSelectedCategories(prev => prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId]);
   };
-
   const getCharacterCountColor = () => {
-    const percentage = (formData.content.length / 1000) * 100;
+    const percentage = formData.content.length / 1000 * 100;
     if (percentage >= 95) return "text-destructive";
     if (percentage >= 80) return "text-yellow-600";
     return "text-muted-foreground";
@@ -134,8 +140,7 @@ const Resources = () => {
     description: "Have questions? Reach out to our church office and we'll be happy to help.",
     link: "/about"
   }];
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
+  return <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
       <Navigation />
       
       <div className="container mx-auto px-4 py-16">
@@ -143,7 +148,9 @@ const Resources = () => {
         <div className="text-center mb-16 space-y-4 animate-fade-in">
           <div className="inline-block p-3 rounded-full bg-primary/10 mb-4 relative">
             <Heart className="w-12 h-12 text-primary" />
-            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{ animationDuration: "2s" }} />
+            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{
+            animationDuration: "2s"
+          }} />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Submit a Prayer Request
@@ -151,7 +158,9 @@ const Resources = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             We would be honored to pray for you. Share your request below, and know that you are not alone.
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-primary animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          <div className="flex items-center justify-center gap-2 text-sm text-primary animate-fade-in" style={{
+          animationDelay: "0.3s"
+        }}>
             <Sparkles className="w-4 h-4" />
             <span className="italic transition-opacity duration-500">
               {ENCOURAGING_MESSAGES[currentMessageIndex]}
@@ -160,9 +169,10 @@ const Resources = () => {
         </div>
 
         {/* Resource Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          {resourceCards.map((resource, index) => (
-            <Link key={index} to={resource.link}>
+        <div className="grid md:grid-cols-3 gap-6 mb-16 animate-fade-in" style={{
+        animationDelay: "0.2s"
+      }}>
+          {resourceCards.map((resource, index) => <Link key={index} to={resource.link}>
               <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full border-2">
                 <CardHeader>
                   <div className="p-3 rounded-full bg-primary/10 w-fit mb-3 group-hover:bg-primary/20 transition-colors">
@@ -174,12 +184,13 @@ const Resources = () => {
                   <CardDescription>{resource.description}</CardDescription>
                 </CardHeader>
               </Card>
-            </Link>
-          ))}
+            </Link>)}
         </div>
 
         {/* Prayer Request Form */}
-        <div className="max-w-5xl mx-auto animate-fade-in" style={{ animationDelay: "0.4s" }}>
+        <div className="max-w-5xl mx-auto animate-fade-in" style={{
+        animationDelay: "0.4s"
+      }}>
           <Card className="border-2 shadow-xl backdrop-blur-sm bg-card/95">
             <CardHeader className="space-y-4">
               <div className="flex items-center gap-3">
@@ -202,30 +213,20 @@ const Resources = () => {
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-base font-semibold">Your Name *</Label>
-                      <Input 
-                        id="name" 
-                        placeholder="e.g., Sarah Johnson" 
-                        value={formData.name} 
-                        onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                        maxLength={100} 
-                        required 
-                        className="h-11"
-                      />
+                      <Input id="name" value={formData.name} onChange={e => setFormData({
+                      ...formData,
+                      name: e.target.value
+                    })} maxLength={100} required className="h-11" placeholder="e.g., Min" />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-base font-semibold">
                         Email <span className="text-muted-foreground font-normal">(optional)</span>
                       </Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="sarah@example.com" 
-                        value={formData.email} 
-                        onChange={e => setFormData({ ...formData, email: e.target.value })} 
-                        maxLength={255} 
-                        className="h-11"
-                      />
+                      <Input id="email" type="email" value={formData.email} onChange={e => setFormData({
+                      ...formData,
+                      email: e.target.value
+                    })} maxLength={255} className="h-11" placeholder="Min@example.com" />
                       <p className="text-xs text-muted-foreground">
                         For follow-up communication only
                       </p>
@@ -233,15 +234,10 @@ const Resources = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="title" className="text-base font-semibold">Prayer Request Title *</Label>
-                      <Input 
-                        id="title" 
-                        placeholder="e.g., Healing for my mother" 
-                        value={formData.title} 
-                        onChange={e => setFormData({ ...formData, title: e.target.value })} 
-                        maxLength={100} 
-                        required 
-                        className="h-11"
-                      />
+                      <Input id="title" placeholder="e.g., Healing for my mother" value={formData.title} onChange={e => setFormData({
+                      ...formData,
+                      title: e.target.value
+                    })} maxLength={100} required className="h-11" />
                     </div>
 
                     {/* Prayer Categories */}
@@ -250,20 +246,10 @@ const Resources = () => {
                         Categories <span className="text-muted-foreground font-normal">(optional)</span>
                       </Label>
                       <div className="flex flex-wrap gap-2">
-                        {PRAYER_CATEGORIES.map(category => (
-                          <Badge
-                            key={category.id}
-                            variant={selectedCategories.includes(category.id) ? "default" : "outline"}
-                            className={cn(
-                              "cursor-pointer px-3 py-1.5 text-sm transition-all hover:scale-105",
-                              selectedCategories.includes(category.id) && "shadow-md"
-                            )}
-                            onClick={() => toggleCategory(category.id)}
-                          >
+                        {PRAYER_CATEGORIES.map(category => <Badge key={category.id} variant={selectedCategories.includes(category.id) ? "default" : "outline"} className={cn("cursor-pointer px-3 py-1.5 text-sm transition-all hover:scale-105", selectedCategories.includes(category.id) && "shadow-md")} onClick={() => toggleCategory(category.id)}>
                             <span className="mr-1">{category.icon}</span>
                             {category.label}
-                          </Badge>
-                        ))}
+                          </Badge>)}
                       </div>
                     </div>
 
@@ -271,25 +257,21 @@ const Resources = () => {
                     <div className="space-y-3">
                       <Label className="text-base font-semibold">Prayer Urgency</Label>
                       <div className="flex gap-2">
-                        {[
-                          { value: "normal", label: "Normal", color: "bg-primary/10 text-primary border-primary/20" },
-                          { value: "urgent", label: "Urgent", color: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" },
-                          { value: "critical", label: "Critical", color: "bg-destructive/10 text-destructive border-destructive/20" }
-                        ].map(option => (
-                          <Button
-                            key={option.value}
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                              "transition-all",
-                              urgency === option.value && option.color
-                            )}
-                            onClick={() => setUrgency(option.value as typeof urgency)}
-                          >
+                        {[{
+                        value: "normal",
+                        label: "Normal",
+                        color: "bg-primary/10 text-primary border-primary/20"
+                      }, {
+                        value: "urgent",
+                        label: "Urgent",
+                        color: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20"
+                      }, {
+                        value: "critical",
+                        label: "Critical",
+                        color: "bg-destructive/10 text-destructive border-destructive/20"
+                      }].map(option => <Button key={option.value} type="button" variant="outline" size="sm" className={cn("transition-all", urgency === option.value && option.color)} onClick={() => setUrgency(option.value as typeof urgency)}>
                             {option.label}
-                          </Button>
-                        ))}
+                          </Button>)}
                       </div>
                     </div>
                   </div>
@@ -298,16 +280,10 @@ const Resources = () => {
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="content" className="text-base font-semibold">Your Prayer Request *</Label>
-                      <Textarea 
-                        id="content" 
-                        placeholder="Share what you would like us to pray for. Be as open and detailed as you feel comfortable..."
-                        value={formData.content} 
-                        onChange={e => setFormData({ ...formData, content: e.target.value })} 
-                        rows={12}
-                        className="resize-none"
-                        maxLength={1000} 
-                        required 
-                      />
+                      <Textarea id="content" placeholder="Share what you would like us to pray for. Be as open and detailed as you feel comfortable..." value={formData.content} onChange={e => setFormData({
+                      ...formData,
+                      content: e.target.value
+                    })} rows={12} className="resize-none" maxLength={1000} required />
                       <p className={cn("text-xs text-right font-medium transition-colors", getCharacterCountColor())}>
                         {formData.content.length}/1000 characters
                       </p>
@@ -317,21 +293,11 @@ const Resources = () => {
                     <div className="space-y-3">
                       <Label className="text-base font-semibold">Who can see this?</Label>
                       <div className="space-y-2">
-                        <Button
-                          type="button"
-                          variant={visibility === "team" ? "default" : "outline"}
-                          className="w-full justify-start"
-                          onClick={() => setVisibility("team")}
-                        >
+                        <Button type="button" variant={visibility === "team" ? "default" : "outline"} className="w-full justify-start" onClick={() => setVisibility("team")}>
                           <Users className="w-4 h-4 mr-2" />
                           Prayer Team Only (Private)
                         </Button>
-                        <Button
-                          type="button"
-                          variant={visibility === "public" ? "default" : "outline"}
-                          className="w-full justify-start"
-                          onClick={() => setVisibility("public")}
-                        >
+                        <Button type="button" variant={visibility === "public" ? "default" : "outline"} className="w-full justify-start" onClick={() => setVisibility("public")}>
                           <Heart className="w-4 h-4 mr-2" />
                           Church Community (Public)
                         </Button>
@@ -353,12 +319,7 @@ const Resources = () => {
                 </div>
 
                 {/* Submit Button */}
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full text-lg h-12 shadow-lg hover:shadow-xl transition-all" 
-                  disabled={loading}
-                >
+                <Button type="submit" size="lg" className="w-full text-lg h-12 shadow-lg hover:shadow-xl transition-all" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                   {loading ? "Submitting Your Request..." : "Submit Prayer Request"}
                 </Button>
@@ -368,18 +329,18 @@ const Resources = () => {
         </div>
 
         {/* Scripture Encouragement Section */}
-        <div className="max-w-5xl mx-auto mt-16 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+        <div className="max-w-5xl mx-auto mt-16 animate-fade-in" style={{
+        animationDelay: "0.6s"
+      }}>
           <h3 className="text-2xl font-bold text-center mb-8">God's Promise About Prayer</h3>
           <div className="grid md:grid-cols-3 gap-6">
-            {SCRIPTURE_VERSES.map((verse, index) => (
-              <Card key={index} className="border-primary/20 hover:border-primary/40 transition-colors">
+            {SCRIPTURE_VERSES.map((verse, index) => <Card key={index} className="border-primary/20 hover:border-primary/40 transition-colors">
                 <CardContent className="pt-6">
                   <BookOpen className="w-8 h-8 text-primary mb-4" />
                   <p className="text-sm italic mb-4 leading-relaxed">&ldquo;{verse.text}&rdquo;</p>
                   <p className="text-xs font-semibold text-primary">— {verse.reference}</p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
 
@@ -432,7 +393,6 @@ const Resources = () => {
       </Dialog>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
 export default Resources;
