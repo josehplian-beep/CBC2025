@@ -10,22 +10,12 @@ import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
-  const [yearFilter, setYearFilter] = useState("current");
+  const [yearFilter, setYearFilter] = useState("2024-2025");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState<string[]>([]);
 
-  // Calculate current year range
-  const getCurrentYearRange = () => {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    return `${currentYear}-${currentYear + 1}`;
-  };
-
-  const yearRangeMap: Record<string, string> = {
-    "current": getCurrentYearRange(),
-    "2023-2025": "2022-2023"
-  };
+  const yearRanges = ["2024-2025", "2022-2023", "2020-2021", "2018-2019"];
 
   useEffect(() => {
     fetchDepartments();
@@ -81,13 +71,11 @@ const Departments = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const yearRange = yearRangeMap[yearFilter] || getCurrentYearRange();
-      
       const { data, error } = await supabase
         .from("department_members")
         .select("*")
         .eq("department", selectedDepartment)
-        .eq("year_range", yearRange)
+        .eq("year_range", yearFilter)
         .order("display_order");
 
       if (error) throw error;
@@ -128,8 +116,9 @@ const Departments = () => {
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="current">Current Year</SelectItem>
-                <SelectItem value="2023-2025">2023-2025</SelectItem>
+                {yearRanges.map(range => (
+                  <SelectItem key={range} value={range}>{range}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
