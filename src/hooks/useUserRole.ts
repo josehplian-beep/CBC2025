@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { UserRole as AppUserRole } from "@/lib/permissions";
 
-export type UserRole = "admin" | "staff" | "viewer" | null;
+export type UserRole = AppUserRole | null;
 
 export function useUserRole() {
   const [role, setRole] = useState<UserRole>(null);
@@ -23,17 +24,30 @@ export function useUserRole() {
           .select('role')
           .eq('user_id', session.user.id);
 
-        if (error) {
+        if (error || !roles || roles.length === 0) {
           setRole(null);
-        } else if (roles && roles.length > 0) {
-          // Priority: admin > staff > viewer
-          if (roles.some(r => r.role === 'admin')) {
-            setRole('admin');
-          } else if (roles.some(r => r.role === 'staff')) {
-            setRole('staff');
-          } else if (roles.some(r => r.role === 'viewer')) {
-            setRole('viewer');
-          }
+          return;
+        }
+
+        const roleValues = roles.map(r => r.role as AppUserRole);
+
+        // Priority: administrator > admin > staff > editor > teacher > member > viewer
+        if (roleValues.includes('administrator')) {
+          setRole('administrator');
+        } else if (roleValues.includes('admin')) {
+          setRole('admin');
+        } else if (roleValues.includes('staff')) {
+          setRole('staff');
+        } else if (roleValues.includes('editor')) {
+          setRole('editor');
+        } else if (roleValues.includes('teacher')) {
+          setRole('teacher');
+        } else if (roleValues.includes('member')) {
+          setRole('member');
+        } else if (roleValues.includes('viewer')) {
+          setRole('viewer');
+        } else {
+          setRole(null);
         }
       } catch (error) {
         setRole(null);
@@ -54,11 +68,11 @@ export function useUserRole() {
   return {
     role,
     loading,
-    isAdmin: role === 'admin',
+    isAdmin: role === 'admin' || role === 'administrator',
     isStaff: role === 'staff',
     isViewer: role === 'viewer',
-    canEdit: role === 'admin' || role === 'staff',
-    canDelete: role === 'admin',
-    canCreate: role === 'admin' || role === 'staff',
+    canEdit: role === 'admin' || role === 'administrator' || role === 'staff',
+    canDelete: role === 'admin' || role === 'administrator',
+    canCreate: role === 'admin' || role === 'administrator' || role === 'staff',
   };
 }
