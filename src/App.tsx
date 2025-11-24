@@ -37,6 +37,11 @@ import AdminPrayerRequests from "./pages/AdminPrayerRequests";
 import AdminUsers from "./pages/AdminUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 import AlbumGallery from "./pages/AlbumGallery";
+import AdminSchoolTeachers from "./pages/AdminSchoolTeachers";
+import AdminSchoolStudents from "./pages/AdminSchoolStudents";
+import AdminSchoolClasses from "./pages/AdminSchoolClasses";
+import AdminSchoolReports from "./pages/AdminSchoolReports";
+import TakeAttendance from "./pages/TakeAttendance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +85,11 @@ const App = () => (
           <Route path="/admin/departments" element={<AdminLayout><AdminDepartments /></AdminLayout>} />
           <Route path="/admin/prayer-requests" element={<AdminLayout><AdminPrayerRequests /></AdminLayout>} />
           <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+          <Route path="/admin/school/teachers" element={<AdminSchoolTeachers />} />
+          <Route path="/admin/school/students" element={<AdminSchoolStudents />} />
+          <Route path="/admin/school/classes" element={<AdminSchoolClasses />} />
+          <Route path="/admin/school/classes/:classId/attendance" element={<TakeAttendance />} />
+          <Route path="/admin/school/reports" element={<AdminSchoolReports />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
