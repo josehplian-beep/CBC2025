@@ -107,8 +107,8 @@ export function AdminSidebar() {
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary/10 text-primary font-semibold border-l-2 border-primary shadow-sm" 
-      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-foreground transition-all duration-200";
+      ? "bg-primary/15 text-primary font-semibold border-l-4 border-primary shadow-sm" 
+      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700/50 hover:text-gray-900 dark:hover:text-white transition-all duration-200";
 
   const getInitials = (name: string) => {
     return name
@@ -123,37 +123,37 @@ export function AdminSidebar() {
     <Sidebar 
       variant="sidebar" 
       collapsible="icon" 
-      className="border-r bg-card"
+      className="border-r border-gray-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg"
     >
-      <div className="p-3 flex justify-between items-center border-b">
+      <div className="p-3 flex justify-between items-center border-b border-gray-200 dark:border-slate-700">
         {!isCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
               <FileText className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Admin Panel</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin Panel</p>
               {role && (
-                <Badge variant="outline" className="text-xs mt-0.5 h-4 px-1">
+                <Badge variant="outline" className="text-xs mt-0.5 h-4 px-1 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300">
                   {role}
                 </Badge>
               )}
             </div>
           </div>
         )}
-        <SidebarTrigger className="ml-auto" />
+        <SidebarTrigger className="ml-auto text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700" />
       </div>
 
       <SidebarContent className="px-2 py-4">
         {filteredSections.map((section, sectionIndex) => (
           <SidebarGroup key={section.label} className={sectionIndex > 0 ? "mt-6" : ""}>
             {!isCollapsed && (
-              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+              <SidebarGroupLabel className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">
                 {section.label}
               </SidebarGroupLabel>
             )}
             {isCollapsed && sectionIndex > 0 && (
-              <Separator className="my-2" />
+              <Separator className="my-2 bg-gray-200 dark:bg-slate-700" />
             )}
 
             <SidebarGroupContent>
@@ -162,8 +162,8 @@ export function AdminSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild className="h-10">
                       <NavLink to={item.url} end className={getNavCls}>
-                        <div className={`p-1.5 rounded-md ${item.iconColor} bg-current/10`}>
-                          <item.icon className="h-4 w-4" style={{ color: 'inherit' }} />
+                        <div className={`p-1.5 rounded-md bg-gray-100 dark:bg-slate-800`}>
+                          <item.icon className={`h-4 w-4 ${item.iconColor}`} />
                         </div>
                         {!isCollapsed && (
                           <span className="font-medium text-sm">{item.title}</span>
@@ -178,27 +178,27 @@ export function AdminSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-3">
+      <SidebarFooter className="border-t border-gray-200 dark:border-slate-700 p-3">
         {!isCollapsed ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-muted/50">
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-100 dark:bg-slate-800/50">
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                <AvatarFallback className="bg-primary/15 text-primary font-semibold text-sm">
                   {userName ? getInitials(userName) : "AD"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                   {userName || "Admin User"}
                 </p>
-                <p className="text-xs text-muted-foreground capitalize">
+                <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
                   {role || "User"}
                 </p>
               </div>
             </div>
             <SidebarMenuButton 
               onClick={handleSignOut} 
-              className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-200 h-9"
+              className="w-full justify-start text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200 h-9"
             >
               <LogOut className="h-4 w-4" />
               <span className="font-medium text-sm">Sign Out</span>
@@ -207,13 +207,13 @@ export function AdminSidebar() {
         ) : (
           <div className="space-y-2">
             <Avatar className="h-9 w-9 mx-auto">
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+              <AvatarFallback className="bg-primary/15 text-primary font-semibold text-xs">
                 {userName ? getInitials(userName) : "AD"}
               </AvatarFallback>
             </Avatar>
             <SidebarMenuButton 
               onClick={handleSignOut} 
-              className="w-full justify-center text-destructive hover:bg-destructive/10 h-9"
+              className="w-full justify-center text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 h-9"
             >
               <LogOut className="h-4 w-4" />
             </SidebarMenuButton>
