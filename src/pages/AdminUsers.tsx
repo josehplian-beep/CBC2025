@@ -11,7 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Mail, Shield } from "lucide-react";
+import { Loader2, Mail, Shield, UserPlus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +54,11 @@ const AdminUsers = () => {
   const [resetUserId, setResetUserId] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState<'administrator' | 'staff' | 'editor' | 'teacher' | 'member' | 'viewer'>("member");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -187,6 +202,58 @@ const AdminUsers = () => {
     });
   };
 
+  const handleCreateUser = async () => {
+    if (!newUserEmail || !newUserPassword) {
+      toast({
+        title: "Error",
+        description: "Email and password are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCreating(true);
+    try {
+      // Sign up the user
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: newUserEmail,
+        password: newUserPassword,
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (!signUpData.user) {
+        throw new Error("Failed to create user");
+      }
+
+      // Assign role to the user
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert([{ user_id: signUpData.user.id, role: newUserRole }]);
+
+      if (roleError) throw roleError;
+
+      toast({
+        title: "User created",
+        description: `User created successfully with ${newUserRole} role.`,
+      });
+
+      setIsCreateDialogOpen(false);
+      setNewUserEmail("");
+      setNewUserPassword("");
+      setNewUserRole("member");
+      await fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create user.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "administrator":
@@ -220,9 +287,15 @@ const AdminUsers = () => {
             Manage users and their access roles
           </p>
         </div>
-        <Button onClick={fetchUsers} variant="outline">
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Create User
+          </Button>
+          <Button onClick={fetchUsers} variant="outline">
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card rounded-lg border">
@@ -276,6 +349,70 @@ const AdminUsers = () => {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Create a new user account with a specific role.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="user@example.com"
+                value={newUserEmail}
+                onChange={(e) => setNewUserEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={newUserPassword}
+                onChange={(e) => setNewUserPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={newUserRole} onValueChange={(value) => setNewUserRole(value as typeof newUserRole)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="administrator">Administrator</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                  <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="teacher">Teacher</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={creating}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateUser} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create User"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!resetUserId} onOpenChange={() => setResetUserId(null)}>
         <AlertDialogContent>
