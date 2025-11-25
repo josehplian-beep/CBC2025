@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import revJosephImage from "@/assets/rev-joseph.jpg";
+import revJosephImage from "@/assets/Rev. Joseph Nihre.jpg";
 
 const RevJosephNihreBawihrin = () => {
   const navigate = useNavigate();
