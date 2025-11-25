@@ -13,12 +13,15 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-delete (Icon.Default.prototype as any)._getIconUrl;
-Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
+// Ensure this only runs once
+if (typeof window !== 'undefined') {
+  delete (Icon.Default.prototype as any)._getIconUrl;
+  Icon.Default.mergeOptions({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
+  });
+}
 
 interface Member {
   id: string;
@@ -172,18 +175,18 @@ export function MembersMap({ members }: MembersMapProps) {
     );
   }
 
-  const MapComponent = MapContainer as any;
-
   return (
     <Card className="overflow-hidden">
       <div className="h-[600px] w-full">
-        <MapComponent
+        <MapContainer
           center={[39.0458, -76.6413]}
           zoom={10}
           style={{ height: '100%', width: '100%' }}
           className="z-0"
+          scrollWheelZoom={true}
         >
           <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <FitBounds locations={locations} />
@@ -241,7 +244,7 @@ export function MembersMap({ members }: MembersMapProps) {
               </Popup>
             </Marker>
           ))}
-        </MapComponent>
+        </MapContainer>
       </div>
       <CardContent className="p-4 bg-muted/50">
         <p className="text-sm text-muted-foreground">
