@@ -67,9 +67,10 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Refresh session to get a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
       
-      if (!session) {
+      if (sessionError || !session) {
         toast({
           title: "Unauthorized",
           description: "You must be logged in as an admin.",
@@ -108,9 +109,10 @@ const AdminUsers = () => {
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdatingRole(userId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Refresh session to get a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
       
-      if (!session) {
+      if (sessionError || !session) {
         throw new Error("No session");
       }
 
@@ -154,9 +156,10 @@ const AdminUsers = () => {
 
     setResetting(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Refresh session to get a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
       
-      if (!session) {
+      if (sessionError || !session) {
         throw new Error("No session");
       }
 
