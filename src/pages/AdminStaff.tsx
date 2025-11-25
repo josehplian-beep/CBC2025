@@ -131,13 +131,13 @@ const AdminStaff = () => {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `staff-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('department-profiles')
+          .from('member-profiles')
           .upload(fileName, imageFile);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('department-profiles')
+          .from('member-profiles')
           .getPublicUrl(fileName);
         
         imageUrl = publicUrl;
