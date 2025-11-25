@@ -4,7 +4,7 @@ import { Menu, X, LogOut, ChevronDown, Sun, Moon } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "next-themes";
+import { useTheme } from "./ThemeProvider";
 import cbcLogo from "@/assets/cbc-logo.png";
 import {
   NavigationMenu,
