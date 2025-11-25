@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Image, Users, Calendar, MessageSquare, Briefcase } from "lucide-react";
+import { Image, Users, Calendar, MessageSquare, Briefcase, BookOpen, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardStatCard } from "@/components/DashboardStatCard";
 import { ActivityFeedItem } from "@/components/ActivityFeedItem";
 import { DashboardQuickActions } from "@/components/DashboardQuickActions";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Stats {
   albums: number;
@@ -25,6 +26,7 @@ interface RecentItem {
 }
 
 export default function AdminDashboard() {
+  const { role, can, isAdministrator, isStaff, isEditor, isTeacher } = usePermissions();
   const [stats, setStats] = useState<Stats>({
     albums: 0,
     photos: 0,
@@ -131,23 +133,46 @@ export default function AdminDashboard() {
     }
   };
 
-  const statCards = [
-    { title: "Albums", value: stats.albums, icon: Image, color: "text-blue-500" },
-    { title: "Photos", value: stats.photos, icon: Image, color: "text-purple-500" },
-    { title: "Staff Members", value: stats.staff, icon: Users, color: "text-green-500" },
-    { title: "Members", value: stats.members, icon: Users, color: "text-emerald-500" },
-    { title: "Events", value: stats.events, icon: Calendar, color: "text-orange-500" },
-    { title: "Testimonies", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500" },
-    { title: "Departments", value: stats.departments, icon: Briefcase, color: "text-cyan-500" },
-  ];
+  // Role-based stat cards
+  const getStatCards = () => {
+    const allCards = [
+      { title: "Albums", value: stats.albums, icon: Image, color: "text-blue-500", roles: ['administrator', 'editor'] },
+      { title: "Photos", value: stats.photos, icon: Image, color: "text-purple-500", roles: ['administrator', 'editor'] },
+      { title: "Staff Members", value: stats.staff, icon: Users, color: "text-green-500", roles: ['administrator', 'editor', 'staff'] },
+      { title: "Members", value: stats.members, icon: Users, color: "text-emerald-500", roles: ['administrator', 'editor', 'staff'] },
+      { title: "Events", value: stats.events, icon: Calendar, color: "text-orange-500", roles: ['administrator', 'editor'] },
+      { title: "Testimonies", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500", roles: ['administrator', 'editor'] },
+      { title: "Departments", value: stats.departments, icon: Briefcase, color: "text-cyan-500", roles: ['administrator', 'editor', 'staff'] },
+    ];
+
+    // Filter cards based on user role
+    if (isTeacher) {
+      return [
+        { title: "My Classes", value: stats.departments, icon: BookOpen, color: "text-blue-500" },
+        { title: "Students", value: stats.members, icon: UserCheck, color: "text-green-500" },
+      ];
+    }
+
+    return allCards.filter(card => !card.roles || card.roles.includes(role || ''));
+  };
+
+  const statCards = getStatCards();
 
   return (
     <div className="p-6 lg:p-8 space-y-8 bg-background min-h-screen">
         {/* Header */}
         <div className="space-y-2 animate-fade-in">
-          <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">
+            {isTeacher ? "Teacher Dashboard" : isEditor ? "Content Dashboard" : isStaff ? "Staff Dashboard" : "Dashboard"}
+          </h1>
           <p className="text-muted-foreground text-lg">
-            Overview of your church management system
+            {isTeacher 
+              ? "Manage your classes and students" 
+              : isEditor 
+              ? "Manage content and media" 
+              : isStaff 
+              ? "Manage members and church operations"
+              : "Overview of your church management system"}
           </p>
         </div>
 
