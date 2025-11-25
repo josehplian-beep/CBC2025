@@ -75,14 +75,20 @@ export function MembersMap({ members }: MembersMapProps) {
   // Geocode addresses using Nominatim (OpenStreetMap)
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
         {
           headers: {
             'User-Agent': 'Church Management System'
-          }
+          },
+          signal: controller.signal
         }
       );
+      
+      clearTimeout(timeoutId);
       const data = await response.json();
       
       if (data && data.length > 0) {
@@ -104,7 +110,10 @@ export function MembersMap({ members }: MembersMapProps) {
       setError(null);
       const memberLocations: MemberLocation[] = [];
 
-      for (const member of members) {
+      // Limit to first 50 members to avoid long loading times
+      const limitedMembers = members.slice(0, 50);
+
+      for (const member of limitedMembers) {
         let fullAddress = '';
         
         // Get address from family or member
@@ -118,8 +127,8 @@ export function MembersMap({ members }: MembersMapProps) {
         }
 
         if (fullAddress) {
-          // Add a small delay to respect rate limits
-          await new Promise(resolve => setTimeout(resolve, 200));
+          // Add a small delay to respect rate limits (1 request per second)
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
           const coords = await geocodeAddress(fullAddress);
           if (coords) {
@@ -141,7 +150,11 @@ export function MembersMap({ members }: MembersMapProps) {
       setIsLoading(false);
     };
 
-    loadLocations();
+    if (members.length > 0) {
+      loadLocations();
+    } else {
+      setIsLoading(false);
+    }
   }, [members]);
 
   if (isLoading) {
@@ -150,7 +163,13 @@ export function MembersMap({ members }: MembersMapProps) {
         <CardContent className="p-12 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            <p className="text-muted-foreground">Loading map data... This may take a moment.</p>
+            <p className="text-muted-foreground">Loading map data...</p>
+            <p className="text-sm text-muted-foreground">
+              Geocoding {locations.length} of {Math.min(members.length, 50)} addresses
+            </p>
+            <p className="text-xs text-muted-foreground italic">
+              Note: Limited to 50 members due to API rate limits
+            </p>
           </div>
         </CardContent>
       </Card>
