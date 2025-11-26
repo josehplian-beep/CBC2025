@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import revVanDuhCeuImage from "@/assets/Rev. Van Duh Ceu.jpg?v=2";
+import revVanDuhCeuImage from "@/assets/Rev. Van Duh Ceu.jpg";
 
 const RevVanDuhCeu = () => {
   const navigate = useNavigate();
