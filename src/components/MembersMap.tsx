@@ -1,27 +1,9 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import type { Map as LeafletMap } from 'leaflet';
-import { Icon, LatLngBounds } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Mail, Phone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-
-// Fix for default marker icon in React-Leaflet
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// Ensure this only runs once
-if (typeof window !== 'undefined') {
-  delete (Icon.Default.prototype as any)._getIconUrl;
-  Icon.Default.mergeOptions({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
-    shadowUrl: markerShadow,
-  });
-}
 
 interface Member {
   id: string;
@@ -46,30 +28,26 @@ interface MemberLocation {
   fullAddress: string;
 }
 
-// Component to fit bounds to all markers
-function FitBounds({ locations }: { locations: MemberLocation[] }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (locations.length > 0) {
-      const bounds = new LatLngBounds(
-        locations.map(loc => [loc.lat, loc.lng] as [number, number])
-      );
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-    }
-  }, [locations, map]);
-  
-  return null;
-}
-
 interface MembersMapProps {
   members: Member[];
 }
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '600px'
+};
+
+const defaultCenter = {
+  lat: 39.0458,
+  lng: -76.6413
+};
 
 export function MembersMap({ members }: MembersMapProps) {
   const [locations, setLocations] = useState<MemberLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<MemberLocation | null>(null);
+  const [mapCenter, setMapCenter] = useState(defaultCenter);
   const navigate = useNavigate();
 
   // Geocode addresses using Nominatim (OpenStreetMap)
@@ -144,6 +122,11 @@ export function MembersMap({ members }: MembersMapProps) {
 
       if (memberLocations.length === 0) {
         setError('No addresses could be geocoded. Please check that member addresses are complete.');
+      } else {
+        // Calculate center based on all locations
+        const avgLat = memberLocations.reduce((sum, loc) => sum + loc.lat, 0) / memberLocations.length;
+        const avgLng = memberLocations.reduce((sum, loc) => sum + loc.lng, 0) / memberLocations.length;
+        setMapCenter({ lat: avgLat, lng: avgLng });
       }
 
       setLocations(memberLocations);
@@ -197,56 +180,61 @@ export function MembersMap({ members }: MembersMapProps) {
   return (
     <Card className="overflow-hidden">
       <div className="h-[600px] w-full">
-        <MapContainer
-          center={[39.0458, -76.6413]}
-          zoom={10}
-          style={{ height: '100%', width: '100%' }}
-          className="z-0"
-          scrollWheelZoom={true}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <FitBounds locations={locations} />
-          {locations.map((location, index) => (
-            <Marker
-              key={`${location.member.id}-${index}`}
-              position={[location.lat, location.lng]}
-            >
-              <Popup>
-                <div className="p-2">
+        <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={mapCenter}
+            zoom={10}
+            options={{
+              streetViewControl: false,
+              mapTypeControl: false,
+            }}
+          >
+            {locations.map((location, index) => (
+              <Marker
+                key={`${location.member.id}-${index}`}
+                position={{ lat: location.lat, lng: location.lng }}
+                onClick={() => setSelectedMember(location)}
+              />
+            ))}
+
+            {selectedMember && (
+              <InfoWindow
+                position={{ lat: selectedMember.lat, lng: selectedMember.lng }}
+                onCloseClick={() => setSelectedMember(null)}
+              >
+                <div className="p-2 min-w-[250px]">
                   <div className="flex items-start gap-2 mb-3">
                     <User className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-base">{location.member.name}</h3>
+                      <h3 className="font-semibold text-base text-foreground">{selectedMember.member.name}</h3>
                       <p className="text-xs text-muted-foreground mt-1">
                         <MapPin className="w-3 h-3 inline mr-1" />
-                        {location.fullAddress}
+                        {selectedMember.fullAddress}
                       </p>
                     </div>
                   </div>
                   
                   <div className="space-y-2 mb-3 text-sm">
-                    {location.member.email && (
+                    {selectedMember.member.email && (
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-muted-foreground" />
                         <a 
-                          href={`mailto:${location.member.email}`}
+                          href={`mailto:${selectedMember.member.email}`}
                           className="text-primary hover:underline text-sm"
                         >
-                          {location.member.email}
+                          {selectedMember.member.email}
                         </a>
                       </div>
                     )}
-                    {location.member.phone && (
+                    {selectedMember.member.phone && (
                       <div className="flex items-center gap-2">
                         <Phone className="w-4 h-4 text-muted-foreground" />
                         <a 
-                          href={`tel:${location.member.phone}`}
+                          href={`tel:${selectedMember.member.phone}`}
                           className="text-primary hover:underline text-sm"
                         >
-                          {location.member.phone}
+                          {selectedMember.member.phone}
                         </a>
                       </div>
                     )}
@@ -254,16 +242,16 @@ export function MembersMap({ members }: MembersMapProps) {
                   
                   <Button
                     size="sm"
-                    onClick={() => navigate(`/members/${location.member.id}`)}
+                    onClick={() => navigate(`/members/${selectedMember.member.id}`)}
                     className="w-full"
                   >
                     View Profile
                   </Button>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        </LoadScript>
       </div>
       <CardContent className="p-4 bg-muted/50">
         <p className="text-sm text-muted-foreground">
