@@ -113,7 +113,7 @@ const ProfileEdit = () => {
         return;
       }
 
-      // Check if user is admin
+      // Check if user is administrator
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
@@ -121,7 +121,7 @@ const ProfileEdit = () => {
 
       if (rolesError) throw rolesError;
 
-      const isUserAdmin = roles?.some(r => r.role === 'admin');
+      const isUserAdmin = roles?.some(r => r.role === 'administrator');
       
       if (!isUserAdmin) {
         setHasAccess(false);

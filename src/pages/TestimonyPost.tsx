@@ -49,7 +49,7 @@ const TestimonyPost = () => {
     if (user) {
       const { data } = await supabase.rpc('has_role', {
         _user_id: user.id,
-        _role: 'admin'
+        _role: 'administrator'
       });
       setIsAdmin(data || false);
     }

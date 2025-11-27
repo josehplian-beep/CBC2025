@@ -55,7 +55,7 @@ const Navigation = () => {
         .select('role')
         .eq('user_id', user.id);
 
-      setIsAdmin(roles?.some(r => r.role === 'admin') || false);
+      setIsAdmin(roles?.some(r => r.role === 'administrator') || false);
     } catch (error) {
       setIsAdmin(false);
     }

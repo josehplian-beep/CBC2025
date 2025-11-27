@@ -22,7 +22,7 @@ export function usePermissions() {
     loading,
     can,
     canAny,
-    isAdministrator: userRole === 'administrator' || userRole === 'admin',
+    isAdministrator: userRole === 'administrator',
     isStaff: userRole === 'staff',
     isTeacher: userRole === 'teacher',
     isEditor: userRole === 'editor',
