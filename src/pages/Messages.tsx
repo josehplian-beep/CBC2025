@@ -39,7 +39,6 @@ const Messages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWriter, setSelectedWriter] = useState<string>("all");
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
-  const [selectedScripture, setSelectedScripture] = useState<string>("all");
   const [selectedSeries, setSelectedSeries] = useState<string>("all");
   const [formData, setFormData] = useState({
     title: '',
@@ -178,25 +177,6 @@ const Messages = () => {
     )
   ).sort();
 
-  // Extract scripture references (looking for book names and chapter:verse patterns)
-  const scripturePattern = /\b(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation)\s*\d+(?::\d+)?/gi;
-  
-  const uniqueScriptures = Array.from(
-    new Set(
-      messages.flatMap(m => {
-        const scriptures: string[] = [];
-        // Check title
-        const titleMatches = m.title.match(scripturePattern);
-        if (titleMatches) scriptures.push(...titleMatches);
-        // Check author_role (topic/scripture field)
-        if (m.author_role) {
-          const roleMatches = m.author_role.match(scripturePattern);
-          if (roleMatches) scriptures.push(...roleMatches);
-        }
-        return scriptures;
-      })
-    )
-  ).sort();
 
   // Filter messages based on active tab and search
   const filteredMessages = messages.filter((message) => {
@@ -221,18 +201,6 @@ const Messages = () => {
       const matchesTopic = selectedTopic === "all" || message.author_role === selectedTopic;
       return matchesSearch && matchesTopic;
     }
-    
-    if (activeTab === "scripture") {
-      if (selectedScripture === "all") return matchesSearch;
-      
-      // Check if message contains the selected scripture reference
-      const titleMatch = message.title.match(scripturePattern);
-      const roleMatch = message.author_role?.match(scripturePattern);
-      const allScriptures = [...(titleMatch || []), ...(roleMatch || [])];
-      
-      const matchesScripture = allScriptures.some(s => s === selectedScripture);
-      return matchesSearch && matchesScripture;
-    }
 
     return matchesSearch;
   });
@@ -253,7 +221,6 @@ const Messages = () => {
   useEffect(() => {
     setSelectedWriter("all");
     setSelectedTopic("all");
-    setSelectedScripture("all");
     setSelectedSeries("all");
   }, [activeTab]);
 
@@ -346,7 +313,7 @@ const Messages = () => {
           {/* Tabs and Search */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
-              <TabsList className="grid w-full md:w-auto grid-cols-4 bg-muted/50 backdrop-blur-sm p-1 rounded-xl shadow-lg">
+              <TabsList className="grid w-full md:w-auto grid-cols-3 bg-muted/50 backdrop-blur-sm p-1 rounded-xl shadow-lg">
                 <TabsTrigger value="recent" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
                   <Calendar className="w-4 h-4" />
                   Recent
@@ -358,10 +325,6 @@ const Messages = () => {
                 <TabsTrigger value="writer" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
                   <User className="w-4 h-4" />
                   Writer
-                </TabsTrigger>
-                <TabsTrigger value="scripture" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
-                  <BookOpen className="w-4 h-4" />
-                  Scripture
                 </TabsTrigger>
               </TabsList>
 
@@ -428,36 +391,6 @@ const Messages = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedTopic("all")}
-                    className="gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                    Clear
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {activeTab === "scripture" && uniqueScriptures.length > 0 && (
-              <div className="mb-6 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                <Filter className="h-4 w-4 text-primary" />
-                <Select value={selectedScripture} onValueChange={setSelectedScripture}>
-                  <SelectTrigger className="w-full md:w-[300px] bg-card border-primary/20 hover:border-primary/40 transition-colors">
-                    <SelectValue placeholder="Filter by scripture" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Scriptures</SelectItem>
-                    {uniqueScriptures.map((scripture) => (
-                      <SelectItem key={scripture} value={scripture}>
-                        {scripture}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedScripture !== "all" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedScripture("all")}
                     className="gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-4 w-4" />
