@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Search, Users, BookOpen, Pencil, ClipboardList } from "lucide-react";
+import { Plus, Search, Users, BookOpen, Pencil, ClipboardList, UserPlus } from "lucide-react";
 
 interface Class {
   id: string;
@@ -104,14 +104,24 @@ export default function AdminSchoolClasses() {
             <h1 className="text-3xl font-bold text-foreground">Classes Management</h1>
             <p className="text-muted-foreground mt-1">Manage church school classes and assignments</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="bg-accent hover:bg-accent/90">
-                <Plus className="mr-2 h-5 w-5" />
-                Add New Class
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+          <div className="flex gap-2">
+            <Button 
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("/admin/school/assignments")}
+              className="border-2 hover:border-accent"
+            >
+              <UserPlus className="mr-2 h-5 w-5" />
+              Manage Assignments
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-accent hover:bg-accent/90">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add New Class
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Add New Class</DialogTitle>
                 <DialogDescription>Enter class information below</DialogDescription>
@@ -155,8 +165,9 @@ export default function AdminSchoolClasses() {
                 </div>
                 <Button type="submit" className="w-full">Add Class</Button>
               </form>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Search */}
