@@ -19,7 +19,6 @@ import { UpcomingBirthdays } from "@/components/UpcomingBirthdays";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MembersMap } from "@/components/MembersMap";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -1959,16 +1958,12 @@ const Members = () => {
             </Popover>
           </div>
 
-          {/* Tabs for Table and Map View */}
+          {/* Table View */}
           <Tabs defaultValue="table" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto mb-6 grid-cols-2">
+            <TabsList className="hidden">
               <TabsTrigger value="table" className="gap-2">
                 <Users className="w-4 h-4" />
                 Table View
-              </TabsTrigger>
-              <TabsTrigger value="map" className="gap-2">
-                <MapPin className="w-4 h-4" />
-                Map View
               </TabsTrigger>
             </TabsList>
 
@@ -2334,23 +2329,6 @@ const Members = () => {
               </div>
             </Card>
           )}
-            </TabsContent>
-
-            {/* Map View Tab */}
-            <TabsContent value="map">
-              {members.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="font-display text-xl font-semibold mb-2">No Members to Display</h3>
-                    <p className="text-muted-foreground">
-                      The member directory is currently empty.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <MembersMap members={filteredMembers} />
-              )}
             </TabsContent>
           </Tabs>
         </div>
