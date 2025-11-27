@@ -12,12 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import heroModernChurch from "@/assets/hero-CBC-Church.jpg";
 const Index = () => {
-  console.log("[DEBUG] Rendering Index page");
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   useEffect(() => {
-    console.log("[DEBUG] Index useEffect mount");
     fetchVideos();
     fetchEvents();
   }, []);
