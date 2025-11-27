@@ -118,16 +118,16 @@ export default function AdminSchoolReports() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; className: string }> = {
-      Present: { variant: "default", className: "bg-green-500" },
-      Absent: { variant: "destructive", className: "" },
-      Late: { variant: "secondary", className: "bg-yellow-500" },
-      Excused: { variant: "outline", className: "" }
+    const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary" }> = {
+      Present: { variant: "default" },
+      Absent: { variant: "destructive" },
+      Late: { variant: "secondary" },
+      Excused: { variant: "outline" }
     };
 
     const config = variants[status] || variants.Present;
     return (
-      <Badge variant={config.variant} className={config.className}>
+      <Badge variant={config.variant}>
         {status}
       </Badge>
     );
@@ -147,69 +147,83 @@ export default function AdminSchoolReports() {
   const stats = calculateStats();
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Attendance Reports</h1>
-          <p className="text-muted-foreground">View and analyze attendance data</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary/30 via-background to-background">
+      <div className="bg-gradient-to-r from-primary via-accent to-primary p-8 mb-6 rounded-b-2xl shadow-lg">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-display font-bold text-primary-foreground">Attendance Reports</h1>
+            <p className="text-primary-foreground/80 text-lg">View and analyze attendance data</p>
+          </div>
+          <Button 
+            onClick={handleExportCSV} 
+            disabled={records.length === 0}
+            size="lg"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg"
+          >
+            <Download className="mr-2 h-5 w-5" />
+            Export CSV
+          </Button>
         </div>
-        <Button onClick={handleExportCSV} disabled={records.length === 0}>
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Present</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.present}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Absent</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.absent}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Late</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.late}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold flex items-center">
-              <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
-              {stats.attendanceRate}%
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <div className="max-w-7xl mx-auto px-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Card className="border-2 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-secondary/20 hover:shadow-lg transition-all">
+            <div className="h-1 bg-gradient-to-r from-primary to-accent"></div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Records</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{stats.total}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-primary/20 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-primary/5 hover:shadow-lg transition-all">
+            <div className="h-1 bg-primary"></div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Present</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-primary">{stats.present}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-destructive/20 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-destructive/5 hover:shadow-lg transition-all">
+            <div className="h-1 bg-destructive"></div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Absent</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-destructive">{stats.absent}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-accent/20 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-accent/5 hover:shadow-lg transition-all">
+            <div className="h-1 bg-accent"></div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Late</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-accent">{stats.late}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-primary/30 rounded-2xl overflow-hidden bg-gradient-to-br from-card via-card to-primary/10 hover:shadow-lg transition-all">
+            <div className="h-1 bg-gradient-to-r from-primary to-accent"></div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Attendance Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold flex items-center text-primary">
+                <TrendingUp className="mr-2 h-6 w-6" />
+                {stats.attendanceRate}%
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Filter attendance records</CardDescription>
-        </CardHeader>
+        <Card className="border-2 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-secondary/20 shadow-lg">
+          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
+          <CardHeader>
+            <CardTitle className="text-xl font-display">Filters</CardTitle>
+            <CardDescription className="text-base">Filter attendance records</CardDescription>
+          </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
@@ -271,19 +285,22 @@ export default function AdminSchoolReports() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Records</CardTitle>
-          <CardDescription>All attendance records matching your filters</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No attendance records found
-            </div>
-          ) : (
+        <Card className="border-2 rounded-2xl overflow-hidden bg-gradient-to-br from-card to-secondary/20 shadow-lg">
+          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
+          <CardHeader>
+            <CardTitle className="text-xl font-display">Attendance Records</CardTitle>
+            <CardDescription className="text-base">All attendance records matching your filters</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+              </div>
+            ) : records.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-xl text-muted-foreground">No attendance records found</p>
+              </div>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -304,9 +321,10 @@ export default function AdminSchoolReports() {
                 ))}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
