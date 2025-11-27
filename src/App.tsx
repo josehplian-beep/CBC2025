@@ -51,6 +51,7 @@ import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminEvents from "./pages/AdminEvents";
 import AdminMessages from "./pages/AdminMessages";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import StudentProfile from "./pages/StudentProfile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -106,6 +107,7 @@ const App = () => (
           <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClassEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><AdminLayout><TakeAttendance /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminLayout><AdminSchoolReports /></AdminLayout></ProtectedRoute>} />
+          <Route path="/student-profile/:id" element={<ProtectedRoute permission="manage_students"><StudentProfile /></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
