@@ -50,6 +50,7 @@ import Forbidden from "./pages/Forbidden";
 import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminEvents from "./pages/AdminEvents";
 import AdminMessages from "./pages/AdminMessages";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -106,6 +107,7 @@ const App = () => (
           <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><AdminLayout><TakeAttendance /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminLayout><AdminSchoolReports /></AdminLayout></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
