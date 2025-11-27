@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Quote, Calendar, User, Share2, Facebook, Instagram, Link2, Edit, Trash2, Heart, X, Plus } from "lucide-react";
+import { ArrowLeft, Quote, Calendar, User, Share2, Facebook, Instagram, Link2, Edit, Trash2, Heart, X, Plus, BookMarked, ArrowRight } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,12 +15,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+interface Message {
+  id: string;
+  title: string;
+  content: string;
+  author_name: string;
+  author_role?: string;
+  image_url?: string;
+  created_at: string;
+}
+
 type Testimony = Tables<'testimonials'>;
 
 const TestimonyPost = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [testimony, setTestimony] = useState<Testimony | null>(null);
+  const [relatedMessages, setRelatedMessages] = useState<Message[]>([]);
+  const [seriesMessages, setSeriesMessages] = useState<Message[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -75,6 +87,20 @@ const TestimonyPost = () => {
         image_url: data.image_url || ''
       });
       setImagePreview(data.image_url || '');
+      
+      // Fetch related messages in the same series
+      if (data.author_role && (data.author_role.toLowerCase().includes('series') || data.author_role.toLowerCase().includes('collection'))) {
+        const { data: seriesData } = await supabase
+          .from('testimonials')
+          .select('id, title, author_name, author_role, image_url, created_at')
+          .eq('author_role', data.author_role)
+          .eq('is_published', true)
+          .order('created_at', { ascending: true });
+        
+        if (seriesData) {
+          setSeriesMessages(seriesData as Message[]);
+        }
+      }
     } else {
       toast.error('Message not found');
       navigate('/testimony');
@@ -364,6 +390,81 @@ const TestimonyPost = () => {
           </div>
         </div>
 
+        {/* Series Navigation */}
+        {seriesMessages.length > 1 && testimony.author_role && (
+          <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 rounded-2xl p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-primary/20 rounded-xl">
+                  <BookMarked className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-display font-bold">Message Series</h3>
+                  <p className="text-muted-foreground">{testimony.author_role}</p>
+                </div>
+              </div>
+              
+              <div className="grid gap-3">
+                {seriesMessages.map((msg, index) => {
+                  const isCurrentMessage = msg.id === testimony.id;
+                  const currentIndex = seriesMessages.findIndex(m => m.id === testimony.id);
+                  
+                  return (
+                    <Link
+                      key={msg.id}
+                      to={`/testimony/${msg.id}`}
+                      className={`group flex items-center gap-4 p-4 rounded-xl transition-all duration-300 ${
+                        isCurrentMessage 
+                          ? 'bg-primary text-primary-foreground shadow-lg' 
+                          : 'bg-card hover:bg-primary/10 border border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                        isCurrentMessage 
+                          ? 'bg-primary-foreground text-primary' 
+                          : 'bg-primary/10 text-primary group-hover:bg-primary/20'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold truncate ${isCurrentMessage ? 'text-primary-foreground' : ''}`}>
+                          {msg.title}
+                        </p>
+                        <p className={`text-sm truncate ${isCurrentMessage ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                          {msg.author_name} • {format(new Date(msg.created_at), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      
+                      {isCurrentMessage && (
+                        <div className="flex-shrink-0 px-3 py-1 bg-primary-foreground/20 rounded-full text-xs font-bold">
+                          Current
+                        </div>
+                      )}
+                      
+                      {!isCurrentMessage && (
+                        <ArrowRight className="flex-shrink-0 w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+              
+              {testimony.id && seriesMessages.findIndex(m => m.id === testimony.id) < seriesMessages.length - 1 && (
+                <div className="mt-6 pt-6 border-t border-primary/20">
+                  <Link
+                    to={`/testimony/${seriesMessages[seriesMessages.findIndex(m => m.id === testimony.id) + 1].id}`}
+                    className="inline-flex items-center gap-2 text-primary hover:gap-3 transition-all font-semibold"
+                  >
+                    Next Message
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Call to Action */}
         <div className="mt-12 text-center">
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-2xl p-8">
@@ -412,7 +513,7 @@ const TestimonyPost = () => {
             
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="author" className="text-base">Speaker/Author *</Label>
+                <Label htmlFor="author" className="text-base">Writer/Author *</Label>
                 <Input
                   id="author"
                   required
