@@ -121,6 +121,9 @@ const Members = () => {
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
   const [groupByFamily, setGroupByFamily] = useState(false);
+  const [genderFilter, setGenderFilter] = useState("");
+  const [serviceYearFilter, setServiceYearFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
@@ -267,8 +270,44 @@ const Members = () => {
       );
     }
 
+    // Filter by gender
+    if (genderFilter) {
+      filtered = filtered.filter(member =>
+        member.gender?.toLowerCase() === genderFilter.toLowerCase()
+      );
+    }
+
+    // Filter by service year
+    if (serviceYearFilter) {
+      filtered = filtered.filter(member =>
+        member.service_year?.includes(serviceYearFilter)
+      );
+    }
+
+    // Filter by department
+    if (departmentFilter) {
+      filtered = filtered.filter(member =>
+        member.department?.toLowerCase().includes(departmentFilter.toLowerCase())
+      );
+    }
+
     setFilteredMembers(filtered);
-  }, [searchQuery, cityFilter, countyFilter, members]);
+  }, [searchQuery, cityFilter, countyFilter, genderFilter, serviceYearFilter, departmentFilter, members]);
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setCityFilter("");
+    setCountyFilter("");
+    setGenderFilter("");
+    setServiceYearFilter("");
+    setDepartmentFilter("");
+  };
+
+  const maleCount = members.filter(m => m.gender?.toLowerCase() === 'male').length;
+  const femaleCount = members.filter(m => m.gender?.toLowerCase() === 'female').length;
+  
+  const uniqueServiceYears = Array.from(new Set(members.map(m => m.service_year).filter(Boolean))) as string[];
+  const uniqueDepartments = Array.from(new Set(members.map(m => m.department).filter(Boolean))) as string[];
 
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
@@ -739,45 +778,227 @@ const Members = () => {
   }
 
   return (
-    <div className="p-6">
-      {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <User className="w-8 h-8 text-primary" />
-          <h1 className="font-display text-3xl font-bold">Member Directory</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Member Directory
+              </h1>
+              <p className="text-muted-foreground mt-2">Connect with our church family</p>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Card className="border-l-4 border-l-primary">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Members</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  <p className="text-2xl font-bold">{members.length}</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-l-4 border-l-blue-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Male</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{maleCount}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-l-4 border-l-pink-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Females</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{femaleCount}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-l-4 border-l-green-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Filtered</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{filteredMembers.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-l-4 border-l-orange-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Families</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{families.length}</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-l-4 border-l-purple-500">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Departments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{uniqueDepartments.length}</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        <p className="text-muted-foreground">
-          Connect with our church family
-        </p>
-      </div>
 
-      {/* Upcoming Birthdays */}
-      <div className="mb-8">
+        {/* Upcoming Birthdays */}
         <UpcomingBirthdays />
-      </div>
 
-      {/* Members Directory */}
-      <div>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <h2 className="font-display text-2xl font-bold">
-              {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-              {(searchQuery || cityFilter || countyFilter) && ` (filtered from ${members.length})`}
-            </h2>
+        {/* Filters and Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Search & Filters
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-3">
+                <Label className="text-base font-semibold mb-2">Full Name</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name, email, or phone..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-base font-semibold mb-2">Gender</Label>
+                <Select value={genderFilter} onValueChange={setGenderFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Any" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-base font-semibold mb-2">Service Year</Label>
+                <Select value={serviceYearFilter} onValueChange={setServiceYearFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Years</SelectItem>
+                    {uniqueServiceYears.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-base font-semibold mb-2">Department</Label>
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Departments" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Departments</SelectItem>
+                    {uniqueDepartments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-base font-semibold mb-2">City</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Filter by city..."
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-base font-semibold mb-2">County</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Filter by county..."
+                    value={countyFilter}
+                    onChange={(e) => setCountyFilter(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-2">
-              <Button 
-                onClick={() => setGroupByFamily(!groupByFamily)} 
-                variant={groupByFamily ? "default" : "outline"}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                {groupByFamily ? "Show All" : "Group by Family"}
+              {(searchQuery || genderFilter || serviceYearFilter || departmentFilter || cityFilter || countyFilter) && (
+                <Badge variant="secondary" className="gap-1">
+                  {[searchQuery, genderFilter, serviceYearFilter, departmentFilter, cityFilter, countyFilter].filter(Boolean).length} filter(s) active
+                </Badge>
+              )}
+              {(searchQuery || genderFilter || serviceYearFilter || departmentFilter || cityFilter || countyFilter) && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleResetFilters}
+                  className="gap-2"
+                >
+                  Reset Filters
+                </Button>
+              )}
+              <Button onClick={handleExportToExcel} variant="outline" size="sm" disabled={filteredMembers.length === 0} className="gap-2 ml-auto">
+                <Download className="w-4 h-4" />
+                Download CSV
               </Button>
-              <Button onClick={handleExportToExcel} variant="outline" disabled={filteredMembers.length === 0}>
-                <Download className="w-4 h-4 mr-2" />
-                Export to Excel
-              </Button>
-              {can('manage_members') && (
-                <>
-                  <Dialog open={isFamilyDialogOpen} onOpenChange={setIsFamilyDialogOpen}>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <h2 className="font-display text-2xl font-bold">
+            {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
+            {(searchQuery || cityFilter || countyFilter || genderFilter || serviceYearFilter || departmentFilter) && (
+              <span className="text-muted-foreground font-normal text-lg ml-2">
+                (filtered from {members.length})
+              </span>
+            )}
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={() => setGroupByFamily(!groupByFamily)} 
+              variant={groupByFamily ? "default" : "outline"}
+              size="sm"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              {groupByFamily ? "Show All" : "Group by Family"}
+            </Button>
+            {can('manage_members') && (
+              <>
+                <Dialog open={isFamilyDialogOpen} onOpenChange={setIsFamilyDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline">
                         <Users className="w-4 h-4 mr-2" />
@@ -1093,13 +1314,13 @@ const Members = () => {
                     </DialogContent>
                   </Dialog>
                   
-                  <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Bulk Import
-                      </Button>
-                    </DialogTrigger>
+                <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Bulk Import
+                    </Button>
+                  </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Bulk Import Members</DialogTitle>
@@ -1127,14 +1348,14 @@ const Members = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  
-                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Member
-                      </Button>
-                    </DialogTrigger>
+                
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Member
+                    </Button>
+                  </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Member</DialogTitle>
@@ -1889,112 +2110,36 @@ const Members = () => {
                     </Form>
                   </DialogContent>
                 </Dialog>
-                </>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Table View */}
+        <Card>
+          <CardContent className="pt-6">
+              {members.length === 0 ? (
+            <div className="py-12 text-center">
+              <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="font-display text-xl font-semibold mb-2">No Members Yet</h3>
+              <p className="text-muted-foreground mb-4">
+                The member directory is currently empty.
+              </p>
+              {can('manage_members') && (
+                <Button onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Member
+                </Button>
               )}
             </div>
-          </div>
-
-          {/* Search and Filter Controls */}
-          <div className="flex gap-2 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, email, or phone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <h4 className="font-medium leading-none">Filter Options</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="city-filter">City</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="city-filter"
-                        placeholder="Filter by city..."
-                        value={cityFilter}
-                        onChange={(e) => setCityFilter(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="county-filter">County</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="county-filter"
-                        placeholder="Filter by county..."
-                        value={countyFilter}
-                        onChange={(e) => setCountyFilter(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  {(cityFilter || countyFilter) && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => {
-                        setCityFilter("");
-                        setCountyFilter("");
-                      }}
-                      className="w-full"
-                    >
-                      Clear Filters
-                    </Button>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Table View */}
-          <Tabs defaultValue="table" className="w-full">
-            <TabsList className="hidden">
-              <TabsTrigger value="table" className="gap-2">
-                <Users className="w-4 h-4" />
-                Table View
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Table View Tab */}
-            <TabsContent value="table">
-              {members.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-display text-xl font-semibold mb-2">No Members Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  The member directory is currently empty.
-                </p>
-                {can('manage_members') && (
-                  <Button onClick={() => setIsAddDialogOpen(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add First Member
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
           ) : filteredMembers.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Filter className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-display text-xl font-semibold mb-2">No Members Found</h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your search filters
-                </p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <Filter className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="font-display text-xl font-semibold mb-2">No Members Found</h3>
+              <p className="text-muted-foreground">
+                Try adjusting your search filters
+              </p>
+            </div>
           ) : groupByFamily ? (
             // Family-grouped view
             <div className="space-y-6">
@@ -2229,8 +2374,7 @@ const Members = () => {
             </div>
           ) : (
             // Regular table view
-            <Card>
-              <div className="overflow-x-auto">
+            <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -2327,11 +2471,10 @@ const Members = () => {
                   </TableBody>
                 </Table>
               </div>
-            </Card>
           )}
-            </TabsContent>
-          </Tabs>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
