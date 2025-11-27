@@ -49,6 +49,7 @@ const AdminMessages = () => {
     author_role: "",
     image_url: "",
     is_published: true,
+    created_at: new Date().toISOString().split('T')[0],
   });
 
   useEffect(() => {
@@ -125,6 +126,7 @@ const AdminMessages = () => {
         author_role: formData.author_role || null,
         image_url: imageUrl,
         is_published: formData.is_published,
+        created_at: new Date(formData.created_at).toISOString(),
       };
 
       if (selectedMessage) {
@@ -160,6 +162,7 @@ const AdminMessages = () => {
       author_role: message.author_role || "",
       image_url: message.image_url || "",
       is_published: message.is_published,
+      created_at: new Date(message.created_at).toISOString().split('T')[0],
     });
     setImagePreview(message.image_url || "");
     setDialogOpen(true);
@@ -270,6 +273,7 @@ const AdminMessages = () => {
       author_role: "",
       image_url: "",
       is_published: true,
+      created_at: new Date().toISOString().split('T')[0],
     });
     setSelectedMessage(null);
     setImageFile(null);
@@ -388,6 +392,20 @@ const AdminMessages = () => {
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Enter Bible references (Genesis-Revelation) for Scripture filtering, or topics (e.g., "Faith", "Hope", "Advent Series") for Topic filtering
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="created_at">Post Date *</Label>
+                  <Input
+                    id="created_at"
+                    type="date"
+                    value={formData.created_at}
+                    onChange={(e) => setFormData({ ...formData, created_at: e.target.value })}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Set the date this message should be posted
                   </p>
                 </div>
               </div>
