@@ -64,25 +64,28 @@ export function DashboardQuickActions() {
   if (visibleActions.length === 0) return null;
 
   return (
-    <Card className="overflow-hidden shadow-lg animate-fade-in">
+    <Card className="overflow-hidden border-2 rounded-2xl shadow-lg animate-fade-in bg-gradient-to-br from-card to-secondary/20">
+      <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
       <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 border-b">
-        <CardTitle className="flex items-center gap-2 text-xl">
-          <Plus className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-2xl font-display">
+          <Plus className="h-6 w-6 text-primary" />
           Quick Actions
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           {visibleActions.map((action) => (
             <Button
               key={action.href}
               asChild
               variant="outline"
-              className="h-auto py-4 px-4 justify-start gap-3 hover:shadow-md hover:scale-105 transition-all duration-200"
+              className="h-auto py-4 px-4 justify-start gap-3 hover:shadow-lg hover:scale-105 hover:border-primary/50 transition-all duration-200 rounded-xl border-2"
             >
               <Link to={action.href}>
-                <action.icon className={`h-5 w-5 ${action.color}`} />
-                <span className="font-medium">{action.label}</span>
+                <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10">
+                  <action.icon className={`h-5 w-5 ${action.color}`} />
+                </div>
+                <span className="font-medium text-base">{action.label}</span>
               </Link>
             </Button>
           ))}

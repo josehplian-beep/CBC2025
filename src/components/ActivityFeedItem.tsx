@@ -15,9 +15,9 @@ interface ActivityFeedItemProps {
 
 export function ActivityFeedItem({ title, created_at, type, icon: Icon, link }: ActivityFeedItemProps) {
   const typeColors: Record<string, string> = {
-    album: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-    event: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    testimonial: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
+    album: "bg-primary/10 text-primary border-primary/20",
+    event: "bg-accent/10 text-accent border-accent/20",
+    testimonial: "bg-primary/10 text-primary border-primary/20",
   };
 
   return (
@@ -25,28 +25,32 @@ export function ActivityFeedItem({ title, created_at, type, icon: Icon, link }: 
       to={link}
       className={cn(
         "flex items-start gap-4 p-4 rounded-xl transition-all duration-200",
-        "hover:bg-muted/50 hover:shadow-sm hover:scale-[1.01]",
-        "border border-transparent hover:border-border/50",
+        "hover:bg-gradient-to-r hover:from-primary/5 hover:to-accent/5",
+        "hover:shadow-md hover:scale-[1.01]",
+        "border-2 border-transparent hover:border-primary/20",
         "group"
       )}
     >
       <div className={cn(
-        "flex items-center justify-center h-10 w-10 rounded-lg",
-        "bg-gradient-to-br from-muted to-muted/50",
-        "transition-transform duration-300 group-hover:scale-110"
+        "flex items-center justify-center h-12 w-12 rounded-xl",
+        "bg-gradient-to-br from-primary/10 to-accent/10",
+        "transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
       )}>
-        <Icon className="h-5 w-5 text-muted-foreground" />
+        <Icon className="h-6 w-6 text-primary" />
       </div>
       
-      <div className="flex-1 min-w-0 space-y-1">
-        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate leading-tight">
+      <div className="flex-1 min-w-0 space-y-2">
+        <p className="text-base font-semibold text-foreground group-hover:text-primary transition-colors truncate leading-tight">
           {title}
         </p>
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {format(new Date(created_at), "MMM d, yyyy 'at' h:mm a")}
           </p>
-          <Badge variant="outline" className={cn("text-xs capitalize", typeColors[type] || "")}>
+          <Badge 
+            variant="outline" 
+            className={cn("text-xs capitalize border-2 font-medium", typeColors[type] || "")}
+          >
             {type}
           </Badge>
         </div>
