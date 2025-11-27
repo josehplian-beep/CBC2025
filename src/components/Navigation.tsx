@@ -75,7 +75,7 @@ const Navigation = () => {
 
   const mediaSubLinks = [
     { name: "Media Gallery", path: "/media" },
-    { name: "Testimony", path: "/testimony" },
+    { name: "Messages", path: "/testimony" },
   ];
 
   const resourcesSubLinks = [
