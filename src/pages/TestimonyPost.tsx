@@ -76,7 +76,7 @@ const TestimonyPost = () => {
       });
       setImagePreview(data.image_url || '');
     } else {
-      toast.error('Testimony not found');
+      toast.error('Message not found');
       navigate('/testimony');
     }
     setLoading(false);
@@ -134,7 +134,7 @@ const TestimonyPost = () => {
 
       if (error) throw error;
       
-      toast.success('Testimony updated successfully');
+      toast.success('Message updated successfully');
       setEditDialogOpen(false);
       fetchTestimony();
     } catch (error: any) {
@@ -151,16 +151,16 @@ const TestimonyPost = () => {
       .eq('id', testimony.id);
 
     if (error) {
-      toast.error('Failed to delete testimony');
+      toast.error('Failed to delete message');
     } else {
-      toast.success('Testimony deleted successfully');
+      toast.success('Message deleted successfully');
       navigate('/testimony');
     }
   };
 
   const shareToFacebook = () => {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`${testimony?.title} - Check out this inspiring testimony!`);
+    const text = encodeURIComponent(`${testimony?.title} - Check out this inspiring message!`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
@@ -186,7 +186,7 @@ const TestimonyPost = () => {
         <div className="container mx-auto px-4 py-20 text-center">
           <div className="animate-pulse space-y-4">
             <Quote className="w-12 h-12 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground">Loading testimony...</p>
+            <p className="text-muted-foreground">Loading message...</p>
           </div>
         </div>
       </div>
@@ -206,7 +206,7 @@ const TestimonyPost = () => {
         <div className="container mx-auto px-4 py-4">
           <Link to="/testimony" className="inline-flex items-center gap-2 text-primary hover:gap-3 transition-all font-medium">
             <ArrowLeft className="w-5 h-5" />
-            Back to All Testimonies
+            Back to All Messages
           </Link>
         </div>
       </div>
@@ -367,13 +367,13 @@ const TestimonyPost = () => {
         {/* Call to Action */}
         <div className="mt-12 text-center">
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold mb-3">Have Your Own Story to Share?</h3>
+            <h3 className="text-2xl font-bold mb-3">Explore More Messages</h3>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Your testimony could inspire and encourage others in their faith journey. We'd love to hear how God is working in your life.
+              Discover more inspiring sermons and teachings that strengthen faith and transform lives.
             </p>
             <Link to="/testimony">
               <Button size="lg">
-                Share Your Testimony
+                View All Messages
               </Button>
             </Link>
           </div>
@@ -384,7 +384,7 @@ const TestimonyPost = () => {
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Edit Testimony</DialogTitle>
+            <DialogTitle className="text-2xl">Edit Message</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-6">
             <div className="space-y-2">
@@ -399,7 +399,7 @@ const TestimonyPost = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="content" className="text-base">Your Story *</Label>
+              <Label htmlFor="content" className="text-base">Message Content *</Label>
               <Textarea
                 id="content"
                 required
@@ -412,7 +412,7 @@ const TestimonyPost = () => {
             
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="author" className="text-base">Author Name *</Label>
+                <Label htmlFor="author" className="text-base">Speaker/Author *</Label>
                 <Input
                   id="author"
                   required
@@ -422,7 +422,7 @@ const TestimonyPost = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-base">Role (optional)</Label>
+                <Label htmlFor="role" className="text-base">Scripture/Topic (optional)</Label>
                 <Input
                   id="role"
                   value={formData.author_role}
@@ -450,7 +450,7 @@ const TestimonyPost = () => {
                 Cancel
               </Button>
               <Button type="submit" size="lg">
-                Update Testimony
+                Update Message
               </Button>
             </div>
           </form>
@@ -461,7 +461,7 @@ const TestimonyPost = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Testimony</AlertDialogTitle>
+            <AlertDialogTitle>Delete Message</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{testimony.title}"? This action cannot be undone.
             </AlertDialogDescription>

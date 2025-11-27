@@ -256,68 +256,36 @@ const Testimony = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredMessages.map((message, index) => (
-                    <Card 
-                      key={message.id} 
-                      className="overflow-hidden hover:shadow-2xl transition-all duration-500 border hover:border-primary/50 group animate-in fade-in slide-in-from-bottom-4"
-                      style={{ animationDelay: `${index * 50}ms` }}
+                    <Link
+                      key={message.id}
+                      to={`/testimony/${message.id}`}
+                      className="group block"
                     >
-                      {message.image_url ? (
-                        <div 
-                          className="relative h-56 overflow-hidden cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setLightboxImage(message.image_url!);
-                            setLightboxOpen(true);
-                          }}
-                        >
-                          <img 
-                            src={message.image_url} 
-                            alt={message.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        </div>
-                      ) : (
-                        <div className="relative h-56 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                          <BookOpen className="w-16 h-16 text-primary/30" />
-                        </div>
-                      )}
-                      
-                      <CardContent className="p-5 space-y-3">
-                        <h3 className="font-bold text-lg leading-tight line-clamp-2 min-h-[3.5rem] group-hover:text-primary transition-colors">
-                          {message.title}
-                        </h3>
+                      <Card 
+                        className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-card animate-in fade-in slide-in-from-bottom-4"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        {message.image_url ? (
+                          <div className="relative aspect-video overflow-hidden bg-muted">
+                            <img 
+                              src={message.image_url} 
+                              alt={message.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          </div>
+                        ) : (
+                          <div className="relative aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                            <BookOpen className="w-16 h-16 text-primary/20" />
+                          </div>
+                        )}
                         
-                        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Mic className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{message.author_name}</span>
-                          </div>
-                          {message.author_role && (
-                            <div className="flex items-center gap-2">
-                              <BookMarked className="w-4 h-4 flex-shrink-0" />
-                              <span className="truncate">{message.author_role}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 flex-shrink-0" />
-                            <span>{format(new Date(message.created_at), 'MMM d, yyyy')}</span>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                          {getExcerpt(message.content, 100)}
-                        </p>
-
-                        <Link 
-                          to={`/testimony/${message.id}`}
-                          className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all group/link pt-2"
-                        >
-                          Read More
-                          <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                        </Link>
-                      </CardContent>
-                    </Card>
+                        <CardContent className="p-5">
+                          <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                            {message.title}
+                          </h3>
+                        </CardContent>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               )}
