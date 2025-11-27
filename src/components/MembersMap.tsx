@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import Supercluster from 'supercluster';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Mail, Phone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,10 @@ interface MemberLocation {
   fullAddress: string;
 }
 
+type ClusterPoint = Supercluster.PointFeature<MemberLocation>;
+type Cluster = Supercluster.ClusterFeature<MemberLocation>;
+type ClusterOrPoint = ClusterPoint | Cluster;
+
 interface MembersMapProps {
   members: Member[];
 }
@@ -48,7 +53,44 @@ export function MembersMap({ members }: MembersMapProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<MemberLocation | null>(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
+  const [zoom, setZoom] = useState(10);
   const navigate = useNavigate();
+
+  // Initialize supercluster
+  const supercluster = useMemo(() => {
+    const cluster = new Supercluster<MemberLocation>({
+      radius: 60,
+      maxZoom: 16,
+    });
+
+    if (locations.length > 0) {
+      const points: ClusterPoint[] = locations.map(loc => ({
+        type: 'Feature',
+        properties: loc,
+        geometry: {
+          type: 'Point',
+          coordinates: [loc.lng, loc.lat],
+        },
+      }));
+      cluster.load(points);
+    }
+
+    return cluster;
+  }, [locations]);
+
+  // Get clusters for current map view
+  const clusters = useMemo(() => {
+    if (!bounds || locations.length === 0) return [];
+    
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    
+    return supercluster.getClusters(
+      [sw.lng(), sw.lat(), ne.lng(), ne.lat()],
+      Math.floor(zoom)
+    );
+  }, [supercluster, bounds, zoom, locations]);
 
   // Cache key prefix for localStorage
   const GEOCODE_CACHE_KEY = 'geocode_cache_';
@@ -230,19 +272,64 @@ export function MembersMap({ members }: MembersMapProps) {
           <GoogleMap
             mapContainerStyle={mapContainerStyle}
             center={mapCenter}
-            zoom={10}
+            zoom={zoom}
+            onBoundsChanged={() => {
+              const map = (window as any).map;
+              if (map) {
+                setBounds(map.getBounds());
+                setZoom(map.getZoom());
+              }
+            }}
+            onLoad={(map) => {
+              (window as any).map = map;
+              setBounds(map.getBounds()!);
+              setZoom(map.getZoom()!);
+            }}
             options={{
               streetViewControl: false,
               mapTypeControl: false,
             }}
           >
-            {locations.map((location, index) => (
-              <Marker
-                key={`${location.member.id}-${index}`}
-                position={{ lat: location.lat, lng: location.lng }}
-                onClick={() => setSelectedMember(location)}
-              />
-            ))}
+            {clusters.map((cluster) => {
+              const [lng, lat] = cluster.geometry.coordinates;
+              const properties = cluster.properties;
+              
+              // Type guard for cluster
+              const isCluster = 'cluster' in properties && properties.cluster === true;
+
+              if (isCluster) {
+                const count = properties.point_count || 0;
+                const size = Math.min(40 + (count / locations.length) * 20, 60);
+
+                return (
+                  <Marker
+                    key={`cluster-${cluster.id}`}
+                    position={{ lat, lng }}
+                    icon={{
+                      url: `data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="%234f46e5" opacity="0.6"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-family="Arial" font-size="14" font-weight="bold">${count}</text></svg>`,
+                      scaledSize: new google.maps.Size(size, size),
+                    }}
+                    onClick={() => {
+                      const expansionZoom = Math.min(
+                        supercluster.getClusterExpansionZoom(cluster.id as number),
+                        16
+                      );
+                      setZoom(expansionZoom);
+                      setMapCenter({ lat, lng });
+                    }}
+                  />
+                );
+              }
+
+              const location = properties as MemberLocation;
+              return (
+                <Marker
+                  key={`member-${location.member.id}`}
+                  position={{ lat, lng }}
+                  onClick={() => setSelectedMember(location)}
+                />
+              );
+            })}
 
             {selectedMember && (
               <InfoWindow
