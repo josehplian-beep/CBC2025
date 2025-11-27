@@ -50,6 +50,11 @@ const Footer = () => {
                   Get Involved
                 </Link>
               </li>
+              <li>
+                <Link to="/privacy-policy" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
