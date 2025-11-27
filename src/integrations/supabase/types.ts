@@ -24,6 +24,7 @@ export type Database = {
           is_published: boolean | null
           title: string
           updated_at: string | null
+          year_range: string | null
         }
         Insert: {
           cover_image_url?: string | null
@@ -34,6 +35,7 @@ export type Database = {
           is_published?: boolean | null
           title: string
           updated_at?: string | null
+          year_range?: string | null
         }
         Update: {
           cover_image_url?: string | null
@@ -44,6 +46,7 @@ export type Database = {
           is_published?: boolean | null
           title?: string
           updated_at?: string | null
+          year_range?: string | null
         }
         Relationships: []
       }
