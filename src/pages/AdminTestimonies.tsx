@@ -363,7 +363,7 @@ const AdminTestimonies = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
                   <Label htmlFor="author_name">Speaker/Author *</Label>
                   <Input
@@ -373,15 +373,22 @@ const AdminTestimonies = () => {
                     placeholder="e.g., Pastor John Smith"
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This will be used for Speaker filtering on the Messages page
+                  </p>
                 </div>
+
                 <div>
-                  <Label htmlFor="author_role">Scripture/Topic (Optional)</Label>
+                  <Label htmlFor="author_role">Scripture/Topic</Label>
                   <Input
                     id="author_role"
                     value={formData.author_role}
                     onChange={(e) => setFormData({ ...formData, author_role: e.target.value })}
-                    placeholder="e.g., John 3:16 or Advent Series"
+                    placeholder="e.g., Genesis 1:1, Romans 8:28, or Faith Series"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter Bible references (Genesis-Revelation) for Scripture filtering, or topics (e.g., "Faith", "Hope", "Advent Series") for Topic filtering
+                  </p>
                 </div>
               </div>
 
