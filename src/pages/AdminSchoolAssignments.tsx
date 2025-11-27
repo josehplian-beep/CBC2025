@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Search, UserPlus, X, Users, GraduationCap, Loader2 } from "lucide-react";
+import { Plus, Search, UserPlus, X, Users, GraduationCap, Loader2, UserCog } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Class {
   id: string;
@@ -32,6 +34,13 @@ interface AssignedStudent extends Student {
   assignment_id: string;
 }
 
+interface Teacher {
+  id: string;
+  full_name: string;
+  email: string | null;
+  photo_url: string | null;
+}
+
 export default function AdminSchoolAssignments() {
   const navigate = useNavigate();
   const [classes, setClasses] = useState<Class[]>([]);
@@ -43,6 +52,9 @@ export default function AdminSchoolAssignments() {
   const [open, setOpen] = useState(false);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [assigning, setAssigning] = useState(false);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teacherDialogOpen, setTeacherDialogOpen] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
 
   useEffect(() => {
     fetchData();
@@ -56,7 +68,7 @@ export default function AdminSchoolAssignments() {
 
   const fetchData = async () => {
     try {
-      const [classesData, studentsData] = await Promise.all([
+      const [classesData, studentsData, teachersData] = await Promise.all([
         supabase
           .from("classes")
           .select("*, teachers(full_name)")
@@ -64,14 +76,20 @@ export default function AdminSchoolAssignments() {
         supabase
           .from("students")
           .select("*")
+          .order("full_name"),
+        supabase
+          .from("teachers")
+          .select("*")
           .order("full_name")
       ]);
 
       if (classesData.error) throw classesData.error;
       if (studentsData.error) throw studentsData.error;
+      if (teachersData.error) throw teachersData.error;
 
       setClasses(classesData.data || []);
       setAllStudents(studentsData.data || []);
+      setTeachers(teachersData.data || []);
 
       if (classesData.data && classesData.data.length > 0) {
         setSelectedClass(classesData.data[0]);
@@ -170,6 +188,46 @@ export default function AdminSchoolAssignments() {
     );
   };
 
+  const handleAssignTeacher = async () => {
+    if (!selectedClass || !selectedTeacherId) return;
+
+    try {
+      const { error } = await supabase
+        .from("classes")
+        .update({ teacher_id: selectedTeacherId })
+        .eq("id", selectedClass.id);
+
+      if (error) throw error;
+
+      toast.success("Teacher assigned successfully");
+      setTeacherDialogOpen(false);
+      setSelectedTeacherId("");
+      fetchData();
+    } catch (error: any) {
+      console.error("Error assigning teacher:", error);
+      toast.error("Failed to assign teacher");
+    }
+  };
+
+  const handleRemoveTeacher = async () => {
+    if (!selectedClass) return;
+
+    try {
+      const { error } = await supabase
+        .from("classes")
+        .update({ teacher_id: null })
+        .eq("id", selectedClass.id);
+
+      if (error) throw error;
+
+      toast.success("Teacher removed from class");
+      fetchData();
+    } catch (error: any) {
+      console.error("Error removing teacher:", error);
+      toast.error("Failed to remove teacher");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-accent to-primary/80 flex items-center justify-center">
@@ -232,16 +290,38 @@ export default function AdminSchoolAssignments() {
             </CardContent>
           </Card>
 
-          {/* Assigned Students */}
+          {/* Assignments Management */}
           <Card className="bg-card/95 backdrop-blur-sm lg:col-span-2">
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  {selectedClass ? `Students in ${selectedClass.class_name}` : "Select a Class"}
-                </CardTitle>
-                {selectedClass && (
-                  <Dialog open={open} onOpenChange={setOpen}>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                {selectedClass ? `Manage ${selectedClass.class_name}` : "Select a Class"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!selectedClass ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <GraduationCap className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p>Select a class to manage assignments</p>
+                </div>
+              ) : (
+                <Tabs defaultValue="students" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="students">
+                      <Users className="h-4 w-4 mr-2" />
+                      Students
+                    </TabsTrigger>
+                    <TabsTrigger value="teacher">
+                      <UserCog className="h-4 w-4 mr-2" />
+                      Teacher
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Students Tab */}
+                  <TabsContent value="students" className="mt-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">Assigned Students</h3>
+                      <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                       <Button className="bg-accent hover:bg-accent/90">
                         <UserPlus className="h-4 w-4 mr-2" />
@@ -328,16 +408,9 @@ export default function AdminSchoolAssignments() {
                       </div>
                     </DialogContent>
                   </Dialog>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {!selectedClass ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <GraduationCap className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>Select a class to view and manage students</p>
-                </div>
-              ) : assignedStudents.length === 0 ? (
+                    </div>
+
+                    {assignedStudents.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
                   <p>No students assigned to this class yet</p>
@@ -382,6 +455,150 @@ export default function AdminSchoolAssignments() {
                     ))}
                   </div>
                 </ScrollArea>
+              )}
+                  </TabsContent>
+
+                  {/* Teacher Tab */}
+                  <TabsContent value="teacher" className="mt-6">
+                    <div className="space-y-4">
+                      {selectedClass.teacher_id ? (
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <Avatar className="h-16 w-16">
+                                  <AvatarImage src={teachers.find(t => t.id === selectedClass.teacher_id)?.photo_url || ""} />
+                                  <AvatarFallback>
+                                    {teachers.find(t => t.id === selectedClass.teacher_id)?.full_name?.charAt(0) || "T"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <h3 className="text-xl font-semibold">
+                                    {teachers.find(t => t.id === selectedClass.teacher_id)?.full_name || "Unknown Teacher"}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    {teachers.find(t => t.id === selectedClass.teacher_id)?.email || "No email"}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="destructive"
+                                onClick={handleRemoveTeacher}
+                              >
+                                <X className="h-4 w-4 mr-2" />
+                                Remove Teacher
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                          <UserCog className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                          <p className="mb-4">No teacher assigned to this class</p>
+                          <Dialog open={teacherDialogOpen} onOpenChange={setTeacherDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button className="bg-accent hover:bg-accent/90">
+                                <UserPlus className="h-4 w-4 mr-2" />
+                                Assign Teacher
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Assign Teacher to {selectedClass.class_name}</DialogTitle>
+                                <DialogDescription>
+                                  Select a teacher to assign to this class
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a teacher" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {teachers.map((teacher) => (
+                                      <SelectItem key={teacher.id} value={teacher.id}>
+                                        <div className="flex items-center gap-2">
+                                          <span>{teacher.full_name}</span>
+                                          {teacher.email && (
+                                            <span className="text-xs text-muted-foreground">({teacher.email})</span>
+                                          )}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline" onClick={() => setTeacherDialogOpen(false)}>
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleAssignTeacher}
+                                    disabled={!selectedTeacherId}
+                                    className="bg-accent hover:bg-accent/90"
+                                  >
+                                    Assign Teacher
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      )}
+
+                      {selectedClass.teacher_id && (
+                        <div className="flex justify-center pt-4">
+                          <Dialog open={teacherDialogOpen} onOpenChange={setTeacherDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline">
+                                <UserCog className="h-4 w-4 mr-2" />
+                                Change Teacher
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Change Teacher for {selectedClass.class_name}</DialogTitle>
+                                <DialogDescription>
+                                  Select a new teacher to assign to this class
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 py-4">
+                                <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a teacher" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {teachers.map((teacher) => (
+                                      <SelectItem key={teacher.id} value={teacher.id}>
+                                        <div className="flex items-center gap-2">
+                                          <span>{teacher.full_name}</span>
+                                          {teacher.email && (
+                                            <span className="text-xs text-muted-foreground">({teacher.email})</span>
+                                          )}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline" onClick={() => setTeacherDialogOpen(false)}>
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleAssignTeacher}
+                                    disabled={!selectedTeacherId}
+                                    className="bg-accent hover:bg-accent/90"
+                                  >
+                                    Assign Teacher
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               )}
             </CardContent>
           </Card>
