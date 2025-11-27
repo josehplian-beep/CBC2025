@@ -2,45 +2,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail, Shield, UserPlus, Users, Search, Filter, X, Eye, Lock, Edit, FileCheck, GraduationCap, User, Info } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 interface UserWithRoles {
   id: string;
   email: string;
@@ -48,101 +18,50 @@ interface UserWithRoles {
   last_sign_in_at: string;
   roles: string[];
 }
-
 const rolePermissions = {
   administrator: {
     icon: Shield,
     color: "bg-red-500",
     description: "Full system access",
-    permissions: [
-      "✓ Manage all users and roles",
-      "✓ Access all admin pages",
-      "✓ Manage staff biographies",
-      "✓ Manage events and departments",
-      "✓ View and edit all member data",
-      "✓ Manage prayer requests",
-      "✓ Full database access"
-    ],
+    permissions: ["✓ Manage all users and roles", "✓ Access all admin pages", "✓ Manage staff biographies", "✓ Manage events and departments", "✓ View and edit all member data", "✓ Manage prayer requests", "✓ Full database access"],
     restrictions: []
   },
   staff: {
     icon: Users,
     color: "bg-blue-500",
     description: "Staff-level permissions",
-    permissions: [
-      "✓ View all members",
-      "✓ View families",
-      "✓ Manage attendance",
-      "✓ View students and classes",
-      "✓ View prayer requests"
-    ],
-    restrictions: [
-      "✗ Cannot manage users",
-      "✗ Cannot edit system settings"
-    ]
+    permissions: ["✓ View all members", "✓ View families", "✓ Manage attendance", "✓ View students and classes", "✓ View prayer requests"],
+    restrictions: ["✗ Cannot manage users", "✗ Cannot edit system settings"]
   },
   editor: {
     icon: Edit,
     color: "bg-purple-500",
     description: "Content management",
-    permissions: [
-      "✓ Manage staff biographies",
-      "✓ Manage albums and photos",
-      "✓ View all members",
-      "✓ Manage department members"
-    ],
-    restrictions: [
-      "✗ Cannot manage users",
-      "✗ Limited admin access"
-    ]
+    permissions: ["✓ Manage staff biographies", "✓ Manage albums and photos", "✓ View all members", "✓ Manage department members"],
+    restrictions: ["✗ Cannot manage users", "✗ Limited admin access"]
   },
   teacher: {
     icon: GraduationCap,
     color: "bg-green-500",
     description: "Educational access",
-    permissions: [
-      "✓ Manage classes",
-      "✓ Manage students",
-      "✓ Take attendance",
-      "✓ View class reports"
-    ],
-    restrictions: [
-      "✗ Cannot access other admin areas",
-      "✗ Limited to education features"
-    ]
+    permissions: ["✓ Manage classes", "✓ Manage students", "✓ Take attendance", "✓ View class reports"],
+    restrictions: ["✗ Cannot access other admin areas", "✗ Limited to education features"]
   },
   member: {
     icon: User,
     color: "bg-orange-500",
     description: "Basic member access",
-    permissions: [
-      "✓ View own profile",
-      "✓ View other members",
-      "✓ Submit prayer requests",
-      "✓ View events"
-    ],
-    restrictions: [
-      "✗ No admin access",
-      "✗ Cannot edit others' data"
-    ]
+    permissions: ["✓ View own profile", "✓ View other members", "✓ Submit prayer requests", "✓ View events"],
+    restrictions: ["✗ No admin access", "✗ Cannot edit others' data"]
   },
   viewer: {
     icon: Eye,
     color: "bg-gray-500",
     description: "Read-only access",
-    permissions: [
-      "✓ View members",
-      "✓ View events",
-      "✓ View albums",
-      "✓ View testimonials"
-    ],
-    restrictions: [
-      "✗ No editing capabilities",
-      "✗ No admin access"
-    ]
+    permissions: ["✓ View members", "✓ View events", "✓ View albums", "✓ View testimonials"],
+    restrictions: ["✗ No editing capabilities", "✗ No admin access"]
   }
 };
-
 const AdminUsers = () => {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserWithRoles[]>([]);
@@ -158,70 +77,57 @@ const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedRoleInfo, setSelectedRoleInfo] = useState<string | null>(null);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     fetchUsers();
   }, []);
-
   useEffect(() => {
     let filtered = [...users];
 
     // Search filter
     if (searchQuery) {
-      filtered = filtered.filter(user =>
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filtered = filtered.filter(user => user.email.toLowerCase().includes(searchQuery.toLowerCase()));
     }
 
     // Role filter
     if (roleFilter !== 'all') {
-      filtered = filtered.filter(user =>
-        user.roles.includes(roleFilter)
-      );
+      filtered = filtered.filter(user => user.roles.includes(roleFilter));
     }
-
     setFilteredUsers(filtered);
   }, [users, searchQuery, roleFilter]);
-
   const handleResetFilters = () => {
     setSearchQuery('');
     setRoleFilter('all');
   };
-
-  const activeFiltersCount = [
-    searchQuery,
-    roleFilter !== 'all'
-  ].filter(Boolean).length;
-
+  const activeFiltersCount = [searchQuery, roleFilter !== 'all'].filter(Boolean).length;
   const fetchUsers = async () => {
     try {
       // Refresh session to get a valid token
-      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
-      
+      const {
+        data: {
+          session
+        },
+        error: sessionError
+      } = await supabase.auth.refreshSession();
       if (sessionError || !session) {
         toast({
           title: "Unauthorized",
           description: "You must be logged in as an admin.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-
       const supabaseUrl = "https://auztoefiuddwerfbpcpm.supabase.co";
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/admin-users`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
+      const response = await fetch(`${supabaseUrl}/functions/v1/admin-users`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
         }
-      );
-
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch users");
       }
-
       const data = await response.json();
       setUsers(data.users);
       setFilteredUsers(data.users);
@@ -229,43 +135,43 @@ const AdminUsers = () => {
       toast({
         title: "Error",
         description: "Failed to fetch users.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdatingRole(userId);
     try {
       // Refresh session to get a valid token
-      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
-      
+      const {
+        data: {
+          session
+        },
+        error: sessionError
+      } = await supabase.auth.refreshSession();
       if (sessionError || !session) {
         throw new Error("No session");
       }
-
       const supabaseUrl = "https://auztoefiuddwerfbpcpm.supabase.co";
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/admin-users?action=update_role`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId, role: newRole }),
-        }
-      );
-
+      const response = await fetch(`${supabaseUrl}/functions/v1/admin-users?action=update_role`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId,
+          role: newRole
+        })
+      });
       if (!response.ok) {
         throw new Error("Failed to update role");
       }
-
       toast({
         title: "Role updated",
-        description: "User role has been updated successfully.",
+        description: "User role has been updated successfully."
       });
 
       // Refresh the users list
@@ -274,103 +180,99 @@ const AdminUsers = () => {
       toast({
         title: "Error",
         description: "Failed to update user role.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setUpdatingRole(null);
     }
   };
-
   const handleResetPassword = async () => {
     if (!resetUserId) return;
-
     setResetting(true);
     try {
       // Refresh session to get a valid token
-      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
-      
+      const {
+        data: {
+          session
+        },
+        error: sessionError
+      } = await supabase.auth.refreshSession();
       if (sessionError || !session) {
         throw new Error("No session");
       }
-
       const supabaseUrl = "https://auztoefiuddwerfbpcpm.supabase.co";
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/admin-users?action=reset_password`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: resetUserId }),
-        }
-      );
-
+      const response = await fetch(`${supabaseUrl}/functions/v1/admin-users?action=reset_password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: resetUserId
+        })
+      });
       if (!response.ok) {
         throw new Error("Failed to reset password");
       }
-
       toast({
         title: "Password reset sent",
-        description: "A password reset email has been sent to the user.",
+        description: "A password reset email has been sent to the user."
       });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to send password reset email.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setResetting(false);
       setResetUserId(null);
     }
   };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return "Never";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "numeric"
     });
   };
-
   const handleCreateUser = async () => {
     if (!newUserEmail || !newUserPassword) {
       toast({
         title: "Error",
         description: "Email and password are required.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setCreating(true);
     try {
       // Sign up the user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      const {
+        data: signUpData,
+        error: signUpError
+      } = await supabase.auth.signUp({
         email: newUserEmail,
-        password: newUserPassword,
+        password: newUserPassword
       });
-
       if (signUpError) throw signUpError;
-
       if (!signUpData.user) {
         throw new Error("Failed to create user");
       }
 
       // Assign role to the user
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert([{ user_id: signUpData.user.id, role: newUserRole }]);
-
+      const {
+        error: roleError
+      } = await supabase.from('user_roles').insert([{
+        user_id: signUpData.user.id,
+        role: newUserRole
+      }]);
       if (roleError) throw roleError;
-
       toast({
         title: "User created",
-        description: `User created successfully with ${newUserRole} role.`,
+        description: `User created successfully with ${newUserRole} role.`
       });
-
       setIsCreateDialogOpen(false);
       setNewUserEmail("");
       setNewUserPassword("");
@@ -380,13 +282,12 @@ const AdminUsers = () => {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create user.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setCreating(false);
     }
   };
-
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "administrator":
@@ -405,7 +306,6 @@ const AdminUsers = () => {
         return "outline";
     }
   };
-
   const getRoleStats = () => {
     const stats = {
       total: users.length,
@@ -419,19 +319,13 @@ const AdminUsers = () => {
     };
     return stats;
   };
-
   const stats = getRoleStats();
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
+    return <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
+  return <>
       <section className="relative pt-16 pb-24 bg-gradient-to-br from-primary via-primary/95 to-primary/80 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
         <div className="container mx-auto px-4 relative z-10">
@@ -445,11 +339,7 @@ const AdminUsers = () => {
                 Manage users, roles, and permissions
               </p>
             </div>
-            <Button 
-              onClick={() => setIsCreateDialogOpen(true)}
-              size="lg"
-              className="bg-background text-foreground hover:bg-background/90 shadow-xl"
-            >
+            <Button onClick={() => setIsCreateDialogOpen(true)} size="lg" className="bg-background text-foreground hover:bg-background/90 shadow-xl">
               <UserPlus className="w-5 h-5 mr-2" />
               Create User
             </Button>
@@ -550,73 +440,8 @@ const AdminUsers = () => {
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Filters */}
           <Card className="mb-8 shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Filter className="w-5 h-5" />
-                    Filters & Search
-                    {activeFiltersCount > 0 && (
-                      <Badge variant="secondary">{activeFiltersCount} active</Badge>
-                    )}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Search and filter users by email or role
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  {activeFiltersCount > 0 && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleResetFilters}
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Reset
-                    </Button>
-                  )}
-                  <Button onClick={fetchUsers} variant="outline" size="sm">
-                    <Loader2 className="w-4 h-4 mr-2" />
-                    Refresh
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="search" className="text-sm font-medium">Search Email</Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      id="search"
-                      placeholder="Search by email..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="role-filter" className="text-sm font-medium">Filter by Role</Label>
-                  <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger id="role-filter">
-                      <SelectValue placeholder="All roles" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Roles</SelectItem>
-                      <SelectItem value="administrator">Administrator</SelectItem>
-                      <SelectItem value="staff">Staff</SelectItem>
-                      <SelectItem value="editor">Editor</SelectItem>
-                      <SelectItem value="teacher">Teacher</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
+            
+            
           </Card>
 
           {/* Role Permissions Guide */}
@@ -633,29 +458,21 @@ const AdminUsers = () => {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {Object.entries(rolePermissions).map(([role, info]) => {
-                  const Icon = info.icon;
-                  return (
-                    <Button
-                      key={role}
-                      variant={selectedRoleInfo === role ? "default" : "outline"}
-                      className="h-auto flex-col gap-2 p-4"
-                      onClick={() => setSelectedRoleInfo(selectedRoleInfo === role ? null : role)}
-                    >
+                const Icon = info.icon;
+                return <Button key={role} variant={selectedRoleInfo === role ? "default" : "outline"} className="h-auto flex-col gap-2 p-4" onClick={() => setSelectedRoleInfo(selectedRoleInfo === role ? null : role)}>
                       <Icon className="w-6 h-6" />
                       <span className="text-xs font-medium capitalize">{role}</span>
-                    </Button>
-                  );
-                })}
+                    </Button>;
+              })}
               </div>
 
-              {selectedRoleInfo && (
-                <Card className="mt-4 bg-muted/50">
+              {selectedRoleInfo && <Card className="mt-4 bg-muted/50">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg capitalize">
                       {(() => {
-                        const Icon = rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].icon;
-                        return <Icon className="w-5 h-5" />;
-                      })()}
+                    const Icon = rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].icon;
+                    return <Icon className="w-5 h-5" />;
+                  })()}
                       {selectedRoleInfo}
                     </CardTitle>
                     <CardDescription>
@@ -666,24 +483,17 @@ const AdminUsers = () => {
                     <div>
                       <h4 className="font-semibold text-sm mb-2 text-green-600">Permissions</h4>
                       <ul className="space-y-1 text-sm">
-                        {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].permissions.map((perm, idx) => (
-                          <li key={idx} className="text-muted-foreground">{perm}</li>
-                        ))}
+                        {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].permissions.map((perm, idx) => <li key={idx} className="text-muted-foreground">{perm}</li>)}
                       </ul>
                     </div>
-                    {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].restrictions.length > 0 && (
-                      <div>
+                    {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].restrictions.length > 0 && <div>
                         <h4 className="font-semibold text-sm mb-2 text-red-600">Restrictions</h4>
                         <ul className="space-y-1 text-sm">
-                          {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].restrictions.map((rest, idx) => (
-                            <li key={idx} className="text-muted-foreground">{rest}</li>
-                          ))}
+                          {rolePermissions[selectedRoleInfo as keyof typeof rolePermissions].restrictions.map((rest, idx) => <li key={idx} className="text-muted-foreground">{rest}</li>)}
                         </ul>
-                      </div>
-                    )}
+                      </div>}
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </CardContent>
           </Card>
 
@@ -708,16 +518,12 @@ const AdminUsers = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.length === 0 ? (
-                      <TableRow>
+                    {filteredUsers.length === 0 ? <TableRow>
                         <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                           <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
                           <p>No users found matching your filters</p>
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <TableRow key={user.id} className="hover:bg-muted/50">
+                      </TableRow> : filteredUsers.map(user => <TableRow key={user.id} className="hover:bg-muted/50">
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               <div className={`w-2 h-2 rounded-full ${user.roles.includes('administrator') ? 'bg-red-500' : user.roles.includes('staff') ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
@@ -725,11 +531,7 @@ const AdminUsers = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Select
-                              value={user.roles[0] || ""}
-                              onValueChange={(value) => handleRoleChange(user.id, value)}
-                              disabled={updatingRole === user.id}
-                            >
+                            <Select value={user.roles[0] || ""} onValueChange={value => handleRoleChange(user.id, value)} disabled={updatingRole === user.id}>
                               <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select role" />
                               </SelectTrigger>
@@ -776,19 +578,12 @@ const AdminUsers = () => {
                           <TableCell className="text-sm text-muted-foreground">{formatDate(user.created_at)}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">{formatDate(user.last_sign_in_at)}</TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setResetUserId(user.email)}
-                              className="hover:bg-primary/10"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => setResetUserId(user.email)} className="hover:bg-primary/10">
                               <Mail className="h-4 w-4 mr-2" />
                               Reset Password
                             </Button>
                           </TableCell>
-                        </TableRow>
-                      ))
-                    )}
+                        </TableRow>)}
                   </TableBody>
                 </Table>
               </div>
@@ -808,27 +603,15 @@ const AdminUsers = () => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="user@example.com"
-                value={newUserEmail}
-                onChange={(e) => setNewUserEmail(e.target.value)}
-              />
+              <Input id="email" type="email" placeholder="user@example.com" value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={newUserPassword}
-                onChange={(e) => setNewUserPassword(e.target.value)}
-              />
+              <Input id="password" type="password" placeholder="••••••••" value={newUserPassword} onChange={e => setNewUserPassword(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={newUserRole} onValueChange={(value) => setNewUserRole(value as typeof newUserRole)}>
+              <Select value={newUserRole} onValueChange={value => setNewUserRole(value as typeof newUserRole)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -848,14 +631,10 @@ const AdminUsers = () => {
               Cancel
             </Button>
             <Button onClick={handleCreateUser} disabled={creating}>
-              {creating ? (
-                <>
+              {creating ? <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
-                </>
-              ) : (
-                "Create User"
-              )}
+                </> : "Create User"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -873,20 +652,14 @@ const AdminUsers = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={resetting}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleResetPassword} disabled={resetting}>
-              {resetting ? (
-                <>
+              {resetting ? <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Sending...
-                </>
-              ) : (
-                "Send Reset Email"
-              )}
+                </> : "Send Reset Email"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
-  );
+    </>;
 };
-
 export default AdminUsers;
