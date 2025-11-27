@@ -141,7 +141,7 @@ export default function AdminDashboard() {
       { title: "Staff Members", value: stats.staff, icon: Users, color: "text-green-500", roles: ['administrator', 'editor', 'staff'] },
       { title: "Members", value: stats.members, icon: Users, color: "text-emerald-500", roles: ['administrator', 'editor', 'staff'] },
       { title: "Events", value: stats.events, icon: Calendar, color: "text-orange-500", roles: ['administrator', 'editor'] },
-      { title: "Testimonies", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500", roles: ['administrator', 'editor'] },
+      { title: "Messages", value: stats.testimonials, icon: MessageSquare, color: "text-pink-500", roles: ['administrator', 'editor'] },
       { title: "Departments", value: stats.departments, icon: Briefcase, color: "text-cyan-500", roles: ['administrator', 'editor', 'staff'] },
     ];
 
