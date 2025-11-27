@@ -366,11 +366,11 @@ const About = () => {
         <div className="absolute inset-0 bg-cover bg-center" style={{
         backgroundImage: `url(${communityImage})`
       }}>
-          <div className="absolute inset-0 bg-primary/60" />
+          <div className="absolute inset-0 bg-neutral-900" />
         </div>
-        <div className="relative z-10 text-center text-primary-foreground px-4">
+        <div className="relative z-10 text-center text-white px-4">
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">About CBC</h1>
-          <p className="text-xl md:text-2xl opacity-90">
+          <p className="text-xl md:text-2xl text-white/90">
             Our Story, Beliefs, and Community
           </p>
         </div>

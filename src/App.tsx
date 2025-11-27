@@ -39,14 +39,10 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AlbumGallery from "./pages/AlbumGallery";
 import AdminSchoolTeachers from "./pages/AdminSchoolTeachers";
 import AdminSchoolTeacherEdit from "./pages/AdminSchoolTeacherEdit";
-import TeacherProfile from "./pages/TeacherProfile";
-import TeacherProfileEnhanced from "./pages/TeacherProfileEnhanced";
-import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminSchoolStudents from "./pages/AdminSchoolStudents";
 import AdminSchoolStudentEdit from "./pages/AdminSchoolStudentEdit";
 import AdminSchoolClasses from "./pages/AdminSchoolClasses";
 import AdminSchoolClassEdit from "./pages/AdminSchoolClassEdit";
-import AdminSchoolAssignments from "./pages/AdminSchoolAssignments";
 import AdminSchoolReports from "./pages/AdminSchoolReports";
 import TakeAttendance from "./pages/TakeAttendance";
 import NotFound from "./pages/NotFound";
@@ -55,7 +51,6 @@ import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminEvents from "./pages/AdminEvents";
 import AdminMessages from "./pages/AdminMessages";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import StudentProfile from "./pages/StudentProfile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -103,18 +98,14 @@ const App = () => (
           <Route path="/admin/prayer-requests" element={<ProtectedRoute permission="manage_prayer_requests"><AdminLayout><AdminPrayerRequests /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminUsers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/roles" element={<ProtectedRoute permission="manage_roles"><AdminLayout><AdminRoleManagement /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/school/dashboard" element={<ProtectedRoute permission="manage_students"><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeachers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeacherEdit /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/school/teachers/:id" element={<ProtectedRoute permission="manage_students"><TeacherProfileEnhanced /></ProtectedRoute>} />
           <Route path="/admin/school/students" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudents /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/students/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudentEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/classes" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClasses /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClassEdit /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/school/assignments" element={<ProtectedRoute permission="manage_classes"><AdminSchoolAssignments /></ProtectedRoute>} />
           <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><AdminLayout><TakeAttendance /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminLayout><AdminSchoolReports /></AdminLayout></ProtectedRoute>} />
-          <Route path="/student-profile/:id" element={<ProtectedRoute permission="manage_students"><StudentProfile /></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />

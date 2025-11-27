@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Search, Loader2, Users, UserCircle } from "lucide-react";
+import { Plus, Search, Phone, User, Calendar, Pencil } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Student {
   id: string;
@@ -27,8 +28,6 @@ export default function AdminSchoolStudents() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
-  const [classes, setClasses] = useState<Array<{ id: string; class_name: string }>>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -40,16 +39,7 @@ export default function AdminSchoolStudents() {
 
   useEffect(() => {
     fetchStudents();
-    fetchClasses();
   }, []);
-
-  const fetchClasses = async () => {
-    const { data } = await supabase
-      .from("classes")
-      .select("id, class_name")
-      .order("class_name");
-    if (data) setClasses(data);
-  };
 
   const fetchStudents = async () => {
     try {
@@ -104,164 +94,161 @@ export default function AdminSchoolStudents() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-accent to-primary/80 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card/95 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-          <div>
-            <h1 className="text-3xl font-bold">Students Management</h1>
-            <p className="text-muted-foreground mt-1">Manage church school students and their profiles</p>
-          </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="bg-accent hover:bg-accent/90">
-                <Plus className="mr-2 h-5 w-5" />
-                Add New Student
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Add New Student</DialogTitle>
-                <DialogDescription>Enter student information below</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name *</Label>
-                    <Input
-                      id="full_name"
-                      required
-                      value={formData.full_name}
-                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date_of_birth">Date of Birth *</Label>
-                    <Input
-                      id="date_of_birth"
-                      type="date"
-                      required
-                      value={formData.date_of_birth}
-                      onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="guardian_name">Guardian Name *</Label>
-                    <Input
-                      id="guardian_name"
-                      required
-                      value={formData.guardian_name}
-                      onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="guardian_phone">Guardian Phone *</Label>
-                    <Input
-                      id="guardian_phone"
-                      required
-                      value={formData.guardian_phone}
-                      onChange={(e) => setFormData({ ...formData, guardian_phone: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="photo_url">Photo URL</Label>
-                  <Input
-                    id="photo_url"
-                    value={formData.photo_url}
-                    onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <Button type="submit" className="w-full">Add Student</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Students</h1>
+          <p className="text-muted-foreground">Manage church school students</p>
         </div>
-
-        {/* Search */}
-        <Card className="bg-card/95 backdrop-blur-sm">
-          <CardContent className="pt-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Search students by name or guardian..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-lg"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Students Grid */}
-        {loading ? (
-          <Card className="bg-card/95 backdrop-blur-sm">
-            <CardContent className="py-12">
-              <div className="text-center text-muted-foreground">Loading students...</div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStudents.map((student) => (
-              <Card key={student.id} className="bg-card/95 backdrop-blur-sm hover:shadow-xl transition-all hover:scale-105 border-2 hover:border-accent">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <Avatar className="h-24 w-24 border-4 border-accent/20">
-                      <AvatarImage src={student.photo_url || ""} />
-                      <AvatarFallback className="bg-accent/10 text-accent text-2xl font-semibold">
-                        {student.full_name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-bold">
-                        {student.full_name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Age: {calculateAge(student.date_of_birth)} years
-                      </p>
-                    </div>
-                    <div className="w-full space-y-2 text-sm">
-                      <div className="flex items-center justify-center gap-2">
-                        <Users className="h-4 w-4 text-accent" />
-                        <span className="text-muted-foreground">{student.guardian_name}</span>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => navigate(`/student-profile/${student.id}`)}
-                      className="w-full bg-accent hover:bg-accent/90"
-                    >
-                      View Profile
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {!loading && filteredStudents.length === 0 && (
-          <Card className="bg-card/95 backdrop-blur-sm">
-            <CardContent className="py-12">
-              <div className="text-center text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="text-lg">No students found</p>
-                <p className="text-sm mt-1">Try adjusting your search or add a new student</p>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Student
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add New Student</DialogTitle>
+              <DialogDescription>Enter student information below</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Input
+                    id="full_name"
+                    required
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date_of_birth">Date of Birth *</Label>
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    required
+                    value={formData.date_of_birth}
+                    onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                  />
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="space-y-2">
+                <Label htmlFor="photo_url">Photo URL</Label>
+                <Input
+                  id="photo_url"
+                  value={formData.photo_url}
+                  onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="guardian_name">Guardian Name *</Label>
+                  <Input
+                    id="guardian_name"
+                    required
+                    value={formData.guardian_name}
+                    onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guardian_phone">Guardian Phone *</Label>
+                  <Input
+                    id="guardian_phone"
+                    required
+                    value={formData.guardian_phone}
+                    onChange={(e) => setFormData({ ...formData, guardian_phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              <Button type="submit" className="w-full">Add Student</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search students..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {loading ? (
+        <div className="text-center py-12">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredStudents.map((student) => (
+            <Card key={student.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={student.photo_url || undefined} />
+                    <AvatarFallback>
+                      <User className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">{student.full_name}</CardTitle>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {calculateAge(student.date_of_birth)} years old
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium">Guardian</p>
+                  <p className="text-sm text-muted-foreground">{student.guardian_name}</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{student.guardian_phone}</span>
+                </div>
+                 {student.notes && (
+                  <div>
+                    <p className="text-sm font-medium">Notes</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{student.notes}</p>
+                  </div>
+                )}
+                <div className="pt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => navigate(`/admin/school/students/${student.id}/edit`)}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {!loading && filteredStudents.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          No students found
+        </div>
+      )}
     </div>
   );
 }
