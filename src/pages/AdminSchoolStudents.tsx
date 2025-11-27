@@ -94,19 +94,20 @@ export default function AdminSchoolStudents() {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Students</h1>
-          <p className="text-muted-foreground">Manage church school students</p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Student
-            </Button>
-          </DialogTrigger>
+    <div className="min-h-screen bg-gradient-to-br from-secondary/30 via-background to-background">
+      <div className="bg-gradient-to-r from-primary via-accent to-primary p-8 mb-6 rounded-b-2xl shadow-lg">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-display font-bold text-primary-foreground">Students</h1>
+            <p className="text-primary-foreground/80 text-lg">Manage church school student enrollment</p>
+          </div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg">
+                <Plus className="mr-2 h-5 w-5" />
+                Add Student
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
@@ -174,81 +175,85 @@ export default function AdminSchoolStudents() {
               <Button type="submit" className="w-full">Add Student</Button>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search students..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      <div className="max-w-7xl mx-auto px-6 space-y-6">
+        <div className="relative">
+          <Search className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Search students..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-12 h-14 text-lg rounded-xl border-2 shadow-md focus:shadow-lg transition-all"
+          />
+        </div>
 
-      {loading ? (
-        <div className="text-center py-12">Loading...</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStudents.map((student) => (
-            <Card key={student.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={student.photo_url || undefined} />
-                    <AvatarFallback>
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{student.full_name}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary">
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredStudents.map((student) => (
+              <Card key={student.id} className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/30 rounded-2xl overflow-hidden bg-gradient-to-br from-card via-card to-secondary/20">
+                <div className="h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
+                <CardHeader className="pb-4">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-20 w-20 border-4 border-primary/20 shadow-lg group-hover:scale-105 transition-transform">
+                      <AvatarImage src={student.photo_url || undefined} />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-xl">
+                        <User className="h-10 w-10" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-display group-hover:text-primary transition-colors">{student.full_name}</CardTitle>
+                      <Badge className="mt-2 bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
                         <Calendar className="h-3 w-3 mr-1" />
                         {calculateAge(student.date_of_birth)} years old
                       </Badge>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium">Guardian</p>
-                  <p className="text-sm text-muted-foreground">{student.guardian_name}</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  <span>{student.guardian_phone}</span>
-                </div>
-                 {student.notes && (
-                  <div>
-                    <p className="text-sm font-medium">Notes</p>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{student.notes}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-3 rounded-lg bg-secondary/50">
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Guardian</p>
+                    <p className="font-semibold">{student.guardian_name}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Phone className="h-4 w-4 text-accent" />
+                      <span className="text-sm font-medium">{student.guardian_phone}</span>
+                    </div>
                   </div>
-                )}
-                <div className="pt-2">
+                  {student.notes && (
+                    <div className="p-3 rounded-lg bg-secondary/50">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm line-clamp-2">{student.notes}</p>
+                    </div>
+                  )}
                   <Button 
                     variant="outline" 
-                    size="sm" 
-                    className="w-full"
+                    className="w-full h-11 rounded-xl border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all"
                     onClick={() => navigate(`/admin/school/students/${student.id}/edit`)}
                   >
                     <Pencil className="h-4 w-4 mr-2" />
-                    Edit
+                    Edit Student
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-      {!loading && filteredStudents.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          No students found
-        </div>
-      )}
+        {!loading && filteredStudents.length === 0 && (
+          <div className="text-center py-16">
+            <div className="mx-auto w-20 h-20 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+              <User className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <p className="text-xl text-muted-foreground">No students found</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
