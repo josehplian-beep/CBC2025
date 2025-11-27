@@ -25,7 +25,7 @@ interface Message {
   created_at: string;
 }
 
-const Testimony = () => {
+const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -706,4 +706,4 @@ const Testimony = () => {
   );
 };
 
-export default Testimony;
+export default Messages;
