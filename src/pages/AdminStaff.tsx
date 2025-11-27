@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Bold, Italic, AtSign } from "lucide-react";
+import { Plus, Edit, Trash2, Bold, Italic, AtSign, Search, Users, FileCheck, FileClock, Eye, EyeOff, Filter, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +32,7 @@ interface StaffBiography {
 
 const AdminStaff = () => {
   const [staff, setStaff] = useState<StaffBiography[]>([]);
+  const [filteredStaff, setFilteredStaff] = useState<StaffBiography[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -38,6 +41,8 @@ const AdminStaff = () => {
   const [staffToDelete, setStaffToDelete] = useState<StaffBiography | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
@@ -65,6 +70,28 @@ const AdminStaff = () => {
       fetchStaff();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    let filtered = [...staff];
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(member =>
+        member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(member =>
+        statusFilter === 'published' ? member.is_published : !member.is_published
+      );
+    }
+
+    setFilteredStaff(filtered);
+  }, [staff, searchQuery, statusFilter]);
 
   const checkAdminStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -101,8 +128,26 @@ const AdminStaff = () => {
     
     if (!error && data) {
       setStaff(data as any);
+      setFilteredStaff(data as any);
     }
     setLoading(false);
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+  };
+
+  const activeFiltersCount = [
+    searchQuery,
+    statusFilter !== 'all'
+  ].filter(Boolean).length;
+
+  const statsData = {
+    total: staff.length,
+    published: staff.filter(s => s.is_published).length,
+    drafts: staff.filter(s => !s.is_published).length,
+    filtered: filteredStaff.length
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,82 +348,239 @@ const AdminStaff = () => {
 
   return (
     <>
-      <section className="pt-8 pb-8 bg-gradient-to-r from-primary to-primary/80">
-        <div className="container mx-auto px-4">
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground">
-            Manage Staff Biographies
-          </h1>
+      <section className="relative pt-16 pb-24 bg-gradient-to-br from-primary via-primary/95 to-primary/80 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-primary-foreground mb-3">
+                Staff Biographies
+              </h1>
+              <p className="text-primary-foreground/80 text-lg">
+                Manage and publish staff member profiles
+              </p>
+            </div>
+            <Button 
+              onClick={() => { resetForm(); setDialogOpen(true); }}
+              size="lg"
+              className="bg-background text-foreground hover:bg-background/90 shadow-xl"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Staff
+            </Button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="bg-background/95 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardDescription className="text-muted-foreground">Total Staff</CardDescription>
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{statsData.total}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background/95 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardDescription className="text-muted-foreground">Published</CardDescription>
+                  <FileCheck className="w-5 h-5 text-green-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{statsData.published}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background/95 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardDescription className="text-muted-foreground">Drafts</CardDescription>
+                  <FileClock className="w-5 h-5 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{statsData.drafts}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background/95 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardDescription className="text-muted-foreground">Showing</CardDescription>
+                  <Filter className="w-5 h-5 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{statsData.filtered}</div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
       <section className="py-12 bg-background">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="mb-8">
-            <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Staff Biography
-            </Button>
-          </div>
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Filters */}
+          <Card className="mb-8 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Filter className="w-5 h-5" />
+                    Filters & Search
+                    {activeFiltersCount > 0 && (
+                      <Badge variant="secondary">{activeFiltersCount} active</Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    Search and filter staff biographies
+                  </CardDescription>
+                </div>
+                {activeFiltersCount > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleResetFilters}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="search" className="text-sm font-medium">Search</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      id="search"
+                      placeholder="Search by name, role, or email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status" className="text-sm font-medium">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="draft">Drafts</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {loading ? (
             <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
               <p className="text-muted-foreground">Loading staff biographies...</p>
             </div>
           ) : staff.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2">No Staff Biographies Yet</h3>
-              <p className="text-muted-foreground">Click "Add Staff Biography" to create one.</p>
-            </div>
+            <Card className="text-center py-16">
+              <CardContent>
+                <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Staff Biographies Yet</h3>
+                <p className="text-muted-foreground mb-6">Get started by adding your first staff biography</p>
+                <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Staff Biography
+                </Button>
+              </CardContent>
+            </Card>
+          ) : filteredStaff.length === 0 ? (
+            <Card className="text-center py-16">
+              <CardContent>
+                <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Results Found</h3>
+                <p className="text-muted-foreground mb-6">Try adjusting your filters or search query</p>
+                <Button variant="outline" onClick={handleResetFilters}>
+                  <X className="w-4 h-4 mr-2" />
+                  Clear Filters
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {staff.map((staffMember) => (
-                <Card key={staffMember.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                  {staffMember.image_url && (
-                    <div className="h-48 overflow-hidden">
-                      <img 
-                        src={staffMember.image_url} 
-                        alt={staffMember.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-xl font-bold">{staffMember.name}</h3>
-                        <p className="text-sm text-primary font-medium">{staffMember.role}</p>
+              {filteredStaff.map((staffMember) => (
+                <Card key={staffMember.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/50">
+                  <div className="relative">
+                    {staffMember.image_url ? (
+                      <div className="h-56 overflow-hidden">
+                        <img 
+                          src={staffMember.image_url} 
+                          alt={staffMember.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
-                      {!staffMember.is_published && (
-                        <span className="text-xs bg-yellow-500 text-white px-2 py-1 rounded">
+                    ) : (
+                      <div className="h-56 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <Users className="w-20 h-20 text-primary/30" />
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3">
+                      {staffMember.is_published ? (
+                        <Badge className="bg-green-500 text-white border-0">
+                          <Eye className="w-3 h-3 mr-1" />
+                          Published
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-orange-500 text-white border-0">
+                          <EyeOff className="w-3 h-3 mr-1" />
                           Draft
-                        </span>
+                        </Badge>
                       )}
-                    </CardTitle>
+                    </div>
+                  </div>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-xl font-bold">{staffMember.name}</CardTitle>
+                    <CardDescription className="text-primary font-medium">{staffMember.role}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                  <CardContent className="space-y-4">
+                    {(staffMember.email || staffMember.phone) && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        {staffMember.email && <div className="truncate">📧 {staffMember.email}</div>}
+                        {staffMember.phone && <div>📞 {staffMember.phone}</div>}
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {staffMember.biography_content}
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pt-2">
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 hover:bg-primary hover:text-primary-foreground"
                         onClick={() => openEditDialog(staffMember)}
                       >
-                        <Edit className="w-4 h-4 mr-2" />
+                        <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
                       <Button 
-                        variant="destructive" 
+                        variant="outline" 
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 hover:bg-destructive hover:text-destructive-foreground"
                         onClick={() => {
                           setStaffToDelete(staffMember);
                           setDeleteDialogOpen(true);
                         }}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className="w-4 h-4 mr-1" />
                         Delete
                       </Button>
                     </div>
