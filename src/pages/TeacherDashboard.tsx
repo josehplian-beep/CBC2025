@@ -17,7 +17,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  UserPlus
 } from "lucide-react";
 
 interface Teacher {
@@ -410,7 +411,7 @@ export default function TeacherDashboard() {
             <CardDescription>Common tasks and shortcuts</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Button
                 size="lg"
                 className="h-auto py-6 flex-col gap-2 bg-accent hover:bg-accent/90"
@@ -418,6 +419,15 @@ export default function TeacherDashboard() {
               >
                 <Users className="h-6 w-6" />
                 <span>View All Students</span>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-auto py-6 flex-col gap-2 border-2 hover:border-accent"
+                onClick={() => navigate("/admin/school/assignments")}
+              >
+                <UserPlus className="h-6 w-6" />
+                <span>Manage Assignments</span>
               </Button>
               <Button
                 size="lg"
