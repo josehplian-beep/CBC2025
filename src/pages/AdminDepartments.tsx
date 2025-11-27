@@ -11,7 +11,6 @@ import { ImageCropDialog } from "@/components/ImageCropDialog";
 import { toast } from "sonner";
 import { Pencil, Trash2, Upload } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
 interface DepartmentMember {
   id: string;
   name: string;
@@ -21,7 +20,6 @@ interface DepartmentMember {
   display_order: number;
   year_range: string;
 }
-
 const AdminDepartments = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<DepartmentMember[]>([]);
@@ -34,68 +32,49 @@ const AdminDepartments = () => {
   const [imageToCrop, setImageToCrop] = useState<string>("");
   const [currentMemberId, setCurrentMemberId] = useState<string>("");
   const [deduping, setDeduping] = useState(false);
-  const [departments, setDepartments] = useState<{ value: string; label: string }[]>([]);
+  const [departments, setDepartments] = useState<{
+    value: string;
+    label: string;
+  }[]>([]);
   const [newDeptDialogOpen, setNewDeptDialogOpen] = useState(false);
   const [newDeptName, setNewDeptName] = useState("");
-  
+
   // Calculate current year range based on current date
   const getCurrentYearRange = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
     return `${currentYear}-${currentYear + 1}`;
   };
-  
   const [selectedYearRange, setSelectedYearRange] = useState(getCurrentYearRange());
-  
-  // Available year ranges
-  const yearRanges = [
-    "2024-2025",
-    "2022-2023", 
-    "2020-2021",
-    "2018-2019"
-  ];
 
+  // Available year ranges
+  const yearRanges = ["2024-2025", "2022-2023", "2020-2021", "2018-2019"];
   useEffect(() => {
     fetchDepartments();
   }, []);
-
   useEffect(() => {
     if (selectedDept) {
       fetchMembers();
     }
   }, [selectedDept, selectedYearRange]);
-
   const fetchDepartments = async () => {
     try {
-      const { data, error } = await supabase
-        .from("department_members")
-        .select("department");
-
+      const {
+        data,
+        error
+      } = await supabase.from("department_members").select("department");
       if (error) throw error;
-
       const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
-      const orderedDepts = [
-        "deacons", "women", "youth", "children", "praise-worship",
-        "mission", "building", "culture", "media", "auditors"
-      ];
-
-      const deptObjects = orderedDepts
-        .filter(d => uniqueDepts.includes(d))
-        .map(d => ({
-          value: d,
-          label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-        }));
-
-      const additionalDepts = uniqueDepts
-        .filter(d => !orderedDepts.includes(d))
-        .sort()
-        .map(d => ({
-          value: d,
-          label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-        }));
-
+      const orderedDepts = ["deacons", "women", "youth", "children", "praise-worship", "mission", "building", "culture", "media", "auditors"];
+      const deptObjects = orderedDepts.filter(d => uniqueDepts.includes(d)).map(d => ({
+        value: d,
+        label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }));
+      const additionalDepts = uniqueDepts.filter(d => !orderedDepts.includes(d)).sort().map(d => ({
+        value: d,
+        label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }));
       setDepartments([...deptObjects, ...additionalDepts]);
-      
       if (deptObjects.length > 0 && !selectedDept) {
         setSelectedDept(deptObjects[0].value);
       }
@@ -103,40 +82,31 @@ const AdminDepartments = () => {
       // Silently handle fetch error
     }
   };
-
   const handleAddDepartment = async () => {
     if (!newDeptName.trim()) {
       toast.error("Department name is required");
       return;
     }
-
     const deptValue = newDeptName.toLowerCase().replace(/\s+/g, '-');
-    
     if (departments.some(d => d.value === deptValue)) {
       toast.error("Department already exists");
       return;
     }
-
     setDepartments([...departments, {
       value: deptValue,
       label: newDeptName.trim()
     }]);
-    
     setSelectedDept(deptValue);
     setNewDeptName("");
     setNewDeptDialogOpen(false);
     toast.success("Department added! Now you can add members to it.");
   };
-
   const fetchMembers = async () => {
     try {
-      const { data, error } = await supabase
-        .from("department_members")
-        .select("*")
-        .eq("department", selectedDept)
-        .eq("year_range", selectedYearRange)
-        .order("display_order");
-
+      const {
+        data,
+        error
+      } = await supabase.from("department_members").select("*").eq("department", selectedDept).eq("year_range", selectedYearRange).order("display_order");
       if (error) throw error;
       setMembers(data || []);
     } catch (error) {
@@ -145,46 +115,39 @@ const AdminDepartments = () => {
       setLoading(false);
     }
   };
-
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>, memberId: string) => {
     if (!e.target.files || e.target.files.length === 0) return;
-
     const file = e.target.files[0];
     const reader = new FileReader();
-    
     reader.onload = () => {
       setImageToCrop(reader.result as string);
       setCurrentMemberId(memberId);
       setCropDialogOpen(true);
     };
-    
     reader.readAsDataURL(file);
   };
-
   const handleCroppedImage = async (croppedImage: Blob) => {
     setUploading(true);
-
     try {
       const fileName = `${currentMemberId}-${Date.now()}.jpg`;
       const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("department-photos")
-        .upload(filePath, croppedImage, { upsert: true });
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from("department-photos").upload(filePath, croppedImage, {
+        upsert: true
+      });
       if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("department-photos")
-        .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase
-        .from("department_members")
-        .update({ profile_image_url: publicUrl })
-        .eq("id", currentMemberId);
-
+      const {
+        data: {
+          publicUrl
+        }
+      } = supabase.storage.from("department-photos").getPublicUrl(filePath);
+      const {
+        error: updateError
+      } = await supabase.from("department_members").update({
+        profile_image_url: publicUrl
+      }).eq("id", currentMemberId);
       if (updateError) throw updateError;
-
       toast.success("Photo uploaded successfully");
       fetchMembers();
     } catch (error) {
@@ -193,27 +156,23 @@ const AdminDepartments = () => {
       setUploading(false);
     }
   };
-
   const handleDeletePhoto = async (member: DepartmentMember) => {
     if (!confirm(`Delete photo for ${member.name}?`)) return;
-
     try {
       // Delete from storage if exists
       if (member.profile_image_url) {
         const fileName = member.profile_image_url.split('/').pop();
         if (fileName) {
-          await supabase.storage
-            .from("department-photos")
-            .remove([fileName]);
+          await supabase.storage.from("department-photos").remove([fileName]);
         }
       }
 
       // Remove URL from database
-      const { error } = await supabase
-        .from("department_members")
-        .update({ profile_image_url: null })
-        .eq("id", member.id);
-
+      const {
+        error
+      } = await supabase.from("department_members").update({
+        profile_image_url: null
+      }).eq("id", member.id);
       if (error) throw error;
       toast.success("Photo deleted successfully");
       fetchMembers();
@@ -221,16 +180,12 @@ const AdminDepartments = () => {
       toast.error("Failed to delete photo");
     }
   };
-
   const handleDeleteMember = async (id: string) => {
     if (!confirm("Are you sure you want to delete this member?")) return;
-
     try {
-      const { error } = await supabase
-        .from("department_members")
-        .delete()
-        .eq("id", id);
-
+      const {
+        error
+      } = await supabase.from("department_members").delete().eq("id", id);
       if (error) throw error;
       toast.success("Member deleted successfully");
       fetchMembers();
@@ -238,40 +193,55 @@ const AdminDepartments = () => {
       toast.error("Failed to delete member");
     }
   };
-  
   const removeDuplicates = async () => {
     if (!confirm("Remove duplicate names (per department), keeping the best entry?")) return;
     setDeduping(true);
     try {
-      const { data, error } = await supabase
-        .from("department_members")
-        .select("id, name, department, created_at, display_order")
-        .order("created_at", { ascending: true });
-
+      const {
+        data,
+        error
+      } = await supabase.from("department_members").select("id, name, department, created_at, display_order").order("created_at", {
+        ascending: true
+      });
       if (error) throw error;
-
-      type Row = { id: string; name: string; department: string; created_at: string | null; display_order: number | null };
-      const map = new Map<string, { id: string; order: number; created: string }>();
+      type Row = {
+        id: string;
+        name: string;
+        department: string;
+        created_at: string | null;
+        display_order: number | null;
+      };
+      const map = new Map<string, {
+        id: string;
+        order: number;
+        created: string;
+      }>();
       const toDelete: string[] = [];
-
-      (data as Row[] | null)?.forEach((row) => {
+      (data as Row[] | null)?.forEach(row => {
         const key = `${row.name}__${row.department}`;
         const created = row.created_at || "1970-01-01T00:00:00Z";
         const order = row.display_order ?? 0;
         const current = map.get(key);
         if (!current) {
-          map.set(key, { id: row.id, order, created });
+          map.set(key, {
+            id: row.id,
+            order,
+            created
+          });
         } else {
-          const isBetter = order < current.order || (order === current.order && created < current.created);
+          const isBetter = order < current.order || order === current.order && created < current.created;
           if (isBetter) {
             toDelete.push(current.id);
-            map.set(key, { id: row.id, order, created });
+            map.set(key, {
+              id: row.id,
+              order,
+              created
+            });
           } else {
             toDelete.push(row.id);
           }
         }
       });
-
       if (toDelete.length === 0) {
         toast.info("No duplicates found");
         return;
@@ -281,13 +251,11 @@ const AdminDepartments = () => {
       const chunkSize = 100;
       for (let i = 0; i < toDelete.length; i += chunkSize) {
         const chunk = toDelete.slice(i, i + chunkSize);
-        const { error: delError } = await supabase
-          .from("department_members")
-          .delete()
-          .in("id", chunk);
+        const {
+          error: delError
+        } = await supabase.from("department_members").delete().in("id", chunk);
         if (delError) throw delError;
       }
-
       toast.success(`Removed ${toDelete.length} duplicate entr${toDelete.length === 1 ? "y" : "ies"}`);
       fetchMembers();
     } catch (err) {
@@ -296,11 +264,9 @@ const AdminDepartments = () => {
       setDeduping(false);
     }
   };
-
   const handleSaveMember = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     const memberData = {
       name: formData.get("name") as string,
       role: formData.get("role") as string,
@@ -308,25 +274,20 @@ const AdminDepartments = () => {
       display_order: parseInt(formData.get("display_order") as string) || 0,
       year_range: formData.get("year_range") as string
     };
-
     try {
       if (editingMember) {
-        const { error } = await supabase
-          .from("department_members")
-          .update(memberData)
-          .eq("id", editingMember.id);
-
+        const {
+          error
+        } = await supabase.from("department_members").update(memberData).eq("id", editingMember.id);
         if (error) throw error;
         toast.success("Member updated successfully");
       } else {
-        const { error } = await supabase
-          .from("department_members")
-          .insert(memberData);
-
+        const {
+          error
+        } = await supabase.from("department_members").insert(memberData);
         if (error) throw error;
         toast.success("Member added successfully");
       }
-
       setIsDialogOpen(false);
       setEditingMember(null);
       fetchMembers();
@@ -334,16 +295,12 @@ const AdminDepartments = () => {
       toast.error("Failed to save member");
     }
   };
-
-  return (
-    <>
+  return <>
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Manage Department Members</h1>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={removeDuplicates} disabled={deduping}>
-              {deduping ? "Removing duplicates..." : "Remove Duplicates"}
-            </Button>
+            
             <Dialog open={newDeptDialogOpen} onOpenChange={setNewDeptDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">Add Department</Button>
@@ -355,12 +312,7 @@ const AdminDepartments = () => {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="new-dept-name">Department Name</Label>
-                    <Input 
-                      id="new-dept-name" 
-                      value={newDeptName}
-                      onChange={(e) => setNewDeptName(e.target.value)}
-                      placeholder="e.g., Sunday School"
-                    />
+                    <Input id="new-dept-name" value={newDeptName} onChange={e => setNewDeptName(e.target.value)} placeholder="e.g., Sunday School" />
                   </div>
                   <Button onClick={handleAddDepartment} className="w-full">
                     Add Department
@@ -392,20 +344,13 @@ const AdminDepartments = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {yearRanges.map(range => (
-                        <SelectItem key={range} value={range}>{range}</SelectItem>
-                      ))}
+                      {yearRanges.map(range => <SelectItem key={range} value={range}>{range}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label htmlFor="display_order">Display Order</Label>
-                  <Input 
-                    id="display_order" 
-                    name="display_order" 
-                    type="number" 
-                    defaultValue={editingMember?.display_order || 0} 
-                  />
+                  <Input id="display_order" name="display_order" type="number" defaultValue={editingMember?.display_order || 0} />
                 </div>
                 <Button type="submit" className="w-full">Save</Button>
               </form>
@@ -422,61 +367,32 @@ const AdminDepartments = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {departments.map(dept => (
-                  <SelectItem key={dept.value} value={dept.value}>{dept.label}</SelectItem>
-                ))}
+                {departments.map(dept => <SelectItem key={dept.value} value={dept.value}>{dept.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           <div>
             <Label className="mb-3 block">Year Range Filter</Label>
-            <ToggleGroup 
-              type="single" 
-              value={selectedYearRange} 
-              onValueChange={(value) => value && setSelectedYearRange(value)}
-              className="justify-start flex-wrap gap-2"
-            >
-              {yearRanges.map(range => (
-                <ToggleGroupItem 
-                  key={range} 
-                  value={range}
-                  className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                >
+            <ToggleGroup type="single" value={selectedYearRange} onValueChange={value => value && setSelectedYearRange(value)} className="justify-start flex-wrap gap-2">
+              {yearRanges.map(range => <ToggleGroupItem key={range} value={range} className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
                   {range}
-                </ToggleGroupItem>
-              ))}
+                </ToggleGroupItem>)}
             </ToggleGroup>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {members.map(member => (
-            <Card key={member.id} className="overflow-hidden">
+          {members.map(member => <Card key={member.id} className="overflow-hidden">
               <CardContent className="p-3 space-y-2">
-                <div 
-                  className="aspect-square bg-muted rounded-lg overflow-hidden relative group cursor-pointer transition-transform hover:scale-105"
-                  onClick={() => navigate(`/department-member/${member.id}`)}
-                >
-                  {member.profile_image_url ? (
-                    <img 
-                      src={member.profile_image_url} 
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-lg font-bold">
+                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative group cursor-pointer transition-transform hover:scale-105" onClick={() => navigate(`/department-member/${member.id}`)}>
+                  {member.profile_image_url ? <img src={member.profile_image_url} alt={member.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg font-bold">
                       {member.name.split(" ").map(n => n[0]).join("")}
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 
                 <div className="space-y-1">
-                  <h3 
-                    className="font-semibold text-sm truncate cursor-pointer hover:text-primary transition-colors" 
-                    title={member.name}
-                    onClick={() => navigate(`/department-member/${member.id}`)}
-                  >
+                  <h3 className="font-semibold text-sm truncate cursor-pointer hover:text-primary transition-colors" title={member.name} onClick={() => navigate(`/department-member/${member.id}`)}>
                     {member.name}
                   </h3>
                   <p className="text-xs text-muted-foreground truncate" title={member.role}>
@@ -486,80 +402,36 @@ const AdminDepartments = () => {
                 
                 <div className="flex gap-1">
                   <Label htmlFor={`upload-${member.id}`} className="flex-1">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full text-xs"
-                      disabled={uploading}
-                      asChild
-                    >
+                    <Button type="button" variant="outline" size="sm" className="w-full text-xs" disabled={uploading} asChild>
                       <span>
                         <Upload className="w-3 h-3 mr-1" />
                         Photo
                       </span>
                     </Button>
                   </Label>
-                  <Input
-                    id={`upload-${member.id}`}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleImageSelect(e, member.id)}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="px-2"
-                    onClick={() => {
-                      setEditingMember(member);
-                      setIsDialogOpen(true);
-                    }}
-                  >
+                  <Input id={`upload-${member.id}`} type="file" accept="image/*" className="hidden" onChange={e => handleImageSelect(e, member.id)} />
+                  <Button variant="outline" size="sm" className="px-2" onClick={() => {
+                setEditingMember(member);
+                setIsDialogOpen(true);
+              }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
-                  {member.profile_image_url ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="px-2"
-                      onClick={() => handleDeletePhoto(member)}
-                      title="Delete photo"
-                    >
+                  {member.profile_image_url ? <Button variant="outline" size="sm" className="px-2" onClick={() => handleDeletePhoto(member)} title="Delete photo">
                       <Trash2 className="w-3 h-3" />
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="px-2"
-                      onClick={() => handleDeleteMember(member.id)}
-                      title="Delete member"
-                    >
+                    </Button> : <Button variant="outline" size="sm" className="px-2" onClick={() => handleDeleteMember(member.id)} title="Delete member">
                       <Trash2 className="w-3 h-3" />
-                    </Button>
-                  )}
+                    </Button>}
                 </div>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
 
-        {!loading && members.length === 0 && (
-          <div className="text-center py-12">
+        {!loading && members.length === 0 && <div className="text-center py-12">
             <p className="text-muted-foreground">No members found for this department</p>
-          </div>
-        )}
+          </div>}
       </div>
 
-      <ImageCropDialog
-        open={cropDialogOpen}
-        onOpenChange={setCropDialogOpen}
-        imageSrc={imageToCrop}
-        onCropComplete={handleCroppedImage}
-      />
-    </>
-  );
+      <ImageCropDialog open={cropDialogOpen} onOpenChange={setCropDialogOpen} imageSrc={imageToCrop} onCropComplete={handleCroppedImage} />
+    </>;
 };
-
 export default AdminDepartments;
