@@ -40,6 +40,7 @@ import AlbumGallery from "./pages/AlbumGallery";
 import AdminSchoolTeachers from "./pages/AdminSchoolTeachers";
 import AdminSchoolTeacherEdit from "./pages/AdminSchoolTeacherEdit";
 import TeacherProfile from "./pages/TeacherProfile";
+import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminSchoolStudents from "./pages/AdminSchoolStudents";
 import AdminSchoolStudentEdit from "./pages/AdminSchoolStudentEdit";
 import AdminSchoolClasses from "./pages/AdminSchoolClasses";
@@ -100,6 +101,7 @@ const App = () => (
           <Route path="/admin/prayer-requests" element={<ProtectedRoute permission="manage_prayer_requests"><AdminLayout><AdminPrayerRequests /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminUsers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/roles" element={<ProtectedRoute permission="manage_roles"><AdminLayout><AdminRoleManagement /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/dashboard" element={<ProtectedRoute permission="manage_students"><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeachers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeacherEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id" element={<ProtectedRoute permission="manage_students"><TeacherProfile /></ProtectedRoute>} />

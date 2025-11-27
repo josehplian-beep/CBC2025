@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Search, Mail, Phone, User, Pencil } from "lucide-react";
+import { Plus, Search, Mail, Phone, User, Pencil, LayoutDashboard } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Teacher {
@@ -88,13 +88,23 @@ export default function AdminSchoolTeachers() {
             <h1 className="text-3xl font-bold text-foreground">Teachers Management</h1>
             <p className="text-muted-foreground mt-1">Manage church school teachers and their profiles</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="bg-accent hover:bg-accent/90">
-                <Plus className="mr-2 h-5 w-5" />
-                Add New Teacher
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => navigate("/admin/school/dashboard")}
+              className="border-2 hover:border-accent"
+            >
+              <LayoutDashboard className="mr-2 h-5 w-5" />
+              Dashboard
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-accent hover:bg-accent/90">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add New Teacher
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Add New Teacher</DialogTitle>
@@ -152,6 +162,7 @@ export default function AdminSchoolTeachers() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Search */}
