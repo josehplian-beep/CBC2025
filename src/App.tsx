@@ -49,7 +49,7 @@ import NotFound from "./pages/NotFound";
 import Forbidden from "./pages/Forbidden";
 import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminEvents from "./pages/AdminEvents";
-import AdminTestimonies from "./pages/AdminTestimonies";
+import AdminMessages from "./pages/AdminMessages";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -80,7 +80,7 @@ const App = () => (
           <Route path="/admin/dashboard" element={<ProtectedRoute permission="view_admin_panel"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/albums" element={<ProtectedRoute permission="manage_albums"><AdminLayout><AdminAlbums /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/events" element={<ProtectedRoute permission="manage_events"><AdminLayout><AdminEvents /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/testimonies" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminTestimonies /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/messages" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminMessages /></AdminLayout></ProtectedRoute>} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />
