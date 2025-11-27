@@ -5,7 +5,8 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Quote, Calendar, User, ArrowRight, X, Search, BookOpen, Mic, BookMarked } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Quote, Calendar, User, ArrowRight, X, Search, BookOpen, Mic, BookMarked, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,9 @@ const Testimony = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [activeTab, setActiveTab] = useState("recent");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSpeaker, setSelectedSpeaker] = useState<string>("all");
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [selectedScripture, setSelectedScripture] = useState<string>("all");
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -152,6 +156,38 @@ const Testimony = () => {
     return content.substring(0, maxLength).trim() + '...';
   };
 
+  // Extract unique speakers
+  const uniqueSpeakers = Array.from(new Set(messages.map(m => m.author_name))).sort();
+
+  // Extract unique topics from author_role field
+  const uniqueTopics = Array.from(
+    new Set(
+      messages
+        .map(m => m.author_role)
+        .filter(role => role && role.trim() !== '')
+    )
+  ).sort();
+
+  // Extract scripture references (looking for book names and chapter:verse patterns)
+  const scripturePattern = /\b(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation)\s*\d+(?::\d+)?/gi;
+  
+  const uniqueScriptures = Array.from(
+    new Set(
+      messages.flatMap(m => {
+        const scriptures: string[] = [];
+        // Check title
+        const titleMatches = m.title.match(scripturePattern);
+        if (titleMatches) scriptures.push(...titleMatches);
+        // Check author_role (topic/scripture field)
+        if (m.author_role) {
+          const roleMatches = m.author_role.match(scripturePattern);
+          if (roleMatches) scriptures.push(...roleMatches);
+        }
+        return scriptures;
+      })
+    )
+  ).sort();
+
   // Filter messages based on active tab and search
   const filteredMessages = messages.filter((message) => {
     const matchesSearch = 
@@ -162,13 +198,41 @@ const Testimony = () => {
       (message.author_role && message.author_role.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Tab-based filtering
-    if (activeTab === "recent") return matchesSearch;
-    if (activeTab === "topic") return matchesSearch; // Future: filter by topic/category
-    if (activeTab === "speaker") return matchesSearch; // Future: filter by speaker
-    if (activeTab === "scripture") return matchesSearch; // Future: filter by scripture reference
+    if (activeTab === "recent") {
+      return matchesSearch;
+    }
+    
+    if (activeTab === "speaker") {
+      const matchesSpeaker = selectedSpeaker === "all" || message.author_name === selectedSpeaker;
+      return matchesSearch && matchesSpeaker;
+    }
+    
+    if (activeTab === "topic") {
+      const matchesTopic = selectedTopic === "all" || message.author_role === selectedTopic;
+      return matchesSearch && matchesTopic;
+    }
+    
+    if (activeTab === "scripture") {
+      if (selectedScripture === "all") return matchesSearch;
+      
+      // Check if message contains the selected scripture reference
+      const titleMatch = message.title.match(scripturePattern);
+      const roleMatch = message.author_role?.match(scripturePattern);
+      const allScriptures = [...(titleMatch || []), ...(roleMatch || [])];
+      
+      const matchesScripture = allScriptures.some(s => s === selectedScripture);
+      return matchesSearch && matchesScripture;
+    }
 
     return matchesSearch;
   });
+
+  // Reset secondary filters when tab changes
+  useEffect(() => {
+    setSelectedSpeaker("all");
+    setSelectedTopic("all");
+    setSelectedScripture("all");
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,7 +270,7 @@ const Testimony = () => {
 
           {/* Tabs and Search */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
               <TabsList className="grid w-full md:w-auto grid-cols-4 bg-muted">
                 <TabsTrigger value="recent" className="gap-2">
                   Recent
@@ -225,13 +289,104 @@ const Testimony = () => {
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search media..."
+                  placeholder="Search messages..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
+
+            {/* Secondary Filters */}
+            {activeTab === "speaker" && uniqueSpeakers.length > 0 && (
+              <div className="mb-6 flex items-center gap-3">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={selectedSpeaker} onValueChange={setSelectedSpeaker}>
+                  <SelectTrigger className="w-full md:w-[300px]">
+                    <SelectValue placeholder="Filter by speaker" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Speakers</SelectItem>
+                    {uniqueSpeakers.map((speaker) => (
+                      <SelectItem key={speaker} value={speaker}>
+                        {speaker}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedSpeaker !== "all" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedSpeaker("all")}
+                    className="gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {activeTab === "topic" && uniqueTopics.length > 0 && (
+              <div className="mb-6 flex items-center gap-3">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                  <SelectTrigger className="w-full md:w-[300px]">
+                    <SelectValue placeholder="Filter by topic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Topics</SelectItem>
+                    {uniqueTopics.map((topic) => (
+                      <SelectItem key={topic} value={topic}>
+                        {topic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTopic !== "all" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedTopic("all")}
+                    className="gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {activeTab === "scripture" && uniqueScriptures.length > 0 && (
+              <div className="mb-6 flex items-center gap-3">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={selectedScripture} onValueChange={setSelectedScripture}>
+                  <SelectTrigger className="w-full md:w-[300px]">
+                    <SelectValue placeholder="Filter by scripture" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Scriptures</SelectItem>
+                    {uniqueScriptures.map((scripture) => (
+                      <SelectItem key={scripture} value={scripture}>
+                        {scripture}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedScripture !== "all" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedScripture("all")}
+                    className="gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            )}
 
             <TabsContent value={activeTab} className="mt-0">
               {loading ? (
