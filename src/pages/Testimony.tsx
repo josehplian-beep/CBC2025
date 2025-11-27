@@ -4,7 +4,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Quote, Calendar, User, ArrowRight, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Quote, Calendar, User, ArrowRight, X, Search, BookOpen, Mic, BookMarked } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
-interface Testimony {
+interface Message {
   id: string;
   title: string;
   content: string;
@@ -24,7 +25,7 @@ interface Testimony {
 }
 
 const Testimony = () => {
-  const [testimonies, setTestimonies] = useState<Testimony[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -33,6 +34,8 @@ const Testimony = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string>('');
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [activeTab, setActiveTab] = useState("recent");
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -43,7 +46,7 @@ const Testimony = () => {
 
   useEffect(() => {
     checkAdminStatus();
-    fetchTestimonies();
+    fetchMessages();
   }, []);
 
   const checkAdminStatus = async () => {
@@ -57,7 +60,7 @@ const Testimony = () => {
     }
   };
 
-  const fetchTestimonies = async () => {
+  const fetchMessages = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('testimonials' as any)
@@ -66,7 +69,7 @@ const Testimony = () => {
       .order('created_at', { ascending: false });
     
     if (!error && data) {
-      setTestimonies(data as any);
+      setMessages(data as any);
     }
     setLoading(false);
   };
@@ -95,7 +98,7 @@ const Testimony = () => {
 
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
-        const fileName = `testimony-${Math.random()}.${fileExt}`;
+        const fileName = `message-${Math.random()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
           .from('albums')
           .upload(fileName, imageFile);
@@ -109,7 +112,7 @@ const Testimony = () => {
         imageUrl = publicUrl;
       }
 
-      const testimonyData = {
+      const messageData = {
         title: formData.title,
         content: formData.content,
         author_name: formData.author_name,
@@ -119,16 +122,16 @@ const Testimony = () => {
 
       const { error } = await supabase
         .from('testimonials' as any)
-        .insert([testimonyData]);
+        .insert([messageData]);
 
       if (error) throw error;
-      toast.success('Testimony created successfully');
+      toast.success('Message created successfully');
 
-      fetchTestimonies();
+      fetchMessages();
       setDialogOpen(false);
       resetForm();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save testimony');
+      toast.error(error.message || 'Failed to save message');
     }
   };
 
@@ -149,6 +152,24 @@ const Testimony = () => {
     return content.substring(0, maxLength).trim() + '...';
   };
 
+  // Filter messages based on active tab and search
+  const filteredMessages = messages.filter((message) => {
+    const matchesSearch = 
+      searchQuery === "" ||
+      message.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      message.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      message.author_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (message.author_role && message.author_role.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Tab-based filtering
+    if (activeTab === "recent") return matchesSearch;
+    if (activeTab === "topic") return matchesSearch; // Future: filter by topic/category
+    if (activeTab === "speaker") return matchesSearch; // Future: filter by speaker
+    if (activeTab === "scripture") return matchesSearch; // Future: filter by scripture reference
+
+    return matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -157,12 +178,12 @@ const Testimony = () => {
       <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-br from-primary via-primary/90 to-primary/70">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20"></div>
         <div className="relative z-10 text-center text-primary-foreground px-4 max-w-3xl">
-          <Quote className="w-16 h-16 mx-auto mb-4 animate-in fade-in duration-500" />
+          <BookOpen className="w-16 h-16 mx-auto mb-4 animate-in fade-in duration-500" />
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Testimonies
+            Messages
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/90 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            Stories of faith, hope, and transformation in our community
+            Sermons, teachings, and messages that inspire and transform lives
           </p>
         </div>
       </section>
@@ -171,104 +192,137 @@ const Testimony = () => {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
           {isAdmin && (
-            <div className="mb-12 flex justify-center">
+            <div className="mb-8 flex justify-center">
               <Button 
                 onClick={() => { resetForm(); setDialogOpen(true); }}
                 size="lg"
                 className="shadow-lg hover:shadow-xl transition-all"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Share Your Testimony
+                Share a Message
               </Button>
             </div>
           )}
 
-          {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-pulse space-y-4">
-                <Quote className="w-12 h-12 mx-auto text-muted-foreground" />
-                <p className="text-muted-foreground">Loading testimonies...</p>
+          {/* Tabs and Search */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-8">
+              <TabsList className="grid w-full md:w-auto grid-cols-4 bg-muted">
+                <TabsTrigger value="recent" className="gap-2">
+                  Recent
+                </TabsTrigger>
+                <TabsTrigger value="topic" className="gap-2">
+                  Topic
+                </TabsTrigger>
+                <TabsTrigger value="speaker" className="gap-2">
+                  Speaker
+                </TabsTrigger>
+                <TabsTrigger value="scripture" className="gap-2">
+                  Scripture
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search media..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
               </div>
             </div>
-          ) : testimonies.length === 0 ? (
-            <div className="text-center py-20 max-w-md mx-auto">
-              <Quote className="w-20 h-20 mx-auto mb-6 text-muted-foreground" />
-              <h3 className="text-2xl font-bold mb-3">No Testimonies Yet</h3>
-              <p className="text-muted-foreground text-lg">
-                Be the first to share your story of faith and inspire others in our community.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {testimonies.map((testimony, index) => (
-                <Card 
-                  key={testimony.id} 
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/50 group animate-in fade-in slide-in-from-bottom-4"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {testimony.image_url && (
-                    <div 
-                      className="relative h-64 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/50 flex items-center justify-center cursor-pointer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setLightboxImage(testimony.image_url!);
-                        setLightboxOpen(true);
-                      }}
+
+            <TabsContent value={activeTab} className="mt-0">
+              {loading ? (
+                <div className="text-center py-20">
+                  <div className="animate-pulse space-y-4">
+                    <BookOpen className="w-12 h-12 mx-auto text-muted-foreground" />
+                    <p className="text-muted-foreground">Loading messages...</p>
+                  </div>
+                </div>
+              ) : filteredMessages.length === 0 ? (
+                <div className="text-center py-20 max-w-md mx-auto">
+                  <BookOpen className="w-20 h-20 mx-auto mb-6 text-muted-foreground" />
+                  <h3 className="text-2xl font-bold mb-3">
+                    {searchQuery ? "No Messages Found" : "No Messages Yet"}
+                  </h3>
+                  <p className="text-muted-foreground text-lg">
+                    {searchQuery 
+                      ? "Try adjusting your search terms or filters." 
+                      : "Check back soon for inspiring messages and sermons."}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredMessages.map((message, index) => (
+                    <Card 
+                      key={message.id} 
+                      className="overflow-hidden hover:shadow-2xl transition-all duration-500 border hover:border-primary/50 group animate-in fade-in slide-in-from-bottom-4"
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <img 
-                        src={testimony.image_url} 
-                        alt={testimony.title}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-                          <Quote className="w-8 h-8 text-white" />
+                      {message.image_url ? (
+                        <div 
+                          className="relative h-56 overflow-hidden cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLightboxImage(message.image_url!);
+                            setLightboxOpen(true);
+                          }}
+                        >
+                          <img 
+                            src={message.image_url} 
+                            alt={message.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         </div>
-                      </div>
-                    </div>
-                  )}
-                  <CardContent className="p-8 space-y-4 bg-card">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        {format(new Date(testimony.created_at), 'MMMM d, yyyy')}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        {testimony.author_name}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
-                        {testimony.title}
-                      </h3>
-                      <p className="text-foreground/80 leading-relaxed line-clamp-4">
-                        {getExcerpt(testimony.content, 200)}
-                      </p>
-                    </div>
+                      ) : (
+                        <div className="relative h-56 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                          <BookOpen className="w-16 h-16 text-primary/30" />
+                        </div>
+                      )}
+                      
+                      <CardContent className="p-5 space-y-3">
+                        <h3 className="font-bold text-lg leading-tight line-clamp-2 min-h-[3.5rem] group-hover:text-primary transition-colors">
+                          {message.title}
+                        </h3>
+                        
+                        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Mic className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{message.author_name}</span>
+                          </div>
+                          {message.author_role && (
+                            <div className="flex items-center gap-2">
+                              <BookMarked className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{message.author_role}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 flex-shrink-0" />
+                            <span>{format(new Date(message.created_at), 'MMM d, yyyy')}</span>
+                          </div>
+                        </div>
 
-                    {testimony.author_role && (
-                      <div className="pt-2">
-                        <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                          {testimony.author_role}
-                        </span>
-                      </div>
-                    )}
+                        <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+                          {getExcerpt(message.content, 100)}
+                        </p>
 
-                    <Link 
-                      to={`/testimony/${testimony.id}`}
-                      className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all group/link pt-2"
-                    >
-                      Read Full Story
-                      <ArrowRight className="w-5 h-5 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                        <Link 
+                          to={`/testimony/${message.id}`}
+                          className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all group/link pt-2"
+                        >
+                          Read More
+                          <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
@@ -276,56 +330,56 @@ const Testimony = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Share Your Testimony</DialogTitle>
+            <DialogTitle className="text-2xl">Share a Message</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-base">Title *</Label>
+              <Label htmlFor="title" className="text-base">Message Title *</Label>
               <Input
                 id="title"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Give your testimony a meaningful title"
+                placeholder="e.g., Faith: The Story of a God and His People"
                 className="text-lg"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="content" className="text-base">Your Story *</Label>
+              <Label htmlFor="content" className="text-base">Message Description *</Label>
               <Textarea
                 id="content"
                 required
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 rows={10}
-                placeholder="Share your journey, experiences, and how faith has impacted your life..."
+                placeholder="Provide a summary or key points of the message..."
                 className="resize-none"
               />
               <p className="text-sm text-muted-foreground">
-                Separate paragraphs with blank lines for better readability
+                Share the main themes, scriptures, or takeaways from this message
               </p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="author" className="text-base">Your Name *</Label>
+                <Label htmlFor="author" className="text-base">Speaker/Author *</Label>
                 <Input
                   id="author"
                   required
                   value={formData.author_name}
                   onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                  placeholder="John Doe"
+                  placeholder="Pastor John Smith"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-base">Role (optional)</Label>
+                <Label htmlFor="role" className="text-base">Scripture/Topic (optional)</Label>
                 <Input
                   id="role"
                   value={formData.author_role}
                   onChange={(e) => setFormData({ ...formData, author_role: e.target.value })}
-                  placeholder="e.g., Church Member, Volunteer"
+                  placeholder="e.g., John 3:16 or Advent Series"
                 />
               </div>
             </div>
@@ -352,7 +406,7 @@ const Testimony = () => {
                 Cancel
               </Button>
               <Button type="submit" size="lg">
-                Share Testimony
+                Share Message
               </Button>
             </div>
           </form>
