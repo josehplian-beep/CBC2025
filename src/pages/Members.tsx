@@ -121,9 +121,9 @@ const Members = () => {
   const [cityFilter, setCityFilter] = useState("");
   const [countyFilter, setCountyFilter] = useState("");
   const [groupByFamily, setGroupByFamily] = useState(false);
-  const [genderFilter, setGenderFilter] = useState("");
-  const [serviceYearFilter, setServiceYearFilter] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
+  const [serviceYearFilter, setServiceYearFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
@@ -271,21 +271,21 @@ const Members = () => {
     }
 
     // Filter by gender
-    if (genderFilter) {
+    if (genderFilter && genderFilter !== "all") {
       filtered = filtered.filter(member =>
         member.gender?.toLowerCase() === genderFilter.toLowerCase()
       );
     }
 
     // Filter by service year
-    if (serviceYearFilter) {
+    if (serviceYearFilter && serviceYearFilter !== "all") {
       filtered = filtered.filter(member =>
         member.service_year?.includes(serviceYearFilter)
       );
     }
 
     // Filter by department
-    if (departmentFilter) {
+    if (departmentFilter && departmentFilter !== "all") {
       filtered = filtered.filter(member =>
         member.department?.toLowerCase().includes(departmentFilter.toLowerCase())
       );
@@ -298,9 +298,9 @@ const Members = () => {
     setSearchQuery("");
     setCityFilter("");
     setCountyFilter("");
-    setGenderFilter("");
-    setServiceYearFilter("");
-    setDepartmentFilter("");
+    setGenderFilter("all");
+    setServiceYearFilter("all");
+    setDepartmentFilter("all");
   };
 
   const maleCount = members.filter(m => m.gender?.toLowerCase() === 'male').length;
@@ -885,7 +885,7 @@ const Members = () => {
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="all">Any</SelectItem>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
                   </SelectContent>
@@ -899,7 +899,7 @@ const Members = () => {
                     <SelectValue placeholder="All Years" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Years</SelectItem>
+                    <SelectItem value="all">All Years</SelectItem>
                     {uniqueServiceYears.map((year) => (
                       <SelectItem key={year} value={year}>
                         {year}
@@ -916,7 +916,7 @@ const Members = () => {
                     <SelectValue placeholder="All Departments" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Departments</SelectItem>
+                    <SelectItem value="all">All Departments</SelectItem>
                     {uniqueDepartments.map((dept) => (
                       <SelectItem key={dept} value={dept}>
                         {dept}
@@ -954,12 +954,19 @@ const Members = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(searchQuery || genderFilter || serviceYearFilter || departmentFilter || cityFilter || countyFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || countyFilter) && (
                 <Badge variant="secondary" className="gap-1">
-                  {[searchQuery, genderFilter, serviceYearFilter, departmentFilter, cityFilter, countyFilter].filter(Boolean).length} filter(s) active
+                  {[
+                    searchQuery, 
+                    genderFilter !== "all" ? genderFilter : "", 
+                    serviceYearFilter !== "all" ? serviceYearFilter : "", 
+                    departmentFilter !== "all" ? departmentFilter : "", 
+                    cityFilter, 
+                    countyFilter
+                  ].filter(Boolean).length} filter(s) active
                 </Badge>
               )}
-              {(searchQuery || genderFilter || serviceYearFilter || departmentFilter || cityFilter || countyFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || countyFilter) && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -981,7 +988,7 @@ const Members = () => {
         <div className="flex flex-wrap justify-between items-center gap-4">
           <h2 className="font-display text-2xl font-bold">
             {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-            {(searchQuery || cityFilter || countyFilter || genderFilter || serviceYearFilter || departmentFilter) && (
+            {(searchQuery || cityFilter || countyFilter || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all")) && (
               <span className="text-muted-foreground font-normal text-lg ml-2">
                 (filtered from {members.length})
               </span>
