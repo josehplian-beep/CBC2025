@@ -105,11 +105,12 @@ const MemberProfile = () => {
   const parseAddress = (address: string | null) => {
     if (!address) return { street: null, street2: null, city: null, county: null, state: null, zip: null };
     
-    const parts = address.split('|||');
+    const parts = address.split('|||').map(p => p?.trim()).filter(p => p);
     const street = parts[0] || null;
     const street2 = parts[1] || null;
     const city = parts[2] || null;
-    const county = parts[3]?.replace(' County', '') || null;
+    // Extract county name, remove " County" suffix if present
+    const county = parts[3] ? parts[3].replace(/\s*County\s*$/i, '').trim() : null;
     const state = parts[4] || null;
     const zip = parts[5] || null;
     
@@ -259,9 +260,12 @@ const MemberProfile = () => {
                     {address.street && <p>{address.street}</p>}
                     {address.street2 && <p>{address.street2}</p>}
                     <p>
-                      {address.city && `${address.city}, `}
-                      {address.county && `${address.county} County, `}
-                      {address.state} {address.zip}
+                      {[
+                        address.city,
+                        address.county ? `${address.county} County` : null,
+                        address.state,
+                        address.zip
+                      ].filter(Boolean).join(', ')}
                     </p>
                   </div>
                 </div>
