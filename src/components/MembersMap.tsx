@@ -50,8 +50,51 @@ export function MembersMap({ members }: MembersMapProps) {
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const navigate = useNavigate();
 
+  // Cache key prefix for localStorage
+  const GEOCODE_CACHE_KEY = 'geocode_cache_';
+  const CACHE_EXPIRY_DAYS = 30; // Cache expires after 30 days
+
+  // Get cached geocode result
+  const getCachedGeocode = (address: string): { lat: number; lng: number } | null => {
+    try {
+      const cached = localStorage.getItem(GEOCODE_CACHE_KEY + address);
+      if (cached) {
+        const { coords, timestamp } = JSON.parse(cached);
+        const age = Date.now() - timestamp;
+        const maxAge = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+        
+        if (age < maxAge) {
+          return coords;
+        }
+        // Remove expired cache
+        localStorage.removeItem(GEOCODE_CACHE_KEY + address);
+      }
+    } catch (err) {
+      console.error('Cache read error:', err);
+    }
+    return null;
+  };
+
+  // Save geocode result to cache
+  const setCachedGeocode = (address: string, coords: { lat: number; lng: number }) => {
+    try {
+      localStorage.setItem(
+        GEOCODE_CACHE_KEY + address,
+        JSON.stringify({ coords, timestamp: Date.now() })
+      );
+    } catch (err) {
+      console.error('Cache write error:', err);
+    }
+  };
+
   // Geocode addresses using Nominatim (OpenStreetMap)
   const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+    // Check cache first
+    const cached = getCachedGeocode(address);
+    if (cached) {
+      return cached;
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
@@ -70,10 +113,13 @@ export function MembersMap({ members }: MembersMapProps) {
       const data = await response.json();
       
       if (data && data.length > 0) {
-        return {
+        const coords = {
           lat: parseFloat(data[0].lat),
           lng: parseFloat(data[0].lon)
         };
+        // Cache the result
+        setCachedGeocode(address, coords);
+        return coords;
       }
       return null;
     } catch (err) {
