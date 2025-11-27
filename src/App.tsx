@@ -40,6 +40,7 @@ import AlbumGallery from "./pages/AlbumGallery";
 import AdminSchoolTeachers from "./pages/AdminSchoolTeachers";
 import AdminSchoolTeacherEdit from "./pages/AdminSchoolTeacherEdit";
 import TeacherProfile from "./pages/TeacherProfile";
+import TeacherProfileEnhanced from "./pages/TeacherProfileEnhanced";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminSchoolStudents from "./pages/AdminSchoolStudents";
 import AdminSchoolStudentEdit from "./pages/AdminSchoolStudentEdit";
@@ -104,7 +105,7 @@ const App = () => (
           <Route path="/admin/school/dashboard" element={<ProtectedRoute permission="manage_students"><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeachers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeacherEdit /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/school/teachers/:id" element={<ProtectedRoute permission="manage_students"><TeacherProfile /></ProtectedRoute>} />
+          <Route path="/admin/school/teachers/:id" element={<ProtectedRoute permission="manage_students"><TeacherProfileEnhanced /></ProtectedRoute>} />
           <Route path="/admin/school/students" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudents /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/students/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolStudentEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/classes" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClasses /></AdminLayout></ProtectedRoute>} />
