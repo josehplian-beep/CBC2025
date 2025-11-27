@@ -365,7 +365,7 @@ const AdminTestimonies = () => {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="author_name">Speaker/Author *</Label>
+                  <Label htmlFor="author_name">Writer/Author *</Label>
                   <Input
                     id="author_name"
                     value={formData.author_name}
@@ -374,7 +374,7 @@ const AdminTestimonies = () => {
                     required
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    This will be used for Speaker filtering on the Messages page
+                    This will be used for Writer filtering on the Messages page
                   </p>
                 </div>
 

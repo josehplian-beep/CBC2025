@@ -37,9 +37,10 @@ const Testimony = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [activeTab, setActiveTab] = useState("recent");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpeaker, setSelectedSpeaker] = useState<string>("all");
+  const [selectedWriter, setSelectedWriter] = useState<string>("all");
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedScripture, setSelectedScripture] = useState<string>("all");
+  const [selectedSeries, setSelectedSeries] = useState<string>("all");
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -156,8 +157,17 @@ const Testimony = () => {
     return content.substring(0, maxLength).trim() + '...';
   };
 
-  // Extract unique speakers
-  const uniqueSpeakers = Array.from(new Set(messages.map(m => m.author_name))).sort();
+  // Extract unique writers
+  const uniqueWriters = Array.from(new Set(messages.map(m => m.author_name))).sort();
+
+  // Extract series (topics ending with "Series" or similar patterns)
+  const uniqueSeries = Array.from(
+    new Set(
+      messages
+        .map(m => m.author_role)
+        .filter(role => role && (role.toLowerCase().includes('series') || role.toLowerCase().includes('collection')))
+    )
+  ).sort();
 
   // Extract unique topics from author_role field
   const uniqueTopics = Array.from(
@@ -202,9 +212,9 @@ const Testimony = () => {
       return matchesSearch;
     }
     
-    if (activeTab === "speaker") {
-      const matchesSpeaker = selectedSpeaker === "all" || message.author_name === selectedSpeaker;
-      return matchesSearch && matchesSpeaker;
+    if (activeTab === "writer") {
+      const matchesWriter = selectedWriter === "all" || message.author_name === selectedWriter;
+      return matchesSearch && matchesWriter;
     }
     
     if (activeTab === "topic") {
@@ -227,11 +237,24 @@ const Testimony = () => {
     return matchesSearch;
   });
 
+  // Group messages by series
+  const messagesBySeries = messages.reduce((acc, message) => {
+    if (message.author_role && (message.author_role.toLowerCase().includes('series') || message.author_role.toLowerCase().includes('collection'))) {
+      const series = message.author_role;
+      if (!acc[series]) {
+        acc[series] = [];
+      }
+      acc[series].push(message);
+    }
+    return acc;
+  }, {} as Record<string, Message[]>);
+
   // Reset secondary filters when tab changes
   useEffect(() => {
-    setSelectedSpeaker("all");
+    setSelectedWriter("all");
     setSelectedTopic("all");
     setSelectedScripture("all");
+    setSelectedSeries("all");
   }, [activeTab]);
 
   return (
@@ -239,17 +262,22 @@ const Testimony = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-br from-primary via-primary/90 to-primary/70">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20"></div>
-        <div className="relative z-10 text-center text-primary-foreground px-4 max-w-3xl">
-          <BookOpen className="w-16 h-16 mx-auto mb-4 animate-in fade-in duration-500" />
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Messages
-          </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/90 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            Sermons, teachings, and messages that inspire and transform lives
-          </p>
+      <section className="relative h-[400px] flex items-center justify-center overflow-hidden mt-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20 animate-pulse"></div>
         </div>
+        <div className="relative z-10 text-center text-primary-foreground px-4 max-w-4xl">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <BookOpen className="w-20 h-20 mx-auto mb-6 drop-shadow-2xl" />
+            <h1 className="font-display text-6xl md:text-7xl font-bold mb-6 drop-shadow-lg">
+              Messages
+            </h1>
+            <p className="text-xl md:text-2xl text-primary-foreground/95 font-medium max-w-2xl mx-auto">
+              Sermons, teachings, and messages that inspire and transform lives
+            </p>
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
       </section>
 
       {/* Main Content */}
@@ -268,20 +296,71 @@ const Testimony = () => {
             </div>
           )}
 
+          {/* Series Showcase */}
+          {Object.keys(messagesBySeries).length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-3xl font-display font-bold mb-6 flex items-center gap-3">
+                <BookMarked className="w-8 h-8 text-primary" />
+                Message Series
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Object.entries(messagesBySeries).map(([series, seriesMessages], index) => (
+                  <div
+                    key={series}
+                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl animate-in fade-in slide-in-from-bottom-4"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          <BookMarked className="w-6 h-6 text-primary" />
+                        </div>
+                        <span className="text-xs font-bold bg-primary text-primary-foreground px-3 py-1 rounded-full">
+                          {seriesMessages.length} {seriesMessages.length === 1 ? 'Message' : 'Messages'}
+                        </span>
+                      </div>
+                      <h3 className="font-display text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                        {series}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Explore this collection of related messages
+                      </p>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-between group/btn hover:bg-primary/10"
+                        onClick={() => {
+                          setActiveTab("topic");
+                          setSelectedTopic(series);
+                        }}
+                      >
+                        View Series
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Tabs and Search */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
-              <TabsList className="grid w-full md:w-auto grid-cols-4 bg-muted">
-                <TabsTrigger value="recent" className="gap-2">
+              <TabsList className="grid w-full md:w-auto grid-cols-4 bg-muted/50 backdrop-blur-sm p-1 rounded-xl shadow-lg">
+                <TabsTrigger value="recent" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                  <Calendar className="w-4 h-4" />
                   Recent
                 </TabsTrigger>
-                <TabsTrigger value="topic" className="gap-2">
+                <TabsTrigger value="topic" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                  <BookMarked className="w-4 h-4" />
                   Topic
                 </TabsTrigger>
-                <TabsTrigger value="speaker" className="gap-2">
-                  Speaker
+                <TabsTrigger value="writer" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                  <User className="w-4 h-4" />
+                  Writer
                 </TabsTrigger>
-                <TabsTrigger value="scripture" className="gap-2">
+                <TabsTrigger value="scripture" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
+                  <BookOpen className="w-4 h-4" />
                   Scripture
                 </TabsTrigger>
               </TabsList>
@@ -298,28 +377,28 @@ const Testimony = () => {
             </div>
 
             {/* Secondary Filters */}
-            {activeTab === "speaker" && uniqueSpeakers.length > 0 && (
-              <div className="mb-6 flex items-center gap-3">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={selectedSpeaker} onValueChange={setSelectedSpeaker}>
-                  <SelectTrigger className="w-full md:w-[300px]">
-                    <SelectValue placeholder="Filter by speaker" />
+            {activeTab === "writer" && uniqueWriters.length > 0 && (
+              <div className="mb-6 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Filter className="h-4 w-4 text-primary" />
+                <Select value={selectedWriter} onValueChange={setSelectedWriter}>
+                  <SelectTrigger className="w-full md:w-[300px] bg-card border-primary/20 hover:border-primary/40 transition-colors">
+                    <SelectValue placeholder="Filter by writer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Speakers</SelectItem>
-                    {uniqueSpeakers.map((speaker) => (
-                      <SelectItem key={speaker} value={speaker}>
-                        {speaker}
+                    <SelectItem value="all">All Writers</SelectItem>
+                    {uniqueWriters.map((writer) => (
+                      <SelectItem key={writer} value={writer}>
+                        {writer}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {selectedSpeaker !== "all" && (
+                {selectedWriter !== "all" && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSelectedSpeaker("all")}
-                    className="gap-2"
+                    onClick={() => setSelectedWriter("all")}
+                    className="gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-4 w-4" />
                     Clear
@@ -329,10 +408,10 @@ const Testimony = () => {
             )}
 
             {activeTab === "topic" && uniqueTopics.length > 0 && (
-              <div className="mb-6 flex items-center gap-3">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+              <div className="mb-6 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Filter className="h-4 w-4 text-primary" />
                 <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                  <SelectTrigger className="w-full md:w-[300px]">
+                  <SelectTrigger className="w-full md:w-[300px] bg-card border-primary/20 hover:border-primary/40 transition-colors">
                     <SelectValue placeholder="Filter by topic" />
                   </SelectTrigger>
                   <SelectContent>
@@ -349,7 +428,7 @@ const Testimony = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedTopic("all")}
-                    className="gap-2"
+                    className="gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-4 w-4" />
                     Clear
@@ -359,10 +438,10 @@ const Testimony = () => {
             )}
 
             {activeTab === "scripture" && uniqueScriptures.length > 0 && (
-              <div className="mb-6 flex items-center gap-3">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+              <div className="mb-6 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Filter className="h-4 w-4 text-primary" />
                 <Select value={selectedScripture} onValueChange={setSelectedScripture}>
-                  <SelectTrigger className="w-full md:w-[300px]">
+                  <SelectTrigger className="w-full md:w-[300px] bg-card border-primary/20 hover:border-primary/40 transition-colors">
                     <SelectValue placeholder="Filter by scripture" />
                   </SelectTrigger>
                   <SelectContent>
@@ -379,7 +458,7 @@ const Testimony = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedScripture("all")}
-                    className="gap-2"
+                    className="gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-4 w-4" />
                     Clear
@@ -409,35 +488,68 @@ const Testimony = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredMessages.map((message, index) => (
                     <Link
                       key={message.id}
                       to={`/testimony/${message.id}`}
-                      className="group block"
+                      className="group block hover-scale"
                     >
                       <Card 
-                        className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-card animate-in fade-in slide-in-from-bottom-4"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 border-border/50 hover:border-primary/50 bg-card/95 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-8"
+                        style={{ animationDelay: `${index * 75}ms` }}
                       >
-                        {message.image_url ? (
-                          <div className="relative aspect-video overflow-hidden bg-muted">
-                            <img 
-                              src={message.image_url} 
-                              alt={message.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        ) : (
-                          <div className="relative aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                            <BookOpen className="w-16 h-16 text-primary/20" />
-                          </div>
-                        )}
+                        <div className="relative">
+                          {message.image_url ? (
+                            <div className="relative aspect-video overflow-hidden bg-muted">
+                              <img 
+                                src={message.image_url} 
+                                alt={message.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            </div>
+                          ) : (
+                            <div className="relative aspect-video bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/15 group-hover:to-primary/10 transition-all duration-500">
+                              <BookOpen className="w-20 h-20 text-primary/30 group-hover:text-primary/50 transition-colors duration-500" />
+                            </div>
+                          )}
+                          {message.author_role && (message.author_role.toLowerCase().includes('series') || message.author_role.toLowerCase().includes('collection')) && (
+                            <div className="absolute top-3 left-3 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                              <BookMarked className="w-3 h-3" />
+                              SERIES
+                            </div>
+                          )}
+                        </div>
                         
-                        <CardContent className="p-5">
-                          <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                        <CardContent className="p-6">
+                          <h3 className="font-display font-bold text-xl leading-tight group-hover:text-primary transition-colors duration-300 mb-3 line-clamp-2">
                             {message.title}
                           </h3>
+                          
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                            <div className="flex items-center gap-1.5">
+                              <User className="w-4 h-4" />
+                              <span className="font-medium">{message.author_name}</span>
+                            </div>
+                            <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-4 h-4" />
+                              {format(new Date(message.created_at), 'MMM d, yyyy')}
+                            </div>
+                          </div>
+                          
+                          {message.author_role && (
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold">
+                              <BookMarked className="w-3 h-3" />
+                              {message.author_role}
+                            </div>
+                          )}
+                          
+                          <div className="mt-4 flex items-center gap-2 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Read More
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>
@@ -486,13 +598,13 @@ const Testimony = () => {
             
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="author" className="text-base">Speaker/Author *</Label>
+                <Label htmlFor="author" className="text-base">Writer/Author *</Label>
                 <Input
                   id="author"
                   required
                   value={formData.author_name}
                   onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                  placeholder="Pastor John Smith"
+                  placeholder="e.g., Pastor John Smith"
                 />
               </div>
               
@@ -502,7 +614,7 @@ const Testimony = () => {
                   id="role"
                   value={formData.author_role}
                   onChange={(e) => setFormData({ ...formData, author_role: e.target.value })}
-                  placeholder="e.g., John 3:16 or Advent Series"
+                  placeholder="e.g., Genesis 1:1 or Advent Series"
                 />
               </div>
             </div>
