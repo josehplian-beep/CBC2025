@@ -33,6 +33,7 @@ const profileFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
   last_name: z.string().min(1, "Last name is required").max(100),
   gender: z.string().min(1, "Gender is required"),
+  baptized: z.string().optional(),
   email: z.string().min(1, "Email is required").email("Invalid email address").max(255),
   area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
   phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
@@ -58,6 +59,7 @@ interface Member {
   email: string | null;
   date_of_birth: string | null;
   gender: string | null;
+  baptized: boolean | null;
   profile_image_url: string | null;
   position: string | null;
   department: string | null;
@@ -82,6 +84,7 @@ const ProfileEdit = () => {
       first_name: "",
       last_name: "",
       gender: "",
+      baptized: "",
       email: "",
       area_code: "",
       phone_number: "",
@@ -179,6 +182,7 @@ const ProfileEdit = () => {
         first_name: firstName,
         last_name: lastName,
         gender: memberData.gender || "",
+        baptized: memberData.baptized === true ? "yes" : memberData.baptized === false ? "no" : "",
         email: memberData.email || "",
         area_code: areaCode,
         phone_number: phoneNumber,
@@ -305,6 +309,7 @@ const ProfileEdit = () => {
         email: values.email,
         date_of_birth: birthDate,
         gender: values.gender,
+        baptized: values.baptized === "yes" ? true : values.baptized === "no" ? false : null,
         position: values.position,
         department: values.department || null,
         service_year: values.service_year || null,
@@ -472,6 +477,28 @@ const ProfileEdit = () => {
                           <SelectContent>
                             <SelectItem value="Male">Male</SelectItem>
                             <SelectItem value="Female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="baptized"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Baptized</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

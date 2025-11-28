@@ -18,6 +18,7 @@ interface Member {
   email: string | null;
   date_of_birth: string | null;
   gender: string | null;
+  baptized: boolean | null;
   profile_image_url: string | null;
   position: string | null;
   department: string | null;
@@ -203,6 +204,13 @@ const MemberProfile = () => {
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground uppercase mb-1">GENDER</p>
                   <p className="text-base text-foreground">{member.gender}</p>
+                </div>
+              )}
+              
+              {member.baptized !== null && (
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground uppercase mb-1">BAPTIZED</p>
+                  <p className="text-base text-foreground">{member.baptized ? "Yes" : "No"}</p>
                 </div>
               )}
               
