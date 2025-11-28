@@ -52,6 +52,7 @@ import AdminRoleManagement from "./pages/AdminRoleManagement";
 import AdminEvents from "./pages/AdminEvents";
 import AdminMessages from "./pages/AdminMessages";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TeacherDashboard from "./pages/TeacherDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin/dashboard" element={<ProtectedRoute permission="view_admin_panel"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/teacher/dashboard" element={<ProtectedRoute permission="take_attendance"><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/admin/albums" element={<ProtectedRoute permission="manage_albums"><AdminLayout><AdminAlbums /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/events" element={<ProtectedRoute permission="manage_events"><AdminLayout><AdminEvents /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/messages" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminMessages /></AdminLayout></ProtectedRoute>} />
