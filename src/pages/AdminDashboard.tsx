@@ -231,11 +231,11 @@ export default function AdminDashboard() {
         roles: ['administrator', 'editor'] 
       },
       { 
-        title: "Testimonials", 
+        title: "Messages", 
         value: stats.testimonials, 
-        icon: MessageSquare, 
+        icon: MessageSquare,
         color: "text-primary", 
-        link: "/admin/testimonials",
+        link: "/admin/messages",
         roles: ['administrator', 'editor'] 
       },
       { 
