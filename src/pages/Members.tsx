@@ -50,6 +50,7 @@ const memberFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
   last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
   gender: z.string().min(1, "Gender is required"),
+  baptized: z.string().optional(),
   email: z.string().min(1, "Email is required").email("Invalid email address").max(255, "Email must be less than 255 characters"),
   area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
   phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
@@ -101,6 +102,7 @@ interface Member {
   date_of_birth: string | null;
   church_groups: string[] | null;
   gender: string | null;
+  baptized: boolean | null;
   profile_image_url: string | null;
   position: string | null;
   department: string | null;
@@ -142,6 +144,7 @@ const Members = () => {
       first_name: "",
       last_name: "",
       gender: "",
+      baptized: "",
       email: "",
       area_code: "",
       phone_number: "",
@@ -337,6 +340,7 @@ const Members = () => {
       email: values.email || null,
       date_of_birth: birthDate,
       gender: values.gender || null,
+      baptized: values.baptized === "yes" ? true : values.baptized === "no" ? false : null,
       position: values.position || null,
       department: values.department || null,
       service_year: values.service_year || null,
@@ -425,6 +429,7 @@ const Members = () => {
       first_name: firstName,
       last_name: lastName,
       gender: member.gender || "",
+      baptized: member.baptized === true ? "yes" : member.baptized === false ? "no" : "",
       email: member.email || "",
       area_code: areaCode,
       phone_number: phoneNumber,
@@ -1428,16 +1433,39 @@ const Members = () => {
                               </FormItem>
                             )}
                           />
-                          <div>
-                            <Label className="text-sm font-semibold">Profile Image (Optional)</Label>
-                            <div className="mt-2">
-                              <Input 
-                                type="file" 
-                                accept="image/*"
-                                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
-                              />
-                              <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
-                            </div>
+                          <FormField
+                            control={form.control}
+                            name="baptized"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Baptized</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="bg-muted/30 border-border/50 hover:border-primary/50 transition-colors">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="yes">Yes</SelectItem>
+                                    <SelectItem value="no">No</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Profile Image Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Profile Image (Optional)</Label>
+                          <div className="mt-2">
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
                           </div>
                         </div>
 
