@@ -207,14 +207,24 @@ export default function AdminSchoolTeachers() {
                       </div>
                     )}
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-11 rounded-xl border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all"
-                    onClick={() => navigate(`/admin/school/teachers/${teacher.id}/edit`)}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit Teacher
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-11 rounded-xl border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all"
+                      onClick={() => navigate(`/admin/school/teachers/${teacher.id}`)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      View Profile
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full h-11 rounded-xl hover:bg-secondary"
+                      onClick={() => navigate(`/admin/school/teachers/${teacher.id}/edit`)}
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
