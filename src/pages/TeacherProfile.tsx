@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, ArrowLeft, Edit, Users, BookOpen, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Mail, Phone, ArrowLeft, Edit, Users, BookOpen, Calendar as CalendarIcon, Check, X, Clock, AlertCircle } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermissions";
+import { format } from "date-fns";
 
 interface Teacher {
   id: string;
@@ -45,8 +49,16 @@ const TeacherProfile = () => {
   const [classes, setClasses] = useState<Class[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Attendance states
+  const [selectedClass, setSelectedClass] = useState<string>("");
+  const [attendanceDate, setAttendanceDate] = useState<Date>(new Date());
+  const [classStudents, setClassStudents] = useState<Student[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const canEdit = can("manage_students");
+  const canTakeAttendance = can("take_attendance");
 
   useEffect(() => {
     if (id) {
@@ -128,6 +140,90 @@ const TeacherProfile = () => {
       navigate("/admin/school/teachers");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchClassStudents = async (classId: string) => {
+    try {
+      const { data: studentClassData, error: studentClassError } = await supabase
+        .from("student_classes")
+        .select("student_id")
+        .eq("class_id", classId);
+
+      if (studentClassError) throw studentClassError;
+
+      const studentIds = studentClassData.map((sc) => sc.student_id);
+
+      if (studentIds.length > 0) {
+        const { data: studentsData, error: studentsError } = await supabase
+          .from("students")
+          .select("*")
+          .in("id", studentIds)
+          .order("full_name");
+
+        if (studentsError) throw studentsError;
+        setClassStudents(studentsData);
+
+        // Initialize attendance records
+        const initialRecords: Record<string, string> = {};
+        studentsData.forEach((student) => {
+          initialRecords[student.id] = "present";
+        });
+        setAttendanceRecords(initialRecords);
+      } else {
+        setClassStudents([]);
+        setAttendanceRecords({});
+      }
+    } catch (error: any) {
+      console.error("Error fetching class students:", error);
+      toast.error("Failed to load class students");
+    }
+  };
+
+  const handleClassChange = (classId: string) => {
+    setSelectedClass(classId);
+    fetchClassStudents(classId);
+  };
+
+  const handleAttendanceChange = (studentId: string, status: string) => {
+    setAttendanceRecords((prev) => ({
+      ...prev,
+      [studentId]: status,
+    }));
+  };
+
+  const handleSubmitAttendance = async () => {
+    if (!selectedClass || classStudents.length === 0) {
+      toast.error("Please select a class with students");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const attendanceData = classStudents.map((student) => ({
+        class_id: selectedClass,
+        student_id: student.id,
+        date: format(attendanceDate, "yyyy-MM-dd"),
+        status: attendanceRecords[student.id] || "present",
+        taken_by: id,
+      }));
+
+      const { error } = await supabase.from("attendance_records").insert(attendanceData);
+
+      if (error) throw error;
+
+      toast.success("Attendance recorded successfully!");
+      
+      // Reset
+      setSelectedClass("");
+      setClassStudents([]);
+      setAttendanceRecords({});
+    } catch (error: any) {
+      console.error("Error submitting attendance:", error);
+      toast.error("Failed to record attendance");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -272,6 +368,177 @@ const TeacherProfile = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Take Attendance Section */}
+        {canTakeAttendance && classes.length > 0 && (
+          <Card className="mb-8 border-2 shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-green-500/10">
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Take Attendance
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Class and Date Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Class</label>
+                  <Select value={selectedClass} onValueChange={handleClassChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls.id} value={cls.id}>
+                          {cls.class_name} ({cls.student_count} students)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Attendance Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(attendanceDate, "PPP")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={attendanceDate}
+                        onSelect={(date) => date && setAttendanceDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              {/* Student Attendance List */}
+              {classStudents.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold">Mark Attendance ({classStudents.length} students)</h4>
+                      <div className="flex gap-2 text-xs">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          <Check className="h-3 w-3 mr-1" />
+                          Present
+                        </Badge>
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          <X className="h-3 w-3 mr-1" />
+                          Absent
+                        </Badge>
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Late
+                        </Badge>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          Excused
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                      {classStudents.map((student) => (
+                        <Card key={student.id} className="border-2 hover:shadow-md transition-all">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3 flex-1">
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage src={student.photo_url || ""} alt={student.full_name} />
+                                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-sm">
+                                    {student.full_name.split(" ").map((n) => n[0]).join("")}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-semibold">{student.full_name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Age: {new Date().getFullYear() - new Date(student.date_of_birth).getFullYear()}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant={attendanceRecords[student.id] === "present" ? "default" : "outline"}
+                                  className={attendanceRecords[student.id] === "present" ? "bg-green-500 hover:bg-green-600" : ""}
+                                  onClick={() => handleAttendanceChange(student.id, "present")}
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={attendanceRecords[student.id] === "absent" ? "default" : "outline"}
+                                  className={attendanceRecords[student.id] === "absent" ? "bg-red-500 hover:bg-red-600" : ""}
+                                  onClick={() => handleAttendanceChange(student.id, "absent")}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={attendanceRecords[student.id] === "late" ? "default" : "outline"}
+                                  className={attendanceRecords[student.id] === "late" ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                                  onClick={() => handleAttendanceChange(student.id, "late")}
+                                >
+                                  <Clock className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={attendanceRecords[student.id] === "excused" ? "default" : "outline"}
+                                  className={attendanceRecords[student.id] === "excused" ? "bg-blue-500 hover:bg-blue-600" : ""}
+                                  onClick={() => handleAttendanceChange(student.id, "excused")}
+                                >
+                                  <AlertCircle className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedClass("");
+                        setClassStudents([]);
+                        setAttendanceRecords({});
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSubmitAttendance}
+                      disabled={submitting}
+                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                    >
+                      {submitting ? "Submitting..." : "Submit Attendance"}
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {selectedClass && classStudents.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>No students in this class</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Students Section */}
         <Card className="border-2 shadow-lg">
