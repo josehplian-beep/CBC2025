@@ -790,6 +790,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_teacher_of_class: {
+        Args: { _class_id: string; _teacher_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
