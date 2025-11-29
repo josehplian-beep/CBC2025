@@ -308,6 +308,7 @@ const Members = () => {
 
   const maleCount = members.filter(m => m.gender?.toLowerCase() === 'male').length;
   const femaleCount = members.filter(m => m.gender?.toLowerCase() === 'female').length;
+  const baptizedCount = members.filter(m => m.baptized === true).length;
   
   const uniqueServiceYears = Array.from(new Set(members.map(m => m.service_year).filter(Boolean))) as string[];
   const uniqueDepartments = Array.from(new Set(members.map(m => m.department).filter(Boolean))) as string[];
@@ -830,10 +831,10 @@ const Members = () => {
             
             <Card className="border-l-4 border-l-green-500">
               <CardHeader className="pb-3">
-                <CardTitle className="text-xs font-medium text-muted-foreground">Filtered</CardTitle>
+                <CardTitle className="text-xs font-medium text-muted-foreground">Baptized</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{filteredMembers.length}</p>
+                <p className="text-2xl font-bold">{baptizedCount}</p>
               </CardContent>
             </Card>
             
