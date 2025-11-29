@@ -261,148 +261,170 @@ const TeacherProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-24">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={() => navigate("/admin/school/teachers")}>
+      <div className="container mx-auto px-4 py-20 max-w-7xl">
+        {/* Compact Header */}
+        <div className="mb-6 animate-fade-in">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/admin/school/teachers")}
+            className="mb-4 hover-scale"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Teachers
           </Button>
-          {canEdit && (
-            <Button asChild>
-              <Link to={`/admin/school/teachers/${id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-              </Link>
-            </Button>
-          )}
-        </div>
+          
+          {/* Compact Profile Header */}
+          <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-6">
+                <Avatar className="h-20 w-20 border-4 border-primary/20 shadow-md hover-scale transition-all">
+                  <AvatarImage src={teacher.photo_url || ""} alt={teacher.full_name} />
+                  <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                    {teacher.full_name.split(" ").map((n) => n[0]).join("")}
+                  </AvatarFallback>
+                </Avatar>
 
-        {/* Teacher Profile Card */}
-        <Card className="mb-8 overflow-hidden border-2 shadow-xl">
-          <div className="h-32 bg-gradient-to-r from-primary via-accent to-primary/80" />
-          <CardContent className="relative pt-0 px-8 pb-8">
-            <div className="flex flex-col md:flex-row gap-6 -mt-16">
-              <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
-                <AvatarImage src={teacher.photo_url || ""} alt={teacher.full_name} />
-                <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                  {teacher.full_name.split(" ").map((n) => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="flex-1 mt-16 md:mt-0">
-                <h1 className="text-4xl font-display font-bold mb-2">{teacher.full_name}</h1>
-                <Badge className="mb-4 bg-gradient-to-r from-primary to-accent">Teacher</Badge>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  {teacher.email && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                      <a href={`mailto:${teacher.email}`} className="hover:text-primary transition-colors">
-                        {teacher.email}
-                      </a>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h1 className="text-2xl font-bold mb-1">{teacher.full_name}</h1>
+                      <Badge variant="secondary" className="mb-3">
+                        <Users className="h-3 w-3 mr-1" />
+                        Teacher
+                      </Badge>
                     </div>
-                  )}
-                  {teacher.phone && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      <a href={`tel:${teacher.phone}`} className="hover:text-primary transition-colors">
-                        {teacher.phone}
+                    {canEdit && (
+                      <Button size="sm" asChild className="hover-scale">
+                        <Link to={`/admin/school/teachers/${id}/edit`}>
+                          <Edit className="mr-2 h-3 w-3" />
+                          Edit
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                    {teacher.email && (
+                      <a 
+                        href={`mailto:${teacher.email}`} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                      >
+                        <Mail className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                        <span className="truncate">{teacher.email}</span>
                       </a>
+                    )}
+                    {teacher.phone && (
+                      <a 
+                        href={`tel:${teacher.phone}`} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                      >
+                        <Phone className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                        <span>{teacher.phone}</span>
+                      </a>
+                    )}
+                  </div>
+
+                  {teacher.bio && (
+                    <div className="mt-4 p-3 bg-muted/30 rounded-lg border">
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                        {teacher.bio}
+                      </p>
                     </div>
                   )}
                 </div>
-
-                {teacher.bio && (
-                  <>
-                    <Separator className="my-6" />
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">About</h3>
-                      <p className="text-muted-foreground leading-relaxed">{teacher.bio}</p>
-                    </div>
-                  </>
-                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Classes Section */}
-        <Card className="mb-8 border-2 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10">
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Classes ({classes.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {classes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {classes.map((cls) => (
-                  <Card key={cls.id} className="border hover:border-primary transition-all hover:shadow-md">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-lg mb-1">{cls.class_name}</h4>
-                          {cls.description && (
-                            <p className="text-sm text-muted-foreground mb-2">{cls.description}</p>
-                          )}
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
-                            <span>{cls.student_count} {cls.student_count === 1 ? "Student" : "Students"}</span>
-                          </div>
+        {/* Classes Grid - More Compact */}
+        <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              Classes
+              <Badge variant="outline" className="ml-2">{classes.length}</Badge>
+            </h2>
+          </div>
+          
+          {classes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {classes.map((cls, index) => (
+                <Card 
+                  key={cls.id} 
+                  className="group border hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1 duration-300 animate-scale-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold mb-1 truncate group-hover:text-primary transition-colors">
+                          {cls.class_name}
+                        </h4>
+                        {cls.description && (
+                          <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
+                            {cls.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Users className="h-3 w-3" />
+                          <span>{cls.student_count} student{cls.student_count !== 1 ? 's' : ''}</span>
                         </div>
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to={`/admin/school/classes/${cls.id}/edit`}>View</Link>
-                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No classes assigned yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                      <Button size="sm" variant="ghost" asChild className="shrink-0 hover-scale">
+                        <Link to={`/admin/school/classes/${cls.id}/edit`}>
+                          <ArrowLeft className="h-4 w-4 rotate-180" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="py-12 text-center">
+                <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p className="text-sm text-muted-foreground">No classes assigned yet</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-        {/* Take Attendance Section */}
+        {/* Take Attendance Section - Compact and Interactive */}
         {canTakeAttendance && classes.length > 0 && (
-          <Card className="mb-8 border-2 shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-green-500/10">
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
+          <Card className="border-2 shadow-lg animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-primary" />
                 Take Attendance
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Class and Date Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Class</label>
+            <CardContent className="space-y-4">
+              {/* Class and Date Selection - More Compact */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Class</label>
                   <Select value={selectedClass} onValueChange={handleClassChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Choose a class" />
                     </SelectTrigger>
                     <SelectContent>
                       {classes.map((cls) => (
                         <SelectItem key={cls.id} value={cls.id}>
-                          {cls.class_name} ({cls.student_count} students)
+                          {cls.class_name} ({cls.student_count})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Attendance Date</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Date</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                      <Button variant="outline" className="h-9 w-full justify-start text-left font-normal text-sm">
+                        <CalendarIcon className="mr-2 h-3.5 w-3.5" />
                         {format(attendanceDate, "PPP")}
                       </Button>
                     </PopoverTrigger>
@@ -418,98 +440,95 @@ const TeacherProfile = () => {
                 </div>
               </div>
 
-              {/* Student Attendance List */}
+              {/* Student Attendance List - Compact Cards */}
               {classStudents.length > 0 && (
                 <>
                   <Separator />
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-semibold">Mark Attendance ({classStudents.length} students)</h4>
-                      <div className="flex gap-2 text-xs">
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          <Check className="h-3 w-3 mr-1" />
-                          Present
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{classStudents.length} Students</span>
+                      <div className="flex gap-1.5">
+                        <Badge variant="outline" className="h-6 text-xs bg-green-50 text-green-700 border-green-200">
+                          <Check className="h-3 w-3 mr-1" />P
                         </Badge>
-                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                          <X className="h-3 w-3 mr-1" />
-                          Absent
+                        <Badge variant="outline" className="h-6 text-xs bg-red-50 text-red-700 border-red-200">
+                          <X className="h-3 w-3 mr-1" />A
                         </Badge>
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Late
+                        <Badge variant="outline" className="h-6 text-xs bg-yellow-50 text-yellow-700 border-yellow-200">
+                          <Clock className="h-3 w-3 mr-1" />L
                         </Badge>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          Excused
+                        <Badge variant="outline" className="h-6 text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <AlertCircle className="h-3 w-3 mr-1" />E
                         </Badge>
                       </div>
                     </div>
 
-                    <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                      {classStudents.map((student) => (
-                        <Card key={student.id} className="border-2 hover:shadow-md transition-all">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3 flex-1">
-                                <Avatar className="h-10 w-10">
-                                  <AvatarImage src={student.photo_url || ""} alt={student.full_name} />
-                                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-sm">
-                                    {student.full_name.split(" ").map((n) => n[0]).join("")}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <p className="font-semibold">{student.full_name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Age: {new Date().getFullYear() - new Date(student.date_of_birth).getFullYear()}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant={attendanceRecords[student.id] === "present" ? "default" : "outline"}
-                                  className={attendanceRecords[student.id] === "present" ? "bg-green-500 hover:bg-green-600" : ""}
-                                  onClick={() => handleAttendanceChange(student.id, "present")}
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant={attendanceRecords[student.id] === "absent" ? "default" : "outline"}
-                                  className={attendanceRecords[student.id] === "absent" ? "bg-red-500 hover:bg-red-600" : ""}
-                                  onClick={() => handleAttendanceChange(student.id, "absent")}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant={attendanceRecords[student.id] === "late" ? "default" : "outline"}
-                                  className={attendanceRecords[student.id] === "late" ? "bg-yellow-500 hover:bg-yellow-600" : ""}
-                                  onClick={() => handleAttendanceChange(student.id, "late")}
-                                >
-                                  <Clock className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant={attendanceRecords[student.id] === "excused" ? "default" : "outline"}
-                                  className={attendanceRecords[student.id] === "excused" ? "bg-blue-500 hover:bg-blue-600" : ""}
-                                  onClick={() => handleAttendanceChange(student.id, "excused")}
-                                >
-                                  <AlertCircle className="h-4 w-4" />
-                                </Button>
-                              </div>
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                      {classStudents.map((student, index) => (
+                        <div 
+                          key={student.id} 
+                          className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-accent/5 transition-all group animate-scale-in"
+                          style={{ animationDelay: `${index * 0.05}s` }}
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <Avatar className="h-9 w-9 border-2 border-primary/10 group-hover:border-primary/30 transition-colors">
+                              <AvatarImage src={student.photo_url || ""} alt={student.full_name} />
+                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-xs">
+                                {student.full_name.split(" ").map((n) => n[0]).join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm truncate">{student.full_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Age {new Date().getFullYear() - new Date(student.date_of_birth).getFullYear()}
+                              </p>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="sm"
+                              variant={attendanceRecords[student.id] === "present" ? "default" : "ghost"}
+                              className={`h-8 w-8 p-0 hover-scale ${attendanceRecords[student.id] === "present" ? "bg-green-500 hover:bg-green-600" : "hover:bg-green-50"}`}
+                              onClick={() => handleAttendanceChange(student.id, "present")}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={attendanceRecords[student.id] === "absent" ? "default" : "ghost"}
+                              className={`h-8 w-8 p-0 hover-scale ${attendanceRecords[student.id] === "absent" ? "bg-red-500 hover:bg-red-600" : "hover:bg-red-50"}`}
+                              onClick={() => handleAttendanceChange(student.id, "absent")}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={attendanceRecords[student.id] === "late" ? "default" : "ghost"}
+                              className={`h-8 w-8 p-0 hover-scale ${attendanceRecords[student.id] === "late" ? "bg-yellow-500 hover:bg-yellow-600" : "hover:bg-yellow-50"}`}
+                              onClick={() => handleAttendanceChange(student.id, "late")}
+                            >
+                              <Clock className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={attendanceRecords[student.id] === "excused" ? "default" : "ghost"}
+                              className={`h-8 w-8 p-0 hover-scale ${attendanceRecords[student.id] === "excused" ? "bg-blue-500 hover:bg-blue-600" : "hover:bg-blue-50"}`}
+                              onClick={() => handleAttendanceChange(student.id, "excused")}
+                            >
+                              <AlertCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
 
                   <Separator />
 
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-end gap-2">
                     <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => {
                         setSelectedClass("");
@@ -520,9 +539,10 @@ const TeacherProfile = () => {
                       Cancel
                     </Button>
                     <Button
+                      size="sm"
                       onClick={handleSubmitAttendance}
                       disabled={submitting}
-                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover-scale"
                     >
                       {submitting ? "Submitting..." : "Submit Attendance"}
                     </Button>
@@ -531,9 +551,9 @@ const TeacherProfile = () => {
               )}
 
               {selectedClass && classStudents.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No students in this class</p>
+                <div className="text-center py-8">
+                  <Users className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No students in this class</p>
                 </div>
               )}
             </CardContent>
