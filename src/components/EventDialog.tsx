@@ -32,7 +32,7 @@ const EVENT_TYPES = [
   "Culture",
   "CBCUSA",
   "Special",
-  "Others"
+  "Outreach"
 ];
 
 const RECURRING_PATTERNS = [
