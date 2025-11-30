@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, Shield, UserPlus, Users, Search, Filter, X, Eye, Lock, Edit, FileCheck, GraduationCap, User, Info } from "lucide-react";
+import { Loader2, Mail, Shield, UserPlus, Users, Search, Filter, X, Eye, Lock, Edit, FileCheck, GraduationCap, User, Info, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,6 +77,8 @@ const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedRoleInfo, setSelectedRoleInfo] = useState<string | null>(null);
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const {
     toast
   } = useToast();
@@ -286,6 +288,47 @@ const AdminUsers = () => {
       });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteUserId) return;
+    setDeleting(true);
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+      if (sessionError || !session) {
+        throw new Error("No session");
+      }
+
+      const supabaseUrl = "https://auztoefiuddwerfbpcpm.supabase.co";
+      const response = await fetch(`${supabaseUrl}/functions/v1/admin-users?action=delete_user`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: deleteUserId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      toast({
+        title: "User deleted",
+        description: "User has been deleted successfully.",
+      });
+
+      await fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete user.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteUserId(null);
     }
   };
   const getRoleBadgeVariant = (role: string) => {
@@ -578,10 +621,16 @@ const AdminUsers = () => {
                           <TableCell className="text-sm text-muted-foreground">{formatDate(user.created_at)}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">{formatDate(user.last_sign_in_at)}</TableCell>
                           <TableCell className="text-right">
-                            <Button variant="ghost" size="sm" onClick={() => setResetUserId(user.email)} className="hover:bg-primary/10">
-                              <Mail className="h-4 w-4 mr-2" />
-                              Reset Password
-                            </Button>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button variant="ghost" size="sm" onClick={() => setResetUserId(user.email)} className="hover:bg-primary/10">
+                                <Mail className="h-4 w-4 mr-2" />
+                                Reset Password
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => setDeleteUserId(user.id)} className="hover:bg-destructive/10 text-destructive hover:text-destructive">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>)}
                   </TableBody>
@@ -656,6 +705,37 @@ const AdminUsers = () => {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Sending...
                 </> : "Send Reset Email"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!deleteUserId} onOpenChange={() => setDeleteUserId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this user? This action cannot be undone and will permanently remove the user and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteUser} 
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete User
+                </>
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
