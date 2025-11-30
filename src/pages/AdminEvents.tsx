@@ -51,7 +51,7 @@ const AdminEvents = () => {
     date: "",
     time: "",
     location: "",
-    type: "Service",
+    type: "Worship",
     image_url: "",
   });
 
@@ -329,7 +329,7 @@ const AdminEvents = () => {
       date: "",
       time: "",
       location: "",
-      type: "Service",
+      type: "Worship",
       image_url: "",
     });
     setSelectedEvent(null);
@@ -578,14 +578,18 @@ const AdminEvents = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="Service">Service</SelectItem>
-                  <SelectItem value="Prayer">Prayer</SelectItem>
-                  <SelectItem value="Bible Study">Bible Study</SelectItem>
+                  <SelectItem value="Worship">Worship</SelectItem>
                   <SelectItem value="Youth">Youth</SelectItem>
-                  <SelectItem value="Fellowship">Fellowship</SelectItem>
-                  <SelectItem value="Conference">Conference</SelectItem>
+                  <SelectItem value="Children">Children</SelectItem>
+                  <SelectItem value="Study">Study</SelectItem>
+                  <SelectItem value="Deacon">Deacon</SelectItem>
+                  <SelectItem value="Mission">Mission</SelectItem>
+                  <SelectItem value="Building Committee">Building Committee</SelectItem>
+                  <SelectItem value="Media">Media</SelectItem>
+                  <SelectItem value="Culture">Culture</SelectItem>
+                  <SelectItem value="CBCUSA">CBCUSA</SelectItem>
+                  <SelectItem value="Special">Special</SelectItem>
                   <SelectItem value="Outreach">Outreach</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>

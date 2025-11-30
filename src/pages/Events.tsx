@@ -222,7 +222,7 @@ const Events = () => {
     Culture: "bg-accent/80 text-accent-foreground",
     CBCUSA: "bg-primary text-primary-foreground",
     Special: "bg-primary text-primary-foreground",
-    Others: "bg-muted text-muted-foreground",
+    Outreach: "bg-muted text-muted-foreground",
   };
 
   const eventDates = events.map(e => e.dateObj);
