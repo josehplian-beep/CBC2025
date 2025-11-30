@@ -109,6 +109,23 @@ serve(async (req) => {
       );
     }
 
+    // Handle delete user action
+    if (action === "delete_user" && req.method === "POST") {
+      const { userId } = await req.json();
+      
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+      if (error) throw error;
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    }
+
     // Get all users
     const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
 
