@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AdminSchoolTeacherEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAdministrator, loading: permLoading } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -21,6 +26,13 @@ export default function AdminSchoolTeacherEdit() {
     photo_url: "",
     bio: "",
   });
+
+  useEffect(() => {
+    if (!permLoading && !isAdministrator) {
+      toast.error("Only administrators can edit teachers");
+      navigate("/admin/school/teachers");
+    }
+  }, [isAdministrator, permLoading, navigate]);
 
   useEffect(() => {
     fetchTeacher();
@@ -49,6 +61,41 @@ export default function AdminSchoolTeacherEdit() {
       navigate("/admin/school/teachers");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('teacher-photos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('teacher-photos')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, photo_url: publicUrl });
+      toast.success("Photo uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -116,22 +163,44 @@ export default function AdminSchoolTeacherEdit() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="photo_url">Photo URL</Label>
-                <Input
-                  id="photo_url"
-                  value={formData.photo_url}
-                  onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                />
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-4">
+              <Label>Profile Photo</Label>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={formData.photo_url} />
+                  <AvatarFallback className="text-2xl">
+                    {formData.full_name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload Photo"}
+                  </Button>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    JPG, PNG or WEBP (max 5MB)
+                  </p>
+                </div>
               </div>
             </div>
             <div className="space-y-2">
