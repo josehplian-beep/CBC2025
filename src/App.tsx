@@ -74,9 +74,9 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/get-involved" element={<GetInvolved />} />
-          <Route path="/members" element={<AdminLayout><Members /></AdminLayout>} />
-          <Route path="/members/:id" element={<AdminLayout><MemberProfile /></AdminLayout>} />
-          <Route path="/members/:id/edit" element={<AdminLayout><ProfileEdit /></AdminLayout>} />
+          <Route path="/members" element={<ProtectedRoute permission="view_member_directory"><AdminLayout><Members /></AdminLayout></ProtectedRoute>} />
+          <Route path="/members/:id" element={<ProtectedRoute permission="view_member_directory"><AdminLayout><MemberProfile /></AdminLayout></ProtectedRoute>} />
+          <Route path="/members/:id/edit" element={<ProtectedRoute permission="view_member_directory"><AdminLayout><ProfileEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
