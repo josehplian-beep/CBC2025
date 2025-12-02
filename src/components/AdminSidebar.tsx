@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText, GraduationCap, BookOpen, ClipboardList, BarChart3 } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText, GraduationCap, BookOpen, ClipboardList, BarChart3, Database } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -75,6 +75,7 @@ const adminMenuSections: MenuSection[] = [
   {
     label: "System",
     items: [
+      { title: "MySQL Sync", url: "/admin/mysql-sync", icon: Database, iconColor: "text-blue-400", permissions: ['manage_users'] },
       { title: "Color Palette", url: "/admin/color-palette", icon: Palette, iconColor: "text-pink-500", permissions: ['manage_users'] },
     ],
   },

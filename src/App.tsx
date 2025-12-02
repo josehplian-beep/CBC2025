@@ -53,6 +53,7 @@ import AdminEvents from "./pages/AdminEvents";
 import AdminMessages from "./pages/AdminMessages";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import AdminMySQLSync from "./pages/AdminMySQLSync";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -101,6 +102,7 @@ const App = () => (
           <Route path="/admin/prayer-requests" element={<ProtectedRoute permission="manage_prayer_requests"><AdminLayout><AdminPrayerRequests /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminUsers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/roles" element={<ProtectedRoute permission="manage_roles"><AdminLayout><AdminRoleManagement /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/mysql-sync" element={<ProtectedRoute permission="manage_users"><AdminLayout><AdminMySQLSync /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeachers /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id" element={<ProtectedRoute permission="manage_students"><AdminLayout><TeacherProfile /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/teachers/:id/edit" element={<ProtectedRoute permission="manage_students"><AdminLayout><AdminSchoolTeacherEdit /></AdminLayout></ProtectedRoute>} />
