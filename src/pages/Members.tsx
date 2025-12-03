@@ -569,11 +569,18 @@ const Members = () => {
     }
   };
 
+  const formatAddressForExport = (address: string | null): string => {
+    if (!address) return '';
+    // Address is stored with pipe separators, clean it up
+    const parts = address.split('|').filter(part => part.trim() !== '');
+    return parts.join(', ');
+  };
+
   const handleExportToExcel = () => {
     const exportData = filteredMembers.map(member => ({
       Name: member.name,
       Gender: member.gender || '',
-      Address: member.address || '',
+      Address: formatAddressForExport(member.address),
       Phone: member.phone || '',
       Email: member.email || '',
       'Date of Birth': member.date_of_birth || '',
