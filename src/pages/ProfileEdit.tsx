@@ -27,26 +27,23 @@ const US_STATES = [
   "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
-const COUNTY_OPTIONS = ["Howard", "Baltimore", "Anne Arundel", "Other"];
-
 const profileFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
-  last_name: z.string().min(1, "Last name is required").max(100),
-  gender: z.string().min(1, "Gender is required"),
+  last_name: z.string().max(100).optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
   baptized: z.string().optional(),
-  email: z.string().min(1, "Email is required").email("Invalid email address").max(255),
-  area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
-  phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
-  street_address: z.string().min(1, "Street address is required").max(200),
+  email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
+  area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
+  phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
+  street_address: z.string().max(200).optional().or(z.literal("")),
   street_address_line2: z.string().max(200).optional().or(z.literal("")),
-  city: z.string().min(1, "City is required").max(100),
-  state: z.string().min(1, "State is required"),
-  county: z.string().min(1, "County is required"),
-  postal_code: z.string().min(1, "ZIP code is required").regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format"),
-  birth_month: z.string().min(1, "Birth month is required"),
-  birth_day: z.string().min(1, "Birth day is required"),
-  birth_year: z.string().min(1, "Birth year is required"),
-  position: z.string().min(1, "Position is required").max(100),
+  city: z.string().max(100).optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  postal_code: z.string().optional().or(z.literal("")),
+  birth_month: z.string().optional().or(z.literal("")),
+  birth_day: z.string().optional().or(z.literal("")),
+  birth_year: z.string().optional().or(z.literal("")),
+  position: z.string().max(100).optional().or(z.literal("")),
   department: z.string().max(100).optional().or(z.literal("")),
   service_year: z.string().max(50).optional().or(z.literal(""))
 });
@@ -92,7 +89,6 @@ const ProfileEdit = () => {
       street_address_line2: "",
       city: "",
       state: "",
-      county: "",
       postal_code: "",
       birth_month: "",
       birth_day: "",
@@ -190,7 +186,6 @@ const ProfileEdit = () => {
         street_address_line2: streetAddressLine2,
         city: city,
         state: state,
-        county: county,
         postal_code: postalCode,
         birth_month: birthMonth,
         birth_day: birthDay,
@@ -284,12 +279,11 @@ const ProfileEdit = () => {
       }
 
       // Prepare member data
-      const fullName = `${values.first_name} ${values.last_name}`.trim();
+      const fullName = `${values.first_name} ${values.last_name || ''}`.trim();
       const fullAddress = [
         values.street_address,
         values.street_address_line2 || "",
         values.city,
-        values.county ? `${values.county} County` : "",
         values.state,
         values.postal_code
       ].join('|||');
@@ -637,28 +631,6 @@ const ProfileEdit = () => {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="county"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>County *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select county" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {COUNTY_OPTIONS.map(county => (
-                                <SelectItem key={county} value={county}>{county}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

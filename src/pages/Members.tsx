@@ -34,41 +34,39 @@ const US_STATES = [
   "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
-const COUNTY_OPTIONS = ["Howard", "Baltimore", "Anne Arundel", "Other"];
+
 
 const familyFormSchema = z.object({
   family_name: z.string().min(1, "Family name is required").max(100, "Family name must be less than 100 characters"),
-  street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
-  street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
-  city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
-  state: z.string().min(1, "State is required"),
-  county: z.string().min(1, "County is required"),
-  postal_code: z.string().min(1, "ZIP code is required").regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)")
+  street_address: z.string().max(200).optional().or(z.literal("")),
+  street_address_line2: z.string().max(200).optional().or(z.literal("")),
+  city: z.string().max(100).optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  postal_code: z.string().optional().or(z.literal(""))
 });
 
 const memberFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100, "First name must be less than 100 characters"),
-  last_name: z.string().min(1, "Last name is required").max(100, "Last name must be less than 100 characters"),
-  gender: z.string().min(1, "Gender is required"),
+  last_name: z.string().max(100).optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
   baptized: z.string().optional(),
-  email: z.string().min(1, "Email is required").email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  area_code: z.string().min(1, "Area code is required").regex(/^\d{3}$/, "Area code must be 3 digits"),
-  phone_number: z.string().min(1, "Phone number is required").regex(/^\d{7,10}$/, "Phone number must be 7-10 digits"),
+  email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
+  area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
+  phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
   family_id: z.string().optional().or(z.literal("")),
-  street_address: z.string().min(1, "Street address is required").max(200, "Street address must be less than 200 characters"),
-  street_address_line2: z.string().max(200, "Street address line 2 must be less than 200 characters").optional().or(z.literal("")),
-  city: z.string().min(1, "City is required").max(100, "City must be less than 100 characters"),
-  state: z.string().min(1, "State is required"),
-  county: z.string().min(1, "County is required"),
-  postal_code: z.string().min(1, "ZIP code is required").regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format (e.g., 12345 or 12345-6789)"),
-  birth_month: z.string().min(1, "Birth month is required"),
-  birth_day: z.string().min(1, "Birth day is required"),
-  birth_year: z.string().min(1, "Birth year is required"),
-  position: z.string().min(1, "Position is required").max(100, "Position must be less than 100 characters"),
-  department: z.string().max(100, "Department must be less than 100 characters").optional().or(z.literal("")),
-  service_year: z.string().max(50, "Service year must be less than 50 characters").optional().or(z.literal(""))
+  street_address: z.string().max(200).optional().or(z.literal("")),
+  street_address_line2: z.string().max(200).optional().or(z.literal("")),
+  city: z.string().max(100).optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  postal_code: z.string().optional().or(z.literal("")),
+  birth_month: z.string().optional().or(z.literal("")),
+  birth_day: z.string().optional().or(z.literal("")),
+  birth_year: z.string().optional().or(z.literal("")),
+  position: z.string().max(100).optional().or(z.literal("")),
+  department: z.string().max(100).optional().or(z.literal("")),
+  service_year: z.string().max(50).optional().or(z.literal(""))
 }).refine((data) => {
-  // Validate birth date is a valid date
+  // Validate birth date is a valid date if all fields are provided
   if (data.birth_month && data.birth_day && data.birth_year) {
     const month = parseInt(data.birth_month);
     const day = parseInt(data.birth_day);
@@ -153,7 +151,6 @@ const Members = () => {
       street_address_line2: "",
       city: "",
       state: "",
-      county: "",
       postal_code: "",
       birth_month: "",
       birth_day: "",
@@ -172,7 +169,6 @@ const Members = () => {
       street_address_line2: "",
       city: "",
       state: "",
-      county: "",
       postal_code: ""
     }
   });
@@ -321,7 +317,6 @@ const Members = () => {
       values.street_address,
       values.street_address_line2 || "",
       values.city,
-      values.county ? `${values.county} County` : "",
       values.state,
       values.postal_code
     ].join('|||');
@@ -439,7 +434,6 @@ const Members = () => {
       street_address_line2: streetAddressLine2,
       city: city,
       state: state,
-      county: county,
       postal_code: postalCode,
       birth_month: birthMonth,
       birth_day: birthDay,
@@ -604,12 +598,12 @@ const Members = () => {
     try {
       const familyData = {
         family_name: values.family_name,
-        street_address: values.street_address,
+        street_address: values.street_address || '',
         street_address_line2: values.street_address_line2 || null,
-        city: values.city,
-        county: values.county,
-        state: values.state,
-        postal_code: values.postal_code
+        city: values.city || '',
+        county: '',
+        state: values.state || '',
+        postal_code: values.postal_code || ''
       };
 
       const { error } = await supabase.from('families').insert([familyData]);
@@ -640,7 +634,6 @@ const Members = () => {
       street_address: family.street_address,
       street_address_line2: family.street_address_line2 || "",
       city: family.city,
-      county: family.county,
       state: family.state,
       postal_code: family.postal_code
     });
@@ -654,12 +647,12 @@ const Members = () => {
     try {
       const familyData = {
         family_name: values.family_name,
-        street_address: values.street_address,
+        street_address: values.street_address || '',
         street_address_line2: values.street_address_line2 || null,
-        city: values.city,
-        county: values.county,
-        state: values.state,
-        postal_code: values.postal_code
+        city: values.city || '',
+        county: '',
+        state: values.state || '',
+        postal_code: values.postal_code || ''
       };
 
       const { error } = await supabase
@@ -1091,30 +1084,6 @@ const Members = () => {
                                     </FormItem>
                                   )}
                                 />
-                                <FormField
-                                  control={familyForm.control}
-                                  name="county"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select county" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {COUNTY_OPTIONS.map((county) => (
-                                            <SelectItem key={county} value={county}>
-                                              {county}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <FormField
@@ -1242,30 +1211,6 @@ const Members = () => {
                                       <FormControl>
                                         <Input {...field} autoComplete="off" />
                                       </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={familyForm.control}
-                                  name="county"
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-xs text-muted-foreground">County</FormLabel>
-                                      <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select a county" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {COUNTY_OPTIONS.map((county) => (
-                                            <SelectItem key={county} value={county}>
-                                              {county}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -1643,30 +1588,6 @@ const Members = () => {
                                   </FormItem>
                                 )}
                               />
-                              <FormField
-                                control={form.control}
-                                name="county"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">County *</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select county" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {COUNTY_OPTIONS.map((county) => (
-                                          <SelectItem key={county} value={county}>
-                                            {county}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
@@ -2016,30 +1937,6 @@ const Members = () => {
                                     <FormControl>
                                       <Input {...field} autoComplete="off" />
                                     </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="county"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs text-muted-foreground">County *</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select county" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {COUNTY_OPTIONS.map((county) => (
-                                          <SelectItem key={county} value={county}>
-                                            {county}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
                                     <FormMessage />
                                   </FormItem>
                                 )}
