@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -133,6 +134,10 @@ const Members = () => {
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm1, setShowBulkDeleteConfirm1] = useState(false);
+  const [showBulkDeleteConfirm2, setShowBulkDeleteConfirm2] = useState(false);
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -517,7 +522,49 @@ const Members = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+      // First, create families from unique "Group By Family" values
+      const uniqueFamilies = new Set<string>();
+      jsonData.forEach((row: any) => {
+        const familyName = row['Group By Family']?.trim();
+        if (familyName && familyName !== 'Single') {
+          uniqueFamilies.add(familyName);
+        }
+      });
+
+      // Create families that don't exist yet
+      const familyNameToId = new Map<string, string>();
+      for (const familyName of uniqueFamilies) {
+        // Check if family already exists
+        const existingFamily = families.find(f => f.family_name === familyName);
+        if (existingFamily) {
+          familyNameToId.set(familyName, existingFamily.id);
+        } else {
+          // Create new family
+          const { data: newFamily, error: familyError } = await supabase
+            .from('families')
+            .insert([{ 
+              family_name: familyName, 
+              street_address: '', 
+              city: '', 
+              county: '', 
+              state: '', 
+              postal_code: '' 
+            }])
+            .select()
+            .single();
+          
+          if (familyError) {
+            console.error('Error creating family:', familyError);
+          } else if (newFamily) {
+            familyNameToId.set(familyName, newFamily.id);
+          }
+        }
+      }
+
       const membersToImport = jsonData.map((row: any) => {
+        const familyName = row['Group By Family']?.trim();
+        const familyId = familyName && familyName !== 'Single' ? familyNameToId.get(familyName) : null;
+        
         return {
           name: row['Name'] || '',
           gender: row['Gender'] || null,
@@ -525,9 +572,9 @@ const Members = () => {
           phone: row['Phone'] || null,
           address: row['Address'] || null,
           date_of_birth: row['Date of Birth'] || null,
-          position: row['Position'] || null,
-          department: row['Department'] || null,
-          service_year: row['Service Year'] || null,
+          position: row['Department'] || null, // Department maps to position
+          baptized: row['Baptized']?.toLowerCase() === 'yes' ? true : row['Baptized']?.toLowerCase() === 'no' ? false : null,
+          family_id: familyId,
           church_groups: null
         };
       }).filter(m => m.name); // Only import rows with names
@@ -563,6 +610,54 @@ const Members = () => {
     }
   };
 
+  const handleSelectAll = () => {
+    if (selectedMembers.size === filteredMembers.length) {
+      setSelectedMembers(new Set());
+    } else {
+      setSelectedMembers(new Set(filteredMembers.map(m => m.id)));
+    }
+  };
+
+  const handleSelectMember = (memberId: string) => {
+    const newSelected = new Set(selectedMembers);
+    if (newSelected.has(memberId)) {
+      newSelected.delete(memberId);
+    } else {
+      newSelected.add(memberId);
+    }
+    setSelectedMembers(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    setIsDeletingBulk(true);
+    try {
+      const { error } = await supabase
+        .from('members')
+        .delete()
+        .in('id', Array.from(selectedMembers));
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `${selectedMembers.size} members deleted successfully`,
+      });
+
+      setSelectedMembers(new Set());
+      setShowBulkDeleteConfirm2(false);
+      checkAccessAndLoadMembers();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingBulk(false);
+    }
+  };
+
   const formatAddressForExport = (address: string | null): string => {
     if (!address) return '';
     // Address is stored with pipe separators, clean it up
@@ -573,14 +668,16 @@ const Members = () => {
   const handleExportToExcel = () => {
     const exportData = filteredMembers.map(member => ({
       Name: member.name,
-      Gender: member.gender || '',
-      Address: formatAddressForExport(member.address),
-      Phone: member.phone || '',
       Email: member.email || '',
+      Gender: member.gender || '',
+      Baptized: member.baptized === true ? 'Yes' : member.baptized === false ? 'No' : '',
+      Phone: member.phone || '',
+      Address: member.families 
+        ? `${member.families.street_address}${member.families.street_address_line2 ? `, ${member.families.street_address_line2}` : ''}, ${member.families.city}, ${member.families.state} ${member.families.postal_code}`
+        : formatAddressForExport(member.address),
       'Date of Birth': member.date_of_birth || '',
       Position: member.position || '',
-      Department: member.department || '',
-      'Service Year': member.service_year || ''
+      'Group Family': member.families?.family_name || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -1290,7 +1387,7 @@ const Members = () => {
                       <DialogHeader>
                         <DialogTitle>Bulk Import Members</DialogTitle>
                         <DialogDescription>
-                          Upload an Excel file to import multiple members at once. The file should have columns: Name, Email, Phone, Address, Date of Birth, Church Groups.
+                          Upload an Excel file to import multiple members at once. The file should have columns: Name, Email, Gender, Baptized, Phone, Address, Date of Birth, Department, Group By Family.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
@@ -2120,8 +2217,11 @@ const Members = () => {
                                 <TableRow>
                                   <TableHead>Name</TableHead>
                                   <TableHead>Email</TableHead>
+                                  <TableHead>Gender</TableHead>
+                                  <TableHead>Baptized</TableHead>
                                   <TableHead>Phone</TableHead>
                                   <TableHead>Date of Birth</TableHead>
+                                  <TableHead>Position</TableHead>
                                   <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
@@ -2134,6 +2234,16 @@ const Members = () => {
                                         <a href={`mailto:${member.email}`} className="text-primary hover:underline">
                                           {member.email}
                                         </a>
+                                      ) : (
+                                        <span className="text-muted-foreground">—</span>
+                                      )}
+                                    </TableCell>
+                                    <TableCell>{member.gender || <span className="text-muted-foreground">—</span>}</TableCell>
+                                    <TableCell>
+                                      {member.baptized === true ? (
+                                        <Badge variant="default" className="bg-green-500">Yes</Badge>
+                                      ) : member.baptized === false ? (
+                                        <Badge variant="secondary">No</Badge>
                                       ) : (
                                         <span className="text-muted-foreground">—</span>
                                       )}
@@ -2157,6 +2267,7 @@ const Members = () => {
                                         <span className="text-muted-foreground">—</span>
                                       )}
                                     </TableCell>
+                                    <TableCell>{member.position || <span className="text-muted-foreground">—</span>}</TableCell>
                                     <TableCell className="text-right">
                                       <div className="flex justify-end gap-2">
                                         <Button
@@ -2215,9 +2326,12 @@ const Members = () => {
                               <TableRow>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>Gender</TableHead>
+                                <TableHead>Baptized</TableHead>
                                 <TableHead>Phone</TableHead>
-                                <TableHead>Date of Birth</TableHead>
                                 <TableHead>Address</TableHead>
+                                <TableHead>Date of Birth</TableHead>
+                                <TableHead>Position</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                               </TableRow>
                             </TableHeader>
@@ -2234,11 +2348,30 @@ const Members = () => {
                                       <span className="text-muted-foreground">—</span>
                                     )}
                                   </TableCell>
+                                  <TableCell>{member.gender || <span className="text-muted-foreground">—</span>}</TableCell>
+                                  <TableCell>
+                                    {member.baptized === true ? (
+                                      <Badge variant="default" className="bg-green-500">Yes</Badge>
+                                    ) : member.baptized === false ? (
+                                      <Badge variant="secondary">No</Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground">—</span>
+                                    )}
+                                  </TableCell>
                                   <TableCell>
                                     {member.phone ? (
                                       <a href={`tel:${member.phone}`} className="text-primary hover:underline">
                                         {member.phone}
                                       </a>
+                                    ) : (
+                                      <span className="text-muted-foreground">—</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    {member.address ? (
+                                      <div className="max-w-xs truncate" title={member.address}>
+                                        {member.address.split('|||').filter(p => p).join(', ')}
+                                      </div>
                                     ) : (
                                       <span className="text-muted-foreground">—</span>
                                     )}
@@ -2253,19 +2386,7 @@ const Members = () => {
                                       <span className="text-muted-foreground">—</span>
                                     )}
                                   </TableCell>
-                        <TableCell>
-                          {member.families ? (
-                            <div className="max-w-xs truncate">
-                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
-                            </div>
-                          ) : member.address ? (
-                            <div className="max-w-xs truncate" title={member.address}>
-                              {member.address.split('|||').filter(p => p).join(', ')}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                                  </TableCell>
+                                  <TableCell>{member.position || <span className="text-muted-foreground">—</span>}</TableCell>
                                   <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
                                       <Button
@@ -2315,26 +2436,73 @@ const Members = () => {
           ) : (
             // Regular table view
             <div className="overflow-x-auto">
+                {can('manage_members') && selectedMembers.size > 0 && (
+                  <div className="mb-4 p-3 bg-muted rounded-lg flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {selectedMembers.size} member{selectedMembers.size > 1 ? 's' : ''} selected
+                    </span>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => setShowBulkDeleteConfirm1(true)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Selected
+                    </Button>
+                  </div>
+                )}
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      {can('manage_members') && (
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectedMembers.size === filteredMembers.length && filteredMembers.length > 0}
+                            onCheckedChange={handleSelectAll}
+                            aria-label="Select all"
+                          />
+                        </TableHead>
+                      )}
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Gender</TableHead>
+                      <TableHead>Baptized</TableHead>
                       <TableHead>Phone</TableHead>
-                      <TableHead>Date of Birth</TableHead>
                       <TableHead>Address</TableHead>
+                      <TableHead>Date of Birth</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Group Family</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredMembers.map((member) => (
                       <TableRow key={member.id}>
+                        {can('manage_members') && (
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedMembers.has(member.id)}
+                              onCheckedChange={() => handleSelectMember(member.id)}
+                              aria-label={`Select ${member.name}`}
+                            />
+                          </TableCell>
+                        )}
                         <TableCell className="font-medium">{member.name}</TableCell>
                         <TableCell>
                           {member.email ? (
                             <a href={`mailto:${member.email}`} className="text-primary hover:underline">
                               {member.email}
                             </a>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>{member.gender || <span className="text-muted-foreground">—</span>}</TableCell>
+                        <TableCell>
+                          {member.baptized === true ? (
+                            <Badge variant="default" className="bg-green-500">Yes</Badge>
+                          ) : member.baptized === false ? (
+                            <Badge variant="secondary">No</Badge>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
@@ -2349,6 +2517,19 @@ const Members = () => {
                           )}
                         </TableCell>
                         <TableCell>
+                          {member.families ? (
+                            <div className="max-w-xs truncate">
+                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.state} {member.families.postal_code}
+                            </div>
+                          ) : member.address ? (
+                            <div className="max-w-xs truncate" title={member.address}>
+                              {member.address.split('|||').filter(p => p).join(', ')}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
                           {member.date_of_birth ? (
                             <div className="flex items-center gap-1">
                               <Calendar className="w-3 h-3 text-muted-foreground" />
@@ -2358,18 +2539,9 @@ const Members = () => {
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                      <TableCell>
-                        {member.families ? (
-                          <div className="max-w-xs truncate">
-                            {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.county} County, {member.families.state} {member.families.postal_code}
-                          </div>
-                        ) : member.address ? (
-                          <div className="max-w-xs truncate" title={member.address}>
-                            {member.address.split('|||').filter(p => p).join(', ')}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
+                        <TableCell>{member.position || <span className="text-muted-foreground">—</span>}</TableCell>
+                        <TableCell>
+                          {member.families?.family_name || <span className="text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -2429,6 +2601,61 @@ const Members = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteMember} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation 1 */}
+      <AlertDialog open={showBulkDeleteConfirm1} onOpenChange={setShowBulkDeleteConfirm1}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedMembers.size} members?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to delete <strong>{selectedMembers.size}</strong> member{selectedMembers.size > 1 ? 's' : ''} from the directory. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                setShowBulkDeleteConfirm1(false);
+                setShowBulkDeleteConfirm2(true);
+              }} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation 2 */}
+      <AlertDialog open={showBulkDeleteConfirm2} onOpenChange={setShowBulkDeleteConfirm2}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">Final Confirmation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you absolutely sure you want to permanently delete <strong>{selectedMembers.size}</strong> member{selectedMembers.size > 1 ? 's' : ''}? 
+              <br /><br />
+              <strong className="text-destructive">This action is irreversible and all data will be lost.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleBulkDelete} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeletingBulk}
+            >
+              {isDeletingBulk ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Yes, Delete All'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
