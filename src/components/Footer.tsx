@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import cbcLogo from "@/assets/cbc-logo.png";
 import { SOCIAL } from "@/config/social";
 const Footer = () => {
-  return <footer className="text-primary-foreground bg-gray-950">
+  return (
+    <footer className="text-primary-foreground bg-gray-950">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About Section */}
@@ -26,32 +27,50 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/about"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   CBC
                 </Link>
               </li>
               <li>
-                <Link to="/events" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/events"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Events
                 </Link>
               </li>
               <li>
-                <Link to="/media" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/media"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Media
                 </Link>
               </li>
               <li>
-                <Link to="/departments" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/departments"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Departments
                 </Link>
               </li>
               <li>
-                <Link to="/get-involved" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/get-involved"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Get Involved
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link
+                  to="/privacy-policy"
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
@@ -84,7 +103,8 @@ const Footer = () => {
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span className="text-primary-foreground/80">
-                  6801 Douglas Legum Dr<br />
+                  6801 Douglas Legum Dr
+                  <br />
                   Elkridge, MD 21075
                 </span>
               </li>
@@ -94,19 +114,37 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80">chinbethelchurchdc2010@gmail.com</span>
+                <span className="text-primary-foreground/80">Admin@chinbethelchurch.com</span>
               </li>
             </ul>
-            
+
             {/* Social Media */}
             <div className="flex gap-3 mt-6">
-              <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a
+                href={SOCIAL.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
+              >
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a
+                href={SOCIAL.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
+              >
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors">
+              <a
+                href={SOCIAL.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
+              >
                 <Youtube className="w-4 h-4" />
               </a>
             </div>
@@ -117,6 +155,7 @@ const Footer = () => {
           <p>&copy; {new Date().getFullYear()} Chin Bethel Church. All rights reserved.</p>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
 export default Footer;
