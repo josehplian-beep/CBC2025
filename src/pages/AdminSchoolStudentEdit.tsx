@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Upload } from "lucide-react";
+import { StudentAvatar } from "@/components/StudentAvatar";
 
 interface Class {
   id: string;
@@ -98,11 +98,8 @@ export default function AdminSchoolStudentEdit() {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('student-photos')
-        .getPublicUrl(filePath);
-
-      setFormData({ ...formData, photo_url: publicUrl });
+      // Store just the file path, not the public URL (bucket is now private)
+      setFormData({ ...formData, photo_url: filePath });
       toast.success("Photo uploaded successfully");
     } catch (error) {
       console.error("Error uploading photo:", error);
@@ -222,12 +219,12 @@ export default function AdminSchoolStudentEdit() {
               <div className="space-y-4">
                 <Label>Profile Photo</Label>
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={formData.photo_url} />
-                    <AvatarFallback className="text-2xl">
-                      {formData.full_name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
+                  <StudentAvatar 
+                    photoUrl={formData.photo_url} 
+                    fullName={formData.full_name}
+                    className="h-24 w-24"
+                    fallbackClassName="text-2xl"
+                  />
                   <div className="flex-1">
                     <input
                       ref={fileInputRef}
