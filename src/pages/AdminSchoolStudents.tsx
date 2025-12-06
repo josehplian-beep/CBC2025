@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Search, Phone, User, Calendar, Pencil } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StudentAvatar } from "@/components/StudentAvatar";
 import { Badge } from "@/components/ui/badge";
 
 interface Student {
@@ -201,12 +201,12 @@ export default function AdminSchoolStudents() {
                 <div className="h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
                 <CardHeader className="pb-4">
                   <div className="flex items-start gap-4">
-                    <Avatar className="h-20 w-20 border-4 border-primary/20 shadow-lg group-hover:scale-105 transition-transform">
-                      <AvatarImage src={student.photo_url || undefined} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-xl">
-                        <User className="h-10 w-10" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <StudentAvatar 
+                      photoUrl={student.photo_url} 
+                      fullName={student.full_name}
+                      className="h-20 w-20 border-4 border-primary/20 shadow-lg group-hover:scale-105 transition-transform"
+                      fallbackClassName="text-xl"
+                    />
                     <div className="flex-1">
                       <CardTitle className="text-xl font-display group-hover:text-primary transition-colors">{student.full_name}</CardTitle>
                       <Badge className="mt-2 bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">

@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermissions";
 import { format } from "date-fns";
+import { StudentAvatar } from "@/components/StudentAvatar";
 
 interface Teacher {
   id: string;
@@ -471,12 +472,12 @@ const TeacherProfile = () => {
                           style={{ animationDelay: `${index * 0.05}s` }}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <Avatar className="h-9 w-9 border-2 border-primary/10 group-hover:border-primary/30 transition-colors">
-                              <AvatarImage src={student.photo_url || ""} alt={student.full_name} />
-                              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-xs">
-                                {student.full_name.split(" ").map((n) => n[0]).join("")}
-                              </AvatarFallback>
-                            </Avatar>
+                            <StudentAvatar 
+                              photoUrl={student.photo_url} 
+                              fullName={student.full_name}
+                              className="h-9 w-9 border-2 border-primary/10 group-hover:border-primary/30 transition-colors"
+                              fallbackClassName="text-xs"
+                            />
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-sm truncate">{student.full_name}</p>
                               <p className="text-xs text-muted-foreground">
