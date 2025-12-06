@@ -36,7 +36,56 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // ============ AUTHENTICATION CHECK ============
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ success: false, error: 'No authorization header provided' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('Invalid or expired token:', authError?.message);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`User authenticated: ${user.id}`);
+
+    // Check if user has administrator role
+    const { data: roles, error: rolesError } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    if (rolesError) {
+      console.error('Failed to fetch user roles:', rolesError.message);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to verify user permissions' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const isAdmin = roles?.some(r => r.role === 'administrator');
+    if (!isAdmin) {
+      console.error(`User ${user.id} is not an administrator. Roles: ${JSON.stringify(roles)}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Access denied. Administrator role required.' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Administrator access verified for user ${user.id}`);
+    // ============ END AUTHENTICATION CHECK ============
 
     // MySQL connection configuration
     const mysqlClient = await new Client().connect({
@@ -79,7 +128,7 @@ serve(async (req) => {
       // Sync from Supabase to MySQL
       console.log('Syncing from Supabase to MySQL...');
       
-      const { data: members, error } = await supabase
+      const { data: members, error } = await supabaseAdmin
         .from('members')
         .select('*');
 
@@ -165,7 +214,7 @@ serve(async (req) => {
           church_groups: member.church_groups ? JSON.parse(member.church_groups) : null,
         };
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('members')
           .upsert(memberData, { onConflict: 'id' });
 
