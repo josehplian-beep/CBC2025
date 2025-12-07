@@ -326,7 +326,7 @@ function DesktopNav({
       <DropdownMenu label="Media" links={MEDIA_LINKS} />
 
       {/* Member Directory Link */}
-      <Link to="/members" className={getNavLinkClasses("/members")}>
+      <Link to="/auth" className={getNavLinkClasses("/members")}>
         Member Directory
       </Link>
 
@@ -447,7 +447,7 @@ function MobileNav({
         <MobileMenuSection title="Media" links={MEDIA_LINKS} onNavigate={onNavigate} />
 
         {/* Member Directory */}
-        <Link to="/members" onClick={onNavigate} className={getNavLinkClasses("/members")}>
+        <Link to="/auth" onClick={onNavigate} className={getNavLinkClasses("/members")}>
           Member Directory
         </Link>
 
