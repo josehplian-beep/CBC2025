@@ -161,13 +161,13 @@ const ProfileEdit = () => {
       const areaCode = phoneParts[0] || "";
       const phoneNumber = phoneParts.slice(1).join('-') || "";
       
+      // Format: street|||line2|||city|||state|||zip
       const addressParts = memberData.address?.split('|||') || [];
       const streetAddress = addressParts[0] || "";
       const streetAddressLine2 = addressParts[1] || "";
       const city = addressParts[2] || "";
-      const county = (addressParts[3] || "").replace(' County', '');
-      const state = addressParts[4] || "";
-      const postalCode = addressParts[5] || "";
+      const state = addressParts[3] || "";
+      const postalCode = addressParts[4] || "";
       
       const birthParts = memberData.date_of_birth?.split('-') || [];
       const birthYear = birthParts[0] || "";
@@ -280,12 +280,13 @@ const ProfileEdit = () => {
 
       // Prepare member data
       const fullName = `${values.first_name} ${values.last_name || ''}`.trim();
+      // Build address: street|||line2|||city|||state|||zip
       const fullAddress = [
-        values.street_address,
+        values.street_address || "",
         values.street_address_line2 || "",
-        values.city,
-        values.state,
-        values.postal_code
+        values.city || "",
+        values.state || "",
+        values.postal_code || ""
       ].join('|||');
       
       const fullPhone = values.area_code && values.phone_number 

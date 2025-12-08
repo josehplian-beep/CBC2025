@@ -307,13 +307,13 @@ const Members = () => {
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
     
-    // Build address with proper structure, using empty string for optional line2
+    // Build address with proper structure: street|||line2|||city|||state|||zip
     const fullAddress = [
-      values.street_address,
+      values.street_address || "",
       values.street_address_line2 || "",
-      values.city,
-      values.state,
-      values.postal_code
+      values.city || "",
+      values.state || "",
+      values.postal_code || ""
     ].join('|||');
     
     const fullPhone = values.area_code && values.phone_number 
@@ -376,36 +376,29 @@ const Members = () => {
     const areaCode = phoneParts[0] || "";
     const phoneNumber = phoneParts.slice(1).join('-') || "";
     
-    // Parse address - handle both new (|||) and old (comma) format
+    // Parse address - format: street|||line2|||city|||state|||zip
     let streetAddress = "";
     let streetAddressLine2 = "";
     let city = "";
-    let county = "";
     let state = "";
     let postalCode = "";
     
     if (member.address) {
-      // Check if it's the new format with |||
       if (member.address.includes('|||')) {
         const addressParts = member.address.split('|||');
         streetAddress = addressParts[0] || "";
         streetAddressLine2 = addressParts[1] || "";
         city = addressParts[2] || "";
-        county = (addressParts[3] || "").replace(' County', '');
-        state = addressParts[4] || "";
-        postalCode = addressParts[5] || "";
+        state = addressParts[3] || "";
+        postalCode = addressParts[4] || "";
       } else {
-        // Old format with commas - try to parse it
-        // Expected format: "Street, City, County, State, ZIP"
+        // Old comma format fallback
         const parts = member.address.split(',').map(p => p.trim());
-        if (parts.length >= 4) {
+        if (parts.length >= 3) {
           streetAddress = parts[0] || "";
           city = parts[1] || "";
-          // The county might have " County" suffix
-          const countyPart = parts[2] || "";
-          county = countyPart.replace(' County', '');
-          state = parts[3] || "";
-          postalCode = parts[4] || "";
+          state = parts[2] || "";
+          postalCode = parts[3] || "";
         }
       }
     }

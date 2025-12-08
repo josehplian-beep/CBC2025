@@ -104,18 +104,17 @@ const MemberProfile = () => {
   };
 
   const parseAddress = (address: string | null) => {
-    if (!address) return { street: null, street2: null, city: null, county: null, state: null, zip: null };
+    if (!address) return { street: null, street2: null, city: null, state: null, zip: null };
     
-    const parts = address.split('|||').map(p => p?.trim()).filter(p => p);
+    // Format: street|||line2|||city|||state|||zip
+    const parts = address.split('|||').map(p => p?.trim());
     const street = parts[0] || null;
     const street2 = parts[1] || null;
     const city = parts[2] || null;
-    // Extract county name, remove " County" suffix if present
-    const county = parts[3] ? parts[3].replace(/\s*County\s*$/i, '').trim() : null;
-    const state = parts[4] || null;
-    const zip = parts[5] || null;
+    const state = parts[3] || null;
+    const zip = parts[4] || null;
     
-    return { street, street2, city, county, state, zip };
+    return { street, street2, city, state, zip };
   };
 
   const formatDate = (dateString: string | null) => {
@@ -270,7 +269,6 @@ const MemberProfile = () => {
                     <p>
                       {[
                         address.city,
-                        address.county ? `${address.county} County` : null,
                         address.state,
                         address.zip
                       ].filter(Boolean).join(', ')}
