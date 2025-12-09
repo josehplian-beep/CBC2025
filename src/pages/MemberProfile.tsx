@@ -103,6 +103,27 @@ const MemberProfile = () => {
     }
   };
 
+  const STATE_ABBREVIATIONS: Record<string, string> = {
+    "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+    "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+    "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA",
+    "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+    "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO",
+    "Montana": "MT", "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+    "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH",
+    "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+    "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
+    "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY"
+  };
+
+  const getStateAbbreviation = (state: string | null): string | null => {
+    if (!state) return null;
+    // If already an abbreviation (2 chars), return as-is
+    if (state.length === 2) return state.toUpperCase();
+    // Look up the abbreviation
+    return STATE_ABBREVIATIONS[state] || state;
+  };
+
   const parseAddress = (address: string | null) => {
     if (!address) return { street: null, street2: null, city: null, state: null, zip: null };
     
@@ -111,7 +132,7 @@ const MemberProfile = () => {
     const street = parts[0] || null;
     const street2 = parts[1] || null;
     const city = parts[2] || null;
-    const state = parts[3] || null;
+    const state = getStateAbbreviation(parts[3] || null);
     const zip = parts[4] || null;
     
     return { street, street2, city, state, zip };
