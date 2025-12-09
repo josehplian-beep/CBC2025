@@ -5,7 +5,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search } from "lucide-react";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search, LayoutGrid, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -115,7 +115,8 @@ const Members = () => {
   const { can, isAdministrator, isStaff } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
-  const [countyFilter, setCountyFilter] = useState("");
+  const [stateFilter, setStateFilter] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [groupByFamily, setGroupByFamily] = useState(false);
   const [genderFilter, setGenderFilter] = useState("all");
   const [serviceYearFilter, setServiceYearFilter] = useState("all");
@@ -252,16 +253,24 @@ const Members = () => {
 
     // Filter by city
     if (cityFilter) {
-      filtered = filtered.filter(member =>
-        member.address?.toLowerCase().includes(cityFilter.toLowerCase())
-      );
+      filtered = filtered.filter(member => {
+        if (member.address?.includes('|||')) {
+          const parts = member.address.split('|||');
+          return parts[2]?.toLowerCase().includes(cityFilter.toLowerCase());
+        }
+        return member.address?.toLowerCase().includes(cityFilter.toLowerCase());
+      });
     }
 
-    // Filter by county
-    if (countyFilter) {
-      filtered = filtered.filter(member =>
-        member.address?.toLowerCase().includes(countyFilter.toLowerCase())
-      );
+    // Filter by state
+    if (stateFilter) {
+      filtered = filtered.filter(member => {
+        if (member.address?.includes('|||')) {
+          const parts = member.address.split('|||');
+          return parts[3]?.toLowerCase().includes(stateFilter.toLowerCase());
+        }
+        return member.address?.toLowerCase().includes(stateFilter.toLowerCase());
+      });
     }
 
     // Filter by gender
@@ -286,12 +295,12 @@ const Members = () => {
     }
 
     setFilteredMembers(filtered);
-  }, [searchQuery, cityFilter, countyFilter, genderFilter, serviceYearFilter, departmentFilter, members]);
+  }, [searchQuery, cityFilter, stateFilter, genderFilter, serviceYearFilter, departmentFilter, members]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setCityFilter("");
-    setCountyFilter("");
+    setStateFilter("");
     setGenderFilter("all");
     setServiceYearFilter("all");
     setDepartmentFilter("all");
@@ -505,59 +514,47 @@ const Members = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // First, create families from unique "Group By Family" values
-      const uniqueFamilies = new Set<string>();
-      jsonData.forEach((row: any) => {
-        const familyName = row['Group By Family']?.trim();
-        if (familyName && familyName !== 'Single') {
-          uniqueFamilies.add(familyName);
-        }
-      });
-
-      // Create families that don't exist yet
-      const familyNameToId = new Map<string, string>();
-      for (const familyName of uniqueFamilies) {
-        // Check if family already exists
-        const existingFamily = families.find(f => f.family_name === familyName);
-        if (existingFamily) {
-          familyNameToId.set(familyName, existingFamily.id);
-        } else {
-          // Create new family
-          const { data: newFamily, error: familyError } = await supabase
-            .from('families')
-            .insert([{ 
-              family_name: familyName, 
-              street_address: '', 
-              city: '', 
-              county: '', 
-              state: '', 
-              postal_code: '' 
-            }])
-            .select()
-            .single();
-          
-          if (familyError) {
-            console.error('Error creating family:', familyError);
-          } else if (newFamily) {
-            familyNameToId.set(familyName, newFamily.id);
+      // Format: Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position
+      const membersToImport = jsonData.map((row: any) => {
+        // Build address with proper structure: street|||line2|||city|||state|||zip
+        const streetAddress = row['Street Address'] || '';
+        const aptUnit = row['Apt/Unit'] || '';
+        const city = row['City'] || '';
+        const state = row['State'] || '';
+        const zipCode = row['Zip Code'] || '';
+        
+        const fullAddress = [streetAddress, aptUnit, city, state, zipCode].join('|||');
+        
+        // Parse date of birth - try multiple formats
+        let dateOfBirth = null;
+        const dobValue = row['Date of Birth'];
+        if (dobValue) {
+          // If it's already in YYYY-MM-DD format
+          if (typeof dobValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dobValue)) {
+            dateOfBirth = dobValue;
+          } else if (typeof dobValue === 'number') {
+            // Excel serial date number
+            const date = new Date((dobValue - 25569) * 86400 * 1000);
+            dateOfBirth = date.toISOString().split('T')[0];
+          } else if (typeof dobValue === 'string') {
+            // Try parsing common date formats
+            const parsed = new Date(dobValue);
+            if (!isNaN(parsed.getTime())) {
+              dateOfBirth = parsed.toISOString().split('T')[0];
+            }
           }
         }
-      }
-
-      const membersToImport = jsonData.map((row: any) => {
-        const familyName = row['Group By Family']?.trim();
-        const familyId = familyName && familyName !== 'Single' ? familyNameToId.get(familyName) : null;
         
         return {
           name: row['Name'] || '',
           gender: row['Gender'] || null,
           email: row['Email'] || null,
           phone: row['Phone'] || null,
-          address: row['Address'] || null,
-          date_of_birth: row['Date of Birth'] || null,
-          position: row['Department'] || null, // Department maps to position
+          address: fullAddress || null,
+          date_of_birth: dateOfBirth,
+          position: row['Position'] || null,
           baptized: row['Baptized']?.toLowerCase() === 'yes' ? true : row['Baptized']?.toLowerCase() === 'no' ? false : null,
-          family_id: familyId,
+          family_id: null,
           church_groups: null
         };
       }).filter(m => m.name); // Only import rows with names
@@ -1015,13 +1012,13 @@ const Members = () => {
               </div>
 
               <div>
-                <Label className="text-base font-semibold mb-2">County</Label>
+                <Label className="text-base font-semibold mb-2">State</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Filter by county..."
-                    value={countyFilter}
-                    onChange={(e) => setCountyFilter(e.target.value)}
+                    placeholder="Filter by state..."
+                    value={stateFilter}
+                    onChange={(e) => setStateFilter(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -1029,7 +1026,7 @@ const Members = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || countyFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || stateFilter) && (
                 <Badge variant="secondary" className="gap-1">
                   {[
                     searchQuery, 
@@ -1037,11 +1034,11 @@ const Members = () => {
                     serviceYearFilter !== "all" ? serviceYearFilter : "", 
                     departmentFilter !== "all" ? departmentFilter : "", 
                     cityFilter, 
-                    countyFilter
+                    stateFilter
                   ].filter(Boolean).length} filter(s) active
                 </Badge>
               )}
-              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || countyFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || stateFilter) && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -1063,13 +1060,32 @@ const Members = () => {
         <div className="flex flex-wrap justify-between items-center gap-4">
           <h2 className="font-display text-2xl font-bold">
             {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-            {(searchQuery || cityFilter || countyFilter || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all")) && (
+            {(searchQuery || cityFilter || stateFilter || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all")) && (
               <span className="text-muted-foreground font-normal text-lg ml-2">
                 (filtered from {members.length})
               </span>
             )}
           </h2>
           <div className="flex flex-wrap gap-2">
+            {/* View Mode Toggle */}
+            <div className="flex border rounded-lg overflow-hidden">
+              <Button 
+                onClick={() => setViewMode("list")} 
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="sm"
+                className="rounded-none"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button 
+                onClick={() => setViewMode("grid")} 
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                className="rounded-none"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+            </div>
             <Button 
               onClick={() => setGroupByFamily(!groupByFamily)} 
               variant={groupByFamily ? "default" : "outline"}
@@ -1529,6 +1545,47 @@ const Members = () => {
                     </Form>
                   </DialogContent>
                 </Dialog>
+                
+                {/* Bulk Import Dialog */}
+                <Dialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Bulk Import
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Bulk Import Members</DialogTitle>
+                      <DialogDescription>
+                        Upload an Excel file (.xlsx) with member data. The file should have these columns:
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                        <p className="font-semibold mb-2">Required columns:</p>
+                        <p className="font-mono text-xs">Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="import-file">Select File</Label>
+                        <Input
+                          id="import-file"
+                          type="file"
+                          accept=".xlsx,.xls"
+                          onChange={handleBulkImport}
+                          disabled={isImporting}
+                          className="mt-2"
+                        />
+                      </div>
+                      {isImporting && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Importing members...
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </div>
@@ -1815,8 +1872,37 @@ const Members = () => {
                 );
               })()}
             </div>
+          ) : viewMode === "grid" ? (
+            // Grid view
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {filteredMembers.map((member) => (
+                <Card key={member.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4 overflow-hidden">
+                      {member.profile_image_url ? (
+                        <img 
+                          src={member.profile_image_url} 
+                          alt={member.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-10 h-10 text-muted-foreground" />
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">{member.name}</h3>
+                    <Button 
+                      onClick={() => navigate(`/members/${member.id}`)}
+                      className="mt-2"
+                      size="sm"
+                    >
+                      View Profile
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : (
-            // Regular table view
+            // Regular table view (list mode)
             <div className="overflow-x-auto">
                 {can('manage_members') && selectedMembers.size > 0 && (
                   <div className="mb-4 p-3 bg-muted rounded-lg flex items-center justify-between">
