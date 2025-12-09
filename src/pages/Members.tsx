@@ -35,6 +35,25 @@ const US_STATES = [
   "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
+const STATE_ABBREVIATIONS: Record<string, string> = {
+  "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+  "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+  "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA",
+  "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+  "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO",
+  "Montana": "MT", "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+  "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH",
+  "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+  "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
+  "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY"
+};
+
+const getStateAbbreviation = (state: string | null | undefined): string => {
+  if (!state) return '';
+  if (state.length === 2) return state.toUpperCase();
+  return STATE_ABBREVIATIONS[state] || state;
+};
+
 
 
 const familyFormSchema = z.object({
@@ -114,12 +133,12 @@ const Members = () => {
   const [user, setUser] = useState(null);
   const { can, isAdministrator, isStaff } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-  const [stateFilter, setStateFilter] = useState("");
+  const [positionFilter, setPositionFilter] = useState("");
+  const [baptizedFilter, setBaptizedFilter] = useState("all");
+  const [familyFilter, setFamilyFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [groupByFamily, setGroupByFamily] = useState(false);
   const [genderFilter, setGenderFilter] = useState("all");
-  const [serviceYearFilter, setServiceYearFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -251,25 +270,19 @@ const Members = () => {
       );
     }
 
-    // Filter by city
-    if (cityFilter) {
-      filtered = filtered.filter(member => {
-        if (member.address?.includes('|||')) {
-          const parts = member.address.split('|||');
-          return parts[2]?.toLowerCase().includes(cityFilter.toLowerCase());
-        }
-        return member.address?.toLowerCase().includes(cityFilter.toLowerCase());
-      });
+    // Filter by position
+    if (positionFilter) {
+      filtered = filtered.filter(member =>
+        member.position?.toLowerCase().includes(positionFilter.toLowerCase())
+      );
     }
 
-    // Filter by state
-    if (stateFilter) {
+    // Filter by baptized
+    if (baptizedFilter && baptizedFilter !== "all") {
       filtered = filtered.filter(member => {
-        if (member.address?.includes('|||')) {
-          const parts = member.address.split('|||');
-          return parts[3]?.toLowerCase().includes(stateFilter.toLowerCase());
-        }
-        return member.address?.toLowerCase().includes(stateFilter.toLowerCase());
+        if (baptizedFilter === "yes") return member.baptized === true;
+        if (baptizedFilter === "no") return member.baptized === false;
+        return true;
       });
     }
 
@@ -280,10 +293,10 @@ const Members = () => {
       );
     }
 
-    // Filter by service year
-    if (serviceYearFilter && serviceYearFilter !== "all") {
+    // Filter by family
+    if (familyFilter && familyFilter !== "all") {
       filtered = filtered.filter(member =>
-        member.service_year?.includes(serviceYearFilter)
+        member.family_id === familyFilter
       );
     }
 
@@ -295,14 +308,14 @@ const Members = () => {
     }
 
     setFilteredMembers(filtered);
-  }, [searchQuery, cityFilter, stateFilter, genderFilter, serviceYearFilter, departmentFilter, members]);
+  }, [searchQuery, positionFilter, baptizedFilter, genderFilter, familyFilter, departmentFilter, members]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
-    setCityFilter("");
-    setStateFilter("");
+    setPositionFilter("");
+    setBaptizedFilter("all");
     setGenderFilter("all");
-    setServiceYearFilter("all");
+    setFamilyFilter("all");
     setDepartmentFilter("all");
   };
 
@@ -310,8 +323,8 @@ const Members = () => {
   const femaleCount = members.filter(m => m.gender?.toLowerCase() === 'female').length;
   const baptizedCount = members.filter(m => m.baptized === true).length;
   
-  const uniqueServiceYears = Array.from(new Set(members.map(m => m.service_year).filter(Boolean))) as string[];
   const uniqueDepartments = Array.from(new Set(members.map(m => m.department).filter(Boolean))) as string[];
+  const uniquePositions = Array.from(new Set(members.map(m => m.position).filter(Boolean))) as string[];
 
   const parseMemberData = (values: z.infer<typeof memberFormSchema>, profileImageUrl?: string) => {
     const fullName = `${values.first_name} ${values.last_name}`.trim();
@@ -640,8 +653,21 @@ const Members = () => {
 
   const formatAddressForExport = (address: string | null): string => {
     if (!address) return '';
-    // Address is stored with pipe separators, clean it up
-    const parts = address.split('|').filter(part => part.trim() !== '');
+    // Address is stored with pipe separators: street|||line2|||city|||state|||zip
+    const parts = address.split('|||').filter(part => part.trim() !== '');
+    if (parts.length >= 4) {
+      // Apply state abbreviation
+      parts[3] = getStateAbbreviation(parts[3]);
+    }
+    return parts.join(', ');
+  };
+
+  const formatAddressDisplay = (address: string | null): string => {
+    if (!address) return '';
+    const parts = address.split('|||').filter(p => p);
+    if (parts.length >= 4) {
+      parts[3] = getStateAbbreviation(parts[3]);
+    }
     return parts.join(', ');
   };
 
@@ -653,7 +679,7 @@ const Members = () => {
       Baptized: member.baptized === true ? 'Yes' : member.baptized === false ? 'No' : '',
       Phone: member.phone || '',
       Address: member.families 
-        ? `${member.families.street_address}${member.families.street_address_line2 ? `, ${member.families.street_address_line2}` : ''}, ${member.families.city}, ${member.families.state} ${member.families.postal_code}`
+        ? `${member.families.street_address}${member.families.street_address_line2 ? `, ${member.families.street_address_line2}` : ''}, ${member.families.city}, ${getStateAbbreviation(member.families.state)} ${member.families.postal_code}`
         : formatAddressForExport(member.address),
       'Date of Birth': member.date_of_birth || '',
       Position: member.position || '',
@@ -965,16 +991,16 @@ const Members = () => {
               </div>
 
               <div>
-                <Label className="text-base font-semibold mb-2">Service Year</Label>
-                <Select value={serviceYearFilter} onValueChange={setServiceYearFilter}>
+                <Label className="text-base font-semibold mb-2">Group Family</Label>
+                <Select value={familyFilter} onValueChange={setFamilyFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="All Years" />
+                    <SelectValue placeholder="All Families" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Years</SelectItem>
-                    {uniqueServiceYears.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
+                    <SelectItem value="all">All Families</SelectItem>
+                    {families.map((family) => (
+                      <SelectItem key={family.id} value={family.id}>
+                        {family.family_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -999,26 +1025,27 @@ const Members = () => {
               </div>
 
               <div>
-                <Label className="text-base font-semibold mb-2">City</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Filter by city..."
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+                <Label className="text-base font-semibold mb-2">Baptized</Label>
+                <Select value={baptizedFilter} onValueChange={setBaptizedFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Any" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Any</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="text-base font-semibold mb-2">State</Label>
+                <Label className="text-base font-semibold mb-2">Position</Label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Filter by state..."
-                    value={stateFilter}
-                    onChange={(e) => setStateFilter(e.target.value)}
+                    placeholder="Filter by position..."
+                    value={positionFilter}
+                    onChange={(e) => setPositionFilter(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -1026,19 +1053,19 @@ const Members = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || stateFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (familyFilter !== "all") || (departmentFilter !== "all") || (baptizedFilter !== "all") || positionFilter) && (
                 <Badge variant="secondary" className="gap-1">
                   {[
                     searchQuery, 
                     genderFilter !== "all" ? genderFilter : "", 
-                    serviceYearFilter !== "all" ? serviceYearFilter : "", 
+                    familyFilter !== "all" ? "Family" : "", 
                     departmentFilter !== "all" ? departmentFilter : "", 
-                    cityFilter, 
-                    stateFilter
+                    baptizedFilter !== "all" ? `Baptized: ${baptizedFilter}` : "",
+                    positionFilter
                   ].filter(Boolean).length} filter(s) active
                 </Badge>
               )}
-              {(searchQuery || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all") || cityFilter || stateFilter) && (
+              {(searchQuery || (genderFilter !== "all") || (familyFilter !== "all") || (departmentFilter !== "all") || (baptizedFilter !== "all") || positionFilter) && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -1060,7 +1087,7 @@ const Members = () => {
         <div className="flex flex-wrap justify-between items-center gap-4">
           <h2 className="font-display text-2xl font-bold">
             {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-            {(searchQuery || cityFilter || stateFilter || (genderFilter !== "all") || (serviceYearFilter !== "all") || (departmentFilter !== "all")) && (
+            {(searchQuery || positionFilter || (genderFilter !== "all") || (familyFilter !== "all") || (departmentFilter !== "all") || (baptizedFilter !== "all")) && (
               <span className="text-muted-foreground font-normal text-lg ml-2">
                 (filtered from {members.length})
               </span>
@@ -1647,7 +1674,7 @@ const Members = () => {
                             </div>
                             <p className="text-sm text-muted-foreground">
                               <MapPin className="w-3 h-3 inline mr-1" />
-                              {family.street_address}{family.street_address_line2 && `, ${family.street_address_line2}`}, {family.city}, {family.county} County, {family.state} {family.postal_code}
+                              {family.street_address}{family.street_address_line2 && `, ${family.street_address_line2}`}, {family.city}, {getStateAbbreviation(family.state)} {family.postal_code}
                             </p>
                           </CardHeader>
                           <CardContent>
@@ -1809,7 +1836,7 @@ const Members = () => {
                                   <TableCell>
                                     {member.address ? (
                                       <div className="max-w-xs truncate" title={member.address}>
-                                        {member.address.split('|||').filter(p => p).join(', ')}
+                                        {formatAddressDisplay(member.address)}
                                       </div>
                                     ) : (
                                       <span className="text-muted-foreground">—</span>
@@ -1987,11 +2014,11 @@ const Members = () => {
                         <TableCell>
                           {member.families ? (
                             <div className="max-w-xs truncate">
-                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {member.families.state} {member.families.postal_code}
+                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {getStateAbbreviation(member.families.state)} {member.families.postal_code}
                             </div>
                           ) : member.address ? (
                             <div className="max-w-xs truncate" title={member.address}>
-                              {member.address.split('|||').filter(p => p).join(', ')}
+                              {formatAddressDisplay(member.address)}
                             </div>
                           ) : (
                             <span className="text-muted-foreground">—</span>
