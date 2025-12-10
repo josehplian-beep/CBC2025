@@ -1155,6 +1155,372 @@ const Members = () => {
             </Button>
             {can('manage_members') && (
               <>
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Member
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Add New Member</DialogTitle>
+                      <DialogDescription>
+                        Add a new member to the directory. Fields marked with * are required.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(handleAddMember)} className="space-y-4 py-4">
+                        {/* Name Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Name *</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="first_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="last_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Gender & Baptized Section */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Gender *</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="bg-muted/30 border-border/50 hover:border-primary/50 transition-colors">
+                                      <SelectValue placeholder="Select gender" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Male">Male</SelectItem>
+                                    <SelectItem value="Female">Female</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="baptized"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Baptized</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="yes">Yes</SelectItem>
+                                    <SelectItem value="no">No</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Position & Department Section */}
+                        <div className="grid md:grid-cols-2 gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                          <FormField
+                            control={form.control}
+                            name="position"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Position</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., Vice Chairman, Member" className="bg-background" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="department"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-semibold">Department</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., Deacon, Youth" className="bg-background" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="service_year"
+                            render={({ field }) => (
+                              <FormItem className="md:col-span-2">
+                                <FormLabel className="text-sm font-semibold">Service Year</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="e.g., 2025 - 2026" className="bg-background" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Email Section */}
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold">E-mail</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="email" placeholder="ex: myname@example.com" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Phone Number Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Phone Number</Label>
+                          <div className="grid grid-cols-[120px_1fr] gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="area_code"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Area Code</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="515" maxLength={3} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="phone_number"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Phone Number</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="318-4281" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Family Selection */}
+                        <FormField
+                          control={form.control}
+                          name="family_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assign to Family (Optional)</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a family or leave unassigned" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="none">No Family (Individual)</SelectItem>
+                                  {families.map((family) => (
+                                    <SelectItem key={family.id} value={family.id}>
+                                      {family.family_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Address Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Address</Label>
+                          <div className="space-y-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="street_address"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="123 Main St" autoComplete="off" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="street_address_line2"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Street Address Line 2</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="Apt, suite, etc. (optional)" autoComplete="off" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">City</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} autoComplete="off" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="state"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">State</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select state" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {US_STATES.map((state) => (
+                                          <SelectItem key={state} value={state}>
+                                            {state}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="postal_code"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs text-muted-foreground">Zip Code</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="12345 or 12345-6789" autoComplete="off" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Birth Date Section */}
+                        <div>
+                          <Label className="text-sm font-semibold">Birth Date</Label>
+                          <div className="grid grid-cols-3 gap-4 mt-2">
+                            <FormField
+                              control={form.control}
+                              name="birth_month"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Month</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1" max="12" placeholder="MM" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="birth_day"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Day</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1" max="31" placeholder="DD" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="birth_year"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Year</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" min="1900" max={new Date().getFullYear()} placeholder="YYYY" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <Button
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                              setIsAddDialogOpen(false);
+                              form.reset();
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit">
+                            Add Member
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
                 <Dialog open={isFamilyDialogOpen} onOpenChange={setIsFamilyDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline">
