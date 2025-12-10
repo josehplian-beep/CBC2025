@@ -153,6 +153,7 @@ const Members = () => {
   const [showBulkDeleteConfirm1, setShowBulkDeleteConfirm1] = useState(false);
   const [showBulkDeleteConfirm2, setShowBulkDeleteConfirm2] = useState(false);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -236,7 +237,7 @@ const Members = () => {
         .order('family_name');
       if (!familiesError) setFamilies(familiesData || []);
 
-      // Load members with family data
+      // Load members with family data (with cache busting)
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('*, families(*)')
@@ -723,6 +724,25 @@ const Members = () => {
     return parts.join(', ');
   };
 
+  const handleForceRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await checkAccessAndLoadMembers();
+      toast({
+        title: "Refreshed",
+        description: "Member data reloaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const handleExportToExcel = () => {
     const exportData = filteredMembers.map(member => ({
       Name: member.name,
@@ -1127,7 +1147,11 @@ const Members = () => {
                   Reset Filters
                 </Button>
               )}
-              <Button onClick={handleExportToExcel} variant="outline" size="sm" disabled={filteredMembers.length === 0} className="gap-2 ml-auto">
+              <Button onClick={handleForceRefresh} variant="outline" size="sm" disabled={isRefreshing} className="gap-2 ml-auto">
+                <Loader2 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+              </Button>
+              <Button onClick={handleExportToExcel} variant="outline" size="sm" disabled={filteredMembers.length === 0} className="gap-2">
                 <Download className="w-4 h-4" />
                 Download CSV
               </Button>
