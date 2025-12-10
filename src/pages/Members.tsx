@@ -154,6 +154,7 @@ const Members = () => {
   const [showBulkDeleteConfirm2, setShowBulkDeleteConfirm2] = useState(false);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeletingMySQL, setIsDeletingMySQL] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -743,6 +744,54 @@ const Members = () => {
     }
   };
 
+  const handleDeleteAllMySQL = async () => {
+    setIsDeletingMySQL(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "You must be logged in",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('delete-mysql-members', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: data.message,
+        });
+        // Refresh the member list
+        await checkAccessAndLoadMembers();
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || 'Failed to delete MySQL members',
+          variant: "destructive",
+        });
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: `Failed to delete MySQL members: ${message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingMySQL(false);
+    }
+  };
+
   const handleExportToExcel = () => {
     const exportData = filteredMembers.map(member => ({
       Name: member.name,
@@ -1151,6 +1200,18 @@ const Members = () => {
                 <Loader2 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
               </Button>
+              {can('manage_users') && (
+                <Button 
+                  onClick={handleDeleteAllMySQL} 
+                  variant="destructive" 
+                  size="sm" 
+                  disabled={isDeletingMySQL}
+                  className="gap-2"
+                >
+                  <Trash2 className={`w-4 h-4 ${isDeletingMySQL ? 'animate-spin' : ''}`} />
+                  {isDeletingMySQL ? 'Deleting MySQL...' : 'Clear MySQL Data'}
+                </Button>
+              )}
               <Button onClick={handleExportToExcel} variant="outline" size="sm" disabled={filteredMembers.length === 0} className="gap-2">
                 <Download className="w-4 h-4" />
                 Download CSV
