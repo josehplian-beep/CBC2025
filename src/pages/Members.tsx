@@ -622,11 +622,12 @@ const Members = () => {
     }
   };
 
-  const handleSelectAll = () => {
-    if (selectedMembers.size === filteredMembers.length) {
+  const handleSelectAll = (selectAllMembers = false) => {
+    const membersToSelect = selectAllMembers ? members : filteredMembers;
+    if (selectedMembers.size === membersToSelect.length) {
       setSelectedMembers(new Set());
     } else {
-      setSelectedMembers(new Set(filteredMembers.map(m => m.id)));
+      setSelectedMembers(new Set(membersToSelect.map(m => m.id)));
     }
   };
 
@@ -1239,6 +1240,24 @@ const Members = () => {
             )}
           </h2>
           <div className="flex flex-wrap gap-2">
+            {can('manage_members') && members.length > 0 && (
+              <Button 
+                onClick={() => {
+                  handleSelectAll(true);
+                  setTimeout(() => {
+                    if (members.length > 0) {
+                      setShowBulkDeleteConfirm1(true);
+                    }
+                  }, 100);
+                }}
+                variant="destructive"
+                size="sm"
+                className="gap-2 font-bold"
+              >
+                <Trash2 className="w-4 h-4" />
+                Select All & Delete All ({members.length})
+              </Button>
+            )}
             {/* View Mode Toggle */}
             <div className="flex border rounded-lg overflow-hidden">
               <Button 
