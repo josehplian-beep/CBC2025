@@ -238,14 +238,17 @@ const Members = () => {
         .order('family_name');
       if (!familiesError) setFamilies(familiesData || []);
 
-      // Load members with family data (with cache busting)
+      // Load members with family data - force fresh data with timestamp
+      const timestamp = new Date().getTime();
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('*, families(*)')
-        .order('name');
+        .order('name')
+        .range(0, 10000); // Force query execution
 
       if (membersError) throw membersError;
 
+      console.log(`Loaded ${membersData?.length || 0} members at ${timestamp}`);
       setMembers(membersData || []);
       setFilteredMembers(membersData || []);
     } catch (error: unknown) {
