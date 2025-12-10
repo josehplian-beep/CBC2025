@@ -527,8 +527,8 @@ const Members = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Format: Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position
-      const membersToImport = jsonData.map((row: any) => {
+      // Format: Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position, Group By Family
+      const membersToImport = await Promise.all(jsonData.map(async (row: any) => {
         // Build address with proper structure: street|||line2|||city|||state|||zip
         const streetAddress = row['Street Address'] || '';
         const aptUnit = row['Apt/Unit'] || '';
@@ -557,6 +557,18 @@ const Members = () => {
             }
           }
         }
+
+        // Handle Group By Family - match with existing family or null
+        let familyId = null;
+        const familyName = row['Group By Family'];
+        if (familyName) {
+          const matchedFamily = families.find(f => 
+            f.family_name.toLowerCase().trim() === familyName.toString().toLowerCase().trim()
+          );
+          if (matchedFamily) {
+            familyId = matchedFamily.id;
+          }
+        }
         
         return {
           name: row['Name'] || '',
@@ -566,25 +578,27 @@ const Members = () => {
           address: fullAddress || null,
           date_of_birth: dateOfBirth,
           position: row['Position'] || null,
-          baptized: row['Baptized']?.toLowerCase() === 'yes' ? true : row['Baptized']?.toLowerCase() === 'no' ? false : null,
-          family_id: null,
+          baptized: row['Baptized']?.toString().toLowerCase() === 'yes' ? true : row['Baptized']?.toString().toLowerCase() === 'no' ? false : null,
+          family_id: familyId,
           church_groups: null
         };
-      }).filter(m => m.name); // Only import rows with names
+      }));
 
-      if (membersToImport.length === 0) {
+      const validMembers = membersToImport.filter(m => m.name);
+
+      if (validMembers.length === 0) {
         throw new Error('No valid members found in the file');
       }
 
       const { error } = await supabase
         .from('members')
-        .insert(membersToImport);
+        .insert(validMembers);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `${membersToImport.length} members imported successfully`,
+        description: `${validMembers.length} members imported successfully`,
       });
 
       setIsBulkImportDialogOpen(false);
@@ -683,7 +697,7 @@ const Members = () => {
         : formatAddressForExport(member.address),
       'Date of Birth': member.date_of_birth || '',
       Position: member.position || '',
-      'Group Family': member.families?.family_name || ''
+      'Group By Family': member.families?.family_name || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -1591,7 +1605,8 @@ const Members = () => {
                     <div className="space-y-4 py-4">
                       <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
                         <p className="font-semibold mb-2">Required columns:</p>
-                        <p className="font-mono text-xs">Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position</p>
+                        <p className="font-mono text-xs">Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position, Group By Family</p>
+                        <p className="text-xs mt-2 text-muted-foreground">Note: "Group By Family" should match an existing family name exactly to link members.</p>
                       </div>
                       <div>
                         <Label htmlFor="import-file">Select File</Label>

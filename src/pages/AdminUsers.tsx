@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, Shield, UserPlus, Users, Search, Filter, X, Eye, Lock, Edit, FileCheck, GraduationCap, User, Info, Trash2 } from "lucide-react";
+import { Loader2, Mail, Shield, UserPlus, Users, Search, Filter, X, Eye, Lock, Edit, FileCheck, GraduationCap, User, Info, Trash2, Link2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MemberLinkingDialog } from "@/components/MemberLinkingDialog";
 interface UserWithRoles {
   id: string;
   email: string;
@@ -79,6 +80,8 @@ const AdminUsers = () => {
   const [selectedRoleInfo, setSelectedRoleInfo] = useState<string | null>(null);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [linkingUserId, setLinkingUserId] = useState<string | null>(null);
+  const [linkingUserEmail, setLinkingUserEmail] = useState<string>("");
   const {
     toast
   } = useToast();
@@ -622,6 +625,18 @@ const AdminUsers = () => {
                           <TableCell className="text-sm text-muted-foreground">{formatDate(user.last_sign_in_at)}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => {
+                                  setLinkingUserId(user.id);
+                                  setLinkingUserEmail(user.email);
+                                }} 
+                                className="hover:bg-blue-50 text-blue-600 hover:text-blue-700"
+                              >
+                                <Link2 className="h-4 w-4 mr-2" />
+                                Link Profile
+                              </Button>
                               <Button variant="ghost" size="sm" onClick={() => setResetUserId(user.email)} className="hover:bg-primary/10">
                                 <Mail className="h-4 w-4 mr-2" />
                                 Reset Password
@@ -740,6 +755,18 @@ const AdminUsers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Member Linking Dialog */}
+      <MemberLinkingDialog
+        isOpen={!!linkingUserId}
+        onClose={() => {
+          setLinkingUserId(null);
+          setLinkingUserEmail("");
+        }}
+        userId={linkingUserId || ""}
+        userEmail={linkingUserEmail}
+        onLinkComplete={() => fetchUsers()}
+      />
     </>;
 };
 export default AdminUsers;
