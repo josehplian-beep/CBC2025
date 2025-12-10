@@ -745,6 +745,10 @@ const Members = () => {
   };
 
   const handleDeleteAllMySQL = async () => {
+    if (!confirm('Are you sure you want to delete ALL members from MySQL database? This cannot be undone!')) {
+      return;
+    }
+    
     setIsDeletingMySQL(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -758,7 +762,8 @@ const Members = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('delete-mysql-members', {
+      const { data, error } = await supabase.functions.invoke('mysql-sync', {
+        body: { deleteAll: true },
         headers: {
           Authorization: `Bearer ${session.access_token}`
         }

@@ -122,7 +122,34 @@ serve(async (req) => {
 
     console.log('Members table ready in MySQL');
 
-    const { direction } = await req.json();
+    const { direction, deleteAll } = await req.json();
+
+    // Handle delete all operation
+    if (deleteAll === true) {
+      console.log('Deleting all members from MySQL...');
+      
+      const countResult = await mysqlClient.query('SELECT COUNT(*) as count FROM members');
+      const memberCount = countResult[0]?.count || 0;
+      console.log(`Found ${memberCount} members in MySQL`);
+      
+      await mysqlClient.execute('DELETE FROM members');
+      console.log('All members deleted from MySQL');
+      
+      const verifyResult = await mysqlClient.query('SELECT COUNT(*) as count FROM members');
+      const remainingCount = verifyResult[0]?.count || 0;
+      
+      await mysqlClient.close();
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: `Successfully deleted ${memberCount} members from MySQL database`,
+          deleted_count: memberCount,
+          remaining_count: remainingCount
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (direction === 'supabase-to-mysql' || direction === 'bidirectional') {
       // Sync from Supabase to MySQL
