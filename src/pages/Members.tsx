@@ -654,31 +654,55 @@ const Members = () => {
     setIsDeletingBulk(true);
     try {
       const memberIds = Array.from(selectedMembers);
-      const batchSize = 100; // Process in batches to avoid request size limits
+      const batchSize = 10; // Very small batches to avoid request limits
       let successCount = 0;
       let errorCount = 0;
       
-      // Delete in batches
+      toast({
+        title: "Deleting...",
+        description: `Deleting ${memberIds.length} members in batches...`,
+      });
+      
+      // Delete in small batches with delay
       for (let i = 0; i < memberIds.length; i += batchSize) {
         const batch = memberIds.slice(i, i + batchSize);
         
-        const { error } = await supabase
-          .from('members')
-          .delete()
-          .in('id', batch);
+        try {
+          // Delete one at a time if batch fails
+          for (const id of batch) {
+            const { error } = await supabase
+              .from('members')
+              .delete()
+              .eq('id', id);
 
-        if (error) {
-          console.error('Batch delete error:', error);
+            if (error) {
+              console.error('Delete error for member:', id, error);
+              errorCount++;
+            } else {
+              successCount++;
+            }
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        } catch (batchError) {
+          console.error('Batch error:', batchError);
           errorCount += batch.length;
-        } else {
-          successCount += batch.length;
+        }
+        
+        // Update progress
+        if ((i + batchSize) % 50 === 0) {
+          toast({
+            title: "Progress",
+            description: `Deleted ${successCount} of ${memberIds.length} members...`,
+          });
         }
       }
 
       if (errorCount > 0) {
         toast({
           title: "Partial Success",
-          description: `${successCount} members deleted successfully, ${errorCount} failed`,
+          description: `${successCount} members deleted, ${errorCount} failed. Please refresh and try again for remaining members.`,
           variant: "destructive",
         });
       } else {
@@ -690,7 +714,11 @@ const Members = () => {
 
       setSelectedMembers(new Set());
       setShowBulkDeleteConfirm2(false);
-      checkAccessAndLoadMembers();
+      
+      // Refresh after a short delay
+      setTimeout(() => {
+        checkAccessAndLoadMembers();
+      }, 1000);
     } catch (error: unknown) {
       let message = "Failed to delete members. ";
       if (error instanceof Error) {
