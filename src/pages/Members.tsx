@@ -648,31 +648,51 @@ const Members = () => {
     setIsDeletingBulk(true);
     try {
       const memberIds = Array.from(selectedMembers);
+      const batchSize = 100; // Process in batches to avoid request size limits
+      let successCount = 0;
+      let errorCount = 0;
       
-      const { error } = await supabase
-        .from('members')
-        .delete()
-        .in('id', memberIds);
+      // Delete in batches
+      for (let i = 0; i < memberIds.length; i += batchSize) {
+        const batch = memberIds.slice(i, i + batchSize);
+        
+        const { error } = await supabase
+          .from('members')
+          .delete()
+          .in('id', batch);
 
-      if (error) {
-        throw new Error(error.message || 'Failed to delete members');
+        if (error) {
+          console.error('Batch delete error:', error);
+          errorCount += batch.length;
+        } else {
+          successCount += batch.length;
+        }
       }
 
-      toast({
-        title: "Success",
-        description: `${selectedMembers.size} members deleted successfully`,
-      });
+      if (errorCount > 0) {
+        toast({
+          title: "Partial Success",
+          description: `${successCount} members deleted successfully, ${errorCount} failed`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: `${successCount} member${successCount > 1 ? 's' : ''} deleted successfully`,
+        });
+      }
 
       setSelectedMembers(new Set());
       setShowBulkDeleteConfirm2(false);
       checkAccessAndLoadMembers();
     } catch (error: unknown) {
-      let message = "Failed to delete members";
+      let message = "Failed to delete members. ";
       if (error instanceof Error) {
-        message = error.message;
+        message += error.message;
       } else if (typeof error === 'object' && error !== null && 'message' in error) {
-        message = String((error as { message: unknown }).message);
+        message += String((error as { message: unknown }).message);
       }
+      console.error('Bulk delete error:', error);
       toast({
         title: "Error",
         description: message,
