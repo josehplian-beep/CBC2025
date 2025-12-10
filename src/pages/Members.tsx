@@ -636,14 +636,27 @@ const Members = () => {
   };
 
   const handleBulkDelete = async () => {
+    if (selectedMembers.size === 0) {
+      toast({
+        title: "Error",
+        description: "No members selected for deletion",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsDeletingBulk(true);
     try {
+      const memberIds = Array.from(selectedMembers);
+      
       const { error } = await supabase
         .from('members')
         .delete()
-        .in('id', Array.from(selectedMembers));
+        .in('id', memberIds);
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || 'Failed to delete members');
+      }
 
       toast({
         title: "Success",
@@ -654,7 +667,12 @@ const Members = () => {
       setShowBulkDeleteConfirm2(false);
       checkAccessAndLoadMembers();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      let message = "Failed to delete members";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        message = String((error as { message: unknown }).message);
+      }
       toast({
         title: "Error",
         description: message,
