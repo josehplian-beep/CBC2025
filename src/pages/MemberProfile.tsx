@@ -5,10 +5,15 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, FileText, Upload, Trash2, Download, File } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Member {
   id: string;
@@ -25,6 +30,17 @@ interface Member {
   service_year: string | null;
 }
 
+interface MemberFile {
+  id: string;
+  member_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string | null;
+  file_size: number | null;
+  description: string | null;
+  created_at: string;
+}
+
 const MemberProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,6 +48,12 @@ const MemberProfile = () => {
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
+  const [files, setFiles] = useState<MemberFile[]>([]);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileDescription, setFileDescription] = useState("");
+  const { can } = usePermissions();
 
   useEffect(() => {
     checkAccessAndLoadMember();
@@ -39,7 +61,6 @@ const MemberProfile = () => {
 
   const checkAccessAndLoadMember = async () => {
     try {
-      // Check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -47,7 +68,6 @@ const MemberProfile = () => {
         return;
       }
 
-      // Check if user has access (administrator, staff, editor, teacher, or member)
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
@@ -71,7 +91,6 @@ const MemberProfile = () => {
 
       setHasAccess(true);
 
-      // Load member
       const { data: memberData, error: memberError } = await supabase
         .from('members')
         .select('*')
@@ -91,6 +110,9 @@ const MemberProfile = () => {
       }
 
       setMember(memberData);
+      
+      // Load files
+      await loadFiles();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       toast({
@@ -101,6 +123,147 @@ const MemberProfile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadFiles = async () => {
+    if (!id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('member_files')
+        .select('*')
+        .eq('member_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setFiles(data || []);
+    } catch (error) {
+      console.error('Error loading files:', error);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile || !id) return;
+
+    setUploadingFile(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${id}/${Date.now()}-${selectedFile.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('member-files')
+        .upload(fileName, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('member-files')
+        .getPublicUrl(fileName);
+
+      const { error: dbError } = await supabase
+        .from('member_files')
+        .insert({
+          member_id: id,
+          file_name: selectedFile.name,
+          file_url: fileName,
+          file_type: selectedFile.type,
+          file_size: selectedFile.size,
+          description: fileDescription || null,
+          uploaded_by: session.user.id,
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+
+      setIsUploadDialogOpen(false);
+      setSelectedFile(null);
+      setFileDescription("");
+      await loadFiles();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const handleDeleteFile = async (file: MemberFile) => {
+    if (!confirm(`Are you sure you want to delete "${file.file_name}"?`)) return;
+
+    try {
+      const { error: storageError } = await supabase.storage
+        .from('member-files')
+        .remove([file.file_url]);
+
+      if (storageError) {
+        console.error('Storage delete error:', storageError);
+      }
+
+      const { error: dbError } = await supabase
+        .from('member_files')
+        .delete()
+        .eq('id', file.id);
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully",
+      });
+
+      await loadFiles();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadFile = async (file: MemberFile) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('member-files')
+        .download(file.file_url);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return 'Unknown size';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const STATE_ABBREVIATIONS: Record<string, string> = {
@@ -118,16 +281,13 @@ const MemberProfile = () => {
 
   const getStateAbbreviation = (state: string | null): string | null => {
     if (!state) return null;
-    // If already an abbreviation (2 chars), return as-is
     if (state.length === 2) return state.toUpperCase();
-    // Look up the abbreviation
     return STATE_ABBREVIATIONS[state] || state;
   };
 
   const parseAddress = (address: string | null) => {
     if (!address) return { street: null, street2: null, city: null, state: null, zip: null };
     
-    // Format: street|||line2|||city|||state|||zip
     const parts = address.split('|||').map(p => p?.trim());
     const street = parts[0] || null;
     const street2 = parts[1] || null;
@@ -178,6 +338,7 @@ const MemberProfile = () => {
   }
 
   const address = parseAddress(member.address);
+  const hasAddress = address.street || address.city || address.state || address.zip;
 
   return (
     <div className="min-h-screen bg-background">
@@ -279,7 +440,7 @@ const MemberProfile = () => {
               </div>
             )}
             
-            {member.address && (
+            {hasAddress && (
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
@@ -309,6 +470,135 @@ const MemberProfile = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Files Section */}
+        <div className="mt-12">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Files & Documents
+              </CardTitle>
+              {can('manage_members') && (
+                <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload File
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Upload File</DialogTitle>
+                      <DialogDescription>
+                        Upload a file to this member's profile for record-keeping.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="file">Select File</Label>
+                        <Input
+                          id="file"
+                          type="file"
+                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="description">Description (Optional)</Label>
+                        <Input
+                          id="description"
+                          value={fileDescription}
+                          onChange={(e) => setFileDescription(e.target.value)}
+                          placeholder="Enter file description..."
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleFileUpload} 
+                        disabled={!selectedFile || uploadingFile}
+                      >
+                        {uploadingFile ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          'Upload'
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </CardHeader>
+            <CardContent>
+              {files.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <File className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No files uploaded yet</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>File Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Uploaded</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {files.map((file) => (
+                      <TableRow key={file.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            {file.file_name}
+                          </div>
+                        </TableCell>
+                        <TableCell>{file.description || '—'}</TableCell>
+                        <TableCell>{formatFileSize(file.file_size)}</TableCell>
+                        <TableCell>
+                          {new Date(file.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDownloadFile(file)}
+                              title="Download"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            {can('manage_members') && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteFile(file)}
+                                title="Delete"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />
