@@ -750,7 +750,9 @@ const Members = () => {
 
   const formatAddressDisplay = (address: string | null): string => {
     if (!address) return '';
-    const parts = address.split('|||').filter(p => p);
+    const parts = address.split('|||').map(p => p?.trim()).filter(p => p && p.length > 0);
+    if (parts.length === 0) return '';
+    // Find and convert state abbreviation (usually index 3 if full address)
     if (parts.length >= 4) {
       parts[3] = getStateAbbreviation(parts[3]);
     }
