@@ -532,8 +532,82 @@ const Members = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+      // First pass: collect unique family names with their address data
+      const familyAddressMap = new Map<string, { street_address: string; street_address_line2: string; city: string; state: string; postal_code: string }>();
+      
+      jsonData.forEach((row: any) => {
+        const familyName = row['Group By Family']?.toString().trim();
+        if (familyName && !familyAddressMap.has(familyName.toLowerCase())) {
+          familyAddressMap.set(familyName.toLowerCase(), {
+            street_address: row['Street Address'] || '',
+            street_address_line2: row['Apt/Unit'] || '',
+            city: row['City'] || '',
+            state: row['State'] || '',
+            postal_code: row['Zip Code']?.toString() || ''
+          });
+        }
+      });
+
+      // Create or update families with addresses
+      const updatedFamilies = [...families];
+      for (const [familyNameLower, addressData] of familyAddressMap.entries()) {
+        const existingFamily = families.find(f => 
+          f.family_name.toLowerCase().trim() === familyNameLower
+        );
+        
+        if (existingFamily) {
+          // Update existing family address if there's new address data
+          if (addressData.street_address || addressData.city) {
+            const { error } = await supabase
+              .from('families')
+              .update({
+                street_address: addressData.street_address,
+                street_address_line2: addressData.street_address_line2,
+                city: addressData.city,
+                state: addressData.state,
+                postal_code: addressData.postal_code
+              })
+              .eq('id', existingFamily.id);
+            
+            if (error) {
+              console.error('Error updating family address:', error);
+            }
+          }
+        } else {
+          // Create new family with address
+          const originalFamilyName = Array.from(familyAddressMap.keys()).find(k => k === familyNameLower);
+          const actualFamilyName = jsonData.find((row: any) => 
+            row['Group By Family']?.toString().toLowerCase().trim() === familyNameLower
+          )?.['Group By Family'] || originalFamilyName;
+          
+          const { data: newFamily, error } = await supabase
+            .from('families')
+            .insert({
+              family_name: actualFamilyName,
+              street_address: addressData.street_address,
+              street_address_line2: addressData.street_address_line2,
+              city: addressData.city,
+              county: '', // Required field
+              state: addressData.state,
+              postal_code: addressData.postal_code
+            })
+            .select()
+            .single();
+          
+          if (error) {
+            console.error('Error creating family:', error);
+          } else if (newFamily) {
+            updatedFamilies.push(newFamily);
+          }
+        }
+      }
+
+      // Refresh families list
+      const { data: refreshedFamilies } = await supabase.from('families').select('*');
+      const latestFamilies = refreshedFamilies || updatedFamilies;
+
       // Format: Name, Email, Gender, Baptized, Phone, Street Address, Apt/Unit, City, State, Zip Code, Date of Birth, Position, Group By Family
-      const membersToImport = await Promise.all(jsonData.map(async (row: any) => {
+      const membersToImport = jsonData.map((row: any) => {
         // Build address with proper structure: street|||line2|||city|||state|||zip
         const streetAddress = row['Street Address'] || '';
         const aptUnit = row['Apt/Unit'] || '';
@@ -547,15 +621,12 @@ const Members = () => {
         let dateOfBirth = null;
         const dobValue = row['Date of Birth'];
         if (dobValue) {
-          // If it's already in YYYY-MM-DD format
           if (typeof dobValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dobValue)) {
             dateOfBirth = dobValue;
           } else if (typeof dobValue === 'number') {
-            // Excel serial date number
             const date = new Date((dobValue - 25569) * 86400 * 1000);
             dateOfBirth = date.toISOString().split('T')[0];
           } else if (typeof dobValue === 'string') {
-            // Try parsing common date formats
             const parsed = new Date(dobValue);
             if (!isNaN(parsed.getTime())) {
               dateOfBirth = parsed.toISOString().split('T')[0];
@@ -563,12 +634,12 @@ const Members = () => {
           }
         }
 
-        // Handle Group By Family - match with existing family or null
+        // Handle Group By Family - match with existing or newly created family
         let familyId = null;
-        const familyName = row['Group By Family'];
+        const familyName = row['Group By Family']?.toString().trim();
         if (familyName) {
-          const matchedFamily = families.find(f => 
-            f.family_name.toLowerCase().trim() === familyName.toString().toLowerCase().trim()
+          const matchedFamily = latestFamilies.find(f => 
+            f.family_name.toLowerCase().trim() === familyName.toLowerCase()
           );
           if (matchedFamily) {
             familyId = matchedFamily.id;
@@ -587,7 +658,7 @@ const Members = () => {
           family_id: familyId,
           church_groups: null
         };
-      }));
+      });
 
       const validMembers = membersToImport.filter(m => m.name);
 
@@ -617,7 +688,6 @@ const Members = () => {
       });
     } finally {
       setIsImporting(false);
-      // Reset file input
       event.target.value = '';
     }
   };
