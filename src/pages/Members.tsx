@@ -2235,7 +2235,15 @@ const Members = () => {
                             </div>
                             <p className="text-sm text-muted-foreground">
                               <MapPin className="w-3 h-3 inline mr-1" />
-                              {family.street_address}{family.street_address_line2 && `, ${family.street_address_line2}`}, {family.city}, {getStateAbbreviation(family.state)} {family.postal_code}
+                              {(() => {
+                                const parts = [
+                                  family.street_address,
+                                  family.street_address_line2,
+                                  family.city,
+                                  family.state ? `${getStateAbbreviation(family.state)} ${family.postal_code || ''}`.trim() : family.postal_code
+                                ].filter(Boolean);
+                                return parts.length > 0 ? parts.join(', ') : 'No address on file';
+                              })()}
                             </p>
                           </CardHeader>
                           <CardContent>
