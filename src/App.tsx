@@ -46,6 +46,10 @@ import AdminSchoolClasses from "./pages/AdminSchoolClasses";
 import AdminSchoolClassEdit from "./pages/AdminSchoolClassEdit";
 import AdminSchoolReports from "./pages/AdminSchoolReports";
 import TakeAttendance from "./pages/TakeAttendance";
+import AdminCheckinSessions from "./pages/AdminCheckinSessions";
+import KidsCheckin from "./pages/KidsCheckin";
+import ChildInfoEdit from "./pages/ChildInfoEdit";
+import AttendanceDashboard from "./pages/AttendanceDashboard";
 import NotFound from "./pages/NotFound";
 import Forbidden from "./pages/Forbidden";
 import AdminRoleManagement from "./pages/AdminRoleManagement";
@@ -114,6 +118,11 @@ const App = () => (
           <Route path="/admin/school/classes/:id/edit" element={<ProtectedRoute permission="manage_classes"><AdminLayout><AdminSchoolClassEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/classes/:classId/attendance" element={<ProtectedRoute permission="take_attendance"><AdminLayout><TakeAttendance /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/reports" element={<ProtectedRoute permissions={["manage_students", "take_attendance"]}><AdminLayout><AdminSchoolReports /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/checkin" element={<ProtectedRoute permission="take_attendance"><AdminLayout><AdminCheckinSessions /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/checkin/:sessionId" element={<ProtectedRoute permission="take_attendance"><AdminLayout><KidsCheckin /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/checkin/:sessionId/report" element={<ProtectedRoute permission="take_attendance"><AdminLayout><AttendanceDashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/students/:studentId/child-info" element={<ProtectedRoute permission="manage_students"><AdminLayout><ChildInfoEdit /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/school/attendance-dashboard" element={<ProtectedRoute permission="take_attendance"><AdminLayout><AttendanceDashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />

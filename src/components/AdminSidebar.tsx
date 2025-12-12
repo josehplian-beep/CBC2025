@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText, GraduationCap, BookOpen, ClipboardList, BarChart3, Database, Trash2 } from "lucide-react";
+import { User, Image, Users, Palette, LayoutDashboard, LogOut, MessageSquare, Calendar, Heart, Shield, Settings, FileText, GraduationCap, BookOpen, ClipboardList, BarChart3, Database, Trash2, UserCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -69,7 +69,9 @@ const adminMenuSections: MenuSection[] = [
       { title: "Teachers", url: "/admin/school/teachers", icon: GraduationCap, iconColor: "text-violet-500", permissions: ['manage_students', 'manage_classes'] },
       { title: "Students", url: "/admin/school/students", icon: Users, iconColor: "text-sky-500", permissions: ['manage_students'] },
       { title: "Classes", url: "/admin/school/classes", icon: BookOpen, iconColor: "text-teal-500", permissions: ['manage_classes'] },
-      { title: "Attendance Reports", url: "/admin/school/reports", icon: BarChart3, iconColor: "text-fuchsia-500", permissions: ['take_attendance'] },
+      { title: "Check-In Sessions", url: "/admin/school/checkin", icon: UserCheck, iconColor: "text-emerald-500", permissions: ['take_attendance'] },
+      { title: "Attendance Dashboard", url: "/admin/school/attendance-dashboard", icon: BarChart3, iconColor: "text-fuchsia-500", permissions: ['take_attendance'] },
+      { title: "Attendance Reports", url: "/admin/school/reports", icon: ClipboardList, iconColor: "text-amber-500", permissions: ['take_attendance'] },
     ],
   },
   {

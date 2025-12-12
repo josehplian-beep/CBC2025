@@ -108,6 +108,201 @@ export type Database = {
           },
         ]
       }
+      checkin_sessions: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          end_time: string | null
+          event_id: string | null
+          headcount: number | null
+          id: string
+          is_active: boolean
+          location: string | null
+          name: string
+          notes: string | null
+          session_date: string
+          session_type: string
+          start_time: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          event_id?: string | null
+          headcount?: number | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name: string
+          notes?: string | null
+          session_date?: string
+          session_type?: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          event_id?: string | null
+          headcount?: number | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name?: string
+          notes?: string | null
+          session_date?: string
+          session_type?: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkin_sessions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkin_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkins: {
+        Row: {
+          checked_in_by: string | null
+          checked_out_by: string | null
+          checkin_time: string
+          checkout_time: string | null
+          created_at: string
+          guest_name: string | null
+          id: string
+          is_checked_out: boolean
+          member_id: string | null
+          notes: string | null
+          security_code: string
+          session_id: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          checked_in_by?: string | null
+          checked_out_by?: string | null
+          checkin_time?: string
+          checkout_time?: string | null
+          created_at?: string
+          guest_name?: string | null
+          id?: string
+          is_checked_out?: boolean
+          member_id?: string | null
+          notes?: string | null
+          security_code: string
+          session_id: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          checked_in_by?: string | null
+          checked_out_by?: string | null
+          checkin_time?: string
+          checkout_time?: string | null
+          created_at?: string
+          guest_name?: string | null
+          id?: string
+          is_checked_out?: boolean
+          member_id?: string | null
+          notes?: string | null
+          security_code?: string
+          session_id?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkins_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "checkin_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkins_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      child_info: {
+        Row: {
+          additional_notes: string | null
+          allergies: string[] | null
+          authorized_pickups: string[] | null
+          created_at: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          id: string
+          medical_conditions: string[] | null
+          photo_consent: boolean | null
+          special_needs: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          allergies?: string[] | null
+          authorized_pickups?: string[] | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          medical_conditions?: string[] | null
+          photo_consent?: boolean | null
+          special_needs?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          additional_notes?: string | null
+          allergies?: string[] | null
+          authorized_pickups?: string[] | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          medical_conditions?: string[] | null
+          photo_consent?: boolean | null
+          special_needs?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_info_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_teachers: {
         Row: {
           class_id: string
@@ -316,6 +511,42 @@ export type Database = {
           street_address?: string
           street_address_line2?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      label_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          include_fields: string[] | null
+          is_default: boolean | null
+          name: string
+          paper_size: string | null
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          include_fields?: string[] | null
+          is_default?: boolean | null
+          name: string
+          paper_size?: string | null
+          template_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          include_fields?: string[] | null
+          is_default?: boolean | null
+          name?: string
+          paper_size?: string | null
+          template_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
