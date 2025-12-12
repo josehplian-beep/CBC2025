@@ -14,6 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { usePermissions } from "@/hooks/usePermissions";
+import { MemberTagsSection } from "@/components/members/MemberTagsSection";
+import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFieldsSection";
+import { MemberNotesSection } from "@/components/members/MemberNotesSection";
 
 interface Member {
   id: string;
@@ -379,7 +382,12 @@ const MemberProfile = () => {
           {/* Right side - Member Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-4xl font-bold mb-6">{member.name}</h1>
+              <h1 className="text-4xl font-bold mb-4">{member.name}</h1>
+              
+              {/* Tags Section */}
+              <div className="mb-6">
+                <MemberTagsSection memberId={id!} canEdit={can('manage_members')} />
+              </div>
               
               {member.gender && (
                 <div className="mb-4">
@@ -599,6 +607,14 @@ const MemberProfile = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Custom Fields Section */}
+          <MemberCustomFieldsSection memberId={id!} canEdit={can('manage_members')} />
+
+          {/* Private Notes Section */}
+          {hasAccess && (
+            <MemberNotesSection memberId={id!} canEdit={can('manage_members')} />
+          )}
         </div>
       </div>
       <Footer />
