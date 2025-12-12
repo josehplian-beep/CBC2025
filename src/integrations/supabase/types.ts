@@ -319,6 +319,81 @@ export type Database = {
         }
         Relationships: []
       }
+      member_custom_field_values: {
+        Row: {
+          created_at: string
+          field_id: string
+          id: string
+          member_id: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          field_id: string
+          id?: string
+          member_id: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          field_id?: string
+          id?: string
+          member_id?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_custom_field_values_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "member_custom_fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_custom_field_values_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_custom_fields: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          field_type: string
+          id: string
+          is_required: boolean
+          name: string
+          options: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          name: string
+          options?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          field_type?: string
+          id?: string
+          is_required?: boolean
+          name?: string
+          options?: Json | null
+        }
+        Relationships: []
+      }
       member_files: {
         Row: {
           created_at: string
@@ -365,6 +440,101 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      member_notes: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          member_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          member_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          member_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_notes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_tag_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          member_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_tag_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "member_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_tags: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       members: {
         Row: {
