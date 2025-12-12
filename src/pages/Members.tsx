@@ -5,7 +5,10 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search, LayoutGrid, List } from "lucide-react";
+import { Lock, Mail, MapPin, Phone, User, AlertTriangle, Loader2, Download, Plus, Filter, Calendar, Users, Edit, Trash2, Upload, Eye, Search, LayoutGrid, List, X, Tag, FileText } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -158,6 +161,8 @@ const Members = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  const [selectedMemberPanel, setSelectedMemberPanel] = useState<Member | null>(null);
+
   const form = useForm<z.infer<typeof memberFormSchema>>({
     resolver: zodResolver(memberFormSchema),
     defaultValues: {
@@ -172,7 +177,7 @@ const Members = () => {
       street_address: "",
       street_address_line2: "",
       city: "",
-      state: "",
+      state: "Maryland",
       postal_code: "",
       birth_month: "",
       birth_day: "",
@@ -2587,7 +2592,7 @@ const Members = () => {
                 )}
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/30">
                       {can('manage_members') && (
                         <TableHead className="w-12">
                           <Checkbox
@@ -2597,123 +2602,109 @@ const Members = () => {
                           />
                         </TableHead>
                       )}
-                      <TableHead>Name</TableHead>
+                      <TableHead className="w-[300px]">Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Gender</TableHead>
-                      <TableHead>Baptized</TableHead>
+                      <TableHead>State/Province</TableHead>
                       <TableHead>Phone</TableHead>
-                      <TableHead>Address</TableHead>
-                      <TableHead>Date of Birth</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Group Family</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredMembers.map((member) => (
-                      <TableRow key={member.id}>
-                        {can('manage_members') && (
+                    {filteredMembers.map((member) => {
+                      const stateValue = member.families?.state || (member.address?.includes('|||') ? member.address.split('|||')[3] : '');
+                      return (
+                        <TableRow 
+                          key={member.id} 
+                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => setSelectedMemberPanel(member)}
+                        >
+                          {can('manage_members') && (
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                checked={selectedMembers.has(member.id)}
+                                onCheckedChange={() => handleSelectMember(member.id)}
+                                aria-label={`Select ${member.name}`}
+                              />
+                            </TableCell>
+                          )}
                           <TableCell>
-                            <Checkbox
-                              checked={selectedMembers.has(member.id)}
-                              onCheckedChange={() => handleSelectMember(member.id)}
-                              aria-label={`Select ${member.name}`}
-                            />
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10 border-2 border-primary/20">
+                                <AvatarImage src={member.profile_image_url || undefined} alt={member.name} />
+                                <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                                  {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{member.name}</span>
+                            </div>
                           </TableCell>
-                        )}
-                        <TableCell className="font-medium">{member.name}</TableCell>
-                        <TableCell>
-                          {member.email ? (
-                            <a href={`mailto:${member.email}`} className="text-primary hover:underline">
-                              {member.email}
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{member.gender || <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell>
-                          {member.baptized === true ? (
-                            <Badge variant="default" className="bg-green-500">Yes</Badge>
-                          ) : member.baptized === false ? (
-                            <Badge variant="secondary">No</Badge>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.phone ? (
-                            <a href={`tel:${member.phone}`} className="text-primary hover:underline">
-                              {member.phone}
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.families ? (
-                            <div className="max-w-xs truncate">
-                              {member.families.street_address}{member.families.street_address_line2 && `, ${member.families.street_address_line2}`}, {member.families.city}, {getStateAbbreviation(member.families.state)} {member.families.postal_code}
-                            </div>
-                          ) : member.address ? (
-                            <div className="max-w-xs truncate" title={member.address}>
-                              {formatAddressDisplay(member.address)}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.date_of_birth ? (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3 text-muted-foreground" />
-                              {new Date(member.date_of_birth).toLocaleDateString()}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{member.position || <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell>
-                          {member.families?.family_name || <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => navigate(`/members/${member.id}`)}
-                              title="View profile"
-                              className="gap-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                              <span>View Profile</span>
-                            </Button>
-                            {can('manage_members') && (
+                          <TableCell>
+                            {member.email ? (
+                              <a 
+                                href={`mailto:${member.email}`} 
+                                className="text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {member.email}
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {stateValue ? getStateAbbreviation(stateValue) : <span className="text-muted-foreground">—</span>}
+                          </TableCell>
+                          <TableCell>
+                            {member.phone ? (
+                              <a 
+                                href={`tel:${member.phone}`} 
+                                className="text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {member.phone}
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleEditMember(member)}
-                                title="Edit member"
+                                onClick={() => navigate(`/members/${member.id}`)}
+                                title="View full profile"
+                                className="h-8 w-8"
                               >
-                                <Edit className="w-4 h-4" />
+                                <Eye className="w-4 h-4" />
                               </Button>
-                            )}
-                            {can('manage_members') && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setMemberToDelete(member)}
-                                title="Delete member"
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              {can('manage_members') && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditMember(member)}
+                                  title="Edit member"
+                                  className="h-8 w-8"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {can('manage_members') && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setMemberToDelete(member)}
+                                  title="Delete member"
+                                  className="h-8 w-8 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -2794,6 +2785,198 @@ const Members = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Member Profile Side Panel */}
+      <Sheet open={!!selectedMemberPanel} onOpenChange={() => setSelectedMemberPanel(null)}>
+        <SheetContent className="w-[400px] sm:w-[450px] overflow-y-auto">
+          {selectedMemberPanel && (
+            <>
+              <SheetHeader className="pb-4">
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-20 w-20 border-4 border-primary/30">
+                    <AvatarImage src={selectedMemberPanel.profile_image_url || undefined} alt={selectedMemberPanel.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+                      {selectedMemberPanel.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <SheetTitle className="text-2xl font-bold text-primary">
+                      {selectedMemberPanel.name.split(' ')[0]}
+                    </SheetTitle>
+                    <p className="text-xl text-muted-foreground">
+                      {selectedMemberPanel.name.split(' ').slice(1).join(' ')}
+                    </p>
+                  </div>
+                </div>
+              </SheetHeader>
+              
+              <Separator className="my-4" />
+              
+              {/* Profile Section */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-primary mb-3">Profile</h3>
+                  
+                  {/* Tags placeholder */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-muted-foreground">Tags</span>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {selectedMemberPanel.position && (
+                      <Badge variant="outline" className="border-primary/50 text-primary">
+                        <Tag className="w-3 h-3 mr-1" />
+                        {selectedMemberPanel.position}
+                      </Badge>
+                    )}
+                    {selectedMemberPanel.department && (
+                      <Badge variant="outline" className="border-accent/50 text-accent">
+                        {selectedMemberPanel.department}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* Information Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-primary">Information</h3>
+                    {can('manage_members') && (
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        onClick={() => {
+                          handleEditMember(selectedMemberPanel);
+                          setSelectedMemberPanel(null);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Gender</p>
+                        <p className="font-medium">{selectedMemberPanel.gender || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Baptized</p>
+                        <p className="font-medium">
+                          {selectedMemberPanel.baptized === true ? 'Yes' : selectedMemberPanel.baptized === false ? 'No' : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Date of Birth</p>
+                      <p className="font-medium">
+                        {selectedMemberPanel.date_of_birth 
+                          ? new Date(selectedMemberPanel.date_of_birth).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })
+                          : '—'}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Family</p>
+                      <p className="font-medium">{selectedMemberPanel.families?.family_name || '—'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* Contact Section */}
+                <div>
+                  <h3 className="text-lg font-semibold text-primary mb-4">Contact</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Phone className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Phone</p>
+                        {selectedMemberPanel.phone ? (
+                          <a href={`tel:${selectedMemberPanel.phone}`} className="font-medium text-primary hover:underline">
+                            {selectedMemberPanel.phone}
+                          </a>
+                        ) : (
+                          <p className="font-medium text-muted-foreground">—</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Mail className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Email</p>
+                        {selectedMemberPanel.email ? (
+                          <a href={`mailto:${selectedMemberPanel.email}`} className="font-medium text-primary hover:underline">
+                            {selectedMemberPanel.email}
+                          </a>
+                        ) : (
+                          <p className="font-medium text-muted-foreground">—</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                        <MapPin className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Address</p>
+                        <p className="font-medium">
+                          {selectedMemberPanel.families ? (
+                            <>
+                              {selectedMemberPanel.families.street_address}
+                              {selectedMemberPanel.families.street_address_line2 && <><br />{selectedMemberPanel.families.street_address_line2}</>}
+                              <br />
+                              {selectedMemberPanel.families.city}, {getStateAbbreviation(selectedMemberPanel.families.state)} {selectedMemberPanel.families.postal_code}
+                            </>
+                          ) : selectedMemberPanel.address ? (
+                            formatAddressDisplay(selectedMemberPanel.address)
+                          ) : (
+                            '—'
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* Actions */}
+                <div className="pt-2">
+                  <Button 
+                    onClick={() => {
+                      navigate(`/members/${selectedMemberPanel.id}`);
+                      setSelectedMemberPanel(null);
+                    }}
+                    className="w-full"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Full Profile
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
