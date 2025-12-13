@@ -1211,7 +1211,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      staff_biographies_public: {
+        Row: {
+          biography_content: string | null
+          children_count: number | null
+          created_at: string | null
+          display_order: number | null
+          hobbies: string | null
+          id: string | null
+          image_url: string | null
+          is_published: boolean | null
+          ministry_focus: string[] | null
+          name: string | null
+          role: string | null
+          slug: string | null
+          spouse_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          biography_content?: string | null
+          children_count?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          hobbies?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_published?: boolean | null
+          ministry_focus?: string[] | null
+          name?: string | null
+          role?: string | null
+          slug?: string | null
+          spouse_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          biography_content?: string | null
+          children_count?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          hobbies?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_published?: boolean | null
+          ministry_focus?: string[] | null
+          name?: string | null
+          role?: string | null
+          slug?: string | null
+          spouse_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_recurring_events: {
