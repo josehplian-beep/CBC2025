@@ -22,13 +22,8 @@ const Staff = () => {
   }, []);
   const fetchStaff = async () => {
     try {
-      // Use public view which excludes sensitive contact info (email/phone)
-      const {
-        data,
-        error
-      } = await supabase.from('staff_biographies_public').select('id, name, role, image_url, slug, display_order').order('display_order', {
-        ascending: true
-      });
+      // Use secure function which returns public staff data (excludes email/phone)
+      const { data, error } = await supabase.rpc('get_public_staff_biographies');
       if (error) throw error;
       setStaff(data || []);
     } catch (error) {

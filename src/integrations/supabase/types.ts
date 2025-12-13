@@ -1281,6 +1281,25 @@ export type Database = {
         Returns: undefined
       }
       get_album_photo_count: { Args: { album_uuid: string }; Returns: number }
+      get_public_staff_biographies: {
+        Args: never
+        Returns: {
+          biography_content: string
+          children_count: number
+          created_at: string
+          display_order: number
+          hobbies: string
+          id: string
+          image_url: string
+          is_published: boolean
+          ministry_focus: string[]
+          name: string
+          role: string
+          slug: string
+          spouse_name: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
