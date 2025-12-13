@@ -253,27 +253,25 @@ const AdminUsers = () => {
     }
     setCreating(true);
     try {
-      // Sign up the user
-      const {
-        data: signUpData,
-        error: signUpError
-      } = await supabase.auth.signUp({
-        email: newUserEmail,
-        password: newUserPassword
-      });
-      if (signUpError) throw signUpError;
-      if (!signUpData.user) {
-        throw new Error("Failed to create user");
+      // Get current session for authorization
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Not authenticated");
       }
 
-      // Assign role to the user
-      const {
-        error: roleError
-      } = await supabase.from('user_roles').insert([{
-        user_id: signUpData.user.id,
-        role: newUserRole
-      }]);
-      if (roleError) throw roleError;
+      // Call edge function to create user server-side
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: {
+          action: 'create_user',
+          email: newUserEmail,
+          password: newUserPassword,
+          role: newUserRole
+        }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       toast({
         title: "User created",
         description: `User created successfully with ${newUserRole} role.`

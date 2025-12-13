@@ -56,11 +56,91 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const action = url.searchParams.get("action");
+    let action = url.searchParams.get("action");
+
+    // Also check body for action (for supabase.functions.invoke)
+    let body: Record<string, unknown> = {};
+    if (req.method === "POST") {
+      try {
+        body = await req.json();
+        if (body.action && !action) {
+          action = body.action as string;
+        }
+      } catch {
+        // No body or invalid JSON
+      }
+    }
+
+    // Handle create user action
+    if (action === "create_user" && req.method === "POST") {
+      const { email, password, role } = body as { email: string; password: string; role: string };
+      
+      if (!email || !password || !role) {
+        return new Response(
+          JSON.stringify({ error: "Email, password, and role are required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Validate role
+      const validRoles = ["staff", "admin", "viewer", "member", "editor", "teacher", "administrator"];
+      if (!validRoles.includes(role)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid role specified" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Create user with admin API
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+
+      if (createError) {
+        console.error("Error creating user:", createError);
+        return new Response(
+          JSON.stringify({ error: createError.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!newUser.user) {
+        return new Response(
+          JSON.stringify({ error: "Failed to create user" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Assign role to the new user
+      const { error: roleInsertError } = await supabaseAdmin
+        .from("user_roles")
+        .insert([{ user_id: newUser.user.id, role }]);
+
+      if (roleInsertError) {
+        console.error("Error assigning role:", roleInsertError);
+        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+        return new Response(
+          JSON.stringify({ error: "Failed to assign role: " + roleInsertError.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`User created successfully: ${email} with role ${role}`);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          user: { id: newUser.user.id, email: newUser.user.email },
+          message: `User created with ${role} role`
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Handle password reset action
     if (action === "reset_password" && req.method === "POST") {
-      const { userId } = await req.json();
+      const { userId } = body as { userId: string };
       
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
@@ -69,7 +149,6 @@ serve(async (req) => {
 
       if (error) throw error;
 
-      // Send the reset link via email
       const resetUrl = data.properties?.action_link;
       
       return new Response(
@@ -83,9 +162,8 @@ serve(async (req) => {
 
     // Handle role update action
     if (action === "update_role" && req.method === "POST") {
-      const { userId, role } = await req.json();
+      const { userId, role } = body as { userId: string; role: string };
       
-      // First, delete existing roles for this user
       const { error: deleteError } = await supabaseAdmin
         .from('user_roles')
         .delete()
@@ -93,7 +171,6 @@ serve(async (req) => {
 
       if (deleteError) throw deleteError;
 
-      // Insert the new role
       const { error: insertError } = await supabaseAdmin
         .from('user_roles')
         .insert({ user_id: userId, role });
@@ -111,7 +188,7 @@ serve(async (req) => {
 
     // Handle delete user action
     if (action === "delete_user" && req.method === "POST") {
-      const { userId } = await req.json();
+      const { userId } = body as { userId: string };
       
       const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
