@@ -1288,6 +1288,7 @@ export type Database = {
           children_count: number
           created_at: string
           display_order: number
+          email: string
           hobbies: string
           id: string
           image_url: string

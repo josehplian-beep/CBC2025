@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Mail, Phone, Type } from "lucide-react";
+import { Mail, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,7 +12,6 @@ interface StaffBiography {
   name: string;
   role: string;
   email?: string;
-  phone?: string;
   image_url?: string;
   biography_content: string;
   ministry_focus?: string[];
@@ -36,21 +35,22 @@ const StaffBiography = () => {
     if (!slug) return;
 
     setLoading(true);
-    const { data, error } = await supabase
-      .from('staff_biographies' as any)
-      .select('*')
-      .eq('slug', slug)
-      .eq('is_published', true)
-      .single();
+    // Use secure function which returns public staff data (excludes phone)
+    const { data, error } = await supabase.rpc('get_public_staff_biographies');
     
     if (error) {
       toast.error('Staff biography not found');
-      navigate('/about');
+      navigate('/staff');
       return;
     }
 
-    if (data) {
-      setStaff(data as any);
+    // Find the specific staff member by slug
+    const staffMember = data?.find((s: any) => s.slug === slug);
+    if (staffMember) {
+      setStaff(staffMember as any);
+    } else {
+      toast.error('Staff biography not found');
+      navigate('/staff');
     }
     setLoading(false);
   };
@@ -124,15 +124,6 @@ const StaffBiography = () => {
                   >
                     <Mail className="w-5 h-5" />
                     <span>{staff.email}</span>
-                  </a>
-                )}
-                {staff.phone && (
-                  <a 
-                    href={`tel:${staff.phone}`}
-                    className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Phone className="w-5 h-5" />
-                    <span>{staff.phone}</span>
                   </a>
                 )}
               </div>

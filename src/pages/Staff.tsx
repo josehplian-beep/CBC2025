@@ -9,6 +9,7 @@ interface StaffMember {
   id: string;
   name: string;
   role: string;
+  email?: string;
   image_url?: string;
   slug: string;
   display_order: number;
@@ -53,7 +54,7 @@ const Staff = () => {
             </div> : staff.length === 0 ? <div className="text-center py-20">
               <p className="text-muted-foreground text-lg">No staff members found.</p>
             </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {staff.map(member => <StaffCard key={member.id} name={member.name} role={member.role} image={member.image_url} profileLink={`/staff/${member.slug}`} />)}
+              {staff.map(member => <StaffCard key={member.id} name={member.name} role={member.role} email={member.email} image={member.image_url} profileLink={`/staff/${member.slug}`} />)}
             </div>}
         </div>
       </section>
