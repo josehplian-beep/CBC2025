@@ -9,8 +9,6 @@ interface StaffMember {
   id: string;
   name: string;
   role: string;
-  email?: string;
-  phone?: string;
   image_url?: string;
   slug: string;
   display_order: number;
@@ -24,16 +22,17 @@ const Staff = () => {
   }, []);
   const fetchStaff = async () => {
     try {
+      // Use public view which excludes sensitive contact info (email/phone)
       const {
         data,
         error
-      } = await supabase.from('staff_biographies').select('*').eq('is_published', true).order('display_order', {
+      } = await supabase.from('staff_biographies_public').select('id, name, role, image_url, slug, display_order').order('display_order', {
         ascending: true
       });
       if (error) throw error;
       setStaff(data || []);
     } catch (error) {
-      // Silently handle fetch error
+      console.error('Error fetching staff:', error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +58,7 @@ const Staff = () => {
             </div> : staff.length === 0 ? <div className="text-center py-20">
               <p className="text-muted-foreground text-lg">No staff members found.</p>
             </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {staff.map(member => <StaffCard key={member.id} name={member.name} role={member.role} email={member.email} phone={member.phone} image={member.image_url} profileLink={`/staff/${member.slug}`} />)}
+              {staff.map(member => <StaffCard key={member.id} name={member.name} role={member.role} image={member.image_url} profileLink={`/staff/${member.slug}`} />)}
             </div>}
         </div>
       </section>
