@@ -2369,14 +2369,37 @@ const Members = () => {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Address</p>
-                        <p className="font-medium">
+                        <div className="font-medium">
                           {selectedMemberPanel.families ? <>
-                              {selectedMemberPanel.families.street_address}
-                              {selectedMemberPanel.families.street_address_line2 && <><br />{selectedMemberPanel.families.street_address_line2}</>}
-                              <br />
-                              {selectedMemberPanel.families.city}, {getStateAbbreviation(selectedMemberPanel.families.state)} {selectedMemberPanel.families.postal_code}
-                            </> : selectedMemberPanel.address ? formatAddressDisplay(selectedMemberPanel.address) : '—'}
-                        </p>
+                              <p>{selectedMemberPanel.families.street_address}</p>
+                              {selectedMemberPanel.families.street_address_line2 && <p>{selectedMemberPanel.families.street_address_line2}</p>}
+                              <p>
+                                {[
+                                  selectedMemberPanel.families.city,
+                                  getStateAbbreviation(selectedMemberPanel.families.state),
+                                  selectedMemberPanel.families.postal_code
+                                ].filter(Boolean).join(', ')}
+                              </p>
+                            </> : selectedMemberPanel.address ? (() => {
+                              const parts = selectedMemberPanel.address.split('|||').map(p => p?.trim());
+                              const street = parts[0] || null;
+                              const street2 = parts[1] || null;
+                              const city = parts[2] || null;
+                              const state = getStateAbbreviation(parts[3] || null);
+                              const zip = parts[4] || null;
+                              const hasAddress = street || city || state || zip;
+                              
+                              if (!hasAddress) return <span className="text-muted-foreground">—</span>;
+                              
+                              return <>
+                                {street && <p>{street}</p>}
+                                {street2 && <p>{street2}</p>}
+                                <p>
+                                  {[city, state, zip].filter(Boolean).join(', ')}
+                                </p>
+                              </>;
+                            })() : <span className="text-muted-foreground">—</span>}
+                        </div>
                       </div>
                     </div>
                   </div>
