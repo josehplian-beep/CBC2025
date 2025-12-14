@@ -846,17 +846,47 @@ const Members = () => {
     }
   };
   const handleExportToExcel = () => {
-    const exportData = filteredMembers.map(member => ({
-      Name: member.name,
-      Email: member.email || '',
-      Gender: member.gender || '',
-      Baptized: member.baptized === true ? 'Yes' : member.baptized === false ? 'No' : '',
-      Phone: member.phone || '',
-      Address: member.families ? `${member.families.street_address}${member.families.street_address_line2 ? `, ${member.families.street_address_line2}` : ''}, ${member.families.city}, ${getStateAbbreviation(member.families.state)} ${member.families.postal_code}` : formatAddressForExport(member.address),
-      'Date of Birth': member.date_of_birth || '',
-      Position: member.position || '',
-      'Group By Family': member.families?.family_name || ''
-    }));
+    const exportData = filteredMembers.map(member => {
+      // Prioritize family address, fallback to member address
+      let streetAddress = '';
+      let aptUnit = '';
+      let city = '';
+      let state = '';
+      let zipCode = '';
+      
+      if (member.families && (member.families.street_address || member.families.city || member.families.state || member.families.postal_code)) {
+        streetAddress = member.families.street_address || '';
+        aptUnit = member.families.street_address_line2 || '';
+        city = member.families.city || '';
+        state = member.families.state || '';
+        zipCode = member.families.postal_code || '';
+      } else if (member.address) {
+        const parts = member.address.split('|||').map(p => p?.trim() || '');
+        streetAddress = parts[0] || '';
+        aptUnit = parts[1] || '';
+        city = parts[2] || '';
+        state = parts[3] || '';
+        zipCode = parts[4] || '';
+      }
+      
+      return {
+        Name: member.name,
+        Email: member.email || '',
+        Gender: member.gender || '',
+        Baptized: member.baptized === true ? 'Yes' : member.baptized === false ? 'No' : '',
+        Phone: member.phone || '',
+        'Street Address': streetAddress,
+        'Apt/Unit': aptUnit,
+        City: city,
+        State: state,
+        'Zip Code': zipCode,
+        'Date of Birth': member.date_of_birth || '',
+        Position: member.position || '',
+        Department: member.department || '',
+        'Service Year': member.service_year || '',
+        'Group By Family': member.families?.family_name || ''
+      };
+    });
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Members");
