@@ -90,8 +90,29 @@ export const useMemberExportImport = () => {
 
       // Build export data
       const exportData = members.map(member => {
-        const addr = parseAddress(member.address);
         const family = families.find(f => f.id === member.family_id);
+        
+        // Prioritize family address, fallback to member address
+        let street = '';
+        let line2 = '';
+        let city = '';
+        let state = '';
+        let zip = '';
+        
+        if (family && (family.street_address || family.city || family.state || family.postal_code)) {
+          street = family.street_address || '';
+          line2 = family.street_address_line2 || '';
+          city = family.city || '';
+          state = family.state || '';
+          zip = family.postal_code || '';
+        } else {
+          const addr = parseAddress(member.address);
+          street = addr.street;
+          line2 = addr.line2;
+          city = addr.city;
+          state = addr.state;
+          zip = addr.zip;
+        }
         
         const row: Record<string, string | boolean | null> = {
           'Name': member.name,
@@ -99,11 +120,11 @@ export const useMemberExportImport = () => {
           'Gender': member.gender || '',
           'Baptized': member.baptized ? 'Yes' : member.baptized === false ? 'No' : '',
           'Phone': member.phone || '',
-          'Street Address': addr.street,
-          'Apt/Unit': addr.line2,
-          'City': addr.city,
-          'State': addr.state,
-          'Zip Code': addr.zip,
+          'Street Address': street,
+          'Apt/Unit': line2,
+          'City': city,
+          'State': state,
+          'Zip Code': zip,
           'Date of Birth': member.date_of_birth || '',
           'Position': member.position || '',
           'Department': member.department || '',
