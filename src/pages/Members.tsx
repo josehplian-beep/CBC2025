@@ -2370,17 +2370,25 @@ const Members = () => {
                       <div>
                         <p className="text-xs text-muted-foreground">Address</p>
                         <div className="font-medium">
-                          {selectedMemberPanel.families ? <>
-                              <p>{selectedMemberPanel.families.street_address}</p>
-                              {selectedMemberPanel.families.street_address_line2 && <p>{selectedMemberPanel.families.street_address_line2}</p>}
-                              <p>
-                                {[
-                                  selectedMemberPanel.families.city,
-                                  getStateAbbreviation(selectedMemberPanel.families.state),
-                                  selectedMemberPanel.families.postal_code
-                                ].filter(Boolean).join(', ')}
-                              </p>
-                            </> : selectedMemberPanel.address ? (() => {
+                          {(() => {
+                            // First check family address
+                            if (selectedMemberPanel.families) {
+                              const { street_address, street_address_line2, city, state, postal_code } = selectedMemberPanel.families;
+                              const hasAddress = street_address || city || state || postal_code;
+                              
+                              if (hasAddress) {
+                                return <>
+                                  {street_address && <p>{street_address}</p>}
+                                  {street_address_line2 && <p>{street_address_line2}</p>}
+                                  <p>
+                                    {[city, getStateAbbreviation(state), postal_code].filter(Boolean).join(', ')}
+                                  </p>
+                                </>;
+                              }
+                            }
+                            
+                            // Then check member address field
+                            if (selectedMemberPanel.address) {
                               const parts = selectedMemberPanel.address.split('|||').map(p => p?.trim());
                               const street = parts[0] || null;
                               const street2 = parts[1] || null;
@@ -2389,16 +2397,19 @@ const Members = () => {
                               const zip = parts[4] || null;
                               const hasAddress = street || city || state || zip;
                               
-                              if (!hasAddress) return <span className="text-muted-foreground">—</span>;
-                              
-                              return <>
-                                {street && <p>{street}</p>}
-                                {street2 && <p>{street2}</p>}
-                                <p>
-                                  {[city, state, zip].filter(Boolean).join(', ')}
-                                </p>
-                              </>;
-                            })() : <span className="text-muted-foreground">—</span>}
+                              if (hasAddress) {
+                                return <>
+                                  {street && <p>{street}</p>}
+                                  {street2 && <p>{street2}</p>}
+                                  <p>
+                                    {[city, state, zip].filter(Boolean).join(', ')}
+                                  </p>
+                                </>;
+                              }
+                            }
+                            
+                            return <span className="text-muted-foreground">—</span>;
+                          })()}
                         </div>
                       </div>
                     </div>
