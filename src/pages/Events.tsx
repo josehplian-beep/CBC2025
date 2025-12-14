@@ -19,6 +19,7 @@ const Events = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
+  const [timeFilter, setTimeFilter] = useState<string>("upcoming");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [events, setEvents] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -189,15 +190,23 @@ const Events = () => {
 
   let filteredEvents = events;
   
+  // Filter by time (upcoming vs all) - default to upcoming
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (timeFilter === "upcoming") {
+    filteredEvents = filteredEvents.filter(event => event.dateObj >= today);
+  }
+  
   // Filter by date
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
     const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
-    filteredEvents = events.filter(event => 
+    filteredEvents = filteredEvents.filter(event => 
       event.dateObj >= weekStart && event.dateObj <= weekEnd
     );
   } else if (selectedDate) {
-    filteredEvents = events.filter(event => isSameDay(event.dateObj, selectedDate));
+    filteredEvents = filteredEvents.filter(event => isSameDay(event.dateObj, selectedDate));
   }
   
   // Filter by event type
@@ -528,9 +537,18 @@ const Events = () => {
                     {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <Select value={timeFilter} onValueChange={setTimeFilter}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                      <SelectValue placeholder="Time filter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="upcoming">Upcoming</SelectItem>
+                      <SelectItem value="all">All Events</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Filter by type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -549,17 +567,18 @@ const Events = () => {
                       <SelectItem value="Others">Others</SelectItem>
                     </SelectContent>
                   </Select>
-                  {(selectedDate || weekFilter || eventTypeFilter !== "all") && (
+                  {(selectedDate || weekFilter || eventTypeFilter !== "all" || timeFilter !== "upcoming") && (
                     <Button
                       variant="outline"
                       onClick={() => {
                         setSelectedDate(undefined);
                         setWeekFilter(undefined);
                         setEventTypeFilter("all");
+                        setTimeFilter("upcoming");
                       }}
                       className="transition-all hover:scale-105"
                     >
-                      Clear All
+                      Reset
                     </Button>
                   )}
                 </div>
