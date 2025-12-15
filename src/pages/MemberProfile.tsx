@@ -5,7 +5,11 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, FileText, Upload, Trash2, Download, File } from "lucide-react";
+import { 
+  ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
+  FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
+  Heart, UserCircle, ChevronRight
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +21,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { MemberTagsSection } from "@/components/members/MemberTagsSection";
 import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFieldsSection";
 import { MemberNotesSection } from "@/components/members/MemberNotesSection";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Member {
   id: string;
@@ -123,7 +128,6 @@ const MemberProfile = () => {
 
       setMember(memberData);
       
-      // Load family members if this member has a family_id
       if (memberData.family_id) {
         const { data: familyData } = await supabase
           .from('members')
@@ -135,7 +139,6 @@ const MemberProfile = () => {
         setFamilyMembers(familyData || []);
       }
       
-      // Load files
       await loadFiles();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -174,7 +177,6 @@ const MemberProfile = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${id}/${Date.now()}-${selectedFile.name}`;
 
       const { error: uploadError } = await supabase.storage
@@ -182,10 +184,6 @@ const MemberProfile = () => {
         .upload(fileName, selectedFile);
 
       if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('member-files')
-        .getPublicUrl(fileName);
 
       const { error: dbError } = await supabase
         .from('member_files')
@@ -367,316 +365,397 @@ const MemberProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-20">
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/members')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Members
-          </Button>
-          {hasAccess && (
-            <Button onClick={() => navigate(`/members/${id}/edit`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
+      
+      {/* Hero Section with Gradient Background */}
+      <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-background pt-20 pb-32">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50" />
+        
+        <div className="container mx-auto px-4 relative">
+          {/* Navigation Bar */}
+          <div className="flex justify-between items-center mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/members')}
+              className="hover:bg-background/50 backdrop-blur-sm"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Members
             </Button>
-          )}
-        </div>
-
-        <div className="grid md:grid-cols-[400px_1fr] gap-8">
-          {/* Left side - Profile Image */}
-          <div className="bg-muted rounded-lg overflow-hidden aspect-square flex items-center justify-center">
-            {member.profile_image_url ? (
-              <img
-                src={member.profile_image_url}
-                alt={member.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex items-center justify-center w-full h-full bg-muted">
-                <Users className="w-32 h-32 text-muted-foreground" />
-              </div>
+            {hasAccess && (
+              <Button 
+                onClick={() => navigate(`/members/${id}/edit`)}
+                className="shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
             )}
           </div>
+        </div>
+      </div>
 
-          {/* Right side - Member Info */}
+      {/* Main Content - Overlapping the Hero */}
+      <div className="container mx-auto px-4 -mt-24 relative z-10 pb-12">
+        <div className="grid lg:grid-cols-[320px_1fr] gap-8">
+          
+          {/* Left Column - Profile Card */}
           <div className="space-y-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-4">{member.name}</h1>
-              
-              {/* Tags Section */}
-              <div className="mb-6">
-                <MemberTagsSection memberId={id!} canEdit={can('manage_members')} />
-              </div>
-              
-              {member.gender && (
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground uppercase mb-1">GENDER</p>
-                  <p className="text-base text-foreground">{member.gender}</p>
-                </div>
-              )}
-              
-              {member.baptized !== null && (
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground uppercase mb-1">BAPTIZED</p>
-                  <p className="text-base text-foreground">{member.baptized ? "Yes" : "No"}</p>
-                </div>
-              )}
-              
-              {member.phone && (
-                <div className="mb-6">
-                  <p className="text-sm font-semibold text-foreground uppercase mb-1">PHONE NUMBER</p>
-                  <p className="text-base text-foreground">{member.phone}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Position/Department/Year Table */}
-            {(member.position || member.department || member.service_year) && (
-              <div className="mt-6">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-primary text-primary-foreground">
-                      <th className="py-3 px-4 text-left font-semibold">Position</th>
-                      <th className="py-3 px-4 text-left font-semibold">Department</th>
-                      <th className="py-3 px-4 text-left font-semibold">Year</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b">
-                      <td className="py-4 px-4">{member.position || '—'}</td>
-                      <td className="py-4 px-4">{member.department || '—'}</td>
-                      <td className="py-4 px-4">{member.service_year || '—'}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Additional Contact Information */}
-            {member.email && (
-              <div className="pt-6 border-t">
-                <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground uppercase">Email</p>
-                    <a href={`mailto:${member.email}`} className="text-foreground hover:text-primary">
-                      {member.email}
-                    </a>
+            {/* Profile Image Card */}
+            <Card className="overflow-hidden shadow-xl border-0 bg-card/80 backdrop-blur-sm">
+              <div className="aspect-square relative">
+                {member.profile_image_url ? (
+                  <img
+                    src={member.profile_image_url}
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-muted to-muted/50">
+                    <UserCircle className="w-32 h-32 text-muted-foreground/50" />
                   </div>
-                </div>
+                )}
               </div>
-            )}
-            
-            {hasAddress && (
-              <div className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground uppercase">Address</p>
-                  <div className="text-foreground space-y-1">
-                    {address.street && <p>{address.street}</p>}
-                    {address.street2 && <p>{address.street2}</p>}
-                    <p>
-                      {[
-                        address.city,
-                        address.state,
-                        address.zip
-                      ].filter(Boolean).join(', ')}
-                    </p>
-                  </div>
+              <CardContent className="p-6 text-center">
+                <h1 className="text-2xl font-bold mb-2">{member.name}</h1>
+                {member.position && (
+                  <p className="text-muted-foreground">{member.position}</p>
+                )}
+                <div className="mt-4">
+                  <MemberTagsSection memberId={id!} canEdit={can('manage_members')} />
                 </div>
-              </div>
-            )}
+              </CardContent>
+            </Card>
 
-            {member.date_of_birth && (
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground uppercase">Date of Birth</p>
-                  <p className="text-foreground">{formatDate(member.date_of_birth)}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Family Members Section */}
-            {familyMembers.length > 0 && (
-              <div className="pt-6 border-t">
-                <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Family Members</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {familyMembers.map((familyMember) => (
-                        <button
-                          key={familyMember.id}
-                          onClick={() => navigate(`/members/${familyMember.id}`)}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-left"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {familyMember.profile_image_url ? (
-                              <img
-                                src={familyMember.profile_image_url}
-                                alt={familyMember.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Users className="w-5 h-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-sm truncate">{familyMember.name}</p>
-                            {familyMember.position && (
-                              <p className="text-xs text-muted-foreground truncate">{familyMember.position}</p>
-                            )}
-                          </div>
-                        </button>
-                      ))}
+            {/* Quick Info Card */}
+            <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+              <CardContent className="p-6 space-y-4">
+                {member.department && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Department</p>
+                      <p className="font-medium">{member.department}</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
+                
+                {member.service_year && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Service Year</p>
+                      <p className="font-medium">{member.service_year}</p>
+                    </div>
+                  </div>
+                )}
+
+                {member.gender && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Gender</p>
+                      <p className="font-medium">{member.gender}</p>
+                    </div>
+                  </div>
+                )}
+
+                {member.baptized !== null && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Heart className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Baptized</p>
+                      <Badge variant={member.baptized ? "default" : "secondary"} className="mt-1">
+                        {member.baptized ? "Yes" : "No"}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </div>
 
-        {/* Files Section */}
-        <div className="mt-12">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Files & Documents
-              </CardTitle>
-              {can('manage_members') && (
-                <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload File
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Upload File</DialogTitle>
-                      <DialogDescription>
-                        Upload a file to this member's profile for record-keeping.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="file">Select File</Label>
-                        <Input
-                          id="file"
-                          type="file"
-                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="description">Description (Optional)</Label>
-                        <Input
-                          id="description"
-                          value={fileDescription}
-                          onChange={(e) => setFileDescription(e.target.value)}
-                          placeholder="Enter file description..."
-                          className="mt-1"
-                        />
+          {/* Right Column - Details */}
+          <div className="space-y-6">
+            {/* Contact Information Card */}
+            <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-primary" />
+                  </div>
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {member.phone && (
+                    <div className="group">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Phone</p>
+                      <a 
+                        href={`tel:${member.phone}`} 
+                        className="text-foreground hover:text-primary transition-colors font-medium flex items-center gap-2"
+                      >
+                        <Phone className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        {member.phone}
+                      </a>
+                    </div>
+                  )}
+
+                  {member.email && (
+                    <div className="group">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Email</p>
+                      <a 
+                        href={`mailto:${member.email}`} 
+                        className="text-foreground hover:text-primary transition-colors font-medium flex items-center gap-2 break-all"
+                      >
+                        <Mail className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                        {member.email}
+                      </a>
+                    </div>
+                  )}
+
+                  {member.date_of_birth && (
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Date of Birth</p>
+                      <p className="font-medium flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        {formatDate(member.date_of_birth)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {hasAddress && (
+                  <div className="pt-4 border-t">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Address</p>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <div className="text-foreground">
+                        {address.street && <p>{address.street}</p>}
+                        {address.street2 && <p>{address.street2}</p>}
+                        <p>
+                          {[address.city, address.state, address.zip].filter(Boolean).join(', ')}
+                        </p>
                       </div>
                     </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button 
-                        onClick={handleFileUpload} 
-                        disabled={!selectedFile || uploadingFile}
+                  </div>
+                )}
+
+                {!member.phone && !member.email && !hasAddress && !member.date_of_birth && (
+                  <p className="text-muted-foreground text-center py-4">No contact information available</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Family Members Card */}
+            {familyMembers.length > 0 && (
+              <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    Family Members
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {familyMembers.map((familyMember) => (
+                      <button
+                        key={familyMember.id}
+                        onClick={() => navigate(`/members/${familyMember.id}`)}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-200 text-left group border border-transparent hover:border-primary/20"
                       >
-                        {uploadingFile ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Uploading...
-                          </>
-                        ) : (
-                          'Upload'
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </CardHeader>
-            <CardContent>
-              {files.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <File className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No files uploaded yet</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>File Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Size</TableHead>
-                      <TableHead>Uploaded</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {files.map((file) => (
-                      <TableRow key={file.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            {file.file_name}
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-background">
+                          {familyMember.profile_image_url ? (
+                            <img
+                              src={familyMember.profile_image_url}
+                              alt={familyMember.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <UserCircle className="w-6 h-6 text-primary/60" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate group-hover:text-primary transition-colors">
+                            {familyMember.name}
+                          </p>
+                          {familyMember.position && (
+                            <p className="text-sm text-muted-foreground truncate">{familyMember.position}</p>
+                          )}
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Tabbed Content */}
+            <Tabs defaultValue="files" className="w-full">
+              <TabsList className="w-full justify-start bg-muted/30 p-1 h-auto flex-wrap">
+                <TabsTrigger value="files" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Files
+                </TabsTrigger>
+                <TabsTrigger value="custom" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  Custom Fields
+                </TabsTrigger>
+                {hasAccess && (
+                  <TabsTrigger value="notes" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Notes
+                  </TabsTrigger>
+                )}
+              </TabsList>
+
+              <TabsContent value="files" className="mt-6">
+                <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+                  <CardHeader className="flex flex-row items-center justify-between pb-4">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-primary" />
+                      </div>
+                      Files & Documents
+                    </CardTitle>
+                    {can('manage_members') && (
+                      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="shadow-md">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Upload File</DialogTitle>
+                            <DialogDescription>
+                              Upload a file to this member's profile for record-keeping.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="file">Select File</Label>
+                              <Input
+                                id="file"
+                                type="file"
+                                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="description">Description (Optional)</Label>
+                              <Input
+                                id="description"
+                                value={fileDescription}
+                                onChange={(e) => setFileDescription(e.target.value)}
+                                placeholder="Enter file description..."
+                                className="mt-1"
+                              />
+                            </div>
                           </div>
-                        </TableCell>
-                        <TableCell>{file.description || '—'}</TableCell>
-                        <TableCell>{formatFileSize(file.file_size)}</TableCell>
-                        <TableCell>
-                          {new Date(file.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDownloadFile(file)}
-                              title="Download"
-                            >
-                              <Download className="h-4 w-4" />
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+                              Cancel
                             </Button>
-                            {can('manage_members') && (
+                            <Button 
+                              onClick={handleFileUpload} 
+                              disabled={!selectedFile || uploadingFile}
+                            >
+                              {uploadingFile ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Uploading...
+                                </>
+                              ) : (
+                                'Upload'
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    {files.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                          <File className="h-8 w-8 opacity-50" />
+                        </div>
+                        <p className="font-medium">No files uploaded yet</p>
+                        <p className="text-sm mt-1">Upload documents to keep records organized</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {files.map((file) => (
+                          <div 
+                            key={file.id} 
+                            className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <FileText className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{file.file_name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {file.description || formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleDeleteFile(file)}
-                                title="Delete"
-                                className="text-destructive hover:text-destructive"
+                                onClick={() => handleDownloadFile(file)}
+                                title="Download"
+                                className="h-8 w-8"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Download className="h-4 w-4" />
                               </Button>
-                            )}
+                              {can('manage_members') && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteFile(file)}
+                                  title="Delete"
+                                  className="h-8 w-8 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="custom" className="mt-6">
+                <MemberCustomFieldsSection memberId={id!} canEdit={can('manage_members')} />
+              </TabsContent>
+
+              {hasAccess && (
+                <TabsContent value="notes" className="mt-6">
+                  <MemberNotesSection memberId={id!} canEdit={can('manage_members')} />
+                </TabsContent>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Custom Fields Section */}
-          <MemberCustomFieldsSection memberId={id!} canEdit={can('manage_members')} />
-
-          {/* Private Notes Section */}
-          {hasAccess && (
-            <MemberNotesSection memberId={id!} canEdit={can('manage_members')} />
-          )}
+            </Tabs>
+          </div>
         </div>
       </div>
+      
       <Footer />
     </div>
   );
