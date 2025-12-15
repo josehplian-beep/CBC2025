@@ -1300,6 +1300,17 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_public_teachers: {
+        Args: never
+        Returns: {
+          bio: string
+          created_at: string
+          full_name: string
+          id: string
+          photo_url: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
