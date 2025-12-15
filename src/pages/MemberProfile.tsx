@@ -31,6 +31,14 @@ interface Member {
   position: string | null;
   department: string | null;
   service_year: string | null;
+  family_id: string | null;
+}
+
+interface FamilyMember {
+  id: string;
+  name: string;
+  profile_image_url: string | null;
+  position: string | null;
 }
 
 interface MemberFile {
@@ -52,6 +60,7 @@ const MemberProfile = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
   const [files, setFiles] = useState<MemberFile[]>([]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -113,6 +122,18 @@ const MemberProfile = () => {
       }
 
       setMember(memberData);
+      
+      // Load family members if this member has a family_id
+      if (memberData.family_id) {
+        const { data: familyData } = await supabase
+          .from('members')
+          .select('id, name, profile_image_url, position')
+          .eq('family_id', memberData.family_id)
+          .neq('id', memberData.id)
+          .order('name');
+        
+        setFamilyMembers(familyData || []);
+      }
       
       // Load files
       await loadFiles();
@@ -474,6 +495,45 @@ const MemberProfile = () => {
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground uppercase">Date of Birth</p>
                   <p className="text-foreground">{formatDate(member.date_of_birth)}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Family Members Section */}
+            {familyMembers.length > 0 && (
+              <div className="pt-6 border-t">
+                <div className="flex items-start gap-3">
+                  <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Family Members</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {familyMembers.map((familyMember) => (
+                        <button
+                          key={familyMember.id}
+                          onClick={() => navigate(`/members/${familyMember.id}`)}
+                          className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-left"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {familyMember.profile_image_url ? (
+                              <img
+                                src={familyMember.profile_image_url}
+                                alt={familyMember.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Users className="w-5 h-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">{familyMember.name}</p>
+                            {familyMember.position && (
+                              <p className="text-xs text-muted-foreground truncate">{familyMember.position}</p>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
