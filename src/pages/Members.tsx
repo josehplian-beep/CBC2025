@@ -1125,110 +1125,183 @@ const Members = () => {
         {/* Upcoming Birthdays */}
         <UpcomingBirthdays />
 
-        {/* Filters and Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Search & Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-3">
-                <Label className="text-base font-semibold mb-2">Full Name</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Search by name, email, or phone..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
-                </div>
-              </div>
+        {/* Modern Search & Filters */}
+        <div className="bg-card rounded-xl border shadow-sm p-6 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input 
+              placeholder="Search by name, email, or phone..." 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              className="pl-12 h-12 text-base bg-background border-muted-foreground/20 focus-visible:ring-primary/20" 
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
 
-              <div>
-                <Label className="text-base font-semibold mb-2">Gender</Label>
-                <Select value={genderFilter} onValueChange={setGenderFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Any" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any</SelectItem>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Filters:</span>
+            
+            <Select value={genderFilter} onValueChange={setGenderFilter}>
+              <SelectTrigger className="w-[130px] h-9 bg-background">
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Genders</SelectItem>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <div>
-                <Label className="text-base font-semibold mb-2">Group Family</Label>
-                <Select value={familyFilter} onValueChange={setFamilyFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Families" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Families</SelectItem>
-                    {families.map(family => <SelectItem key={family.id} value={family.id}>
-                        {family.family_name}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+            <Select value={familyFilter} onValueChange={setFamilyFilter}>
+              <SelectTrigger className="w-[160px] h-9 bg-background">
+                <SelectValue placeholder="Family" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Families</SelectItem>
+                {families.map(family => (
+                  <SelectItem key={family.id} value={family.id}>
+                    {family.family_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div>
-                <Label className="text-base font-semibold mb-2">Department</Label>
-                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Departments" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Departments</SelectItem>
-                    {uniqueDepartments.map(dept => <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger className="w-[160px] h-9 bg-background">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {uniqueDepartments.map(dept => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div>
-                <Label className="text-base font-semibold mb-2">Baptized</Label>
-                <Select value={baptizedFilter} onValueChange={setBaptizedFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Any" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any</SelectItem>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <Select value={baptizedFilter} onValueChange={setBaptizedFilter}>
+              <SelectTrigger className="w-[130px] h-9 bg-background">
+                <SelectValue placeholder="Baptized" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="yes">Baptized</SelectItem>
+                <SelectItem value="no">Not Baptized</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <div>
-                <Label className="text-base font-semibold mb-2">Position</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Filter by position..." value={positionFilter} onChange={e => setPositionFilter(e.target.value)} className="pl-10" />
-                </div>
-              </div>
+            <div className="relative">
+              <Input 
+                placeholder="Position..." 
+                value={positionFilter} 
+                onChange={e => setPositionFilter(e.target.value)} 
+                className="w-[140px] h-9 bg-background" 
+              />
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && <Badge variant="secondary" className="gap-1">
-                  {[searchQuery, genderFilter !== "all" ? genderFilter : "", familyFilter !== "all" ? "Family" : "", departmentFilter !== "all" ? departmentFilter : "", baptizedFilter !== "all" ? `Baptized: ${baptizedFilter}` : "", positionFilter].filter(Boolean).length} filter(s) active
-                </Badge>}
-              {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && <Button variant="outline" size="sm" onClick={handleResetFilters} className="gap-2">
-                  Reset Filters
-                </Button>}
-              <Button onClick={handleForceRefresh} variant="outline" size="sm" disabled={isRefreshing} className="gap-2 ml-auto">
+            {/* Active filters indicator & reset */}
+            {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleResetFilters} 
+                className="h-9 text-muted-foreground hover:text-foreground gap-1"
+              >
+                <X className="w-4 h-4" />
+                Reset
+              </Button>
+            )}
+
+            {/* Actions on the right */}
+            <div className="flex items-center gap-2 ml-auto">
+              <Button 
+                onClick={handleForceRefresh} 
+                variant="ghost" 
+                size="sm" 
+                disabled={isRefreshing} 
+                className="h-9"
+              >
                 <Loader2 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
               </Button>
-              {can('manage_users')}
-              <Button onClick={handleExportToExcel} variant="outline" size="sm" disabled={filteredMembers.length === 0} className="gap-2">
+              <Button 
+                onClick={handleExportToExcel} 
+                variant="outline" 
+                size="sm" 
+                disabled={filteredMembers.length === 0} 
+                className="h-9 gap-2"
+              >
                 <Download className="w-4 h-4" />
-                Download CSV
+                Export
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Active filters badges */}
+          {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+              {searchQuery && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Search: "{searchQuery}"
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setSearchQuery("")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+              {genderFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  {genderFilter}
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setGenderFilter("all")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+              {familyFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Family
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setFamilyFilter("all")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+              {departmentFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  {departmentFilter}
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setDepartmentFilter("all")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+              {baptizedFilter !== "all" && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Baptized: {baptizedFilter}
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setBaptizedFilter("all")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+              {positionFilter && (
+                <Badge variant="secondary" className="gap-1 pr-1">
+                  Position: "{positionFilter}"
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setPositionFilter("")}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-between items-center gap-4">
