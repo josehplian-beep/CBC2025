@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
   FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
-  Heart, UserCircle, ChevronRight
+  Heart, UserCircle, ChevronRight, Activity
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { MemberTagsSection } from "@/components/members/MemberTagsSection";
 import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFieldsSection";
 import { MemberNotesSection } from "@/components/members/MemberNotesSection";
+import { MemberActivityTimeline } from "@/components/members/MemberActivityTimeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Member {
@@ -37,6 +38,7 @@ interface Member {
   department: string | null;
   service_year: string | null;
   family_id: string | null;
+  updated_at: string | null;
 }
 
 interface FamilyMember {
@@ -602,8 +604,12 @@ const MemberProfile = () => {
             )}
 
             {/* Tabbed Content */}
-            <Tabs defaultValue="files" className="w-full">
+            <Tabs defaultValue="activity" className="w-full">
               <TabsList className="w-full justify-start bg-muted/30 p-1 h-auto flex-wrap">
+                <TabsTrigger value="activity" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                  <Activity className="w-4 h-4 mr-2" />
+                  Activity
+                </TabsTrigger>
                 <TabsTrigger value="files" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
                   <FileText className="w-4 h-4 mr-2" />
                   Files
@@ -619,6 +625,10 @@ const MemberProfile = () => {
                   </TabsTrigger>
                 )}
               </TabsList>
+
+              <TabsContent value="activity" className="mt-6">
+                <MemberActivityTimeline memberId={id!} memberUpdatedAt={member.updated_at} />
+              </TabsContent>
 
               <TabsContent value="files" className="mt-6">
                 <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
