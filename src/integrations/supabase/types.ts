@@ -1088,6 +1088,7 @@ export type Database = {
           guardian_name: string
           guardian_phone: string
           id: string
+          member_id: string | null
           notes: string | null
           photo_url: string | null
           updated_at: string | null
@@ -1099,6 +1100,7 @@ export type Database = {
           guardian_name: string
           guardian_phone: string
           id?: string
+          member_id?: string | null
           notes?: string | null
           photo_url?: string | null
           updated_at?: string | null
@@ -1110,11 +1112,20 @@ export type Database = {
           guardian_name?: string
           guardian_phone?: string
           id?: string
+          member_id?: string | null
           notes?: string | null
           photo_url?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "students_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       teachers: {
         Row: {
@@ -1123,6 +1134,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          member_id: string | null
           phone: string | null
           photo_url: string | null
           updated_at: string | null
@@ -1133,6 +1145,7 @@ export type Database = {
           email?: string | null
           full_name: string
           id?: string
+          member_id?: string | null
           phone?: string | null
           photo_url?: string | null
           updated_at?: string | null
@@ -1143,11 +1156,20 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          member_id?: string | null
           phone?: string | null
           photo_url?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "teachers_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
