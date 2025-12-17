@@ -66,6 +66,7 @@ const adminMenuSections: MenuSection[] = [
   {
     label: "School Management",
     items: [
+      { title: "School Dashboard", url: "/admin/school/dashboard", icon: LayoutDashboard, iconColor: "text-indigo-500", permissions: ['manage_students', 'manage_classes'] },
       { title: "Teachers", url: "/admin/school/teachers", icon: GraduationCap, iconColor: "text-violet-500", permissions: ['manage_students', 'manage_classes'] },
       { title: "Students", url: "/admin/school/students", icon: Users, iconColor: "text-sky-500", permissions: ['manage_students'] },
       { title: "Classes", url: "/admin/school/classes", icon: BookOpen, iconColor: "text-teal-500", permissions: ['manage_classes'] },
