@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -17,8 +16,12 @@ import { ClassPanel } from "@/components/school/ClassPanel";
 import { ClassDetailPanel } from "@/components/school/ClassDetailPanel";
 import { MemberDirectoryPanel } from "@/components/school/MemberDirectoryPanel";
 import { DraggableMemberCard } from "@/components/school/DraggableMemberCard";
+import { TeachersListPanel } from "@/components/school/TeachersListPanel";
+import { StudentsListPanel } from "@/components/school/StudentsListPanel";
+import { ReportsPanel } from "@/components/school/ReportsPanel";
 import { Card } from "@/components/ui/card";
-import { Users, GraduationCap, BookOpen, CalendarCheck } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, GraduationCap, BookOpen, CalendarCheck, LayoutGrid, FileText } from "lucide-react";
 
 interface Class {
   id: string;
@@ -31,6 +34,8 @@ interface Teacher {
   full_name: string;
   photo_url: string | null;
   member_id: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 interface Student {
@@ -39,6 +44,7 @@ interface Student {
   photo_url: string | null;
   date_of_birth: string;
   guardian_name: string;
+  guardian_phone: string;
   member_id: string | null;
 }
 
@@ -62,8 +68,10 @@ interface CheckinSession {
   is_active: boolean;
 }
 
+type DashboardView = "classes" | "teachers" | "students" | "reports";
+
 export default function SchoolDashboard() {
-  const navigate = useNavigate();
+  const [activeView, setActiveView] = useState<DashboardView>("classes");
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -122,7 +130,6 @@ export default function SchoolDashboard() {
 
   const fetchClassAssignments = useCallback(async (classId: string) => {
     try {
-      // Fetch teachers assigned to this class
       const { data: classTeacherLinks, error: ctError } = await supabase
         .from("class_teachers")
         .select("teacher_id")
@@ -134,7 +141,6 @@ export default function SchoolDashboard() {
       const assignedTeachers = teachers.filter((t) => teacherIds.includes(t.id));
       setClassTeachers(assignedTeachers);
 
-      // Fetch students assigned to this class
       const { data: studentClassLinks, error: scError } = await supabase
         .from("student_classes")
         .select("student_id")
@@ -146,7 +152,6 @@ export default function SchoolDashboard() {
       const assignedStudents = students.filter((s) => studentIds.includes(s.id));
       setClassStudents(assignedStudents);
 
-      // Check for active session
       const { data: sessions } = await supabase
         .from("checkin_sessions")
         .select("*")
@@ -157,7 +162,6 @@ export default function SchoolDashboard() {
       setActiveSession(sessions || null);
 
       if (sessions) {
-        // Fetch existing attendance
         const { data: attendanceData } = await supabase
           .from("attendance_records")
           .select("student_id, status")
@@ -215,12 +219,145 @@ export default function SchoolDashboard() {
     setActiveDragId(null);
     setActiveDragType(null);
 
-    if (!over || !selectedClass) return;
+    if (!over) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Handle dropping teacher into class
+    // Handle dropping onto a class card (from Teachers/Students list views)
+    if (overId.startsWith("class-drop-")) {
+      const targetClassId = overId.replace("class-drop-", "");
+      
+      if (activeId.startsWith("teacher-")) {
+        const teacherId = activeId.replace("teacher-", "");
+        try {
+          // Check if already assigned
+          const { data: existing } = await supabase
+            .from("class_teachers")
+            .select("id")
+            .eq("class_id", targetClassId)
+            .eq("teacher_id", teacherId)
+            .single();
+
+          if (!existing) {
+            const { error } = await supabase.from("class_teachers").insert({
+              class_id: targetClassId,
+              teacher_id: teacherId,
+            });
+            if (error) throw error;
+            toast.success("Teacher assigned to class");
+            if (selectedClass?.id === targetClassId) {
+              fetchClassAssignments(targetClassId);
+            }
+          } else {
+            toast.info("Teacher already assigned to this class");
+          }
+        } catch (error) {
+          console.error("Error assigning teacher:", error);
+          toast.error("Failed to assign teacher");
+        }
+      }
+
+      if (activeId.startsWith("student-")) {
+        const studentId = activeId.replace("student-", "");
+        try {
+          const { data: existing } = await supabase
+            .from("student_classes")
+            .select("id")
+            .eq("class_id", targetClassId)
+            .eq("student_id", studentId)
+            .single();
+
+          if (!existing) {
+            const { error } = await supabase.from("student_classes").insert({
+              class_id: targetClassId,
+              student_id: studentId,
+            });
+            if (error) throw error;
+            toast.success("Student assigned to class");
+            if (selectedClass?.id === targetClassId) {
+              fetchClassAssignments(targetClassId);
+            }
+          } else {
+            toast.info("Student already enrolled in this class");
+          }
+        } catch (error) {
+          console.error("Error assigning student:", error);
+          toast.error("Failed to assign student");
+        }
+      }
+
+      if (activeId.startsWith("member-")) {
+        const memberId = activeId.replace("member-", "");
+        const member = members.find((m) => m.id === memberId);
+        
+        if (member) {
+          // Check if member is already a teacher
+          const existingTeacher = teachers.find((t) => t.member_id === memberId);
+          
+          if (existingTeacher) {
+            // Assign existing teacher to class
+            try {
+              const { data: existing } = await supabase
+                .from("class_teachers")
+                .select("id")
+                .eq("class_id", targetClassId)
+                .eq("teacher_id", existingTeacher.id)
+                .single();
+
+              if (!existing) {
+                const { error } = await supabase.from("class_teachers").insert({
+                  class_id: targetClassId,
+                  teacher_id: existingTeacher.id,
+                });
+                if (error) throw error;
+                toast.success("Teacher assigned to class");
+              } else {
+                toast.info("Teacher already assigned to this class");
+              }
+            } catch (error) {
+              console.error("Error assigning teacher:", error);
+              toast.error("Failed to assign teacher");
+            }
+          } else {
+            // Create new teacher from member
+            try {
+              const { data: newTeacher, error: teacherError } = await supabase
+                .from("teachers")
+                .insert({
+                  full_name: member.name,
+                  member_id: member.id,
+                  photo_url: member.profile_image_url,
+                  email: member.email,
+                  phone: member.phone,
+                })
+                .select()
+                .single();
+
+              if (teacherError) throw teacherError;
+
+              const { error: assignError } = await supabase.from("class_teachers").insert({
+                class_id: targetClassId,
+                teacher_id: newTeacher.id,
+              });
+
+              if (assignError) throw assignError;
+
+              toast.success("Member added as teacher and assigned to class");
+              fetchData();
+            } catch (error) {
+              console.error("Error creating teacher from member:", error);
+              toast.error("Failed to add member as teacher");
+            }
+          }
+        }
+      }
+      return;
+    }
+
+    // Original drop zone logic for class detail view
+    if (!selectedClass) return;
+
     if (activeId.startsWith("teacher-") && overId === "teachers-drop-zone") {
       const teacherId = activeId.replace("teacher-", "");
       const isAlreadyAssigned = classTeachers.some((t) => t.id === teacherId);
@@ -242,7 +379,6 @@ export default function SchoolDashboard() {
       }
     }
 
-    // Handle dropping student into class
     if (activeId.startsWith("student-") && overId === "students-drop-zone") {
       const studentId = activeId.replace("student-", "");
       const isAlreadyAssigned = classStudents.some((s) => s.id === studentId);
@@ -264,40 +400,59 @@ export default function SchoolDashboard() {
       }
     }
 
-    // Handle member being dropped (could be converted to teacher or student)
     if (activeId.startsWith("member-")) {
       const memberId = activeId.replace("member-", "");
       const member = members.find((m) => m.id === memberId);
 
       if (overId === "teachers-drop-zone" && member) {
-        // Create teacher from member
-        try {
-          const { data: newTeacher, error: teacherError } = await supabase
-            .from("teachers")
-            .insert({
-              full_name: member.name,
-              member_id: member.id,
-              photo_url: member.profile_image_url,
-            })
-            .select()
-            .single();
+        const existingTeacher = teachers.find((t) => t.member_id === memberId);
+        
+        if (existingTeacher) {
+          const isAlreadyAssigned = classTeachers.some((t) => t.id === existingTeacher.id);
+          if (!isAlreadyAssigned) {
+            try {
+              const { error } = await supabase.from("class_teachers").insert({
+                class_id: selectedClass.id,
+                teacher_id: existingTeacher.id,
+              });
+              if (error) throw error;
+              toast.success("Teacher assigned to class");
+              fetchClassAssignments(selectedClass.id);
+            } catch (error) {
+              console.error("Error assigning teacher:", error);
+              toast.error("Failed to assign teacher");
+            }
+          }
+        } else {
+          try {
+            const { data: newTeacher, error: teacherError } = await supabase
+              .from("teachers")
+              .insert({
+                full_name: member.name,
+                member_id: member.id,
+                photo_url: member.profile_image_url,
+                email: member.email,
+                phone: member.phone,
+              })
+              .select()
+              .single();
 
-          if (teacherError) throw teacherError;
+            if (teacherError) throw teacherError;
 
-          // Assign to class
-          const { error: assignError } = await supabase.from("class_teachers").insert({
-            class_id: selectedClass.id,
-            teacher_id: newTeacher.id,
-          });
+            const { error: assignError } = await supabase.from("class_teachers").insert({
+              class_id: selectedClass.id,
+              teacher_id: newTeacher.id,
+            });
 
-          if (assignError) throw assignError;
+            if (assignError) throw assignError;
 
-          toast.success("Member added as teacher");
-          fetchData();
-          fetchClassAssignments(selectedClass.id);
-        } catch (error) {
-          console.error("Error creating teacher from member:", error);
-          toast.error("Failed to add member as teacher");
+            toast.success("Member added as teacher");
+            fetchData();
+            fetchClassAssignments(selectedClass.id);
+          } catch (error) {
+            console.error("Error creating teacher from member:", error);
+            toast.error("Failed to add member as teacher");
+          }
         }
       }
     }
@@ -389,11 +544,9 @@ export default function SchoolDashboard() {
     const today = new Date().toISOString().split("T")[0];
     
     try {
-      // Check if record exists
       const existingIndex = attendance.findIndex((a) => a.student_id === studentId);
       
       if (existingIndex >= 0) {
-        // Update existing
         const { error } = await supabase
           .from("attendance_records")
           .update({ status })
@@ -403,7 +556,6 @@ export default function SchoolDashboard() {
 
         if (error) throw error;
       } else {
-        // Insert new
         const { error } = await supabase.from("attendance_records").insert({
           class_id: selectedClass.id,
           student_id: studentId,
@@ -451,6 +603,66 @@ export default function SchoolDashboard() {
     return null;
   };
 
+  const renderMainContent = () => {
+    switch (activeView) {
+      case "teachers":
+        return (
+          <TeachersListPanel
+            teachers={teachers}
+            classes={classes}
+            onRefresh={fetchData}
+          />
+        );
+      case "students":
+        return (
+          <StudentsListPanel
+            students={students}
+            classes={classes}
+            onRefresh={fetchData}
+          />
+        );
+      case "reports":
+        return (
+          <ReportsPanel
+            classes={classes}
+            students={students}
+            teachers={teachers}
+          />
+        );
+      default:
+        return (
+          <div className="flex h-[calc(100vh-220px)]">
+            <ClassPanel
+              classes={classes}
+              selectedClass={selectedClass}
+              onSelectClass={handleSelectClass}
+              loading={loading}
+              onClassCreated={fetchData}
+            />
+            <ClassDetailPanel
+              selectedClass={selectedClass}
+              classTeachers={classTeachers}
+              classStudents={classStudents}
+              activeSession={activeSession}
+              attendance={attendance}
+              onRemoveTeacher={handleRemoveTeacher}
+              onRemoveStudent={handleRemoveStudent}
+              onStartSession={handleStartSession}
+              onEndSession={handleEndSession}
+              onAttendanceChange={handleAttendanceChange}
+            />
+            <MemberDirectoryPanel
+              teachers={teachers}
+              students={students}
+              members={members}
+              classTeachers={classTeachers}
+              classStudents={classStudents}
+            />
+          </div>
+        );
+    }
+  };
+
   return (
     <AdminLayout>
       <DndContext
@@ -460,10 +672,32 @@ export default function SchoolDashboard() {
         onDragEnd={handleDragEnd}
       >
         <div className="min-h-screen bg-background">
-          {/* Header with Stats */}
+          {/* Header with Stats and Tabs */}
           <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
             <div className="px-6 py-4">
-              <h1 className="text-2xl font-bold text-foreground mb-4">School Management Dashboard</h1>
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-foreground">School Management</h1>
+                <Tabs value={activeView} onValueChange={(v) => setActiveView(v as DashboardView)}>
+                  <TabsList className="bg-muted/50">
+                    <TabsTrigger value="classes" className="gap-2">
+                      <LayoutGrid className="h-4 w-4" />
+                      Classes
+                    </TabsTrigger>
+                    <TabsTrigger value="teachers" className="gap-2">
+                      <Users className="h-4 w-4" />
+                      Teachers
+                    </TabsTrigger>
+                    <TabsTrigger value="students" className="gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Students
+                    </TabsTrigger>
+                    <TabsTrigger value="reports" className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      Reports
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
               <div className="grid grid-cols-4 gap-4">
                 <Card className="p-4 flex items-center gap-3 bg-primary/5 border-primary/20">
                   <div className="p-2 rounded-lg bg-primary/10">
@@ -505,40 +739,8 @@ export default function SchoolDashboard() {
             </div>
           </div>
 
-          {/* Main Content - 3 Column Layout */}
-          <div className="flex h-[calc(100vh-180px)]">
-            {/* Left Panel - Classes */}
-            <ClassPanel
-              classes={classes}
-              selectedClass={selectedClass}
-              onSelectClass={handleSelectClass}
-              loading={loading}
-              onClassCreated={fetchData}
-            />
-
-            {/* Center Panel - Class Details */}
-            <ClassDetailPanel
-              selectedClass={selectedClass}
-              classTeachers={classTeachers}
-              classStudents={classStudents}
-              activeSession={activeSession}
-              attendance={attendance}
-              onRemoveTeacher={handleRemoveTeacher}
-              onRemoveStudent={handleRemoveStudent}
-              onStartSession={handleStartSession}
-              onEndSession={handleEndSession}
-              onAttendanceChange={handleAttendanceChange}
-            />
-
-            {/* Right Panel - Member Directory */}
-            <MemberDirectoryPanel
-              teachers={teachers}
-              students={students}
-              members={members}
-              classTeachers={classTeachers}
-              classStudents={classStudents}
-            />
-          </div>
+          {/* Main Content */}
+          {renderMainContent()}
         </div>
 
         <DragOverlay>{getDragOverlayContent()}</DragOverlay>
