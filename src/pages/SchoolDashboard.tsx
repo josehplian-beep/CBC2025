@@ -36,6 +36,15 @@ interface Teacher {
   member_id: string | null;
   email?: string | null;
   phone?: string | null;
+  bio?: string | null;
+  // Linked member data (from join)
+  member?: {
+    id: string;
+    name: string;
+    profile_image_url: string | null;
+    phone: string | null;
+    email: string | null;
+  } | null;
 }
 
 interface Student {
@@ -106,7 +115,17 @@ export default function SchoolDashboard() {
     try {
       const [classesRes, teachersRes, studentsRes, membersRes] = await Promise.all([
         supabase.from("classes").select("*").order("class_name"),
-        supabase.from("teachers").select("*").order("full_name"),
+        // Join teachers with members to get linked member data
+        supabase.from("teachers").select(`
+          *,
+          member:members!teachers_member_id_fkey (
+            id,
+            name,
+            profile_image_url,
+            phone,
+            email
+          )
+        `).order("full_name"),
         supabase.from("students").select("*").order("full_name"),
         supabase.from("members").select("id, name, profile_image_url, phone, email").order("name"),
       ]);
