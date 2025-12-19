@@ -1284,7 +1284,6 @@ export type Database = {
           children_count: number | null
           created_at: string | null
           display_order: number | null
-          email: string | null
           hobbies: string | null
           id: string | null
           image_url: string | null
@@ -1301,7 +1300,6 @@ export type Database = {
           children_count?: number | null
           created_at?: string | null
           display_order?: number | null
-          email?: string | null
           hobbies?: string | null
           id?: string | null
           image_url?: string | null
@@ -1318,7 +1316,6 @@ export type Database = {
           children_count?: number | null
           created_at?: string | null
           display_order?: number | null
-          email?: string | null
           hobbies?: string | null
           id?: string | null
           image_url?: string | null
