@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,19 +7,35 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const ENCOURAGING_MESSAGES = [
+  "God is near to the brokenhearted.",
+  "You are not alone.",
+  "Your church family cares for you.",
+  "Cast all your anxiety on Him because He cares for you.",
+  "The Lord is close to all who call on Him."
+];
+
 const Resources = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     title: "",
     content: ""
   });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % ENCOURAGING_MESSAGES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,9 +97,16 @@ const Resources = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-amber-50 mb-4">
             Prayer Room
           </h1>
-          <p className="text-lg text-amber-100/70 max-w-xl mx-auto">
+          <p className="text-lg text-amber-100/70 max-w-xl mx-auto mb-4">
             You are not alone. Share your heart with us, and we will pray for you.
           </p>
+          {/* Rotating Encouraging Messages */}
+          <div className="flex items-center justify-center gap-2 text-sm text-amber-300">
+            <Sparkles className="w-4 h-4" />
+            <span className="italic transition-opacity duration-500">
+              {ENCOURAGING_MESSAGES[currentMessageIndex]}
+            </span>
+          </div>
         </div>
 
         {/* Simple Prayer Form */}
