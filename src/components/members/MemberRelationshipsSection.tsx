@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users, X, ArrowRight } from "lucide-react";
+import { Plus, Users, X, ArrowRight, Link2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -47,6 +47,8 @@ interface Relationship {
   related_member_id: string;
   relationship_type: string;
   is_custom: boolean;
+  is_inferred?: boolean;
+  inferred_through?: string;
   related_member: {
     id: string;
     name: string;
@@ -110,13 +112,62 @@ const getReciprocalRelationship = (
   }
 };
 
+// Infer relationship type based on intermediate relationship
+const inferRelationshipType = (
+  myRelToIntermediate: string,
+  intermediateRelToTarget: string,
+  targetGender?: string | null
+): string | null => {
+  const isMale = targetGender?.toLowerCase() === "male";
+  const isFemale = targetGender?.toLowerCase() === "female";
+
+  // If I have a sibling and they have a parent, that parent is also my parent
+  if (["Brother", "Sister"].includes(myRelToIntermediate)) {
+    if (["Father", "Mother"].includes(intermediateRelToTarget)) {
+      return intermediateRelToTarget;
+    }
+    // If my sibling has another sibling (not me), they're also my sibling
+    if (["Brother", "Sister"].includes(intermediateRelToTarget)) {
+      return isMale ? "Brother" : isFemale ? "Sister" : "Sibling";
+    }
+  }
+
+  // If I have a parent and they have a child (not me), that's my sibling
+  if (["Father", "Mother"].includes(myRelToIntermediate)) {
+    if (["Son", "Daughter"].includes(intermediateRelToTarget)) {
+      return isMale ? "Brother" : isFemale ? "Sister" : "Sibling";
+    }
+    // If my parent has a spouse, that's also my parent
+    if (intermediateRelToTarget === "Spouse") {
+      return isMale ? "Father" : isFemale ? "Mother" : "Parent";
+    }
+  }
+
+  // If I have a child and they have a sibling (not me), that's also my child
+  if (["Son", "Daughter"].includes(myRelToIntermediate)) {
+    if (["Brother", "Sister"].includes(intermediateRelToTarget)) {
+      return isMale ? "Son" : isFemale ? "Daughter" : "Child";
+    }
+  }
+
+  // If I have a spouse and they have a child, that's also my child
+  if (myRelToIntermediate === "Spouse") {
+    if (["Son", "Daughter"].includes(intermediateRelToTarget)) {
+      return isMale ? "Son" : isFemale ? "Daughter" : "Child";
+    }
+  }
+
+  return null;
+};
+
 export function MemberRelationshipsSection({
   memberId,
   memberGender,
   canEdit,
 }: MemberRelationshipsSectionProps) {
   const navigate = useNavigate();
-  const [relationships, setRelationships] = useState<Relationship[]>([]);
+  const [directRelationships, setDirectRelationships] = useState<Relationship[]>([]);
+  const [inferredRelationships, setInferredRelationships] = useState<Relationship[]>([]);
   const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [memberSearchOpen, setMemberSearchOpen] = useState(false);
@@ -132,7 +183,8 @@ export function MemberRelationshipsSection({
   }, [memberId]);
 
   const loadRelationships = async () => {
-    const { data, error } = await supabase
+    // Load direct relationships for this member
+    const { data: directData, error } = await supabase
       .from("member_relationships")
       .select("id, related_member_id, relationship_type, is_custom")
       .eq("member_id", memberId);
@@ -142,28 +194,101 @@ export function MemberRelationshipsSection({
       return;
     }
 
-    // Fetch related member details
-    if (data && data.length > 0) {
-      const relatedIds = data.map((r) => r.related_member_id);
-      const { data: members } = await supabase
-        .from("members")
-        .select("id, name, profile_image_url, gender")
-        .in("id", relatedIds);
-
-      const enrichedRelationships = data.map((rel) => ({
-        ...rel,
-        related_member: members?.find((m) => m.id === rel.related_member_id) || {
-          id: rel.related_member_id,
-          name: "Unknown",
-          profile_image_url: null,
-          gender: null,
-        },
-      }));
-
-      setRelationships(enrichedRelationships);
-    } else {
-      setRelationships([]);
+    if (!directData || directData.length === 0) {
+      setDirectRelationships([]);
+      setInferredRelationships([]);
+      return;
     }
+
+    const relatedIds = directData.map((r) => r.related_member_id);
+    
+    // Fetch member details for direct relationships
+    const { data: directMembers } = await supabase
+      .from("members")
+      .select("id, name, profile_image_url, gender")
+      .in("id", relatedIds);
+
+    const enrichedDirect = directData.map((rel) => ({
+      ...rel,
+      related_member: directMembers?.find((m) => m.id === rel.related_member_id) || {
+        id: rel.related_member_id,
+        name: "Unknown",
+        profile_image_url: null,
+        gender: null,
+      },
+    }));
+
+    setDirectRelationships(enrichedDirect);
+
+    // Now fetch relationships of those direct relatives to find extended family
+    const { data: extendedData } = await supabase
+      .from("member_relationships")
+      .select("id, member_id, related_member_id, relationship_type, is_custom")
+      .in("member_id", relatedIds);
+
+    if (!extendedData || extendedData.length === 0) {
+      setInferredRelationships([]);
+      return;
+    }
+
+    // Filter out relationships that point back to the current member or already exist
+    const existingRelatedIds = new Set([memberId, ...relatedIds]);
+    const potentialInferred = extendedData.filter(
+      (rel) => !existingRelatedIds.has(rel.related_member_id)
+    );
+
+    if (potentialInferred.length === 0) {
+      setInferredRelationships([]);
+      return;
+    }
+
+    // Get unique member IDs for extended family
+    const extendedMemberIds = [...new Set(potentialInferred.map((r) => r.related_member_id))];
+    
+    const { data: extendedMembers } = await supabase
+      .from("members")
+      .select("id, name, profile_image_url, gender")
+      .in("id", extendedMemberIds);
+
+    // Build inferred relationships
+    const inferred: Relationship[] = [];
+    const seenIds = new Set<string>();
+
+    for (const extRel of potentialInferred) {
+      if (seenIds.has(extRel.related_member_id)) continue;
+
+      // Find my relationship to the intermediate person
+      const myRelToIntermediate = enrichedDirect.find(
+        (r) => r.related_member_id === extRel.member_id
+      );
+
+      if (!myRelToIntermediate) continue;
+
+      const targetMember = extendedMembers?.find((m) => m.id === extRel.related_member_id);
+      if (!targetMember) continue;
+
+      const intermediateRelToTarget = extRel.relationship_type;
+      const inferredType = inferRelationshipType(
+        myRelToIntermediate.relationship_type,
+        intermediateRelToTarget,
+        targetMember.gender
+      );
+
+      if (inferredType) {
+        seenIds.add(extRel.related_member_id);
+        inferred.push({
+          id: `inferred-${extRel.related_member_id}`,
+          related_member_id: extRel.related_member_id,
+          relationship_type: inferredType,
+          is_custom: false,
+          is_inferred: true,
+          inferred_through: myRelToIntermediate.related_member.name,
+          related_member: targetMember,
+        });
+      }
+    }
+
+    setInferredRelationships(inferred);
   };
 
   const loadAllMembers = async () => {
@@ -295,9 +420,68 @@ export function MemberRelationshipsSection({
     }
   };
 
+  const allRelationships = [...directRelationships, ...inferredRelationships];
+
   // Filter out members that already have a relationship
   const availableMembers = allMembers.filter(
-    (m) => !relationships.some((r) => r.related_member_id === m.id)
+    (m) => !allRelationships.some((r) => r.related_member_id === m.id)
+  );
+
+  const renderRelationshipCard = (rel: Relationship) => (
+    <div
+      key={rel.id}
+      className={`flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group ${
+        rel.is_inferred ? "border-dashed" : ""
+      }`}
+    >
+      <div
+        className="flex items-center gap-3 flex-1 cursor-pointer"
+        onClick={() => navigate(`/members/${rel.related_member_id}`)}
+      >
+        {rel.related_member.profile_image_url ? (
+          <img
+            src={rel.related_member.profile_image_url}
+            alt={rel.related_member.name}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+            {rel.related_member.name.charAt(0)}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-medium truncate">{rel.related_member.name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge
+              variant="secondary"
+              className={`text-xs ${getRelationshipColor(rel.relationship_type)}`}
+            >
+              {rel.relationship_type}
+            </Badge>
+            {rel.is_inferred && rel.inferred_through && (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Link2 className="h-3 w-3" />
+                via {rel.inferred_through}
+              </span>
+            )}
+          </div>
+        </div>
+        <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+      {canEdit && !rel.is_inferred && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRemoveRelationship(rel);
+          }}
+        >
+          <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+        </Button>
+      )}
+    </div>
   );
 
   return (
@@ -307,7 +491,7 @@ export function MemberRelationshipsSection({
           <Users className="h-5 w-5 text-muted-foreground" />
           <h3 className="font-semibold">Family Members</h3>
           <Badge variant="secondary" className="ml-1">
-            {relationships.length}
+            {allRelationships.length}
           </Badge>
         </div>
         {canEdit && (
@@ -428,58 +612,28 @@ export function MemberRelationshipsSection({
         )}
       </div>
 
-      {relationships.length === 0 ? (
+      {allRelationships.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-4">
           No family relationships added yet.
         </p>
       ) : (
         <div className="space-y-2">
-          {relationships.map((rel) => (
-            <div
-              key={rel.id}
-              className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
-            >
-              <div
-                className="flex items-center gap-3 flex-1 cursor-pointer"
-                onClick={() => navigate(`/members/${rel.related_member_id}`)}
-              >
-                {rel.related_member.profile_image_url ? (
-                  <img
-                    src={rel.related_member.profile_image_url}
-                    alt={rel.related_member.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
-                    {rel.related_member.name.charAt(0)}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{rel.related_member.name}</p>
-                  <Badge
-                    variant="secondary"
-                    className={`text-xs ${getRelationshipColor(rel.relationship_type)}`}
-                  >
-                    {rel.relationship_type}
-                  </Badge>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          {directRelationships.length > 0 && (
+            <>
+              {directRelationships.map(renderRelationshipCard)}
+            </>
+          )}
+          {inferredRelationships.length > 0 && (
+            <>
+              <div className="flex items-center gap-2 mt-4 pt-2 border-t">
+                <Link2 className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-medium">
+                  Extended Family (via relatives)
+                </span>
               </div>
-              {canEdit && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveRelationship(rel);
-                  }}
-                >
-                  <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                </Button>
-              )}
-            </div>
-          ))}
+              {inferredRelationships.map(renderRelationshipCard)}
+            </>
+          )}
         </div>
       )}
     </Card>
