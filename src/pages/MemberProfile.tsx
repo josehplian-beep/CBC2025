@@ -25,6 +25,7 @@ import { MemberActivityTimeline } from "@/components/members/MemberActivityTimel
 import { MemberSecuritySection } from "@/components/members/MemberSecuritySection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 
 interface Member {
   id: string;
@@ -83,6 +84,8 @@ const MemberProfile = () => {
   const [fileDescription, setFileDescription] = useState("");
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
   const { can, isMember } = usePermissions();
 
   // Members can only see limited info when viewing other members' profiles
@@ -272,7 +275,7 @@ const MemberProfile = () => {
     }
   };
 
-  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !id) return;
 
@@ -296,19 +299,33 @@ const MemberProfile = () => {
       return;
     }
 
+    // Create URL for cropping
+    const imageUrl = URL.createObjectURL(file);
+    setImageToCrop(imageUrl);
+    setCropDialogOpen(true);
+    
+    // Reset input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!id) return;
+
     setUploadingProfileImage(true);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${id}/${Date.now()}.${fileExt}`;
+      const fileName = `${id}/${Date.now()}.jpg`;
 
-      // Upload to member-profiles bucket
+      // Upload cropped image to member-profiles bucket
       const { error: uploadError } = await supabase.storage
         .from('member-profiles')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, croppedBlob, { 
+          upsert: true,
+          contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 
@@ -341,6 +358,11 @@ const MemberProfile = () => {
       });
     } finally {
       setUploadingProfileImage(false);
+      // Clean up the object URL
+      if (imageToCrop) {
+        URL.revokeObjectURL(imageToCrop);
+        setImageToCrop("");
+      }
     }
   };
 
@@ -561,7 +583,7 @@ const MemberProfile = () => {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      onChange={handleProfileImageUpload}
+                      onChange={handleProfileImageSelect}
                       disabled={uploadingProfileImage}
                     />
                   </label>
@@ -966,6 +988,20 @@ const MemberProfile = () => {
       </div>
       
       <Footer />
+      
+      {/* Image Crop Dialog */}
+      <ImageCropDialog
+        open={cropDialogOpen}
+        onOpenChange={(open) => {
+          setCropDialogOpen(open);
+          if (!open && imageToCrop) {
+            URL.revokeObjectURL(imageToCrop);
+            setImageToCrop("");
+          }
+        }}
+        imageSrc={imageToCrop}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 };
