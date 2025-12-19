@@ -79,7 +79,10 @@ const MemberProfile = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState("");
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
-  const { can } = usePermissions();
+  const { can, isMember } = usePermissions();
+
+  // Members can only see limited info when viewing other members' profiles
+  const canViewSensitiveInfo = can('manage_members') || !isMember;
 
   useEffect(() => {
     checkAccessAndLoadMember();
@@ -410,7 +413,7 @@ const MemberProfile = () => {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Members
             </Button>
-            {hasAccess && (
+            {can('manage_members') && (
               <Button 
                 onClick={() => navigate(`/members/${id}/edit`)}
                 className="shadow-lg hover:shadow-xl transition-shadow"
@@ -580,7 +583,7 @@ const MemberProfile = () => {
                     </div>
                   )}
 
-                  {member.date_of_birth && (
+                  {member.date_of_birth && canViewSensitiveInfo && (
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Date of Birth</p>
                       <p className="font-medium flex items-center gap-2">
@@ -607,7 +610,7 @@ const MemberProfile = () => {
                   </div>
                 )}
 
-                {!member.phone && !member.email && !hasAddress && !member.date_of_birth && (
+                {!member.phone && !member.email && !hasAddress && (!member.date_of_birth || !canViewSensitiveInfo) && (
                   <p className="text-muted-foreground text-center py-4">No contact information available</p>
                 )}
               </CardContent>
@@ -666,19 +669,23 @@ const MemberProfile = () => {
                   <Activity className="w-4 h-4 mr-2" />
                   Activity
                 </TabsTrigger>
-                <TabsTrigger value="files" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Files
-                </TabsTrigger>
-                <TabsTrigger value="custom" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Custom Fields
-                </TabsTrigger>
-                {hasAccess && (
-                  <TabsTrigger value="notes" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Notes
-                  </TabsTrigger>
+                {canViewSensitiveInfo && (
+                  <>
+                    <TabsTrigger value="files" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Files
+                    </TabsTrigger>
+                    <TabsTrigger value="custom" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Custom Fields
+                    </TabsTrigger>
+                    {hasAccess && (
+                      <TabsTrigger value="notes" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Notes
+                      </TabsTrigger>
+                    )}
+                  </>
                 )}
               </TabsList>
 
@@ -686,136 +693,140 @@ const MemberProfile = () => {
                 <MemberActivityTimeline memberId={id!} memberUpdatedAt={member.updated_at} />
               </TabsContent>
 
-              <TabsContent value="files" className="mt-6">
-                <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
-                  <CardHeader className="flex flex-row items-center justify-between pb-4">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-primary" />
-                      </div>
-                      Files & Documents
-                    </CardTitle>
-                    {can('manage_members') && (
-                      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="shadow-md">
-                            <Upload className="mr-2 h-4 w-4" />
-                            Upload
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Upload File</DialogTitle>
-                            <DialogDescription>
-                              Upload a file to this member's profile for record-keeping.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="file">Select File</Label>
-                              <Input
-                                id="file"
-                                type="file"
-                                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="description">Description (Optional)</Label>
-                              <Input
-                                id="description"
-                                value={fileDescription}
-                                onChange={(e) => setFileDescription(e.target.value)}
-                                placeholder="Enter file description..."
-                                className="mt-1"
-                              />
-                            </div>
+              {canViewSensitiveInfo && (
+                <>
+                  <TabsContent value="files" className="mt-6">
+                    <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+                      <CardHeader className="flex flex-row items-center justify-between pb-4">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-primary" />
                           </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-                              Cancel
-                            </Button>
-                            <Button 
-                              onClick={handleFileUpload} 
-                              disabled={!selectedFile || uploadingFile}
-                            >
-                              {uploadingFile ? (
-                                <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Uploading...
-                                </>
-                              ) : (
-                                'Upload'
-                              )}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    {files.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                          <File className="h-8 w-8 opacity-50" />
-                        </div>
-                        <p className="font-medium">No files uploaded yet</p>
-                        <p className="text-sm mt-1">Upload documents to keep records organized</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {files.map((file) => (
-                          <div 
-                            key={file.id} 
-                            className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group"
-                          >
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <FileText className="h-5 w-5 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{file.file_name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {file.description || formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDownloadFile(file)}
-                                title="Download"
-                                className="h-8 w-8"
-                              >
-                                <Download className="h-4 w-4" />
+                          Files & Documents
+                        </CardTitle>
+                        {can('manage_members') && (
+                          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" className="shadow-md">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Upload
                               </Button>
-                              {can('manage_members') && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteFile(file)}
-                                  title="Delete"
-                                  className="h-8 w-8 text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Upload File</DialogTitle>
+                                <DialogDescription>
+                                  Upload a file to this member's profile for record-keeping.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label htmlFor="file">Select File</Label>
+                                  <Input
+                                    id="file"
+                                    type="file"
+                                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="description">Description (Optional)</Label>
+                                  <Input
+                                    id="description"
+                                    value={fileDescription}
+                                    onChange={(e) => setFileDescription(e.target.value)}
+                                    placeholder="Enter file description..."
+                                    className="mt-1"
+                                  />
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+                                  Cancel
                                 </Button>
-                              )}
+                                <Button 
+                                  onClick={handleFileUpload} 
+                                  disabled={!selectedFile || uploadingFile}
+                                >
+                                  {uploadingFile ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Uploading...
+                                    </>
+                                  ) : (
+                                    'Upload'
+                                  )}
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        {files.length === 0 ? (
+                          <div className="text-center py-12 text-muted-foreground">
+                            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                              <File className="h-8 w-8 opacity-50" />
                             </div>
+                            <p className="font-medium">No files uploaded yet</p>
+                            <p className="text-sm mt-1">Upload documents to keep records organized</p>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                        ) : (
+                          <div className="space-y-3">
+                            {files.map((file) => (
+                              <div 
+                                key={file.id} 
+                                className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group"
+                              >
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <FileText className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium truncate">{file.file_name}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {file.description || formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDownloadFile(file)}
+                                    title="Download"
+                                    className="h-8 w-8"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                  {can('manage_members') && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDeleteFile(file)}
+                                      title="Delete"
+                                      className="h-8 w-8 text-destructive hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="custom" className="mt-6">
-                <MemberCustomFieldsSection memberId={id!} canEdit={can('manage_members')} />
-              </TabsContent>
+                  <TabsContent value="custom" className="mt-6">
+                    <MemberCustomFieldsSection memberId={id!} canEdit={can('manage_members')} />
+                  </TabsContent>
 
-              {hasAccess && (
-                <TabsContent value="notes" className="mt-6">
-                  <MemberNotesSection memberId={id!} canEdit={can('manage_members')} />
-                </TabsContent>
+                  {hasAccess && (
+                    <TabsContent value="notes" className="mt-6">
+                      <MemberNotesSection memberId={id!} canEdit={can('manage_members')} />
+                    </TabsContent>
+                  )}
+                </>
               )}
             </Tabs>
           </div>
