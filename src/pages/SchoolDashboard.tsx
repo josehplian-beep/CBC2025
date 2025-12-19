@@ -514,6 +514,42 @@ export default function SchoolDashboard() {
     }
   };
 
+  const handleAssignTeacherDirect = async (teacherId: string) => {
+    if (!selectedClass) return;
+
+    try {
+      const { error } = await supabase.from("class_teachers").insert({
+        class_id: selectedClass.id,
+        teacher_id: teacherId,
+      });
+
+      if (error) throw error;
+      toast.success("Teacher assigned to class");
+      fetchClassAssignments(selectedClass.id);
+    } catch (error) {
+      console.error("Error assigning teacher:", error);
+      toast.error("Failed to assign teacher");
+    }
+  };
+
+  const handleAssignStudentDirect = async (studentId: string) => {
+    if (!selectedClass) return;
+
+    try {
+      const { error } = await supabase.from("student_classes").insert({
+        class_id: selectedClass.id,
+        student_id: studentId,
+      });
+
+      if (error) throw error;
+      toast.success("Student enrolled in class");
+      fetchClassAssignments(selectedClass.id);
+    } catch (error) {
+      console.error("Error enrolling student:", error);
+      toast.error("Failed to enroll student");
+    }
+  };
+
   const handleStartSession = async () => {
     if (!selectedClass) return;
 
@@ -661,10 +697,14 @@ export default function SchoolDashboard() {
               selectedClass={selectedClass}
               classTeachers={classTeachers}
               classStudents={classStudents}
+              allTeachers={teachers}
+              allStudents={students}
               activeSession={activeSession}
               attendance={attendance}
               onRemoveTeacher={handleRemoveTeacher}
               onRemoveStudent={handleRemoveStudent}
+              onAssignTeacher={handleAssignTeacherDirect}
+              onAssignStudent={handleAssignStudentDirect}
               onStartSession={handleStartSession}
               onEndSession={handleEndSession}
               onAttendanceChange={handleAttendanceChange}
