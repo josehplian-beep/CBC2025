@@ -14,7 +14,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, X, LogOut, Sun, Moon, User as UserIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -77,6 +77,7 @@ const Navigation = () => {
   // Auth State
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [memberProfileId, setMemberProfileId] = useState<string | null>(null);
   
   // Hooks
   const location = useLocation();
@@ -106,10 +107,11 @@ const Navigation = () => {
   }, []);
 
   /**
-   * Check if current user has administrator role
+   * Check if current user has administrator role and fetch their member profile
    */
   useEffect(() => {
     checkAdminStatus();
+    fetchMemberProfile();
   }, [user]);
 
   const checkAdminStatus = async () => {
@@ -129,6 +131,26 @@ const Navigation = () => {
     } catch (error) {
       console.error("Failed to check admin status:", error);
       setIsAdmin(false);
+    }
+  };
+
+  const fetchMemberProfile = async () => {
+    if (!user) {
+      setMemberProfileId(null);
+      return;
+    }
+
+    try {
+      const { data: member } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setMemberProfileId(member?.id ?? null);
+    } catch (error) {
+      console.error("Failed to fetch member profile:", error);
+      setMemberProfileId(null);
     }
   };
 
@@ -229,6 +251,7 @@ const Navigation = () => {
             getNavLinkClasses={getNavLinkClasses}
             isAdmin={isAdmin}
             user={user}
+            memberProfileId={memberProfileId}
             onSignOut={handleSignOut}
           />
 
@@ -250,6 +273,7 @@ const Navigation = () => {
             getNavLinkClasses={getNavLinkClasses}
             isAdmin={isAdmin}
             user={user}
+            memberProfileId={memberProfileId}
             theme={theme}
             onThemeToggle={toggleTheme}
             onSignOut={handleSignOut}
@@ -298,6 +322,7 @@ function DesktopNav({
   getNavLinkClasses,
   isAdmin,
   user,
+  memberProfileId,
   onSignOut,
 }: {
   isActive: (path: string) => boolean;
@@ -305,6 +330,7 @@ function DesktopNav({
   getNavLinkClasses: (path: string) => string;
   isAdmin: boolean;
   user: User | null;
+  memberProfileId: string | null;
   onSignOut: () => void;
 }) {
   return (
@@ -332,6 +358,18 @@ function DesktopNav({
 
       {/* Resources Dropdown */}
       <DropdownMenu label="Resources" links={RESOURCES_LINKS} />
+
+      {/* My Profile (visible only to logged-in members with linked profile) */}
+      {user && memberProfileId && (
+        <Link
+          to={`/members/${memberProfileId}`}
+          className={`text-sm font-medium transition-colors hover:text-primary ${
+            isActive(`/members/${memberProfileId}`) ? "text-primary font-semibold" : "text-muted-foreground"
+          }`}
+        >
+          My Profile
+        </Link>
+      )}
 
       {/* Admin Dashboard (visible only to admins) */}
       {isAdmin && (
@@ -400,6 +438,7 @@ function MobileNav({
   getNavLinkClasses,
   isAdmin,
   user,
+  memberProfileId,
   theme,
   onThemeToggle,
   onSignOut,
@@ -410,6 +449,7 @@ function MobileNav({
   getNavLinkClasses: (path: string) => string;
   isAdmin: boolean;
   user: User | null;
+  memberProfileId: string | null;
   theme: string;
   onThemeToggle: () => void;
   onSignOut: () => void;
@@ -453,6 +493,20 @@ function MobileNav({
 
         {/* Resources Section */}
         <MobileMenuSection title="Resources" links={RESOURCES_LINKS} onNavigate={onNavigate} />
+
+        {/* My Profile (visible only to logged-in members with linked profile) */}
+        {user && memberProfileId && (
+          <Link
+            to={`/members/${memberProfileId}`}
+            onClick={onNavigate}
+            className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
+              isActive(`/members/${memberProfileId}`) ? "text-primary font-semibold" : "text-muted-foreground"
+            }`}
+          >
+            <UserIcon className="w-4 h-4" />
+            My Profile
+          </Link>
+        )}
 
         {/* Admin Dashboard (visible only to admins) */}
         {isAdmin && (
