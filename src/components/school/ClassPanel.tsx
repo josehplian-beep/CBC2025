@@ -31,6 +31,24 @@ interface ClassPanelProps {
   onClassCreated: () => void;
 }
 
+// Modern color palette for classes
+const classColors = [
+  { bg: "bg-violet-500/10", border: "border-violet-500/30", icon: "bg-violet-500/20", iconColor: "text-violet-600", ring: "ring-violet-500/20", activeBg: "bg-violet-500/15" },
+  { bg: "bg-sky-500/10", border: "border-sky-500/30", icon: "bg-sky-500/20", iconColor: "text-sky-600", ring: "ring-sky-500/20", activeBg: "bg-sky-500/15" },
+  { bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: "bg-emerald-500/20", iconColor: "text-emerald-600", ring: "ring-emerald-500/20", activeBg: "bg-emerald-500/15" },
+  { bg: "bg-amber-500/10", border: "border-amber-500/30", icon: "bg-amber-500/20", iconColor: "text-amber-600", ring: "ring-amber-500/20", activeBg: "bg-amber-500/15" },
+  { bg: "bg-rose-500/10", border: "border-rose-500/30", icon: "bg-rose-500/20", iconColor: "text-rose-600", ring: "ring-rose-500/20", activeBg: "bg-rose-500/15" },
+  { bg: "bg-indigo-500/10", border: "border-indigo-500/30", icon: "bg-indigo-500/20", iconColor: "text-indigo-600", ring: "ring-indigo-500/20", activeBg: "bg-indigo-500/15" },
+  { bg: "bg-teal-500/10", border: "border-teal-500/30", icon: "bg-teal-500/20", iconColor: "text-teal-600", ring: "ring-teal-500/20", activeBg: "bg-teal-500/15" },
+  { bg: "bg-pink-500/10", border: "border-pink-500/30", icon: "bg-pink-500/20", iconColor: "text-pink-600", ring: "ring-pink-500/20", activeBg: "bg-pink-500/15" },
+  { bg: "bg-orange-500/10", border: "border-orange-500/30", icon: "bg-orange-500/20", iconColor: "text-orange-600", ring: "ring-orange-500/20", activeBg: "bg-orange-500/15" },
+  { bg: "bg-cyan-500/10", border: "border-cyan-500/30", icon: "bg-cyan-500/20", iconColor: "text-cyan-600", ring: "ring-cyan-500/20", activeBg: "bg-cyan-500/15" },
+];
+
+const getClassColor = (index: number) => {
+  return classColors[index % classColors.length];
+};
+
 export function ClassPanel({
   classes,
   selectedClass,
@@ -141,7 +159,7 @@ export function ClassPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-1">
+        <div className="p-2 space-y-2">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -152,48 +170,52 @@ export function ClassPanel({
               <p className="text-sm">No classes found</p>
             </div>
           ) : (
-            filteredClasses.map((cls) => (
-              <Card
-                key={cls.id}
-                onClick={() => onSelectClass(cls)}
-                className={cn(
-                  "p-3 cursor-pointer transition-all hover:bg-accent/50",
-                  selectedClass?.id === cls.id
-                    ? "bg-primary/10 border-primary/30 ring-1 ring-primary/20"
-                    : "hover:border-border/80"
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "p-2 rounded-lg",
-                      selectedClass?.id === cls.id
-                        ? "bg-primary/20"
-                        : "bg-muted"
-                    )}
-                  >
-                    <BookOpen
+            filteredClasses.map((cls, index) => {
+              const color = getClassColor(index);
+              const isSelected = selectedClass?.id === cls.id;
+              
+              return (
+                <Card
+                  key={cls.id}
+                  onClick={() => onSelectClass(cls)}
+                  className={cn(
+                    "p-3 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]",
+                    isSelected
+                      ? `${color.activeBg} ${color.border} ring-1 ${color.ring} shadow-sm`
+                      : `hover:${color.bg} border-transparent hover:${color.border}`
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
                       className={cn(
-                        "h-4 w-4",
-                        selectedClass?.id === cls.id
-                          ? "text-primary"
-                          : "text-muted-foreground"
+                        "p-2 rounded-lg transition-colors",
+                        color.icon
                       )}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">
-                      {cls.class_name}
-                    </p>
-                    {cls.description && (
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {cls.description}
+                    >
+                      <BookOpen
+                        className={cn(
+                          "h-4 w-4",
+                          color.iconColor
+                        )}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "font-medium truncate",
+                        isSelected ? color.iconColor : "text-foreground"
+                      )}>
+                        {cls.class_name}
                       </p>
-                    )}
+                      {cls.description && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {cls.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              );
+            })
           )}
         </div>
       </ScrollArea>
