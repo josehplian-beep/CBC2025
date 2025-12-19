@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, BookOpen, Trash2, GripVertical } from "lucide-react";
+import { Search, Plus, BookOpen, Trash2, GripVertical, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { differenceInYears } from "date-fns";
 import { AddStudentDialog } from "./AddStudentDialog";
@@ -75,12 +76,14 @@ function DraggableStudentCard({
   age,
   isAdmin,
   onDelete,
+  onViewProfile,
 }: {
   student: Student;
   classNames: string[];
   age: number | null;
   isAdmin: boolean;
   onDelete: (id: string) => void;
+  onViewProfile: (memberId: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `student-${student.id}`,
@@ -111,7 +114,21 @@ function DraggableStudentCard({
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">{student.full_name}</p>
+          {student.member_id ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewProfile(student.member_id!);
+              }}
+              className="font-medium text-foreground truncate hover:text-primary hover:underline transition-colors flex items-center gap-1 text-left"
+            >
+              {student.full_name}
+              <ExternalLink className="h-3 w-3 opacity-50" />
+            </button>
+          ) : (
+            <p className="font-medium text-foreground truncate">{student.full_name}</p>
+          )}
           <p className="text-sm text-muted-foreground truncate">
             {age ? `Age ${age} • ` : ""}{student.guardian_name}
           </p>
@@ -144,12 +161,17 @@ function DraggableStudentCard({
 }
 
 export function StudentsListPanel({ students, classes, onRefresh }: StudentsListPanelProps) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [studentClasses, setStudentClasses] = useState<Record<string, string[]>>({});
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { isAdministrator } = usePermissions();
+
+  const handleViewProfile = (memberId: string) => {
+    navigate(`/members/${memberId}`);
+  };
 
   useEffect(() => {
     const fetchStudentClasses = async () => {
@@ -277,6 +299,7 @@ export function StudentsListPanel({ students, classes, onRefresh }: StudentsList
                 age={getAge(student.date_of_birth)}
                 isAdmin={isAdministrator}
                 onDelete={setDeleteStudentId}
+                onViewProfile={handleViewProfile}
               />
             ))}
           </div>
