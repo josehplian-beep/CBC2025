@@ -77,6 +77,7 @@ const ProfileEdit = () => {
   const { isAdmin } = useUserRole();
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -119,7 +120,7 @@ const ProfileEdit = () => {
         return;
       }
 
-      // Check if user is administrator
+      // Check if user is administrator or editor
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
@@ -127,9 +128,21 @@ const ProfileEdit = () => {
 
       if (rolesError) throw rolesError;
 
-      const isUserAdmin = roles?.some(r => r.role === 'administrator');
+      const isUserAdmin = roles?.some(r => r.role === 'administrator' || r.role === 'editor');
       
-      if (!isUserAdmin) {
+      // Check if user is editing their own profile (member linked to their user_id)
+      const { data: ownMember } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('id', id)
+        .maybeSingle();
+      
+      const isEditingOwnProfile = !!ownMember;
+      setIsOwnProfile(isEditingOwnProfile);
+      
+      // Allow access if admin/editor OR if editing own profile
+      if (!isUserAdmin && !isEditingOwnProfile) {
         setHasAccess(false);
         setLoading(false);
         return;
@@ -363,7 +376,7 @@ const ProfileEdit = () => {
           <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              You need to be logged in as an admin to edit member profiles.
+              You need to be logged in to edit this profile. You can only edit your own profile unless you are an administrator.
             </AlertDescription>
           </Alert>
         </div>
