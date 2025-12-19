@@ -6,10 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, BookOpen } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Plus, BookOpen, Trash2, Link2, GripVertical } from "lucide-react";
 import { AddTeacherDialog } from "./AddTeacherDialog";
 import { cn } from "@/lib/utils";
-import { DraggableMemberCard } from "./DraggableMemberCard";
+import { useDraggable } from "@dnd-kit/core";
+import { usePermissions } from "@/hooks/usePermissions";
+import { toast } from "sonner";
 
 interface Teacher {
   id: string;
@@ -18,6 +31,14 @@ interface Teacher {
   member_id: string | null;
   email?: string | null;
   phone?: string | null;
+  bio?: string | null;
+  member?: {
+    id: string;
+    name: string;
+    profile_image_url: string | null;
+    phone: string | null;
+    email: string | null;
+  } | null;
 }
 
 interface Class {
@@ -55,10 +76,117 @@ function DroppableClassCard({ cls }: { cls: Class }) {
   );
 }
 
+// Helper to get display data from teacher (preferring linked member data)
+function getTeacherDisplayData(teacher: Teacher) {
+  if (teacher.member) {
+    return {
+      name: teacher.member.name,
+      photo: teacher.member.profile_image_url,
+      email: teacher.member.email,
+      phone: teacher.member.phone,
+      isLinked: true,
+    };
+  }
+  return {
+    name: teacher.full_name,
+    photo: teacher.photo_url,
+    email: teacher.email,
+    phone: teacher.phone,
+    isLinked: false,
+  };
+}
+
+function DraggableTeacherCard({
+  teacher,
+  classNames,
+  isAdmin,
+  onDelete,
+}: {
+  teacher: Teacher;
+  classNames: string[];
+  isAdmin: boolean;
+  onDelete: (id: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `teacher-${teacher.id}`,
+  });
+
+  const display = getTeacherDisplayData(teacher);
+
+  return (
+    <Card
+      ref={setNodeRef}
+      className={cn(
+        "p-4 transition-all",
+        isDragging
+          ? "opacity-90 shadow-lg scale-105 ring-2 ring-primary/50"
+          : "hover:shadow-md hover:border-border"
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          {...listeners}
+          {...attributes}
+          className="cursor-grab active:cursor-grabbing mt-1"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+        </div>
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={display.photo || undefined} />
+          <AvatarFallback className="bg-blue-500/10 text-blue-600">
+            {display.name.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground truncate">{display.name}</p>
+            {display.isLinked && (
+              <span title="Linked to Member Directory">
+                <Link2 className="h-3 w-3 text-green-600" />
+              </span>
+            )}
+          </div>
+          {(display.email || display.phone) && (
+            <p className="text-sm text-muted-foreground truncate">
+              {display.email || display.phone}
+            </p>
+          )}
+          {classNames.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {classNames.map((className) => (
+                <Badge key={className} variant="secondary" className="text-xs">
+                  {className}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(teacher.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersListPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [teacherClasses, setTeacherClasses] = useState<Record<string, string[]>>({});
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [deleteTeacherId, setDeleteTeacherId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const { isAdministrator } = usePermissions();
+
   useEffect(() => {
     const fetchTeacherClasses = async () => {
       const { data } = await supabase
@@ -80,9 +208,10 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
     fetchTeacherClasses();
   }, [teachers]);
 
-  const filteredTeachers = teachers.filter((t) =>
-    t.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTeachers = teachers.filter((t) => {
+    const display = getTeacherDisplayData(t);
+    return display.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const getClassNames = (teacherId: string) => {
     const classIds = teacherClasses[teacherId] || [];
@@ -90,6 +219,40 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
       .filter((c) => classIds.includes(c.id))
       .map((c) => c.class_name);
   };
+
+  const handleDeleteTeacher = async () => {
+    if (!deleteTeacherId) return;
+    
+    setDeleting(true);
+    try {
+      // First remove from all class assignments
+      await supabase
+        .from("class_teachers")
+        .delete()
+        .eq("teacher_id", deleteTeacherId);
+
+      // Then delete the teacher
+      const { error } = await supabase
+        .from("teachers")
+        .delete()
+        .eq("id", deleteTeacherId);
+
+      if (error) throw error;
+      
+      toast.success("Teacher deleted successfully");
+      onRefresh();
+    } catch (error) {
+      console.error("Error deleting teacher:", error);
+      toast.error("Failed to delete teacher");
+    } finally {
+      setDeleting(false);
+      setDeleteTeacherId(null);
+    }
+  };
+
+  const teacherToDelete = deleteTeacherId 
+    ? teachers.find((t) => t.id === deleteTeacherId) 
+    : null;
 
   return (
     <div className="flex h-[calc(100vh-220px)]">
@@ -117,26 +280,20 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
         <ScrollArea className="h-[calc(100vh-320px)]">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTeachers.map((teacher) => (
-              <div key={teacher.id} className="relative">
-                <DraggableMemberCard
-                  id={`teacher-${teacher.id}`}
-                  name={teacher.full_name}
-                  imageUrl={teacher.photo_url}
-                  type="teacher"
-                  subtitle={teacher.email || teacher.phone || undefined}
-                />
-                {getClassNames(teacher.id).length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {getClassNames(teacher.id).map((className) => (
-                      <Badge key={className} variant="secondary" className="text-xs">
-                        {className}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <DraggableTeacherCard
+                key={teacher.id}
+                teacher={teacher}
+                classNames={getClassNames(teacher.id)}
+                isAdmin={isAdministrator}
+                onDelete={setDeleteTeacherId}
+              />
             ))}
           </div>
+          {filteredTeachers.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              {searchQuery ? "No teachers found matching your search" : "No teachers yet"}
+            </div>
+          )}
         </ScrollArea>
       </div>
 
@@ -160,6 +317,32 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
         onOpenChange={setShowAddDialog}
         onSuccess={onRefresh}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteTeacherId} onOpenChange={() => setDeleteTeacherId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Teacher</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">
+                {teacherToDelete ? getTeacherDisplayData(teacherToDelete).name : "this teacher"}
+              </span>
+              ? This will remove them from all assigned classes. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTeacher}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
