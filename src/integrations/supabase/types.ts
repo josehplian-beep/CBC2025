@@ -707,6 +707,51 @@ export type Database = {
           },
         ]
       }
+      member_relationships: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_custom: boolean
+          member_id: string
+          related_member_id: string
+          relationship_type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_custom?: boolean
+          member_id: string
+          related_member_id: string
+          relationship_type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_custom?: boolean
+          member_id?: string
+          related_member_id?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_relationships_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_relationships_related_member_id_fkey"
+            columns: ["related_member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_tag_assignments: {
         Row: {
           created_at: string
