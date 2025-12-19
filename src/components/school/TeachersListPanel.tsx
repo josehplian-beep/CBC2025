@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, BookOpen, Trash2, Link2, GripVertical, ExternalLink } from "lucide-react";
+import { Search, Plus, BookOpen, Trash2, Link2, GripVertical, ExternalLink, GraduationCap } from "lucide-react";
 import { AddTeacherDialog } from "./AddTeacherDialog";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -120,10 +120,10 @@ function DraggableTeacherCard({
     <Card
       ref={setNodeRef}
       className={cn(
-        "p-4 transition-all",
+        "p-4 transition-all border-l-4",
         isDragging
-          ? "opacity-90 shadow-lg scale-105 ring-2 ring-primary/50"
-          : "hover:shadow-md hover:border-border"
+          ? "opacity-90 shadow-lg scale-105 ring-2 ring-primary/50 border-l-blue-500"
+          : "hover:shadow-md hover:border-border border-l-blue-500"
       )}
     >
       <div className="flex items-start gap-3">
@@ -134,10 +134,10 @@ function DraggableTeacherCard({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground/50" />
         </div>
-        <Avatar className="h-12 w-12">
+        <Avatar className="h-12 w-12 ring-2 ring-blue-500/30">
           <AvatarImage src={display.photo || undefined} />
           <AvatarFallback className="bg-blue-500/10 text-blue-600">
-            {display.name.charAt(0).toUpperCase()}
+            <GraduationCap className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
@@ -345,13 +345,18 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
       <AlertDialog open={!!deleteTeacherId} onOpenChange={() => setDeleteTeacherId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Teacher</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">
-                {teacherToDelete ? getTeacherDisplayData(teacherToDelete).name : "this teacher"}
-              </span>
-              ? This will remove them from all assigned classes. This action cannot be undone.
+            <AlertDialogTitle>Remove Teacher Assignment</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                Are you sure you want to remove{" "}
+                <span className="font-semibold">
+                  {teacherToDelete ? getTeacherDisplayData(teacherToDelete).name : "this person"}
+                </span>{" "}
+                from the teaching roster?
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This will remove them from all assigned classes. Their profile in the Member Directory will <strong>not</strong> be affected.
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -361,7 +366,7 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? "Removing..." : "Remove Teacher"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
   FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
-  Heart, UserCircle, ChevronRight, Activity
+  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFiel
 import { MemberNotesSection } from "@/components/members/MemberNotesSection";
 import { MemberActivityTimeline } from "@/components/members/MemberActivityTimeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 interface Member {
   id: string;
@@ -59,6 +60,11 @@ interface MemberFile {
   created_at: string;
 }
 
+interface TeacherInfo {
+  id: string;
+  classes: string[];
+}
+
 const MemberProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -72,6 +78,7 @@ const MemberProfile = () => {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState("");
+  const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
   const { can } = usePermissions();
 
   useEffect(() => {
@@ -139,6 +146,26 @@ const MemberProfile = () => {
           .order('name');
         
         setFamilyMembers(familyData || []);
+      }
+      
+      // Check if member is a teacher
+      const { data: teacherData } = await supabase
+        .from('teachers')
+        .select('id')
+        .eq('member_id', memberData.id)
+        .maybeSingle();
+      
+      if (teacherData) {
+        // Get classes this teacher is assigned to
+        const { data: classData } = await supabase
+          .from('class_teachers')
+          .select('class_id, classes(class_name)')
+          .eq('teacher_id', teacherData.id);
+        
+        const classNames = classData?.map((c: any) => c.classes?.class_name).filter(Boolean) || [];
+        setTeacherInfo({ id: teacherData.id, classes: classNames });
+      } else {
+        setTeacherInfo(null);
       }
       
       await loadFiles();
@@ -403,7 +430,17 @@ const MemberProfile = () => {
           {/* Left Column - Profile Card */}
           <div className="space-y-6">
             {/* Profile Image Card */}
-            <Card className="overflow-hidden shadow-xl border-0 bg-card/80 backdrop-blur-sm">
+            <Card className={cn(
+              "overflow-hidden shadow-xl border-0 bg-card/80 backdrop-blur-sm",
+              teacherInfo && "ring-2 ring-blue-500/50"
+            )}>
+              {/* Teacher Banner */}
+              {teacherInfo && (
+                <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2 flex items-center justify-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-white" />
+                  <span className="text-sm font-semibold text-white">Sunday School Teacher</span>
+                </div>
+              )}
               <div className="aspect-square relative">
                 {member.profile_image_url ? (
                   <img
@@ -418,9 +455,28 @@ const MemberProfile = () => {
                 )}
               </div>
               <CardContent className="p-6 text-center">
-                <h1 className="text-2xl font-bold mb-2">{member.name}</h1>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <h1 className="text-2xl font-bold">{member.name}</h1>
+                  {teacherInfo && (
+                    <Badge className="bg-blue-600 hover:bg-blue-700">
+                      <GraduationCap className="h-3 w-3 mr-1" />
+                      Teacher
+                    </Badge>
+                  )}
+                </div>
                 {member.position && (
                   <p className="text-muted-foreground">{member.position}</p>
+                )}
+                {/* Teacher Classes */}
+                {teacherInfo && teacherInfo.classes.length > 0 && (
+                  <div className="mt-3 flex flex-wrap justify-center gap-1">
+                    {teacherInfo.classes.map((className) => (
+                      <Badge key={className} variant="secondary" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-300">
+                        <BookOpen className="h-3 w-3 mr-1" />
+                        {className}
+                      </Badge>
+                    ))}
+                  </div>
                 )}
                 <div className="mt-4">
                   <MemberTagsSection memberId={id!} canEdit={can('manage_members')} />
