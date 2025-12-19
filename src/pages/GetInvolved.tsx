@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,8 @@ const GetInvolved = () => {
     setInquiryOpen(true);
   };
 
+  const navigate = useNavigate();
+
   const opportunities = [
     {
       icon: Users,
@@ -30,6 +33,7 @@ const GetInvolved = () => {
       description: "Connect with our church family through small groups, life groups, and fellowship events.",
       action: "Find a Group",
       inquiryType: "Small Groups & Fellowship",
+      isLink: false,
     },
     {
       icon: Droplets,
@@ -37,6 +41,7 @@ const GetInvolved = () => {
       description: "Take the next step in your faith journey through believer's baptism.",
       action: "Learn About Baptism",
       inquiryType: "Baptism",
+      isLink: false,
     },
     {
       icon: HandHeart,
@@ -44,6 +49,7 @@ const GetInvolved = () => {
       description: "Use your gifts and talents to serve in various ministries and make a difference.",
       action: "Explore Opportunities",
       inquiryType: "Serving Team",
+      isLink: false,
     },
     {
       icon: Calendar,
@@ -51,6 +57,8 @@ const GetInvolved = () => {
       description: "Participate in church events, outreach programs, and community activities.",
       action: "View Events",
       inquiryType: "Events & Activities",
+      isLink: true,
+      linkTo: "/events",
     },
   ];
 
@@ -100,11 +108,17 @@ const GetInvolved = () => {
                     <p className="text-muted-foreground">{opportunity.description}</p>
                     <Button 
                       className="w-full"
-                      onClick={() => openInquiry(
-                        opportunity.inquiryType,
-                        `Interest in ${opportunity.title}`,
-                        `We'd love to help you ${opportunity.title.toLowerCase()}. Fill out the form and we'll connect you with the right team.`
-                      )}
+                      onClick={() => {
+                        if (opportunity.isLink && opportunity.linkTo) {
+                          navigate(opportunity.linkTo);
+                        } else {
+                          openInquiry(
+                            opportunity.inquiryType,
+                            `Interest in ${opportunity.title}`,
+                            `We'd love to help you ${opportunity.title.toLowerCase()}. Fill out the form and we'll connect you with the right team.`
+                          );
+                        }
+                      }}
                     >
                       {opportunity.action}
                     </Button>
