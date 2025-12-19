@@ -71,6 +71,7 @@ const MemberProfile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [member, setMember] = useState<Member | null>(null);
   const [files, setFiles] = useState<MemberFile[]>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
@@ -119,6 +120,16 @@ const MemberProfile = () => {
       }
 
       setHasAccess(true);
+      
+      // Check if user is viewing their own profile
+      const { data: ownMember } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('id', id)
+        .maybeSingle();
+      
+      setIsOwnProfile(!!ownMember);
 
       const { data: memberData, error: memberError } = await supabase
         .from('members')
@@ -413,13 +424,13 @@ const MemberProfile = () => {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Members
             </Button>
-            {can('manage_members') && (
+            {(can('manage_members') || isOwnProfile) && (
               <Button 
                 onClick={() => navigate(`/members/${id}/edit`)}
                 className="shadow-lg hover:shadow-xl transition-shadow"
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
+                {isOwnProfile ? 'Edit My Profile' : 'Edit Profile'}
               </Button>
             )}
           </div>
