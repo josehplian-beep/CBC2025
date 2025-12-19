@@ -175,7 +175,9 @@ const Members = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [groupByFamily, setGroupByFamily] = useState(false);
   const [genderFilter, setGenderFilter] = useState("all");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [memberTags, setMemberTags] = useState<{id: string; name: string; color: string}[]>([]);
+  const [memberTagAssignments, setMemberTagAssignments] = useState<{member_id: string; tag_id: string}[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isFamilyDialogOpen, setIsFamilyDialogOpen] = useState(false);
@@ -264,6 +266,19 @@ const Members = () => {
       } = await supabase.from('families').select('*').order('family_name');
       if (!familiesError) setFamilies(familiesData || []);
 
+      // Load member tags
+      const { data: tagsData } = await supabase
+        .from('member_tags')
+        .select('id, name, color')
+        .order('name');
+      if (tagsData) setMemberTags(tagsData);
+
+      // Load tag assignments
+      const { data: assignmentsData } = await supabase
+        .from('member_tag_assignments')
+        .select('member_id, tag_id');
+      if (assignmentsData) setMemberTagAssignments(assignmentsData);
+
       // Load members with family data - force fresh data with timestamp
       const timestamp = new Date().getTime();
       const {
@@ -318,19 +333,22 @@ const Members = () => {
       filtered = filtered.filter(member => member.family_id === familyFilter);
     }
 
-    // Filter by department
-    if (departmentFilter && departmentFilter !== "all") {
-      filtered = filtered.filter(member => member.department?.toLowerCase().includes(departmentFilter.toLowerCase()));
+    // Filter by tag
+    if (tagFilter && tagFilter !== "all") {
+      const memberIdsWithTag = memberTagAssignments
+        .filter(a => a.tag_id === tagFilter)
+        .map(a => a.member_id);
+      filtered = filtered.filter(member => memberIdsWithTag.includes(member.id));
     }
     setFilteredMembers(filtered);
-  }, [searchQuery, positionFilter, baptizedFilter, genderFilter, familyFilter, departmentFilter, members]);
+  }, [searchQuery, positionFilter, baptizedFilter, genderFilter, familyFilter, tagFilter, memberTagAssignments, members]);
   const handleResetFilters = () => {
     setSearchQuery("");
     setPositionFilter("");
     setBaptizedFilter("all");
     setGenderFilter("all");
     setFamilyFilter("all");
-    setDepartmentFilter("all");
+    setTagFilter("all");
   };
   const maleCount = members.filter(m => m.gender?.toLowerCase() === 'male').length;
   const femaleCount = members.filter(m => m.gender?.toLowerCase() === 'female').length;
@@ -1184,19 +1202,53 @@ const Members = () => {
               </SelectContent>
             </Select>
 
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger className="w-[160px] h-9 bg-background">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {uniqueDepartments.map(dept => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-[160px] h-9 justify-between bg-background">
+                  <span className="flex items-center gap-2">
+                    {tagFilter !== "all" ? (
+                      <>
+                        <span 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: memberTags.find(t => t.id === tagFilter)?.color || '#3B82F6' }} 
+                        />
+                        {memberTags.find(t => t.id === tagFilter)?.name || "All Tags"}
+                      </>
+                    ) : (
+                      "All Tags"
+                    )}
+                  </span>
+                  <Tag className="h-4 w-4 text-muted-foreground ml-auto" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-2" align="start">
+                <div className="space-y-1">
+                  <button
+                    onClick={() => setTagFilter("all")}
+                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${
+                      tagFilter === "all" ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
+                  >
+                    All Tags
+                  </button>
+                  {memberTags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => setTagFilter(tag.id)}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${
+                        tagFilter === tag.id ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                      }`}
+                    >
+                      <span 
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: tag.color }} 
+                      />
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
 
             <Select value={baptizedFilter} onValueChange={setBaptizedFilter}>
               <SelectTrigger className="w-[130px] h-9 bg-background">
@@ -1219,7 +1271,7 @@ const Members = () => {
             </div>
 
             {/* Active filters indicator & reset */}
-            {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
+            {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || tagFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -1256,7 +1308,7 @@ const Members = () => {
           </div>
 
           {/* Active filters badges */}
-          {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
+          {(searchQuery || genderFilter !== "all" || familyFilter !== "all" || tagFilter !== "all" || baptizedFilter !== "all" || positionFilter) && (
             <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
               {searchQuery && (
                 <Badge variant="secondary" className="gap-1 pr-1">
@@ -1282,10 +1334,14 @@ const Members = () => {
                   </Button>
                 </Badge>
               )}
-              {departmentFilter !== "all" && (
+              {tagFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1 pr-1">
-                  {departmentFilter}
-                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setDepartmentFilter("all")}>
+                  <span 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: memberTags.find(t => t.id === tagFilter)?.color || '#3B82F6' }} 
+                  />
+                  {memberTags.find(t => t.id === tagFilter)?.name}
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={() => setTagFilter("all")}>
                     <X className="w-3 h-3" />
                   </Button>
                 </Badge>
@@ -1314,7 +1370,7 @@ const Members = () => {
         <div className="flex flex-wrap justify-between items-center gap-4">
           <h2 className="font-display text-2xl font-bold">
             {filteredMembers.length} {filteredMembers.length === 1 ? 'Member' : 'Members'}
-            {(searchQuery || positionFilter || genderFilter !== "all" || familyFilter !== "all" || departmentFilter !== "all" || baptizedFilter !== "all") && <span className="text-muted-foreground font-normal text-lg ml-2">
+            {(searchQuery || positionFilter || genderFilter !== "all" || familyFilter !== "all" || tagFilter !== "all" || baptizedFilter !== "all") && <span className="text-muted-foreground font-normal text-lg ml-2">
                 (filtered from {members.length})
               </span>}
           </h2>
