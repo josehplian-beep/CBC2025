@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useDroppable } from "@dnd-kit/core";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,10 +18,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, BookOpen, Trash2, Link2, GripVertical } from "lucide-react";
+import { Search, Plus, BookOpen, Trash2, Link2, GripVertical, ExternalLink } from "lucide-react";
 import { AddTeacherDialog } from "./AddTeacherDialog";
 import { cn } from "@/lib/utils";
-import { useDraggable } from "@dnd-kit/core";
 import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 
@@ -101,17 +101,20 @@ function DraggableTeacherCard({
   classNames,
   isAdmin,
   onDelete,
+  onViewProfile,
 }: {
   teacher: Teacher;
   classNames: string[];
   isAdmin: boolean;
   onDelete: (id: string) => void;
+  onViewProfile: (memberId: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `teacher-${teacher.id}`,
   });
 
   const display = getTeacherDisplayData(teacher);
+  const memberId = teacher.member?.id || teacher.member_id;
 
   return (
     <Card
@@ -139,7 +142,21 @@ function DraggableTeacherCard({
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-medium text-foreground truncate">{display.name}</p>
+            {memberId ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewProfile(memberId);
+                }}
+                className="font-medium text-foreground truncate hover:text-primary hover:underline transition-colors flex items-center gap-1 text-left"
+              >
+                {display.name}
+                <ExternalLink className="h-3 w-3 opacity-50" />
+              </button>
+            ) : (
+              <p className="font-medium text-foreground truncate">{display.name}</p>
+            )}
             {display.isLinked && (
               <span title="Linked to Member Directory">
                 <Link2 className="h-3 w-3 text-green-600" />
@@ -180,12 +197,17 @@ function DraggableTeacherCard({
 }
 
 export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersListPanelProps) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [teacherClasses, setTeacherClasses] = useState<Record<string, string[]>>({});
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteTeacherId, setDeleteTeacherId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { isAdministrator } = usePermissions();
+
+  const handleViewProfile = (memberId: string) => {
+    navigate(`/members/${memberId}`);
+  };
 
   useEffect(() => {
     const fetchTeacherClasses = async () => {
@@ -286,6 +308,7 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
                 classNames={getClassNames(teacher.id)}
                 isAdmin={isAdministrator}
                 onDelete={setDeleteTeacherId}
+                onViewProfile={handleViewProfile}
               />
             ))}
           </div>
