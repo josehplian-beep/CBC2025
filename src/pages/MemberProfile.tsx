@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
   FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
-  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen, Shield
+  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen, Shield, Camera
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -82,6 +82,7 @@ const MemberProfile = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState("");
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const { can, isMember } = usePermissions();
 
   // Members can only see limited info when viewing other members' profiles
@@ -268,6 +269,78 @@ const MemberProfile = () => {
       });
     } finally {
       setUploadingFile(false);
+    }
+  };
+
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingProfileImage(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${id}/${Date.now()}.${fileExt}`;
+
+      // Upload to member-profiles bucket
+      const { error: uploadError } = await supabase.storage
+        .from('member-profiles')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('member-profiles')
+        .getPublicUrl(fileName);
+
+      // Update member record with new image URL
+      const { error: updateError } = await supabase
+        .from('members')
+        .update({ profile_image_url: publicUrl })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setMember(prev => prev ? { ...prev, profile_image_url: publicUrl } : null);
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to upload image';
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingProfileImage(false);
     }
   };
 
@@ -463,7 +536,7 @@ const MemberProfile = () => {
                   <span className="text-sm font-semibold text-white">Sunday School Teacher</span>
                 </div>
               )}
-              <div className="aspect-square relative">
+              <div className="aspect-square relative group">
                 {member.profile_image_url ? (
                   <img
                     src={member.profile_image_url}
@@ -473,6 +546,34 @@ const MemberProfile = () => {
                 ) : (
                   <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-muted to-muted/50">
                     <UserCircle className="w-32 h-32 text-muted-foreground/50" />
+                  </div>
+                )}
+                
+                {/* Profile Image Upload Button - shown for own profile or admin */}
+                {(isOwnProfile || can('manage_members')) && (
+                  <label className="absolute bottom-4 right-4 bg-primary text-primary-foreground p-3 rounded-full cursor-pointer hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:scale-105 opacity-90 group-hover:opacity-100">
+                    {uploadingProfileImage ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Camera className="w-5 h-5" />
+                    )}
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleProfileImageUpload}
+                      disabled={uploadingProfileImage}
+                    />
+                  </label>
+                )}
+                
+                {/* Loading overlay */}
+                {uploadingProfileImage && (
+                  <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+                    <div className="text-center">
+                      <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-2" />
+                      <p className="text-sm font-medium">Uploading...</p>
+                    </div>
                   </div>
                 )}
               </div>
