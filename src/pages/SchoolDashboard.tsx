@@ -14,7 +14,6 @@ import {
 import { AdminLayout } from "@/components/AdminLayout";
 import { ClassPanel } from "@/components/school/ClassPanel";
 import { ClassDetailPanel } from "@/components/school/ClassDetailPanel";
-import { MemberDirectoryPanel } from "@/components/school/MemberDirectoryPanel";
 import { DraggableMemberCard } from "@/components/school/DraggableMemberCard";
 import { TeachersListPanel } from "@/components/school/TeachersListPanel";
 import { StudentsListPanel } from "@/components/school/StudentsListPanel";
@@ -669,13 +668,6 @@ export default function SchoolDashboard() {
               onStartSession={handleStartSession}
               onEndSession={handleEndSession}
               onAttendanceChange={handleAttendanceChange}
-            />
-            <MemberDirectoryPanel
-              teachers={teachers}
-              students={students}
-              members={members}
-              classTeachers={classTeachers}
-              classStudents={classStudents}
             />
           </div>
         );
