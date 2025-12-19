@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
   FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
-  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen
+  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen, Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ import { MemberTagsSection } from "@/components/members/MemberTagsSection";
 import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFieldsSection";
 import { MemberNotesSection } from "@/components/members/MemberNotesSection";
 import { MemberActivityTimeline } from "@/components/members/MemberActivityTimeline";
+import { MemberSecuritySection } from "@/components/members/MemberSecuritySection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +73,7 @@ const MemberProfile = () => {
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [member, setMember] = useState<Member | null>(null);
   const [files, setFiles] = useState<MemberFile[]>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
@@ -129,7 +131,13 @@ const MemberProfile = () => {
         .eq('id', id)
         .maybeSingle();
       
-      setIsOwnProfile(!!ownMember);
+      const isOwn = !!ownMember;
+      setIsOwnProfile(isOwn);
+      
+      // Store user email for security section
+      if (isOwn) {
+        setUserEmail(session.user.email || null);
+      }
 
       const { data: memberData, error: memberError } = await supabase
         .from('members')
@@ -698,6 +706,12 @@ const MemberProfile = () => {
                     )}
                   </>
                 )}
+                {isOwnProfile && (
+                  <TabsTrigger value="security" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Security
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               <TabsContent value="activity" className="mt-6">
@@ -838,6 +852,12 @@ const MemberProfile = () => {
                     </TabsContent>
                   )}
                 </>
+              )}
+              
+              {isOwnProfile && (
+                <TabsContent value="security" className="mt-6">
+                  <MemberSecuritySection userEmail={userEmail || undefined} />
+                </TabsContent>
               )}
             </Tabs>
           </div>
