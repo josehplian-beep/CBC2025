@@ -1,34 +1,56 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Droplets, HandHeart, Calendar, Heart, BookOpen } from "lucide-react";
+import { InquiryDialog } from "@/components/InquiryDialog";
 
 const GetInvolved = () => {
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState({
+    type: "",
+    title: "",
+    description: "",
+  });
+
+  const openInquiry = (type: string, title?: string, description?: string) => {
+    setSelectedInquiry({
+      type,
+      title: title || `Interest in ${type}`,
+      description: description || "Fill out the form below and we'll get back to you soon.",
+    });
+    setInquiryOpen(true);
+  };
+
   const opportunities = [
     {
       icon: Users,
       title: "Meet People",
       description: "Connect with our church family through small groups, life groups, and fellowship events.",
       action: "Find a Group",
+      inquiryType: "Small Groups & Fellowship",
     },
     {
       icon: Droplets,
       title: "Get Baptized",
       description: "Take the next step in your faith journey through believer's baptism.",
       action: "Learn About Baptism",
+      inquiryType: "Baptism",
     },
     {
       icon: HandHeart,
       title: "Join Serving Team",
       description: "Use your gifts and talents to serve in various ministries and make a difference.",
       action: "Explore Opportunities",
+      inquiryType: "Serving Team",
     },
     {
       icon: Calendar,
       title: "Attend Events",
       description: "Participate in church events, outreach programs, and community activities.",
       action: "View Events",
+      inquiryType: "Events & Activities",
     },
   ];
 
@@ -76,7 +98,16 @@ const GetInvolved = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-muted-foreground">{opportunity.description}</p>
-                    <Button className="w-full">{opportunity.action}</Button>
+                    <Button 
+                      className="w-full"
+                      onClick={() => openInquiry(
+                        opportunity.inquiryType,
+                        `Interest in ${opportunity.title}`,
+                        `We'd love to help you ${opportunity.title.toLowerCase()}. Fill out the form and we'll connect you with the right team.`
+                      )}
+                    >
+                      {opportunity.action}
+                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -101,7 +132,15 @@ const GetInvolved = () => {
                 <CardContent className="p-6">
                   <h3 className="font-display text-xl font-semibold mb-2">{opportunity.name}</h3>
                   <p className="text-muted-foreground text-sm mb-4">{opportunity.description}</p>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => openInquiry(
+                      opportunity.name,
+                      `Join ${opportunity.name}`,
+                      `Thank you for your interest in the ${opportunity.name}! ${opportunity.description}. Fill out the form and we'll connect you with the team leader.`
+                    )}
+                  >
                     Get Involved
                   </Button>
                 </CardContent>
@@ -126,7 +165,14 @@ const GetInvolved = () => {
                   trusted Jesus for our salvation. It's a public declaration of our faith and 
                   identification with Christ's death, burial, and resurrection.
                 </p>
-                <Button size="lg">
+                <Button 
+                  size="lg"
+                  onClick={() => openInquiry(
+                    "Baptism Sign Up",
+                    "Sign Up for Baptism",
+                    "We're excited about your decision to be baptized! Fill out this form and our team will contact you with next steps and class information."
+                  )}
+                >
                   Sign Up for Baptism
                 </Button>
               </div>
@@ -162,13 +208,30 @@ const GetInvolved = () => {
             We're here to help you find your place in our church family. 
             Reach out to us and we'll be happy to guide you.
           </p>
-          <Button size="lg" variant="secondary">
+          <Button 
+            size="lg" 
+            variant="secondary"
+            onClick={() => openInquiry(
+              "General Questions",
+              "Contact Us",
+              "Have questions about getting involved? We'd love to hear from you and help you find your place in our church family."
+            )}
+          >
             Contact Us
           </Button>
         </div>
       </section>
 
       <Footer />
+
+      {/* Inquiry Dialog */}
+      <InquiryDialog
+        open={inquiryOpen}
+        onOpenChange={setInquiryOpen}
+        inquiryType={selectedInquiry.type}
+        title={selectedInquiry.title}
+        description={selectedInquiry.description}
+      />
     </div>
   );
 };
