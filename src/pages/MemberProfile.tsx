@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   ArrowLeft, Mail, MapPin, Phone, Calendar, Users, Lock, Loader2, Edit, 
   FileText, Upload, Trash2, Download, File, Briefcase, Building2, Clock,
-  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen, UsersRound
+  Heart, UserCircle, ChevronRight, Activity, GraduationCap, BookOpen
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +22,6 @@ import { MemberTagsSection } from "@/components/members/MemberTagsSection";
 import { MemberCustomFieldsSection } from "@/components/members/MemberCustomFieldsSection";
 import { MemberNotesSection } from "@/components/members/MemberNotesSection";
 import { MemberActivityTimeline } from "@/components/members/MemberActivityTimeline";
-import { MemberRelationshipsSection } from "@/components/members/MemberRelationshipsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -614,12 +613,51 @@ const MemberProfile = () => {
               </CardContent>
             </Card>
 
-            {/* Family Relationships Card */}
-            <MemberRelationshipsSection 
-              memberId={id!} 
-              memberGender={member.gender}
-              canEdit={can('manage_members')} 
-            />
+            {/* Family Members Card */}
+            {familyMembers.length > 0 && (
+              <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    Family Members
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {familyMembers.map((familyMember) => (
+                      <button
+                        key={familyMember.id}
+                        onClick={() => navigate(`/members/${familyMember.id}`)}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-200 text-left group border border-transparent hover:border-primary/20"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-background">
+                          {familyMember.profile_image_url ? (
+                            <img
+                              src={familyMember.profile_image_url}
+                              alt={familyMember.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <UserCircle className="w-6 h-6 text-primary/60" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate group-hover:text-primary transition-colors">
+                            {familyMember.name}
+                          </p>
+                          {familyMember.position && (
+                            <p className="text-sm text-muted-foreground truncate">{familyMember.position}</p>
+                          )}
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Tabbed Content */}
             <Tabs defaultValue="activity" className="w-full">
