@@ -5,9 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, BookOpen, Mail, Phone } from "lucide-react";
+import { Search, Plus, BookOpen } from "lucide-react";
+import { AddTeacherDialog } from "./AddTeacherDialog";
 import { cn } from "@/lib/utils";
 import { DraggableMemberCard } from "./DraggableMemberCard";
 
@@ -58,7 +58,7 @@ function DroppableClassCard({ cls }: { cls: Class }) {
 export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersListPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [teacherClasses, setTeacherClasses] = useState<Record<string, string[]>>({});
-
+  const [showAddDialog, setShowAddDialog] = useState(false);
   useEffect(() => {
     const fetchTeacherClasses = async () => {
       const { data } = await supabase
@@ -97,14 +97,20 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
       <div className="flex-1 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-foreground">All Teachers</h2>
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search teachers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search teachers..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button onClick={() => setShowAddDialog(true)} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Teacher
+            </Button>
           </div>
         </div>
 
@@ -148,6 +154,12 @@ export function TeachersListPanel({ teachers, classes, onRefresh }: TeachersList
           </div>
         </ScrollArea>
       </div>
+
+      <AddTeacherDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={onRefresh}
+      />
     </div>
   );
 }
