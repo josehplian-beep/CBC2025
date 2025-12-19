@@ -95,7 +95,14 @@ const memberFormSchema = z.object({
   baptized: z.string().optional(),
   email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
   area_code: z.string().regex(/^\d{3}$/, "Area code must be 3 digits").optional().or(z.literal("")),
-  phone_number: z.string().regex(/^\d{7,10}$/, "Phone number must be 7-10 digits").optional().or(z.literal("")),
+  phone_number: z.string()
+    .refine((val) => {
+      if (!val) return true;
+      const digitsOnly = val.replace(/\D/g, '');
+      return digitsOnly.length >= 7 && digitsOnly.length <= 10;
+    }, "Phone number must be 7-10 digits")
+    .optional()
+    .or(z.literal("")),
   family_id: z.string().optional().or(z.literal("")),
   street_address: z.string().max(200).optional().or(z.literal("")),
   street_address_line2: z.string().max(200).optional().or(z.literal("")),
