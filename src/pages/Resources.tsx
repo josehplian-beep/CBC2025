@@ -55,13 +55,28 @@ const Resources = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-primary/5 dark:from-background dark:via-background dark:to-primary/5">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-primary/5 dark:from-background dark:via-background dark:to-primary/5 relative overflow-hidden">
+      {/* Ambient Glow Effects */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Warm center glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-400/20 dark:bg-amber-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "4s" }} />
+        {/* Soft side glows */}
+        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-orange-300/15 dark:bg-orange-400/5 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: "5s", animationDelay: "1s" }} />
+        <div className="absolute top-1/2 right-1/4 w-[250px] h-[250px] bg-yellow-300/15 dark:bg-yellow-400/5 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: "6s", animationDelay: "2s" }} />
+        {/* Bottom warm glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-gradient-to-t from-amber-200/20 dark:from-amber-500/5 to-transparent blur-[60px]" />
+      </div>
+
       <Navigation />
       
-      <div className="container mx-auto px-4 py-16 pt-24">
+      <div className="container mx-auto px-4 py-16 pt-24 relative z-10">
         {/* Prayer Room Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <div className="text-6xl mb-6">🙏</div>
+          {/* Candle Icon with Glow */}
+          <div className="relative inline-block mb-6">
+            <div className="text-6xl relative z-10">🕯️</div>
+            <div className="absolute inset-0 w-16 h-16 mx-auto bg-amber-400/40 dark:bg-amber-400/20 rounded-full blur-xl animate-pulse" style={{ animationDuration: "2s" }} />
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Prayer Room
           </h1>
