@@ -13,11 +13,18 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const ENCOURAGING_MESSAGES = [
-  "God is near to the brokenhearted.",
-  "You are not alone.",
+  "God is near to the brokenhearted. — Psalm 34:18",
+  "You are not alone. He is with you always. — Matthew 28:20",
   "Your church family cares for you.",
-  "Cast all your anxiety on Him because He cares for you.",
-  "The Lord is close to all who call on Him."
+  "Cast all your anxiety on Him because He cares for you. — 1 Peter 5:7",
+  "The Lord is close to all who call on Him. — Psalm 145:18",
+  "Come to me, all who are weary, and I will give you rest. — Matthew 11:28",
+  "Be strong and courageous. Do not be afraid. — Joshua 1:9",
+  "I can do all things through Christ who strengthens me. — Philippians 4:13",
+  "The Lord is my shepherd; I shall not want. — Psalm 23:1",
+  "Peace I leave with you; my peace I give you. — John 14:27",
+  "For I know the plans I have for you, plans to prosper you. — Jeremiah 29:11",
+  "The Lord will fight for you; you need only to be still. — Exodus 14:14"
 ];
 
 const Resources = () => {
