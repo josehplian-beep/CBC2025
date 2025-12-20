@@ -6,7 +6,8 @@ import VideoCard from "@/components/VideoCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Video, Images, Radio, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Video, Images, Radio, Search, Play, Clock, Users, ChevronRight, X } from "lucide-react";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ interface Album {
 
 const Media = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("videos");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,33 +39,23 @@ const Media = () => {
   const fetchVideos = async () => {
     setLoading(true);
     try {
-      console.log('Starting video fetch...');
-      // Fetch videos from Chin Bethel Church DC channel with retries
       let attempts = 0;
-      const maxAttempts = 3;
       let videos: YouTubeVideo[] = [];
       
-      while (attempts < maxAttempts && videos.length === 0) {
-        console.log(`Attempt ${attempts + 1} to fetch videos...`);
+      while (attempts < 3 && videos.length === 0) {
         videos = await searchYouTubeVideos({
           channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-          maxResults: 200, // Increased to get more videos
+          maxResults: 200,
           order: "date",
         });
-        
-        console.log(`Received ${videos.length} videos on attempt ${attempts + 1}`);
-        
         if (videos.length === 0) {
-          console.log(`Attempt ${attempts + 1} failed, retrying...`);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         attempts++;
       }
-      
       setYoutubeVideos(videos);
-      console.log('Successfully set videos:', videos.length);
-    } catch (error) {
-      // Silently handle fetch error
+    } catch {
+      // silent
     } finally {
       setLoading(false);
     }
@@ -73,35 +65,24 @@ const Media = () => {
     try {
       const { data: albumsData, error } = await supabase
         .from('albums')
-        .select(`
-          id,
-          title,
-          description,
-          cover_image_url
-        `)
+        .select('id, title, description, cover_image_url')
         .eq('is_published', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Get photo counts for each album
       const albumsWithCounts = await Promise.all(
         (albumsData || []).map(async (album) => {
           const { count } = await supabase
             .from('photos')
             .select('*', { count: 'exact', head: true })
             .eq('album_id', album.id);
-
-          return {
-            ...album,
-            photo_count: count || 0,
-          };
+          return { ...album, photo_count: count || 0 };
         })
       );
-
       setAlbums(albumsWithCounts);
-    } catch (error) {
-      // Silently handle fetch error
+    } catch {
+      // silent
     } finally {
       setAlbumsLoading(false);
     }
@@ -109,16 +90,8 @@ const Media = () => {
 
   const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
-    const year = date.getFullYear().toString();
     const title = video.title.toLowerCase();
     
-    console.log('Processing video:', {
-      title: video.title,
-      publishedAt: video.publishedAt,
-      year: year
-    });
-    
-    // Improved video categorization with more keywords
     let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
     if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {
       category = "Sermon";
@@ -128,15 +101,13 @@ const Media = () => {
       category = "Solo";
     } else if (title.includes("choir") || title.includes("group")) {
       category = "Choir";
-    } else if (title.includes("worship") || title.includes("praise") || title.includes("music")) {
-      category = "Worship & Music";
     }
 
     return {
       title: video.title,
       date: date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
       category,
-      year,
+      year: date.getFullYear().toString(),
       thumbnail: video.thumbnail,
       videoId: video.id,
     };
@@ -145,168 +116,296 @@ const Media = () => {
   const filteredVideos = processedVideos.filter((video) => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
-    const matchesSearch = searchQuery === "" || video.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const notLivestream = categoryFilter === "all" ? true : video.category !== "Livestream"; // Only exclude livestreams if not specifically filtering for them
-    
-    console.log('Filtering video:', {
-      title: video.title,
-      year: video.year,
-      yearFilter,
-      matchesYear,
-      category: video.category,
-      categoryFilter,
-      matchesCategory,
-      willShow: matchesCategory && matchesYear && matchesSearch && notLivestream
-    });
-    
+    const matchesSearch = !searchQuery || video.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const notLivestream = categoryFilter === "all" ? video.category !== "Livestream" : true;
     return matchesCategory && matchesYear && matchesSearch && notLivestream;
   });
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setCategoryFilter("all");
+    setYearFilter("all");
+  };
+
+  const hasActiveFilters = searchQuery || categoryFilter !== "all" || yearFilter !== "all";
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="relative h-[300px] flex items-center justify-center overflow-hidden mt-20 bg-primary">
-        <div className="relative z-10 text-center text-primary-foreground px-4">
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">Media</h1>
-          <p className="text-xl md:text-2xl text-primary-foreground/90">Sermons, Worship, and Church Life</p>
+      {/* Compact Hero */}
+      <section className="relative pt-24 pb-12 bg-gradient-to-br from-primary via-primary to-accent overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <div className="container mx-auto px-4 relative z-10">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-2">
+            Media Center
+          </h1>
+          <p className="text-primary-foreground/80 text-lg max-w-xl">
+            Watch sermons, worship sessions, and relive our church moments
+          </p>
         </div>
       </section>
 
-      <Tabs defaultValue="videos" className="w-full py-20">
+      {/* Tab Navigation - Modern Pills */}
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-12">
-            <TabsTrigger value="videos" className="flex items-center gap-2">
-              <Video className="w-4 h-4" />
-              Videos
-            </TabsTrigger>
-            <TabsTrigger value="livestream" className="flex items-center gap-2">
-              <Radio className="w-4 h-4" />
-              Livestream
-            </TabsTrigger>
-            <TabsTrigger value="albums" className="flex items-center gap-2">
-              <Images className="w-4 h-4" />
-              Albums
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="videos" className="space-y-8">
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 justify-center">
-              <div className="relative w-full max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search videos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Sermon">Sermon</SelectItem>
-                  <SelectItem value="Solo">Solo</SelectItem>
-                  <SelectItem value="Choir">Choir</SelectItem>
-                  <SelectItem value="Worship & Music">Worship & Music</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select 
-                value={yearFilter} 
-                onValueChange={(value) => {
-                  console.log('Year filter changed to:', value);
-                  setYearFilter(value);
-                }}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="h-14 p-1 bg-transparent gap-2 justify-start">
+              <TabsTrigger 
+                value="videos" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all"
               >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Years</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2022">2022</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                <Video className="w-4 h-4 mr-2" />
+                Videos
+              </TabsTrigger>
+              <TabsTrigger 
+                value="livestream" 
+                className="data-[state=active]:bg-live data-[state=active]:text-live-foreground px-6 rounded-full transition-all group"
+              >
+                <span className="relative flex items-center">
+                  <span className="absolute -left-1 w-2 h-2 bg-live rounded-full animate-pulse group-data-[state=active]:bg-live-foreground" />
+                  <Radio className="w-4 h-4 ml-3 mr-2" />
+                  Live
+                </span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="albums" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all"
+              >
+                <Images className="w-4 h-4 mr-2" />
+                Albums
+              </TabsTrigger>
+            </TabsList>
 
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading videos...</p>
+            {/* Videos Tab */}
+            <TabsContent value="videos" className="py-8">
+              {/* Search & Filters */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search videos..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 rounded-full bg-muted/50 border-0 focus-visible:ring-primary"
+                  />
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="w-40 rounded-full">
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="Sermon">Sermon</SelectItem>
+                      <SelectItem value="Solo">Solo</SelectItem>
+                      <SelectItem value="Choir">Choir</SelectItem>
+                      <SelectItem value="Worship & Music">Worship</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={yearFilter} onValueChange={setYearFilter}>
+                    <SelectTrigger className="w-32 rounded-full">
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Years</SelectItem>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2023">2023</SelectItem>
+                      <SelectItem value="2022">2022</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {hasActiveFilters && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full">
+                      <X className="w-4 h-4 mr-1" /> Clear
+                    </Button>
+                  )}
+                </div>
               </div>
-            ) : filteredVideos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredVideos.map((video, index) => (
-                  <VideoCard key={index} {...video} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No videos found</p>
-              </div>
-            )}
-          </TabsContent>
 
-          <TabsContent value="livestream" className="space-y-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ"
-                  title="CBC Live Stream"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-              <div className="text-center mt-6">
-                <h3 className="text-2xl font-bold mb-2">Live Worship Service</h3>
-                <p className="text-muted-foreground">Join us live every Sunday at 1:00 PM EST</p>
-              </div>
-            </div>
-          </TabsContent>
+              {/* Results Count */}
+              {!loading && (
+                <p className="text-sm text-muted-foreground mb-6">
+                  {filteredVideos.length} video{filteredVideos.length !== 1 && "s"} found
+                </p>
+              )}
 
-          <TabsContent value="albums" className="space-y-8">
-            {albumsLoading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading albums...</p>
-              </div>
-            ) : albums.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {albums.map((album) => (
-                  <div 
-                    key={album.id} 
-                    className="group cursor-pointer"
-                    onClick={() => navigate(`/media/album/${album.id}`)}
-                  >
-                    <div className="aspect-square rounded-lg overflow-hidden mb-3 bg-gradient-to-br from-primary/20 to-accent/20">
-                      <img 
-                        src={album.cover_image_url || communityImage} 
-                        alt={album.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
+              {/* Video Grid */}
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="aspect-video bg-muted rounded-xl mb-3" />
+                      <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              ) : filteredVideos.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredVideos.map((video, i) => (
+                    <VideoCard key={i} {...video} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Video className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                  <p className="text-muted-foreground">No videos match your search</p>
+                  <Button variant="link" onClick={clearFilters} className="mt-2">
+                    Clear filters
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Livestream Tab - Red Theme */}
+            <TabsContent value="livestream" className="py-8">
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Main Video Player */}
+                <div className="lg:col-span-2">
+                  <div className="relative rounded-2xl overflow-hidden bg-foreground/5 shadow-xl">
+                    {/* Live Badge */}
+                    <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-live text-live-foreground px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
+                      <span className="w-2 h-2 bg-live-foreground rounded-full animate-pulse" />
+                      LIVE
+                    </div>
+                    <div className="aspect-video">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ&autoplay=0"
+                        title="CBC Live Stream"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                       />
                     </div>
-                    <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                      {album.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{album.photo_count || 0} photos</p>
                   </div>
-                ))}
+                  
+                  {/* Stream Info */}
+                  <div className="mt-6">
+                    <h2 className="text-2xl font-bold mb-2">Sunday Worship Service</h2>
+                    <p className="text-muted-foreground">Chin Bethel Church DC</p>
+                  </div>
+                </div>
+
+                {/* Sidebar Info */}
+                <div className="space-y-6">
+                  {/* Schedule Card */}
+                  <div className="rounded-2xl bg-gradient-to-br from-live/10 to-live/5 border border-live/20 p-6">
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-live" />
+                      Service Schedule
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-3 border-b border-live/10">
+                        <div>
+                          <p className="font-medium">Sunday Worship</p>
+                          <p className="text-sm text-muted-foreground">Main Service</p>
+                        </div>
+                        <span className="text-live font-semibold">1:00 PM</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-live/10">
+                        <div>
+                          <p className="font-medium">Bible Study</p>
+                          <p className="text-sm text-muted-foreground">Wednesday</p>
+                        </div>
+                        <span className="text-live font-semibold">7:00 PM</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3">
+                        <div>
+                          <p className="font-medium">Prayer Meeting</p>
+                          <p className="text-sm text-muted-foreground">Friday</p>
+                        </div>
+                        <span className="text-live font-semibold">7:30 PM</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="rounded-2xl bg-card border p-6">
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      Join Us
+                    </h3>
+                    <div className="space-y-3">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between group hover:border-live hover:text-live"
+                        onClick={() => window.open('https://www.youtube.com/@ChinBethelChurchDC', '_blank')}
+                      >
+                        Subscribe on YouTube
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between group hover:border-primary hover:text-primary"
+                        onClick={() => setActiveTab('videos')}
+                      >
+                        Watch Past Services
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Timezone Note */}
+                  <p className="text-xs text-muted-foreground text-center">
+                    All times are in Eastern Standard Time (EST)
+                  </p>
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No albums available yet</p>
-              </div>
-            )}
-          </TabsContent>
+            </TabsContent>
+
+            {/* Albums Tab */}
+            <TabsContent value="albums" className="py-8">
+              {albumsLoading ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="aspect-square bg-muted rounded-xl mb-3" />
+                      <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              ) : albums.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {albums.map((album) => (
+                    <div 
+                      key={album.id} 
+                      className="group cursor-pointer"
+                      onClick={() => navigate(`/media/album/${album.id}`)}
+                    >
+                      <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-muted">
+                        <img 
+                          src={album.cover_image_url || communityImage} 
+                          alt={album.title} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button size="sm" className="w-full rounded-full">
+                            <Play className="w-4 h-4 mr-2" /> View Album
+                          </Button>
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">
+                        {album.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {album.photo_count} photo{album.photo_count !== 1 && "s"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Images className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                  <p className="text-muted-foreground">No albums available yet</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
-      </Tabs>
+      </div>
 
       <Footer />
     </div>

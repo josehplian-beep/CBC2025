@@ -19,6 +19,11 @@ export default {
         display: ['Montserrat', 'sans-serif'],
       },
       colors: {
+        live: {
+          DEFAULT: "hsl(var(--live))",
+          foreground: "hsl(var(--live-foreground))",
+          muted: "hsl(var(--live-muted))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
