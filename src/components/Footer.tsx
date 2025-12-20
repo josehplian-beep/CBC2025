@@ -2,160 +2,106 @@ import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react"
 import { Link } from "react-router-dom";
 import cbcLogo from "@/assets/cbc-logo.png";
 import { SOCIAL } from "@/config/social";
-const Footer = () => {
-  return (
-    <footer className="text-primary-foreground bg-gray-950">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* About Section */}
-          <div>
-            <div className="flex items-center mb-4">
-              <img src={cbcLogo} alt="CBC Logo" className="h-12 w-auto" />
-            </div>
-            <p className="text-primary-foreground/80 text-sm leading-relaxed">
-              Chin Bethel Church - A community of faith, worship, and service, dedicated to spreading God's love.
-            </p>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  CBC
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/events"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  Events
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/media"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  Media
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/departments"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  Departments
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/get-involved"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  Get Involved
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/privacy-policy"
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
+const quickLinks = [
+  { to: "/", label: "Home" },
+  { to: "/about", label: "CBC" },
+  { to: "/events", label: "Events" },
+  { to: "/media", label: "Media" },
+  { to: "/departments", label: "Departments" },
+  { to: "/get-involved", label: "Get Involved" },
+  { to: "/privacy-policy", label: "Privacy Policy" },
+];
 
-          {/* Service Times */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Service Times</h3>
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="font-medium">Sunday Service</p>
-                <p className="text-primary-foreground/80">1:00 PM - 3:00 PM</p>
+const serviceTimes = [
+  { day: "Sunday", time: "1:00 PM - 3:00 PM" },
+  { day: "Wednesday", time: "7:00 PM - 9:00 PM" },
+  { day: "Saturday", time: "7:00 PM - 9:00 PM" },
+];
+
+const Footer = () => (
+  <footer className="text-primary-foreground bg-gray-950">
+    <div className="container mx-auto px-4 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        {/* About */}
+        <div>
+          <img src={cbcLogo} alt="CBC Logo" className="h-12 w-auto mb-4" />
+          <p className="text-primary-foreground/80 text-sm leading-relaxed">
+            Chin Bethel Church - A community of faith, worship, and service, dedicated to spreading God's love.
+          </p>
+        </div>
+
+        {/* Quick Links */}
+        <div>
+          <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
+          <ul className="space-y-2 text-sm">
+            {quickLinks.map(({ to, label }) => (
+              <li key={to}>
+                <Link to={to} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Service Times */}
+        <div>
+          <h3 className="font-semibold text-lg mb-4">Service Times</h3>
+          <div className="space-y-3 text-sm">
+            {serviceTimes.map(({ day, time }) => (
+              <div key={day}>
+                <p className="font-medium">{day} Service</p>
+                <p className="text-primary-foreground/80">{time}</p>
               </div>
-              <div>
-                <p className="font-medium">Wednesday Service</p>
-                <p className="text-primary-foreground/80">7:00 PM - 9:00 PM</p>
-              </div>
-              <div>
-                <p className="font-medium">Saturday Service</p>
-                <p className="text-primary-foreground/80">7:00 PM - 9:00 PM</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span className="text-primary-foreground/80">
-                  6801 Douglas Legum Dr
-                  <br />
-                  Elkridge, MD 21075
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80">(240) 316 8830</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80">Admin@chinbethelchurch.com</span>
-              </li>
-            </ul>
-
-            {/* Social Media */}
-            <div className="flex gap-3 mt-6">
-              <a
-                href={SOCIAL.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href={SOCIAL.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href={SOCIAL.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center text-sm text-primary-foreground/60">
-          <p>&copy; {new Date().getFullYear()} Chin Bethel Church. All rights reserved.</p>
+        {/* Contact */}
+        <div>
+          <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
+          <ul className="space-y-3 text-sm">
+            <li className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span className="text-primary-foreground/80">6801 Douglas Legum Dr<br />Elkridge, MD 21075</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Phone className="w-4 h-4 flex-shrink-0" />
+              <span className="text-primary-foreground/80">(240) 316 8830</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              <span className="text-primary-foreground/80">Admin@chinbethelchurch.com</span>
+            </li>
+          </ul>
+
+          <div className="flex gap-3 mt-6">
+            {[
+              { href: SOCIAL.facebook, icon: Facebook, label: "Facebook" },
+              { href: SOCIAL.instagram, icon: Instagram, label: "Instagram" },
+              { href: SOCIAL.youtube, icon: Youtube, label: "YouTube" },
+            ].map(({ href, icon: Icon, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="bg-primary-foreground/10 hover:bg-primary-foreground/20 p-2 rounded-lg transition-colors"
+              >
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </footer>
-  );
-};
+
+      <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center text-sm text-primary-foreground/60">
+        <p>&copy; {new Date().getFullYear()} Chin Bethel Church. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+);
+
 export default Footer;
