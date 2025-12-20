@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Video, Images, Radio, Search, Play, Clock, Users, ChevronRight, X } from "lucide-react";
+import { Video, Images, Radio, Search, Play, Clock, Users, ChevronRight, X, Facebook, Instagram, Youtube } from "lucide-react";
+import { SOCIAL } from "@/config/social";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -175,6 +176,37 @@ const Media = () => {
                 <Images className="w-4 h-4 mr-2" />
                 Albums
               </TabsTrigger>
+              
+              {/* Social Media Icons */}
+              <div className="ml-auto flex items-center gap-1">
+                <a
+                  href={SOCIAL.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                </a>
+                <a
+                  href={SOCIAL.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                </a>
+                <a
+                  href={SOCIAL.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="w-5 h-5 text-muted-foreground hover:text-live" />
+                </a>
+              </div>
             </TabsList>
 
             {/* Videos Tab */}
