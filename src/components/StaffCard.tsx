@@ -1,4 +1,4 @@
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, User } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Link } from "react-router-dom";
 
@@ -18,8 +18,8 @@ const StaffCard = ({ name, role, image, email, phone, profileLink }: StaffCardPr
         {image ? (
           <img src={image} alt={name} className="w-full h-full object-contain p-2 transition-transform duration-300" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl font-display text-primary">
-            {name.charAt(0)}
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+            <User className="w-20 h-20 text-primary/60" />
           </div>
         )}
       </div>
