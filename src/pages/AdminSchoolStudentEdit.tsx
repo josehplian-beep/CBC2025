@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, GraduationCap, User } from "lucide-react";
 import { StudentAvatar } from "@/components/StudentAvatar";
 
 interface Class {
   id: string;
+  class_name: string;
+}
+
+interface Teacher {
+  id: string;
+  full_name: string;
+  photo_url: string | null;
   class_name: string;
 }
 
@@ -25,6 +33,7 @@ export default function AdminSchoolStudentEdit() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [assignedClasses, setAssignedClasses] = useState<string[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -59,7 +68,38 @@ export default function AdminSchoolStudentEdit() {
       });
       
       setClasses(classesRes.data || []);
-      setAssignedClasses((assignedRes.data || []).map(ac => ac.class_id));
+      const assignedClassIds = (assignedRes.data || []).map(ac => ac.class_id);
+      setAssignedClasses(assignedClassIds);
+
+      // Fetch teachers for assigned classes
+      if (assignedClassIds.length > 0) {
+        const { data: classTeachersData } = await supabase
+          .from("class_teachers")
+          .select("teacher_id, class_id, classes(class_name)")
+          .in("class_id", assignedClassIds);
+
+        if (classTeachersData && classTeachersData.length > 0) {
+          const teacherIds = [...new Set(classTeachersData.map(ct => ct.teacher_id))];
+          
+          const { data: teachersData } = await supabase
+            .from("teachers")
+            .select("id, full_name, photo_url")
+            .in("id", teacherIds);
+
+          if (teachersData) {
+            const teachersList: Teacher[] = classTeachersData.map(ct => {
+              const teacher = teachersData.find(t => t.id === ct.teacher_id);
+              return {
+                id: ct.teacher_id,
+                full_name: teacher?.full_name || "Unknown",
+                photo_url: teacher?.photo_url || null,
+                class_name: (ct.classes as any)?.class_name || "Unknown Class"
+              };
+            });
+            setTeachers(teachersList);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load student");
@@ -297,6 +337,44 @@ export default function AdminSchoolStudentEdit() {
             )}
           </CardContent>
         </Card>
+
+        {/* Teachers Section */}
+        {teachers.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                Teachers
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {teachers.map((teacher, index) => (
+                  <Link
+                    key={`${teacher.id}-${index}`}
+                    to={`/admin/school/teachers/${teacher.id}`}
+                    className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
+                  >
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                      <AvatarImage src={teacher.photo_url || undefined} alt={teacher.full_name} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        <User className="h-5 w-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
+                        {teacher.full_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {teacher.class_name}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
   );
 }
