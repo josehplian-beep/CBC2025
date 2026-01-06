@@ -67,6 +67,13 @@ interface TeacherInfo {
   classes: string[];
 }
 
+interface StudentTeacher {
+  id: string;
+  full_name: string;
+  photo_url: string | null;
+  class_name: string;
+}
+
 const MemberProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -83,6 +90,7 @@ const MemberProfile = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileDescription, setFileDescription] = useState("");
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
+  const [studentTeachers, setStudentTeachers] = useState<StudentTeacher[]>([]);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>("");
@@ -192,6 +200,53 @@ const MemberProfile = () => {
         setTeacherInfo({ id: teacherData.id, classes: classNames });
       } else {
         setTeacherInfo(null);
+      }
+
+      // Check if member is a student and fetch their teachers
+      const { data: studentData } = await supabase
+        .from('students')
+        .select('id')
+        .eq('member_id', memberData.id)
+        .maybeSingle();
+
+      if (studentData) {
+        // Get classes this student is assigned to
+        const { data: studentClassesData } = await supabase
+          .from('student_classes')
+          .select('class_id')
+          .eq('student_id', studentData.id);
+
+        if (studentClassesData && studentClassesData.length > 0) {
+          const classIds = studentClassesData.map(sc => sc.class_id);
+
+          // Get teachers for these classes
+          const { data: classTeachersData } = await supabase
+            .from('class_teachers')
+            .select('teacher_id, class_id, classes(class_name)')
+            .in('class_id', classIds);
+
+          if (classTeachersData && classTeachersData.length > 0) {
+            const teacherIds = [...new Set(classTeachersData.map(ct => ct.teacher_id))];
+
+            const { data: teachersData } = await supabase
+              .from('teachers')
+              .select('id, full_name, photo_url')
+              .in('id', teacherIds);
+
+            if (teachersData) {
+              const teachersList: StudentTeacher[] = classTeachersData.map(ct => {
+                const teacher = teachersData.find(t => t.id === ct.teacher_id);
+                return {
+                  id: ct.teacher_id,
+                  full_name: teacher?.full_name || "Unknown",
+                  photo_url: teacher?.photo_url || null,
+                  class_name: (ct.classes as any)?.class_name || "Unknown Class"
+                };
+              });
+              setStudentTeachers(teachersList);
+            }
+          }
+        }
       }
       
       await loadFiles();
@@ -797,6 +852,50 @@ const MemberProfile = () => {
                           )}
                         </div>
                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Student's Teachers Card */}
+            {studentTeachers.length > 0 && (
+              <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <GraduationCap className="w-4 h-4 text-blue-600" />
+                    </div>
+                    Teachers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {studentTeachers.map((teacher, index) => (
+                      <button
+                        key={`${teacher.id}-${index}`}
+                        onClick={() => navigate(`/admin/school/teachers/${teacher.id}`)}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 transition-all duration-200 text-left group border border-blue-500/10 hover:border-blue-500/20"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-background">
+                          {teacher.photo_url ? (
+                            <img
+                              src={teacher.photo_url}
+                              alt={teacher.full_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <UserCircle className="w-6 h-6 text-blue-500/60" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate group-hover:text-blue-600 transition-colors">
+                            {teacher.full_name}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">{teacher.class_name}</p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-600 transition-colors" />
                       </button>
                     ))}
                   </div>
