@@ -88,7 +88,7 @@ const Index = () => {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative w-screen h-screen flex items-center justify-center overflow-hidden" style={{ marginLeft: "calc(-50vw + 50%)", width: "100vw" }}>
+      <section className="relative w-screen h-[70vh] flex items-center justify-center overflow-hidden" style={{ marginLeft: "calc(-50vw + 50%)", width: "100vw" }}>
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
             className="absolute top-1/2 left-1/2 pointer-events-none"
