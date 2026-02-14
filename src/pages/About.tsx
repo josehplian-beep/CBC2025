@@ -69,11 +69,6 @@ const About = () => {
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-12 items-start">
-              <motion.div variants={fadeUp} custom={1} className="space-y-5 text-muted-foreground leading-relaxed">
-                <p>
-                  Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
-                </p>
-              </motion.div>
 
               <motion.div variants={fadeUp} custom={2} className="space-y-5 text-muted-foreground leading-relaxed">
                 <p>
