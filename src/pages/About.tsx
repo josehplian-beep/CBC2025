@@ -19,10 +19,10 @@ const fadeUp = {
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
 const beliefs = [
-  { icon: BookOpen, title: "The Bible", desc: "We believe the Bible is the inspired, inerrant Word of God and our ultimate authority.", path: "/beliefs/the-bible" },
-  { icon: Heart, title: "Salvation", desc: "We believe salvation is by grace through faith in Jesus Christ alone.", path: "/beliefs/salvation" },
-  { icon: Users, title: "Community", desc: "We believe in the importance of Christian fellowship and community.", path: "/beliefs/community" },
-  { icon: Target, title: "Mission", desc: "We believe in sharing the Gospel and making disciples of all nations.", path: "/beliefs/mission" },
+  { icon: BookOpen, title: "The Bible", desc: "We believe the Bible is the inspired, inerrant Word of God and our ultimate authority." },
+  { icon: Heart, title: "Salvation", desc: "We believe salvation is by grace through faith in Jesus Christ alone." },
+  { icon: Users, title: "Community", desc: "We believe in the importance of Christian fellowship and community." },
+  { icon: Target, title: "Mission", desc: "We believe in sharing the Gospel and making disciples of all nations." },
 ];
 
 const stats = [
@@ -110,12 +110,9 @@ const About = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {beliefs.map(({ icon: Icon, title, desc, path }, i) => (
+              {beliefs.map(({ icon: Icon, title, desc }, i) => (
                 <motion.div key={title} variants={fadeUp} custom={i + 1}>
-                  <Card
-                    className="group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm h-full"
-                    onClick={() => navigate(path)}
-                  >
+                  <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm h-full">
                     <CardContent className="p-8 text-center">
                       <div className="bg-accent/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-300">
                         <Icon className="w-8 h-8 text-accent" />
