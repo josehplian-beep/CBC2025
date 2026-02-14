@@ -54,22 +54,6 @@ const About = () => {
         </motion.div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-primary text-primary-foreground py-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,_hsl(210_55%_35%)_0%,_transparent_60%)] opacity-30" />
-        <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true }}
-          variants={stagger}
-          className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center relative z-10"
-        >
-          {stats.map((s, i) => (
-            <motion.div key={s.label} variants={fadeUp} custom={i}>
-              <p className="text-3xl md:text-4xl font-bold">{s.value}</p>
-              <p className="text-primary-foreground/70 text-sm mt-1">{s.label}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
 
       {/* Our Story */}
       <section className="py-24 bg-background" id="our-story">
