@@ -37,20 +37,18 @@ const About = () => {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden mt-20">
-        <div className="absolute inset-0">
-          <img src={communityImage} alt="CBC Community" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
-        </div>
+      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden mt-20 bg-primary">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(210_55%_35%)_0%,_transparent_60%)] opacity-50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_50%_30%)_0%,_transparent_60%)] opacity-40" />
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-          className="relative z-10 text-center text-white px-4 max-w-3xl"
+          className="relative z-10 text-center text-primary-foreground px-4 max-w-3xl"
         >
-          <span className="text-sm font-semibold uppercase tracking-widest text-white/70 mb-3 block">Our Church</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-primary-foreground/60 mb-3 block">Our Church</span>
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">About CBC</h1>
-          <p className="text-lg text-white/85 max-w-xl mx-auto">
+          <p className="text-lg text-primary-foreground/80 max-w-xl mx-auto">
             Our Story, Beliefs, and Community
           </p>
         </motion.div>
