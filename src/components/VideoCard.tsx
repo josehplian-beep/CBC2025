@@ -9,13 +9,6 @@ interface VideoCardProps {
   videoId?: string;
 }
 
-const categoryColors: Record<string, string> = {
-  Sermon: "text-blue-600 dark:text-blue-400",
-  Solo: "text-emerald-600 dark:text-emerald-400",
-  Choir: "text-purple-600 dark:text-purple-400",
-  "Worship & Music": "text-orange-600 dark:text-orange-400",
-  Livestream: "text-red-600 dark:text-red-400",
-};
 
 const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps) => {
   const navigate = useNavigate();
@@ -53,7 +46,7 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
       <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
         {title}
       </h3>
-      <p className={`text-xs mt-1 ${categoryColors[category] || "text-muted-foreground"}`}>
+      <p className="text-xs mt-1 text-muted-foreground">
         {category} || {date}
       </p>
     </div>
