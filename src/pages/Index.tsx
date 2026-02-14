@@ -75,22 +75,13 @@ const Index = () => {
     setEvents(data || []);
   };
 
-  const processedVideos = videos.map(v => {
-    const title = v.title;
-    const lower = title.toLowerCase();
-    const category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = 
-      lower.includes("sermon") ? "Sermon" :
-      lower.includes("solo") ? "Solo" :
-      lower.includes("choir") ? "Choir" :
-      lower.includes("worship") ? "Worship & Music" : "Livestream";
-    return {
-      title,
-      date: new Date(v.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-      category,
-      thumbnail: v.thumbnail,
-      videoId: v.id,
-    };
-  });
+  const processedVideos = videos.map(v => ({
+    title: v.title,
+    date: new Date(v.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+    category: v.title.toLowerCase().includes("sermon") ? "Sermon" as const : "Solo" as const,
+    thumbnail: v.thumbnail,
+    videoId: v.id,
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,27 +129,22 @@ const Index = () => {
       </section>
 
       {/* Videos */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="font-display text-3xl font-bold mb-8">Latest Videos</h2>
+          <div className="text-center mb-12">
+            <h2 className="font-display text-4xl font-bold mb-4">Latest Videos</h2>
+            <p className="text-muted-foreground text-lg">Watch our recent sermons and worship sessions</p>
+          </div>
 
           {loading ? (
             <p className="text-center text-muted-foreground py-12">Loading videos...</p>
           ) : processedVideos.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">No videos found</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {processedVideos.map((v, i) => <VideoCard key={v.videoId || i} {...v} />)}
             </div>
           )}
-
-          <div className="text-center mt-10">
-            <Link to="/media">
-              <Button size="lg" className="rounded-full px-8 uppercase tracking-wide font-semibold">
-                View All Videos
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
