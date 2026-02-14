@@ -26,7 +26,7 @@ const beliefs = [
 ];
 
 const stats = [
-  { value: "2015", label: "Founded" },
+  { value: "2010", label: "Founded" },
   { value: "8", label: "Departments" },
   { value: "3", label: "Weekly Services" },
 ];
