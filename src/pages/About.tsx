@@ -86,9 +86,6 @@ const About = () => (
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-lg leading-relaxed">
               Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
             </motion.p>
-            <motion.p variants={fadeUp} custom={2} className="text-muted-foreground leading-relaxed">
-              Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
-            </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-wrap justify-center gap-6 pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
