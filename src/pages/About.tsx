@@ -82,38 +82,27 @@ const About = () => (
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">Our Story</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-5 gap-10 md:gap-14 items-start">
-            {/* Main story text */}
-            <motion.div variants={fadeUp} custom={1} className="md:col-span-3 space-y-6">
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
-              </p>
-            </motion.div>
+          <div className="max-w-2xl mx-auto text-center space-y-8">
+            <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-lg leading-relaxed">
+              Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
+            </motion.p>
+            <motion.p variants={fadeUp} custom={2} className="text-muted-foreground leading-relaxed">
+              Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
+            </motion.p>
 
-            {/* Info card */}
-            <motion.div variants={fadeUp} custom={2} className="md:col-span-2">
-              <Card className="bg-muted/30 border-border/40 backdrop-blur-sm">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-semibold text-sm uppercase tracking-wider text-foreground/70 mb-1">Visit Us</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">6801 Douglas Legum Dr, Elkridge, MD 21075</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">Sundays 1:00 PM – 3:00 PM</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">(240) 316 8830</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap justify-center gap-6 pt-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-accent" />
+                <span>6801 Douglas Legum Dr, Elkridge, MD 21075</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-accent" />
+                <span>Sundays 1:00 – 3:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-accent" />
+                <span>(240) 316 8830</span>
+              </div>
             </motion.div>
           </div>
         </motion.div>
