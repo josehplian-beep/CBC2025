@@ -27,7 +27,6 @@ const beliefs = [
 
 const stats = [
   { value: "2015", label: "Founded" },
-  { value: "150+", label: "Members" },
   { value: "8", label: "Departments" },
   { value: "3", label: "Weekly Services" },
 ];
