@@ -73,7 +73,7 @@ const About = () => (
     <section className="py-20 md:py-28 bg-background" id="our-story">
       <div className="container mx-auto px-4">
         <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
+          initial="hidden" animate="visible"
           variants={stagger}
           className="max-w-5xl mx-auto"
         >
@@ -114,7 +114,7 @@ const About = () => (
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="container mx-auto px-4">
         <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
+          initial="hidden" animate="visible"
           variants={stagger}
         >
           <motion.div variants={fadeUp} custom={0} className="text-center mb-16">
