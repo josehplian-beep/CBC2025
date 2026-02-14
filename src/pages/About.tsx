@@ -29,44 +29,24 @@ const About = () => (
     <Navigation />
 
     {/* Hero — split layout with image */}
-    <section className="relative mt-20 overflow-hidden">
-      <div className="grid lg:grid-cols-2 min-h-[60vh]">
-        {/* Text side */}
-        <div className="flex items-center bg-primary relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_hsl(210_55%_35%/0.6)_0%,_transparent_70%)]" />
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
-            className="relative z-10 px-8 md:px-16 lg:px-20 py-16 max-w-xl"
-          >
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/50 mb-4 block">
-              Our Church
-            </span>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-5 leading-[1.1]">
-              About CBC
-            </h1>
-            <p className="text-primary-foreground/70 text-lg leading-relaxed">
-              Our Story, Beliefs, and Community
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Image side */}
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-          className="relative min-h-[300px] lg:min-h-0"
-        >
-          <img
-            src={communityImage}
-            alt="CBC community gathering"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent lg:block hidden" />
-        </motion.div>
-      </div>
+    <section className="relative mt-20 overflow-hidden bg-primary">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_hsl(210_55%_35%/0.6)_0%,_transparent_70%)]" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
+        className="relative z-10 container mx-auto px-8 md:px-16 py-16 md:py-20 max-w-4xl"
+      >
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/50 mb-4 block">
+          Our Church
+        </span>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4 leading-[1.1]">
+          About CBC
+        </h1>
+        <p className="text-primary-foreground/70 text-lg leading-relaxed max-w-md">
+          Our Story, Beliefs, and Community
+        </p>
+      </motion.div>
     </section>
 
     {/* Our Story — centered editorial */}
