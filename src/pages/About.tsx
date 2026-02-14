@@ -71,10 +71,7 @@ const About = () => {
             <div className="grid md:grid-cols-2 gap-12 items-start">
               <motion.div variants={fadeUp} custom={1} className="space-y-5 text-muted-foreground leading-relaxed">
                 <p>
-                  Chin Bethel Church began as a small group of faithful believers with a passion for worship, discipleship, and serving our local community. Over the years we have grown into a warm, multigenerational congregation committed to proclaiming the gospel, nurturing spiritual growth, and caring for one another.
-                </p>
-                <p>
-                  Our roots trace back to families who met in homes for prayer and Bible study. From those humble beginnings we established regular worship services, children and youth ministries, and outreach programs to meet practical needs in the neighborhood.
+                  Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
                 </p>
               </motion.div>
 
