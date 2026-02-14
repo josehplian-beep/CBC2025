@@ -22,9 +22,8 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
   };
 
   return (
-    <div className="group cursor-pointer bg-card rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300" onClick={handleClick}>
-      <div className="h-1 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500" />
-      <div className="relative aspect-video overflow-hidden">
+    <div className="group cursor-pointer" onClick={handleClick}>
+      <div className="relative aspect-video rounded-xl overflow-hidden mb-3 shadow-md group-hover:shadow-lg transition-shadow duration-300">
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -44,14 +43,12 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
           </div>
         </div>
       </div>
-      <div className="p-3">
-        <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-          {title}
-        </h3>
-        <p className="text-xs mt-1 text-muted-foreground">
-          {category} || {date}
-        </p>
-      </div>
+      <h3 className="font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+        {title}
+      </h3>
+      <p className="text-xs mt-1 text-muted-foreground">
+        {category} || {date}
+      </p>
     </div>
   );
 };
