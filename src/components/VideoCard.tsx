@@ -24,7 +24,7 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
   return (
     <>
       <Card 
-        className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col"
         onClick={handleClick}
       >
         <div className="relative aspect-video bg-muted overflow-hidden">
@@ -47,11 +47,11 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
             </div>
           </div>
         </div>
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+        <CardContent className="p-4 flex flex-col flex-1">
+          <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors flex-1">
             {title}
           </h3>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto">
             <Calendar className="w-4 h-4" />
             <span>{date}</span>
           </div>
