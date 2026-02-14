@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -9,14 +8,14 @@ import { Link } from "react-router-dom";
 import communityImage from "@/assets/community.jpg";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: (i: number = 0) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
   }),
 };
 
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
 const beliefs = [
   { icon: BookOpen, title: "The Bible", desc: "We believe the Bible is the inspired, inerrant Word of God and our ultimate authority." },
@@ -25,131 +24,161 @@ const beliefs = [
   { icon: Target, title: "Mission", desc: "We believe in sharing the Gospel and making disciples of all nations." },
 ];
 
-const stats = [
-  { value: "2010", label: "Founded" },
-];
+const About = () => (
+  <div className="min-h-screen bg-background">
+    <Navigation />
 
-const About = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-
-      {/* Hero */}
-      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden mt-20 bg-primary">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(210_55%_35%)_0%,_transparent_60%)] opacity-50" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_50%_30%)_0%,_transparent_60%)] opacity-40" />
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-          className="relative z-10 text-center text-primary-foreground px-4 max-w-3xl"
-        >
-          <span className="text-sm font-semibold uppercase tracking-widest text-primary-foreground/60 mb-3 block">Our Church</span>
-          <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">About CBC</h1>
-          <p className="text-lg text-primary-foreground/80 max-w-xl mx-auto">
-            Our Story, Beliefs, and Community
-          </p>
-        </motion.div>
-      </section>
-
-
-      {/* Our Story */}
-      <section className="py-24 bg-background" id="our-story">
-        <div className="container mx-auto px-4">
+    {/* Hero — split layout with image */}
+    <section className="relative mt-20 overflow-hidden">
+      <div className="grid lg:grid-cols-2 min-h-[60vh]">
+        {/* Text side */}
+        <div className="flex items-center bg-primary relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_hsl(210_55%_35%/0.6)_0%,_transparent_70%)]" />
           <motion.div
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="max-w-4xl mx-auto"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
+            className="relative z-10 px-8 md:px-16 lg:px-20 py-16 max-w-xl"
           >
-            <motion.div variants={fadeUp} custom={0} className="text-center mb-12">
-              <span className="text-sm font-semibold text-accent uppercase tracking-widest">Our History</span>
-              <h2 className="font-display text-4xl font-bold mt-2 mb-4">Our Story</h2>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/50 mb-4 block">
+              Our Church
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-5 leading-[1.1]">
+              About CBC
+            </h1>
+            <p className="text-primary-foreground/70 text-lg leading-relaxed">
+              Our Story, Beliefs, and Community
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Image side */}
+        <motion.div
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
+          className="relative min-h-[300px] lg:min-h-0"
+        >
+          <img
+            src={communityImage}
+            alt="CBC community gathering"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent lg:block hidden" />
+        </motion.div>
+      </div>
+    </section>
+
+    {/* Our Story — centered editorial */}
+    <section className="py-20 md:py-28 bg-background" id="our-story">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
+          variants={stagger}
+          className="max-w-5xl mx-auto"
+        >
+          <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+            <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our History</span>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">Our Story</h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-5 gap-10 md:gap-14 items-start">
+            {/* Main story text */}
+            <motion.div variants={fadeUp} custom={1} className="md:col-span-3 space-y-6">
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
+              </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-12 items-start">
-              <motion.div variants={fadeUp} custom={1} className="space-y-5 text-muted-foreground leading-relaxed">
-                <p>
-                  Kannih Chin Bethel Church (CBC) nih zumtu khrihfa kan sinak humhimter awk le Pathian ramkauhternak dingah hi khrihfabu cu March 21, 2010, ni ah dirh a si.
-                </p>
-              </motion.div>
+            {/* Info card */}
+            <motion.div variants={fadeUp} custom={2} className="md:col-span-2">
+              <Card className="bg-muted/30 border-border/40 backdrop-blur-sm">
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="font-semibold text-sm uppercase tracking-wider text-foreground/70 mb-1">Visit Us</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">6801 Douglas Legum Dr, Elkridge, MD 21075</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-4 h-4 text-accent flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">Sundays 1:00 PM – 3:00 PM</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-4 h-4 text-accent flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">(240) 316 8830</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
 
-              <motion.div variants={fadeUp} custom={2} className="space-y-5 text-muted-foreground leading-relaxed">
-                <p>
-                  Today, CBC is a place where people from different backgrounds come together to worship, learn, and serve. We invest in discipleship through small groups and classes, support local missions, and partner with other organizations to bring hope and practical help to our city.
-                </p>
-                <Card className="bg-muted/40 border-border/50">
-                  <CardContent className="p-6 space-y-3">
-                    <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-accent flex-shrink-0" /><span className="text-sm">6801 Douglas Legum Dr, Elkridge, MD 21075</span></div>
-                    <div className="flex items-center gap-3"><Clock className="w-5 h-5 text-accent flex-shrink-0" /><span className="text-sm">Sundays 1:00 PM – 3:00 PM</span></div>
-                    <div className="flex items-center gap-3"><Phone className="w-5 h-5 text-accent flex-shrink-0" /><span className="text-sm">(240) 316 8830</span></div>
+    {/* What We Believe — minimal grid */}
+    <section className="py-20 md:py-28 bg-muted/20 dark:bg-muted/10 relative">
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}
+          variants={stagger}
+        >
+          <motion.div variants={fadeUp} custom={0} className="text-center mb-16">
+            <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our Faith</span>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-3 mb-4">What We Believe</h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+              Our faith is rooted in the unchanging truth of God's Word
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {beliefs.map(({ icon: Icon, title, desc }, i) => (
+              <motion.div key={title} variants={fadeUp} custom={i + 1}>
+                <Card className="group border-border/30 bg-card/60 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full">
+                  <CardContent className="p-7">
+                    <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center mb-5 group-hover:bg-accent/20 transition-colors duration-300">
+                      <Icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">{title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
                   </CardContent>
                 </Card>
               </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* What We Believe */}
-      <section className="py-24 bg-muted/30 dark:bg-muted/10 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-          >
-            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <span className="text-sm font-semibold text-accent uppercase tracking-widest">Our Faith</span>
-              <h2 className="font-display text-4xl font-bold mt-2 mb-4">What We Believe</h2>
-              <p className="text-muted-foreground max-w-lg mx-auto">Our faith is rooted in the unchanging truth of God's Word</p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {beliefs.map(({ icon: Icon, title, desc }, i) => (
-                <motion.div key={title} variants={fadeUp} custom={i + 1}>
-                  <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm h-full">
-                    <CardContent className="p-8 text-center">
-                      <div className="bg-accent/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-8 h-8 text-accent" />
-                      </div>
-                      <h3 className="font-display text-xl font-semibold mb-3 group-hover:text-primary transition-colors">{title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(210_55%_35%)_0%,_transparent_60%)] opacity-40" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="container mx-auto px-4 text-center relative z-10"
-        >
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Come Visit Us</h2>
-          <p className="text-primary-foreground/70 max-w-md mx-auto mb-8">
-            We'd love to meet you. Join us for worship, a small group, or one of our community events.
-          </p>
-          <Link to="/get-involved">
-            <Button size="lg" variant="secondary" className="font-semibold">
-              Get Involved
-            </Button>
-          </Link>
+            ))}
+          </div>
         </motion.div>
-      </section>
+      </div>
+    </section>
 
-      <Footer />
-    </div>
-  );
-};
+    {/* CTA */}
+    <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,_hsl(210_55%_35%/0.5)_0%,_transparent_60%)]" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="container mx-auto px-4 text-center relative z-10"
+      >
+        <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Come Visit Us</h2>
+        <p className="text-primary-foreground/60 max-w-md mx-auto mb-8">
+          We'd love to meet you. Join us for worship, a small group, or one of our community events.
+        </p>
+        <Link to="/get-involved">
+          <Button size="lg" variant="secondary" className="font-semibold">
+            Get Involved
+          </Button>
+        </Link>
+      </motion.div>
+    </section>
+
+    <Footer />
+  </div>
+);
 
 export default About;
