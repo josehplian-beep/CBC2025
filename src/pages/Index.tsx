@@ -144,7 +144,7 @@ function HeroSection({ heroOpacity }: { heroOpacity: ReturnType<typeof useTransf
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="text-xl mb-8 text-white/90"
         >
-          "Bawipa kan cungah aa lawmh ahcun"<br />Num 14:8
+          "Mit hmuh in si loin zumhnak tu in kan kal"<br />2 Korin 5:7
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
