@@ -913,6 +913,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_content: {
+        Row: {
+          content: string
+          created_at: string
+          display_order: number
+          id: string
+          is_bold: boolean
+          page_key: string
+          section_key: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_bold?: boolean
+          page_key: string
+          section_key: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_bold?: boolean
+          page_key?: string
+          section_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       photos: {
         Row: {
           album_id: string

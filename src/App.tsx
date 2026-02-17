@@ -61,6 +61,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminMySQLSync from "./pages/AdminMySQLSync";
 import AdminDeleteMySQLMembers from "./pages/AdminDeleteMySQLMembers";
 import SchoolDashboard from "./pages/SchoolDashboard";
+import AdminPageContent from "./pages/AdminPageContent";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // School Management Edit Pages
@@ -127,6 +128,7 @@ const App = () => (
           <Route path="/admin/school/checkin/:sessionId/report" element={<ProtectedRoute permission="take_attendance"><AdminLayout><AttendanceDashboard /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/students/:studentId/child-info" element={<ProtectedRoute permission="manage_students"><AdminLayout><ChildInfoEdit /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/school/attendance-dashboard" element={<ProtectedRoute permission="take_attendance"><AdminLayout><AttendanceDashboard /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/page-content" element={<ProtectedRoute permission="manage_page_content"><AdminLayout><AdminPageContent /></AdminLayout></ProtectedRoute>} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/staff/:slug" element={<StaffBiography />} />
