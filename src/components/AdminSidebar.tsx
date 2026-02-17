@@ -61,6 +61,7 @@ const adminMenuSections: MenuSection[] = [
       { title: "Albums", url: "/admin/albums", icon: Image, iconColor: "text-purple-500", permissions: ['manage_albums'] },
       { title: "Events", url: "/admin/events", icon: Calendar, iconColor: "text-amber-500", permissions: ['manage_events'] },
       { title: "Messages", url: "/admin/messages", icon: MessageSquare, iconColor: "text-rose-500", permissions: ['manage_testimonies'] },
+      { title: "Edit About Page", url: "/admin/page-content", icon: FileText, iconColor: "text-teal-500", permissions: ['manage_page_content'] },
     ],
   },
   {
