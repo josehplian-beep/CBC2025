@@ -81,7 +81,11 @@ const About = () => {
         <div className="container mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-5xl mx-auto">
             <div className="max-w-2xl mx-auto space-y-5">
-              <motion.div variants={fadeUp} custom={0} className="text-muted-foreground text-base leading-relaxed space-y-4">
+              <motion.div variants={fadeUp} custom={0} className="text-center mb-2">
+                <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our Story</span>
+                <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">Magnify</h2>
+              </motion.div>
+              <motion.div variants={fadeUp} custom={1} className="text-muted-foreground text-base leading-relaxed space-y-4">
                 {paragraphs.map((p, i) => (
                   <p key={i}>{renderBoldText(p.trim())}</p>
                 ))}
