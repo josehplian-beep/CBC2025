@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Users, BookOpen, Target, MapPin, Clock, Phone } from "lucide-react";
+import { Heart, Users, BookOpen, Target, MapPin, Clock, Phone, Facebook, Twitter, Link2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -37,6 +39,14 @@ const renderBoldText = (text: string) => {
 };
 
 const About = () => {
+  const [textSize, setTextSize] = useState<"sm" | "default" | "lg">("default");
+
+  const textSizeClasses = {
+    sm: "text-sm leading-relaxed",
+    default: "text-base leading-relaxed",
+    lg: "text-lg leading-relaxed",
+  };
+
   const { data: storyContent } = useQuery({
     queryKey: ["page-content", "about", "our_story"],
     queryFn: async () => {
@@ -51,6 +61,14 @@ const About = () => {
       return data?.content as string | null;
     },
   });
+
+  const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareTitle = "CBC Tuanbia – Our Story";
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(pageUrl);
+    toast.success("Link copied to clipboard!");
+  };
 
   const paragraphs = storyContent
     ? storyContent.split(/\n\n+/).filter((p) => p.trim())
@@ -81,13 +99,37 @@ const About = () => {
         <div className="container mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-5xl mx-auto">
             <div className="max-w-2xl mx-auto space-y-5">
-              <motion.div variants={fadeUp} custom={0} className="text-muted-foreground text-base leading-relaxed space-y-4">
+              {/* Text Size Controller */}
+              <motion.div variants={fadeUp} custom={0} className="flex justify-end">
+                <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+                  <button
+                    onClick={() => setTextSize("sm")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${textSize === "sm" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                  >
+                    A-
+                  </button>
+                  <button
+                    onClick={() => setTextSize("default")}
+                    className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${textSize === "default" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={() => setTextSize("lg")}
+                    className={`px-2.5 py-1 rounded-md text-base font-medium transition-colors ${textSize === "lg" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                  >
+                    A+
+                  </button>
+                </div>
+              </motion.div>
+
+              <motion.div variants={fadeUp} custom={1} className={`text-muted-foreground ${textSizeClasses[textSize]} space-y-4`}>
                 {paragraphs.map((p, i) => (
                   <p key={i}>{renderBoldText(p.trim())}</p>
                 ))}
               </motion.div>
 
-              <motion.div variants={fadeUp} custom={1} className="flex flex-wrap justify-center gap-6 pt-2 text-sm text-muted-foreground">
+              <motion.div variants={fadeUp} custom={2} className="flex flex-wrap justify-center gap-6 pt-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-accent" />
                   <span>6801 Douglas Legum Dr, Elkridge, MD 21075</span>
@@ -100,6 +142,45 @@ const About = () => {
                   <Phone className="w-4 h-4 text-accent" />
                   <span>(240) 316 8830</span>
                 </div>
+              </motion.div>
+
+              {/* Social Media Sharing */}
+              <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-1">Share</span>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
+                  aria-label="Share on Facebook"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
+                  aria-label="Share on X"
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(shareTitle + " " + pageUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
+                  aria-label="Share on WhatsApp"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </a>
+                <button
+                  onClick={handleCopyLink}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
+                  aria-label="Copy link"
+                >
+                  <Link2 className="w-4 h-4" />
+                </button>
               </motion.div>
             </div>
           </motion.div>
