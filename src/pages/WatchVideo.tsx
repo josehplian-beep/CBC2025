@@ -2,6 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import SermonNoteTaker from "@/components/SermonNoteTaker";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,6 +122,9 @@ const WatchVideo = () => {
                 </div>
               </div>
             )}
+
+            {/* Sermon Note Taker */}
+            <SermonNoteTaker videoId={videoId || ""} videoTitle={currentVideo?.title} />
           </div>
 
           {/* Recent Videos Section */}
