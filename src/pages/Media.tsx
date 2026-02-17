@@ -12,6 +12,7 @@ import { SOCIAL } from "@/config/social";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import communityImage from "@/assets/community.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import SermonNoteTaker from "@/components/SermonNoteTaker";
 
 interface Album {
   id: string;
@@ -370,6 +371,11 @@ const Media = () => {
                   <div className="mt-6">
                     <h2 className="text-2xl font-bold mb-2">Sunday Worship Service</h2>
                     <p className="text-muted-foreground">Chin Bethel Church DC</p>
+                  </div>
+
+                  {/* Sermon Note Taker */}
+                  <div className="mt-6">
+                    <SermonNoteTaker videoId="live-sunday-service" videoTitle="Sunday Worship Service" />
                   </div>
                 </div>
 
