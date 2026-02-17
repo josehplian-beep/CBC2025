@@ -21,6 +21,60 @@ interface Album {
   photo_count?: number;
 }
 
+function LiveCountdown() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const getNextSunday1PM = () => {
+      const now = new Date();
+      const next = new Date(now);
+      const day = now.getDay();
+      next.setDate(now.getDate() + (day === 0 ? 0 : 7 - day));
+      next.setHours(13, 0, 0, 0);
+      if (next <= now) next.setDate(next.getDate() + 7);
+      return next;
+    };
+
+    const update = () => {
+      const diff = getNextSunday1PM().getTime() - Date.now();
+      if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const units = [
+    { label: "Days", value: timeLeft.days },
+    { label: "Hrs", value: timeLeft.hours },
+    { label: "Min", value: timeLeft.minutes },
+    { label: "Sec", value: timeLeft.seconds },
+  ];
+
+  return (
+    <div className="rounded-2xl bg-gradient-to-br from-live/15 to-live/5 border border-live/20 p-6 text-center">
+      <h3 className="font-semibold text-sm uppercase tracking-wider text-live mb-4">Next Sunday Service</h3>
+      <div className="flex justify-center gap-3">
+        {units.map(({ label, value }) => (
+          <div key={label} className="flex flex-col items-center">
+            <div className="bg-background/80 border border-live/20 rounded-xl w-14 h-14 flex items-center justify-center">
+              <span className="text-xl font-bold tabular-nums">{String(value).padStart(2, "0")}</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground mt-1">{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const Media = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("videos");
@@ -321,6 +375,9 @@ const Media = () => {
 
                 {/* Sidebar Info */}
                 <div className="space-y-6">
+                  {/* Countdown Timer */}
+                  <LiveCountdown />
+
                   {/* Schedule Card */}
                   <div className="rounded-2xl bg-gradient-to-br from-live/10 to-live/5 border border-live/20 p-6">
                     <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
