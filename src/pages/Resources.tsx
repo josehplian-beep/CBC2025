@@ -194,6 +194,43 @@ const Resources = () => {
           </Card>
         </div>
 
+        {/* Prayer Service Schedule */}
+        <div className="max-w-2xl mx-auto mt-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          <Card className="border-amber-900/30 shadow-2xl bg-slate-900/80 backdrop-blur-md overflow-hidden">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 via-orange-500/10 to-amber-600/10" />
+              <CardHeader className="text-center relative z-10 pb-4">
+                <div className="text-4xl mb-2">🙏</div>
+                <CardTitle className="text-2xl text-amber-50">Weekly Prayer Service</CardTitle>
+                <CardDescription className="text-amber-100/60 text-base">
+                  Join us in prayer every week
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10 space-y-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <div className="flex items-center gap-3 bg-amber-900/30 border border-amber-800/30 rounded-lg px-5 py-3">
+                    <span className="text-2xl">📅</span>
+                    <div>
+                      <p className="text-sm text-amber-100/60">Every</p>
+                      <p className="text-lg font-semibold text-amber-50">Saturday</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-amber-900/30 border border-amber-800/30 rounded-lg px-5 py-3">
+                    <span className="text-2xl">🕘</span>
+                    <div>
+                      <p className="text-sm text-amber-100/60">Time</p>
+                      <p className="text-lg font-semibold text-amber-50">9:00 AM – 12:00 PM</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-center text-sm text-amber-100/50 pt-2">
+                  Everyone is welcome. Come as you are.
+                </p>
+              </CardContent>
+            </div>
+          </Card>
+        </div>
+
         {/* Encouraging Scripture */}
         <div className="max-w-xl mx-auto mt-12 text-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
           <div className="bg-slate-900/60 border border-amber-900/30 rounded-xl p-8 backdrop-blur-sm">
