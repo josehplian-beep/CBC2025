@@ -85,7 +85,7 @@ const Navigation = () => {
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
   const isActive = (path: string) => location.pathname === path;
   const linkClass = (path: string) =>
-    `text-sm font-medium transition-colors hover:text-primary ${isActive(path) ? "text-primary font-semibold" : "text-muted-foreground"}`;
+    `text-base font-medium transition-colors hover:text-primary ${isActive(path) ? "text-primary font-semibold" : "text-muted-foreground"}`;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -114,7 +114,7 @@ const Navigation = () => {
               <Link to={`/members/${memberId}`} className={linkClass(`/members/${memberId}`)}>My Profile</Link>
             )}
             {isAdmin && (
-              <Link to="/admin/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${location.pathname.startsWith("/admin") ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+              <Link to="/admin/dashboard" className={`text-base font-medium transition-colors hover:text-primary ${location.pathname.startsWith("/admin") ? "text-primary font-semibold" : "text-muted-foreground"}`}>
                 Admin Dashboard
               </Link>
             )}
@@ -174,12 +174,12 @@ function Dropdown({ label, links }: { label: string; links: NavLink[] }) {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="text-sm font-medium bg-transparent">{label}</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="text-base font-medium bg-transparent">{label}</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="w-48 p-2">
               {links.map(link => (
                 <NavigationMenuLink key={link.path} asChild>
-                  <Link to={link.path} className="block px-4 py-2 text-sm hover:bg-accent rounded-md transition-colors">
+                  <Link to={link.path} className="block px-4 py-2 text-base hover:bg-accent rounded-md transition-colors">
                     {link.name}
                   </Link>
                 </NavigationMenuLink>
@@ -197,7 +197,7 @@ function MobileSection({ title, links, onClose }: { title: string; links: NavLin
     <div className="space-y-2">
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
       {links.map(link => (
-        <Link key={link.path} to={link.path} onClick={onClose} className="block pl-4 text-sm text-muted-foreground hover:text-primary">
+        <Link key={link.path} to={link.path} onClick={onClose} className="block pl-4 text-base text-muted-foreground hover:text-primary">
           {link.name}
         </Link>
       ))}
