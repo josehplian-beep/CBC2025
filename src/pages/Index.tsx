@@ -172,10 +172,54 @@ function HeroSection({ heroOpacity }: { heroOpacity: ReturnType<typeof useTransf
   );
 }
 
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const getNextSunday1PM = () => {
+      const now = new Date();
+      const next = new Date(now);
+      const dayOfWeek = now.getDay();
+      const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+      next.setDate(now.getDate() + daysUntilSunday);
+      next.setHours(13, 0, 0, 0); // 1:00 PM
+      if (next <= now) {
+        next.setDate(next.getDate() + 7);
+      }
+      return next;
+    };
+
+    const update = () => {
+      const diff = getNextSunday1PM().getTime() - Date.now();
+      if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return timeLeft;
+}
+
 function ServiceTimesSection() {
+  const { days, hours, minutes, seconds } = useCountdown();
+
+  const units = [
+    { label: "Days", value: days },
+    { label: "Hours", value: hours },
+    { label: "Min", value: minutes },
+    { label: "Sec", value: seconds },
+  ];
+
   return (
     <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
-      {/* Decorative circles */}
       <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-foreground/5 blur-3xl" />
       <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-primary-foreground/5 blur-3xl" />
 
@@ -195,9 +239,22 @@ function ServiceTimesSection() {
         <motion.p variants={fadeUp} custom={1} className="text-5xl font-bold mb-3 tracking-tight">
           1:00 PM — 3:00 PM
         </motion.p>
-        <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/70 text-lg max-w-md mx-auto">
+        <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/70 text-lg max-w-md mx-auto mb-8">
           Join us every Sunday for worship, fellowship, and spiritual growth
         </motion.p>
+
+        <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-3 sm:gap-5">
+          {units.map(({ label, value }) => (
+            <div key={label} className="flex flex-col items-center">
+              <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                  {String(value).padStart(2, "0")}
+                </span>
+              </div>
+              <span className="text-xs sm:text-sm text-primary-foreground/60 mt-1.5">{label}</span>
+            </div>
+          ))}
+        </motion.div>
       </motion.div>
     </section>
   );
