@@ -125,24 +125,29 @@ export default function SermonNoteTaker({
   };
 
   const exportNote = () => {
-    const text = [
-      `# ${note.title || "Sermon Notes"}`,
-      "",
-      note.content,
-      "",
-      note.timestamps.length > 0 ? "## Key Moments" : "",
-      ...note.timestamps.map((t) => `- [${t.time}] ${t.label}`),
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const title = note.title || "Sermon Notes";
+    const timestampsHtml = note.timestamps.length > 0
+      ? `<h2 style="margin-top:24px;font-size:16px;color:#1a1a1a;border-bottom:1px solid #e5e5e5;padding-bottom:6px;">Key Moments</h2>
+         <ul style="padding-left:18px;color:#333;">${note.timestamps.map(t => `<li style="margin-bottom:4px;"><strong style="font-family:monospace;color:#2563eb;">[${t.time}]</strong> ${t.label}</li>`).join("")}</ul>`
+      : "";
 
-    const blob = new Blob([text], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sermon-notes-${videoId}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const html = `
+      <html><head><title>${title}</title></head>
+      <body style="font-family:'Segoe UI',sans-serif;max-width:700px;margin:40px auto;padding:0 24px;color:#222;">
+        <h1 style="font-size:22px;margin-bottom:4px;">${title}</h1>
+        <p style="font-size:12px;color:#888;margin-bottom:24px;">Exported on ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+        <div style="white-space:pre-wrap;line-height:1.7;font-size:14px;">${note.content}</div>
+        ${timestampsHtml}
+      </body></html>`;
+
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
   };
 
   const hasContent = note.content || note.timestamps.length > 0;
@@ -286,7 +291,7 @@ export default function SermonNoteTaker({
                         className="h-8 text-xs gap-1.5"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        Export
+                        Export PDF
                       </Button>
                       <Button
                         size="sm"
