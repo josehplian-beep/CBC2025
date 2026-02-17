@@ -99,10 +99,14 @@ const Staff = () => {
                         </h2>
                       </Link>
                       {member.biography_content && (
-                        <div className="text-muted-foreground leading-relaxed space-y-4 text-sm md:text-base">
-                          {member.biography_content.split('\n').filter(Boolean).map((paragraph, i) => (
-                            <p key={i}>{paragraph}</p>
-                          ))}
+                        <div className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                          <p className="line-clamp-4">{member.biography_content}</p>
+                          <Link
+                            to={`/staff/${member.slug}`}
+                            className="inline-block mt-3 text-primary font-medium hover:underline text-sm"
+                          >
+                            Read more →
+                          </Link>
                         </div>
                       )}
                     </div>
