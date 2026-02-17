@@ -98,7 +98,7 @@ const StaffBiography = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             {staff.image_url && (
               <div className="flex justify-center">
-                <div className="w-80 h-80 rounded-full overflow-hidden shadow-2xl bg-muted">
+                <div className="w-80 h-80 rounded-xl overflow-hidden shadow-2xl bg-muted">
                   <img 
                     src={staff.image_url} 
                     alt={staff.name} 
