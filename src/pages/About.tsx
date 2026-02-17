@@ -50,20 +50,15 @@ const About = () =>
     </section>
 
     {/* Our Story — centered editorial */}
-    <section className="py-20 md:py-28 bg-background" id="our-story">
+    <section className="py-12 md:py-16 bg-background" id="our-story">
       <div className="container mx-auto px-4">
         <motion.div
         initial="hidden" animate="visible"
         variants={stagger}
         className="max-w-5xl mx-auto">
 
-          <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-            
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">​</h2>
-          </motion.div>
-
-          <div className="max-w-2xl mx-auto space-y-8">
-            <motion.div variants={fadeUp} custom={1} className="text-muted-foreground text-lg leading-relaxed space-y-5">
+          <div className="max-w-2xl mx-auto space-y-5">
+            <motion.div variants={fadeUp} custom={0} className="text-muted-foreground text-base leading-relaxed space-y-4">
               <p>
                 Kan ram uknak a ṭhatlo ruangah Chinmi tampi cu kan ram chuahtak in ramdangah kan pem cio hna. A bikin kum 2006-2009 karlak ahhin Chinmi tampi Washington DC-Maryland Area ah kan phan cio hna.
               </p>
@@ -84,7 +79,7 @@ const About = () =>
               </p>
             </motion.div>
 
-            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap justify-center gap-6 pt-4 text-sm text-muted-foreground">
+            <motion.div variants={fadeUp} custom={1} className="flex flex-wrap justify-center gap-6 pt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-accent" />
                 <span>6801 Douglas Legum Dr, Elkridge, MD 21075</span>
@@ -104,12 +99,12 @@ const About = () =>
     </section>
 
     {/* What We Believe — minimal grid */}
-    <section className="py-20 md:py-28 bg-muted/20 dark:bg-muted/10 relative">
+    <section className="py-12 md:py-16 bg-muted/20 dark:bg-muted/10 relative">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="container mx-auto px-4">
         <motion.div initial="hidden" animate="visible" variants={stagger}>
 
-          <motion.div variants={fadeUp} custom={0} className="text-center mb-16">
+          <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
             <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our Faith</span>
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-3 mb-4">What We Believe</h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm">
@@ -135,7 +130,7 @@ const About = () =>
     </section>
 
     {/* CTA */}
-    <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-primary text-primary-foreground relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,_hsl(210_55%_35%/0.5)_0%,_transparent_60%)]" />
       <motion.div initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
