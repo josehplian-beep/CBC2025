@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Save, Trash2, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Save, Trash2, GripVertical, ArrowUp, ArrowDown, Eye } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface PageContentRow {
   id: string;
@@ -17,6 +24,16 @@ interface PageContentRow {
   created_at: string;
   updated_at: string;
 }
+
+const renderBoldText = (text: string) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} className="text-foreground">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
 
 const AdminPageContent = () => {
   const queryClient = useQueryClient();
@@ -153,10 +170,34 @@ const AdminPageContent = () => {
             Edit the "Our Story" paragraphs. Use **text** for bold formatting.
           </p>
         </div>
-        <Button onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Paragraph
-        </Button>
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>About Page Preview — Our Story</DialogTitle>
+              </DialogHeader>
+              <div className="text-muted-foreground text-base leading-relaxed space-y-4 pt-2">
+                {paragraphs?.map((p) => {
+                  const content = editedContent[p.id] ?? p.content;
+                  return <p key={p.id}>{renderBoldText(content)}</p>;
+                })}
+                {(!paragraphs || paragraphs.length === 0) && (
+                  <p className="text-sm italic">No paragraphs yet.</p>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Paragraph
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
