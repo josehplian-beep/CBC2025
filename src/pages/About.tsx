@@ -129,20 +129,6 @@ const About = () => {
                 ))}
               </motion.div>
 
-              <motion.div variants={fadeUp} custom={2} className="flex flex-wrap justify-center gap-6 pt-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-accent" />
-                  <span>6801 Douglas Legum Dr, Elkridge, MD 21075</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-accent" />
-                  <span>Sundays 1:00 – 3:00 PM</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-accent" />
-                  <span>(240) 316 8830</span>
-                </div>
-              </motion.div>
 
               {/* Social Media Sharing */}
               <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border">
