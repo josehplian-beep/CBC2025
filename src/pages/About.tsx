@@ -62,15 +62,27 @@ const About = () =>
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">CBC TUANBIA</h2>
           </motion.div>
 
-          <div className="max-w-2xl mx-auto text-center space-y-8">
-            <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-lg leading-relaxed">
-              
-              Kan ram uknak a ṭhatlo ruangah Chinmi tampi cu kan ram chuahtak in ramdangah kan pem cio hna. A bikin kum 2006-2009 karlak ahhin Chinmi tampi Washington DC-Maryland Area ah kan phan cio hna. Kan rak phanhka ahcun Chin Baptist Mission Church ah chungtel kan rak la cio hna. Khrihfabu chungtel sinak an lak ko nain um kalnak motor kan rak ngeihlo caah le pumhnak hmun a rak hlat caah umkal aa harhmi tamtuk um a rak si ruangah Zophei (Chin) mifa hna cu an rak i pum kho tuk hna lo. Cucaah, DC-Maryland Area ah a phanmi Zophei(Chin) nu le pa hna cu meeting an rak ngei i kanmah tein khrihfabu dirh a ṭha ko lai tiah biachahnak an rak ngei. Cu biachahnak an rak ngeihmi cu Chin Baptist Mission Church ṭuanvo ngeitu nupa hna sin ah an theihter hna i, March 07, 2010 ah Chin Baptist Mission Church nupa hna nih lungtlinnak an rak kan ngeihpi. 
-Kanmah tein aa pum ding kan si cang caah khrihfabu min te zong ngeih kan hau cang. Cucaah, Chinmi kan pa asimi Pu Lian Uk nih khrihfabu min “Chin Bethel Church” tiah a rak kan sakpiak. Chin Bethel Church khrihfabu min in a voikhatnak pumhnak cu March 10, 2010 ah Chin Baptist Mission Church khrihfabu thluachuah peknak in rak dirh/thawk asi. A voikhatnak kan rak i pumhlio ahhin chungtel kan dihlak 220 kan si. A tu ahcun Pathian nih fanu fapa thluachuah tampi a kan pek i chungtel kan dihlak 400 cung kan si ve cang. Chin Baptist Mission Church ah Pastor a ṭuan liomi Rev. Philip Hrengling cu kanmah nan kan pek ko lai tiah kan rak hal hna i CBMC nu le pa nih lunglawm tein an rak kan pek. Rev. Philip Hrengling nih June 20, 2010 in a rak kan hruai i chungtel zong kan vun karhdeuh caah Rev. Joseph Nihre Bawihrin le Rev. Van Duh Ceu cu an pahnih tein October 2013 ah caantling rianṭuantu nih rak lak an si.  
- 
-               
- 
-            </motion.p>
+          <div className="max-w-2xl mx-auto space-y-8">
+            <motion.div variants={fadeUp} custom={1} className="text-muted-foreground text-lg leading-relaxed space-y-5">
+              <p>
+                Kan ram uknak a ṭhatlo ruangah Chinmi tampi cu kan ram chuahtak in ramdangah kan pem cio hna. A bikin kum 2006-2009 karlak ahhin Chinmi tampi Washington DC-Maryland Area ah kan phan cio hna.
+              </p>
+              <p>
+                Kan rak phanhka ahcun Chin Baptist Mission Church ah chungtel kan rak la cio hna. Khrihfabu chungtel sinak an lak ko nain um kalnak motor kan rak ngeihlo caah le pumhnak hmun a rak hlat caah umkal aa harhmi tamtuk um a rak si ruangah Zophei (Chin) mifa hna cu an rak i pum kho tuk hna lo.
+              </p>
+              <p>
+                Cucaah, DC-Maryland Area ah a phanmi Zophei (Chin) nu le pa hna cu meeting an rak ngei i kanmah tein khrihfabu dirh a ṭha ko lai tiah biachahnak an rak ngei. Cu biachahnak an rak ngeihmi cu Chin Baptist Mission Church ṭuanvo ngeitu nupa hna sin ah an theihter hna i, <strong className="text-foreground">March 07, 2010</strong> ah Chin Baptist Mission Church nupa hna nih lungtlinnak an rak kan ngeihpi.
+              </p>
+              <p>
+                Kanmah tein aa pum ding kan si cang caah khrihfabu min te zong ngeih kan hau cang. Cucaah, Chinmi kan pa asimi Pu Lian Uk nih khrihfabu min <strong className="text-foreground">"Chin Bethel Church"</strong> tiah a rak kan sakpiak. Chin Bethel Church khrihfabu min in a voikhatnak pumhnak cu <strong className="text-foreground">March 10, 2010</strong> ah Chin Baptist Mission Church khrihfabu thluachuah peknak in rak dirh/thawk asi.
+              </p>
+              <p>
+                A voikhatnak kan rak i pumhlio ahhin chungtel kan dihlak 220 kan si. A tu ahcun Pathian nih fanu fapa thluachuah tampi a kan pek i chungtel kan dihlak 400 cung kan si ve cang.
+              </p>
+              <p>
+                Chin Baptist Mission Church ah Pastor a ṭuan liomi Rev. Philip Hrengling cu kanmah nan kan pek ko lai tiah kan rak hal hna i CBMC nu le pa nih lunglawm tein an rak kan pek. Rev. Philip Hrengling nih <strong className="text-foreground">June 20, 2010</strong> in a rak kan hruai i chungtel zong kan vun karhdeuh caah Rev. Joseph Nihre Bawihrin le Rev. Van Duh Ceu cu an pahnih tein <strong className="text-foreground">October 2013</strong> ah caantling rianṭuantu nih rak lak an si.
+              </p>
+            </motion.div>
 
             <motion.div variants={fadeUp} custom={3} className="flex flex-wrap justify-center gap-6 pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
