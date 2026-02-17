@@ -37,19 +37,24 @@ const renderBoldText = (text: string) => {
 };
 
 const About = () => {
-  const { data: paragraphs } = useQuery({
+  const { data: storyContent } = useQuery({
     queryKey: ["page-content", "about", "our_story"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("page_content")
-        .select("*")
+        .select("content")
         .eq("page_key", "about")
         .eq("section_key", "our_story")
-        .order("display_order", { ascending: true });
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
-      return data;
+      return data?.content as string | null;
     },
   });
+
+  const paragraphs = storyContent
+    ? storyContent.split(/\n\n+/).filter((p) => p.trim())
+    : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,8 +82,8 @@ const About = () => {
           <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-5xl mx-auto">
             <div className="max-w-2xl mx-auto space-y-5">
               <motion.div variants={fadeUp} custom={0} className="text-muted-foreground text-base leading-relaxed space-y-4">
-                {paragraphs?.map((p) => (
-                  <p key={p.id}>{renderBoldText(p.content)}</p>
+                {paragraphs.map((p, i) => (
+                  <p key={i}>{renderBoldText(p.trim())}</p>
                 ))}
               </motion.div>
 
