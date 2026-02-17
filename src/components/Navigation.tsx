@@ -104,7 +104,6 @@ const Navigation = () => {
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className={linkClass("/")}>Home</Link>
-            <Link to="/about" className={linkClass("/about")}>About</Link>
             <Dropdown label="CBC" links={cbcLinks} />
             <Link to="/events" className={linkClass("/events")}>Events</Link>
             <Dropdown label="Media" links={mediaLinks} />
