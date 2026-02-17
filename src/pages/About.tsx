@@ -38,14 +38,14 @@ const About = () =>
       className="relative z-10 container mx-auto px-8 md:px-16 py-16 md:py-20 max-w-4xl">
 
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/50 mb-4 block">
-          Our Church
-        </span>
-        <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4 leading-[1.1]">
-          About CBC
-        </h1>
+
+      </span>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4 leading-[1.1]">CBC TUANBIA
+
+      </h1>
         <p className="text-primary-foreground/70 text-lg leading-relaxed max-w-md">
-          Our Story, Beliefs, and Community
-        </p>
+
+      </p>
       </motion.div>
     </section>
 
@@ -58,8 +58,8 @@ const About = () =>
         className="max-w-5xl mx-auto">
 
           <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-            <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our History</span>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">CBC TUANBIA</h2>
+            
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-3">​</h2>
           </motion.div>
 
           <div className="max-w-2xl mx-auto space-y-8">
