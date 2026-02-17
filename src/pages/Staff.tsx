@@ -63,7 +63,7 @@ const Staff = () => {
               <p className="text-muted-foreground text-lg">No staff members found.</p>
             </div>
           ) : (
-            <div className="space-y-20">
+            <div className="space-y-16 divide-y divide-border [&>*:not(:first-child)]:pt-16">
               {staff.map((member, index) => {
                 const isEven = index % 2 === 0;
                 return (
