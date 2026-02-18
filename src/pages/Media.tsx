@@ -79,6 +79,8 @@ function LiveCountdown() {
 const Media = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("videos");
+  const VIDEOS_PER_PAGE = 8;
+  const [visibleCount, setVisibleCount] = useState(VIDEOS_PER_PAGE);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -180,9 +182,12 @@ const Media = () => {
     setSearchQuery("");
     setCategoryFilter("all");
     setYearFilter("all");
+    setVisibleCount(VIDEOS_PER_PAGE);
   };
 
   const hasActiveFilters = searchQuery || categoryFilter !== "all" || yearFilter !== "all";
+
+  const displayedVideos = filteredVideos.slice(0, visibleCount);
 
   return (
     <div className="min-h-screen bg-background">
@@ -277,7 +282,7 @@ const Media = () => {
                   />
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v); setVisibleCount(VIDEOS_PER_PAGE); }}>
                     <SelectTrigger className="w-40 rounded-full">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
@@ -290,7 +295,7 @@ const Media = () => {
                       <SelectItem value="Worship & Music">Worship</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={yearFilter} onValueChange={setYearFilter}>
+                  <Select value={yearFilter} onValueChange={(v) => { setYearFilter(v); setVisibleCount(VIDEOS_PER_PAGE); }}>
                     <SelectTrigger className="w-32 rounded-full">
                       <SelectValue placeholder="Year" />
                     </SelectTrigger>
@@ -330,11 +335,26 @@ const Media = () => {
                   ))}
                 </div>
               ) : filteredVideos.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredVideos.map((video, i) => (
-                    <VideoCard key={i} {...video} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {displayedVideos.map((video, i) => (
+                      <VideoCard key={i} {...video} />
+                    ))}
+                  </div>
+                  {visibleCount < filteredVideos.length && (
+                    <div className="flex justify-center mt-8">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="rounded-full px-8"
+                        onClick={() => setVisibleCount((prev) => prev + VIDEOS_PER_PAGE)}
+                      >
+                        View More
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-16">
                   <Video className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
