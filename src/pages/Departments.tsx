@@ -59,7 +59,7 @@ const Departments = () => {
       "deacons": "Deacon",
       "women": "Women",
       "youth": "Youth",
-      "children": "Children",
+      "children": "Church School",
       "praise-worship": "Praise & Worship",
       "mission": "Mission",
       "building": "Building",
