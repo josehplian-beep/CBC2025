@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -20,12 +21,12 @@ const fadeUp = {
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-const beliefs = [
-{ icon: BookOpen, title: "The Bible", desc: "We believe the Bible is the inspired, inerrant Word of God and our ultimate authority." },
-{ icon: Heart, title: "Salvation", desc: "We believe salvation is by grace through faith in Jesus Christ alone." },
-{ icon: Users, title: "Community", desc: "We believe in the importance of Christian fellowship and community." },
-{ icon: Target, title: "Mission", desc: "We believe in sharing the Gospel and making disciples of all nations." }];
-
+const beliefKeys = [
+  { icon: BookOpen, titleKey: "about.theBible", descKey: "about.theBibleDesc" },
+  { icon: Heart, titleKey: "about.salvation", descKey: "about.salvationDesc" },
+  { icon: Users, titleKey: "about.community", descKey: "about.communityDesc" },
+  { icon: Target, titleKey: "about.mission", descKey: "about.missionDesc" },
+];
 
 // Render **bold** markdown in text
 const renderBoldText = (text: string) => {
@@ -40,7 +41,7 @@ const renderBoldText = (text: string) => {
 
 const About = () => {
   const [textSize, setTextSize] = useState<"sm" | "default" | "lg">("default");
-
+  const { t } = useLanguage();
   const textSizeClasses = {
     sm: "text-sm leading-relaxed",
     default: "text-base leading-relaxed",
@@ -89,7 +90,7 @@ const About = () => {
 
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground/50 mb-4 block" />
           <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-4 leading-[1.1] text-center">
-            CBC TUANBIA
+            {t("about.heroTitle")}
           </h1>
         </motion.div>
       </section>
@@ -132,7 +133,7 @@ const About = () => {
 
               {/* Social Media Sharing */}
               <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-1">Share</span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-1">{t("about.share")}</span>
                 <a
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`}
                   target="_blank"
@@ -179,23 +180,23 @@ const About = () => {
         <div className="container mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
-              <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">Our Faith</span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mt-3 mb-4">What We Believe</h2>
+              <span className="text-xs font-semibold text-accent uppercase tracking-[0.2em]">{t("about.ourFaith")}</span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mt-3 mb-4">{t("about.whatWeBelieve")}</h2>
               <p className="text-muted-foreground max-w-md mx-auto text-sm">
-                Our faith is rooted in the unchanging truth of God's Word
+                {t("about.faithDesc")}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
-              {beliefs.map(({ icon: Icon, title, desc }, i) =>
-              <motion.div key={title} variants={fadeUp} custom={i + 1}>
+              {beliefKeys.map(({ icon: Icon, titleKey, descKey }, i) =>
+              <motion.div key={titleKey} variants={fadeUp} custom={i + 1}>
                   <Card className="group border-border/30 bg-card/60 backdrop-blur-sm hover:bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full">
                     <CardContent className="p-7">
                       <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center mb-5 group-hover:bg-accent/20 transition-colors duration-300">
                         <Icon className="w-5 h-5 text-accent" />
                       </div>
-                      <h3 className="font-semibold text-lg mb-2">{title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+                      <h3 className="font-semibold text-lg mb-2">{t(titleKey)}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{t(descKey)}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -215,13 +216,13 @@ const About = () => {
           transition={{ duration: 0.6 }}
           className="container mx-auto px-4 text-center relative z-10">
 
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Come Visit Us</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">{t("about.comeVisitUs")}</h2>
           <p className="text-primary-foreground/60 max-w-md mx-auto mb-8">
-            We'd love to meet you. Join us for worship, a small group, or one of our community events.
+            {t("about.comeVisitDesc")}
           </p>
           <Link to="/get-involved">
             <Button size="lg" variant="secondary" className="font-semibold">
-              Get Involved
+              {t("about.getInvolved")}
             </Button>
           </Link>
         </motion.div>
