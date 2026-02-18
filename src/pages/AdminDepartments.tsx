@@ -73,14 +73,16 @@ const AdminDepartments = () => {
       
       if (error) throw error;
       
-      const uniqueRanges = Array.from(new Set(data?.map(m => m.year_range).filter(Boolean) || [])) as string[];
+      const currentRange = getCurrentYearRange();
+      const rangesFromDb = data?.map(m => m.year_range).filter(Boolean) || [];
+      const uniqueRanges = Array.from(new Set([currentRange, ...rangesFromDb])) as string[];
       const sortedRanges = uniqueRanges.sort((a, b) => {
         const yearA = parseInt(a.split('-')[0]);
         const yearB = parseInt(b.split('-')[0]);
         return yearB - yearA;
       });
       
-      setYearRanges(sortedRanges.length > 0 ? sortedRanges : [getCurrentYearRange()]);
+      setYearRanges(sortedRanges);
       
       if (!selectedYearRange || !sortedRanges.includes(selectedYearRange)) {
         setSelectedYearRange(sortedRanges[0] || getCurrentYearRange());
