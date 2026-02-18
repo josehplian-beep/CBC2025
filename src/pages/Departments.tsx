@@ -12,7 +12,7 @@ import communityImage from "@/assets/community.jpg";
 const Departments = () => {
   const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("deacons");
-  const [yearFilter, setYearFilter] = useState("2024-2025");
+  const [yearFilter, setYearFilter] = useState("2026-2027");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState<string[]>([]);
