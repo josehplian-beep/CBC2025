@@ -284,7 +284,7 @@ const Events = () => {
                       hasEvent: eventDates
                     }}
                     modifiersClassNames={{
-                      hasEvent: "bg-primary/15 text-primary font-semibold ring-1 ring-primary/30"
+                      hasEvent: "relative font-medium after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
                     }}
                   />
                 </div>
@@ -423,7 +423,7 @@ const Events = () => {
                         hasEvent: eventDates
                       }}
                       modifiersClassNames={{
-                        hasEvent: "bg-primary/15 text-primary font-semibold ring-1 ring-primary/30"
+                        hasEvent: "relative font-medium after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
                       }}
                     />
                     <div className="mt-3 space-y-1.5 px-1">
