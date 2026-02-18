@@ -17,7 +17,7 @@ const Departments = () => {
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState<string[]>([]);
 
-  const yearRanges = ["2024-2025", "2022-2023", "2020-2021", "2018-2019"];
+  const yearRanges = ["2026-2027", "2024-2025", "2022-2023", "2020-2021", "2018-2019"];
 
   useEffect(() => {
     fetchDepartments();
