@@ -166,13 +166,15 @@ const AdminDepartments = () => {
       if (error) throw error;
       const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
       const orderedDepts = ["deacons", "women", "youth", "children", "praise-worship", "mission", "building", "culture", "media", "auditors"];
+      const deptLabelMap: Record<string, string> = { "children": "Church School" };
+      const formatLabel = (d: string) => deptLabelMap[d] || d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       const deptObjects = orderedDepts.filter(d => uniqueDepts.includes(d)).map(d => ({
         value: d,
-        label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        label: formatLabel(d)
       }));
       const additionalDepts = uniqueDepts.filter(d => !orderedDepts.includes(d)).sort().map(d => ({
         value: d,
-        label: d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        label: formatLabel(d)
       }));
       setDepartments([...deptObjects, ...additionalDepts]);
       if (deptObjects.length > 0 && !selectedDept) {
