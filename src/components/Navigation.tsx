@@ -27,7 +27,7 @@ const cbcLinks: NavLink[] = [
 ];
 
 const mediaLinks: NavLink[] = [
-  { name: "Media Gallery", path: "/media" },
+  { name: "Watch", path: "/media" },
   { name: "Messages", path: "/testimony" },
 ];
 
