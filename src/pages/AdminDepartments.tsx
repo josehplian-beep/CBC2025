@@ -165,8 +165,8 @@ const AdminDepartments = () => {
       } = await supabase.from("department_members").select("department");
       if (error) throw error;
       const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
-      const orderedDepts = ["deacons", "women", "youth", "children", "praise-worship", "mission", "building", "culture", "media", "auditors"];
-      const deptLabelMap: Record<string, string> = { "children": "Church School", "praise-worship": "Worship Team" };
+      const orderedDepts = ["deacons", "women", "youth", "children", "praise-&-worship", "mission", "building", "culture", "media", "auditors"];
+      const deptLabelMap: Record<string, string> = { "children": "Church School", "praise-&-worship": "Worship Team" };
       const formatLabel = (d: string) => deptLabelMap[d] || d.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       const deptObjects = orderedDepts.filter(d => uniqueDepts.includes(d)).map(d => ({
         value: d,
