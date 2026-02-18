@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, Sun, Moon, Languages } from "lucide-react";
+import { Menu, X, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "./ThemeProvider";
-import { useLanguage } from "@/contexts/LanguageContext";
 import cbcLogo from "@/assets/cbc-logo.png";
 import {
   NavigationMenu,
@@ -47,7 +46,6 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -85,7 +83,6 @@ const Navigation = () => {
   };
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-  const toggleLanguage = () => setLanguage(language === "en" ? "lai" : "en");
   const isActive = (path: string) => location.pathname === path;
   const linkClass = (path: string) =>
     `text-base font-medium transition-colors hover:text-primary ${isActive(path) ? "text-primary font-semibold" : "text-muted-foreground"}`;
@@ -102,35 +99,31 @@ const Navigation = () => {
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={toggleLanguage} className="rounded-full gap-1.5 text-xs font-medium">
-              <Languages className="h-4 w-4" />
-              {language === "en" ? "Lai" : "EN"}
-            </Button>
           </div>
 
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className={linkClass("/")}>{t("nav.home")}</Link>
-            <Dropdown label={t("nav.cbc")} links={cbcLinks} />
-            <Link to="/events" className={linkClass("/events")}>{t("nav.events")}</Link>
-            <Dropdown label={t("nav.media")} links={mediaLinks} />
-            <Link to="/auth" className={linkClass("/members")}>{t("nav.memberDirectory")}</Link>
-            <Dropdown label={t("nav.resources")} links={resourceLinks} />
+            <Link to="/" className={linkClass("/")}>Home</Link>
+            <Dropdown label="CBC" links={cbcLinks} />
+            <Link to="/events" className={linkClass("/events")}>Events</Link>
+            <Dropdown label="Media" links={mediaLinks} />
+            <Link to="/auth" className={linkClass("/members")}>Member Directory</Link>
+            <Dropdown label="Resources" links={resourceLinks} />
             
             {user && memberId && (
-              <Link to={`/members/${memberId}`} className={linkClass(`/members/${memberId}`)}>{t("nav.myProfile")}</Link>
+              <Link to={`/members/${memberId}`} className={linkClass(`/members/${memberId}`)}>My Profile</Link>
             )}
             {isAdmin && (
               <Link to="/admin/dashboard" className={`text-base font-medium transition-colors hover:text-primary ${location.pathname.startsWith("/admin") ? "text-primary font-semibold" : "text-muted-foreground"}`}>
-                {t("nav.adminDashboard")}
+                Admin Dashboard
               </Link>
             )}
             {user ? (
               <Button size="sm" variant="outline" onClick={signOut} className="ml-4">
-                <LogOut className="w-4 h-4 mr-2" />{t("nav.signOut")}
+                <LogOut className="w-4 h-4 mr-2" />Sign Out
               </Button>
             ) : (
-              <Link to="/auth"><Button size="sm" className="ml-4">{t("nav.signIn")}</Button></Link>
+              <Link to="/auth"><Button size="sm" className="ml-4">Sign In</Button></Link>
             )}
           </div>
 
@@ -146,32 +139,28 @@ const Navigation = () => {
             <Button variant="ghost" size="sm" onClick={toggleTheme} className="justify-start gap-2">
               <Sun className="h-4 w-4 dark:hidden" />
               <Moon className="h-4 w-4 hidden dark:block" />
-              <span>{theme === "dark" ? t("common.lightMode") : t("common.darkMode")}</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={toggleLanguage} className="justify-start gap-2">
-              <Languages className="h-4 w-4" />
-              <span>{language === "en" ? t("common.chin") : t("common.english")}</span>
+              <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
             </Button>
 
-            <Link to="/" onClick={() => setMobileOpen(false)} className={linkClass("/")}>{t("nav.home")}</Link>
-            <MobileSection title={t("nav.cbc")} links={cbcLinks} onClose={() => setMobileOpen(false)} />
-            <Link to="/events" onClick={() => setMobileOpen(false)} className={linkClass("/events")}>{t("nav.events")}</Link>
-            <MobileSection title={t("nav.media")} links={mediaLinks} onClose={() => setMobileOpen(false)} />
-            <Link to="/auth" onClick={() => setMobileOpen(false)} className={linkClass("/members")}>{t("nav.memberDirectory")}</Link>
-            <MobileSection title={t("nav.resources")} links={resourceLinks} onClose={() => setMobileOpen(false)} />
+            <Link to="/" onClick={() => setMobileOpen(false)} className={linkClass("/")}>Home</Link>
+            <MobileSection title="CBC" links={cbcLinks} onClose={() => setMobileOpen(false)} />
+            <Link to="/events" onClick={() => setMobileOpen(false)} className={linkClass("/events")}>Events</Link>
+            <MobileSection title="Media" links={mediaLinks} onClose={() => setMobileOpen(false)} />
+            <Link to="/auth" onClick={() => setMobileOpen(false)} className={linkClass("/members")}>Member Directory</Link>
+            <MobileSection title="Resources" links={resourceLinks} onClose={() => setMobileOpen(false)} />
 
             {user && memberId && (
-              <Link to={`/members/${memberId}`} onClick={() => setMobileOpen(false)} className={linkClass(`/members/${memberId}`)}>{t("nav.myProfile")}</Link>
+              <Link to={`/members/${memberId}`} onClick={() => setMobileOpen(false)} className={linkClass(`/members/${memberId}`)}>My Profile</Link>
             )}
             {isAdmin && (
-              <Link to="/admin/dashboard" onClick={() => setMobileOpen(false)} className={linkClass("/admin/dashboard")}>{t("nav.adminDashboard")}</Link>
+              <Link to="/admin/dashboard" onClick={() => setMobileOpen(false)} className={linkClass("/admin/dashboard")}>Admin Dashboard</Link>
             )}
             {user ? (
               <Button size="sm" variant="outline" onClick={() => { signOut(); setMobileOpen(false); }}>
-                <LogOut className="w-4 h-4 mr-2" />{t("nav.signOut")}
+                <LogOut className="w-4 h-4 mr-2" />Sign Out
               </Button>
             ) : (
-              <Link to="/auth" onClick={() => setMobileOpen(false)}><Button size="sm">{t("nav.signIn")}</Button></Link>
+              <Link to="/auth" onClick={() => setMobileOpen(false)}><Button size="sm">Sign In</Button></Link>
             )}
           </div>
         )}
