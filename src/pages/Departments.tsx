@@ -64,7 +64,7 @@ const Departments = () => {
       "mission": "Mission",
       "building": "Building",
       "culture": "Culture",
-      "media": "Media",
+      "media": "Media Team",
       "auditors": "Auditors"
     };
     return nameMap[dept] || dept.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
