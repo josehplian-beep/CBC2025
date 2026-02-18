@@ -43,6 +43,9 @@ const AdminDepartments = () => {
   const [yearRangeDialogOpen, setYearRangeDialogOpen] = useState(false);
   const [newYearRange, setNewYearRange] = useState("");
   const [yearRanges, setYearRanges] = useState<string[]>([]);
+  const [churchMembers, setChurchMembers] = useState<{ id: string; name: string }[]>([]);
+  const [nameInput, setNameInput] = useState("");
+  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
 
   // Calculate current year range based on current date
   const getCurrentYearRange = () => {
@@ -54,6 +57,7 @@ const AdminDepartments = () => {
   useEffect(() => {
     fetchDepartments();
     fetchYearRanges();
+    fetchChurchMembers();
   }, []);
   useEffect(() => {
     if (selectedDept) {
@@ -133,6 +137,24 @@ const AdminDepartments = () => {
     
     toast.success("Year range removed from filter");
   };
+
+  const fetchChurchMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("members")
+        .select("id, name")
+        .order("name");
+      if (error) throw error;
+      setChurchMembers(data || []);
+    } catch {
+      // silent
+    }
+  };
+
+  const filteredNameSuggestions = churchMembers.filter(m =>
+    m.name.toLowerCase().includes(nameInput.toLowerCase())
+  ).slice(0, 8);
+
   const fetchDepartments = async () => {
     try {
       const {
@@ -422,7 +444,7 @@ const AdminDepartments = () => {
               
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={() => setEditingMember(null)} className="gap-2">
+                  <Button onClick={() => { setEditingMember(null); setNameInput(""); setShowNameSuggestions(false); }} className="gap-2">
                     <Plus className="w-4 h-4" />
                     Add Member
                   </Button>
@@ -432,9 +454,38 @@ const AdminDepartments = () => {
                     <DialogTitle>{editingMember ? "Edit" : "Add"} Member</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSaveMember} className="space-y-4">
-                    <div>
+                    <div className="relative">
                       <Label htmlFor="name">Name</Label>
-                      <Input id="name" name="name" defaultValue={editingMember?.name} required />
+                      <Input
+                        id="name"
+                        name="name"
+                        value={nameInput || editingMember?.name || ""}
+                        onChange={(e) => {
+                          setNameInput(e.target.value);
+                          setShowNameSuggestions(e.target.value.length > 0);
+                        }}
+                        onFocus={() => nameInput.length > 0 && setShowNameSuggestions(true)}
+                        autoComplete="off"
+                        required
+                        placeholder="Type or select a member name..."
+                      />
+                      {showNameSuggestions && filteredNameSuggestions.length > 0 && (
+                        <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-popover shadow-lg">
+                          {filteredNameSuggestions.map((m) => (
+                            <button
+                              key={m.id}
+                              type="button"
+                              className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                              onClick={() => {
+                                setNameInput(m.name);
+                                setShowNameSuggestions(false);
+                              }}
+                            >
+                              {m.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="role">Role</Label>
@@ -702,6 +753,8 @@ const AdminDepartments = () => {
                           className="px-2" 
                           onClick={() => {
                             setEditingMember(member);
+                            setNameInput(member.name);
+                            setShowNameSuggestions(false);
                             setIsDialogOpen(true);
                           }}
                         >
