@@ -101,7 +101,7 @@ const Media = () => {
       while (attempts < 3 && videos.length === 0) {
         videos = await searchYouTubeVideos({
           channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-          maxResults: 200,
+          maxResults: 500,
           order: "date",
         });
         if (videos.length === 0) {
