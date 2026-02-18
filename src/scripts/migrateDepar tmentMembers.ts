@@ -38,7 +38,7 @@ const departmentMembers = [
   { name: 'Lg. Zing Chin Par', role: 'Member', department: 'youth', display_order: 10 },
   { name: 'Pu Tha Lian Sang', role: 'Member', department: 'youth', display_order: 11 },
   { name: 'Pu Henry Khang Za Tin', role: 'Member', department: 'youth', display_order: 12 },
-  // Children
+  // Church School
   { name: 'Sayamah Sung Caan Tial', role: 'President (Pre-K)', department: 'children', display_order: 1 },
   { name: 'Lg. Sui Bor Iang', role: 'Vice President', department: 'children', display_order: 2 },
   { name: 'Val. Sang Awr', role: 'Secretary (Pre-K)', department: 'children', display_order: 3 },
