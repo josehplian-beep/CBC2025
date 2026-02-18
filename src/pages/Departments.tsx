@@ -39,7 +39,7 @@ const Departments = () => {
 
       const uniqueDepts = Array.from(new Set(data?.map(m => m.department) || []));
       const orderedDepts = [
-        "deacons", "women", "youth", "children", "praise-worship",
+        "deacons", "women", "youth", "children", "praise-&-worship",
         "mission", "building", "culture", "media", "auditors"
       ].filter(d => uniqueDepts.includes(d));
       
@@ -60,7 +60,7 @@ const Departments = () => {
       "women": "Women",
       "youth": "Youth",
       "children": "Church School",
-      "praise-worship": "Worship Team",
+      "praise-&-worship": "Worship Team",
       "mission": "Mission",
       "building": "Building",
       "culture": "Culture",
