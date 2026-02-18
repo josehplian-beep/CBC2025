@@ -173,8 +173,7 @@ const Media = () => {
     const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
     const matchesYear = yearFilter === "all" || video.year === yearFilter;
     const matchesSearch = !searchQuery || video.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const notLivestream = categoryFilter === "all" ? video.category !== "Livestream" : true;
-    return matchesCategory && matchesYear && matchesSearch && notLivestream;
+    return matchesCategory && matchesYear && matchesSearch;
   });
 
   const clearFilters = () => {
@@ -285,6 +284,7 @@ const Media = () => {
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
                       <SelectItem value="Sermon">Sermon</SelectItem>
+                      <SelectItem value="Livestream">Sunday Service</SelectItem>
                       <SelectItem value="Solo">Solo</SelectItem>
                       <SelectItem value="Choir">Choir</SelectItem>
                       <SelectItem value="Worship & Music">Worship</SelectItem>
@@ -296,6 +296,7 @@ const Media = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Years</SelectItem>
+                      <SelectItem value="2026">2026</SelectItem>
                       <SelectItem value="2025">2025</SelectItem>
                       <SelectItem value="2024">2024</SelectItem>
                       <SelectItem value="2023">2023</SelectItem>
