@@ -22,6 +22,7 @@ interface NavLink {
 
 const cbcLinks: NavLink[] = [
   { name: "About", path: "/about" },
+  { name: "Statement of Faith", path: "/statement-of-faith" },
   { name: "Our Staffs", path: "/staff" },
   { name: "Departments", path: "/departments" },
 ];
