@@ -3,6 +3,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
+import TextSizeControl from "@/components/TextSizeControl";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -130,23 +131,7 @@ const beliefs: BeliefSection[] = [
 ];
 
 const StatementOfFaith = () => {
-  const [textSize, setTextSize] = useState<"sm" | "default" | "lg" | "xl" | "2xl">("default");
-
-  const textSizeClasses = {
-    sm: "text-sm leading-relaxed",
-    default: "text-base leading-relaxed",
-    lg: "text-lg leading-relaxed",
-    xl: "text-xl leading-relaxed",
-    "2xl": "text-2xl leading-relaxed"
-  };
-
-  const verseSizeClasses = {
-    sm: "text-xs",
-    default: "text-sm",
-    lg: "text-base",
-    xl: "text-lg",
-    "2xl": "text-xl"
-  };
+  const [textScale, setTextScale] = useState(1);
 
   return (
     <div className="min-h-screen bg-background">
@@ -179,38 +164,7 @@ const StatementOfFaith = () => {
           <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-3xl mx-auto space-y-10">
             {/* Text Size Controller */}
             <motion.div variants={fadeUp} custom={0} className="flex justify-end">
-              <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-                <button
-                  onClick={() => setTextSize("sm")}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${textSize === "sm" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                >
-                  A-
-                </button>
-                <button
-                  onClick={() => setTextSize("default")}
-                  className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${textSize === "default" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                >
-                  A
-                </button>
-                <button
-                  onClick={() => setTextSize("lg")}
-                  className={`px-2.5 py-1 rounded-md text-base font-medium transition-colors ${textSize === "lg" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                >
-                  A+
-                </button>
-                <button
-                  onClick={() => setTextSize("xl")}
-                  className={`px-2.5 py-1 rounded-md text-lg font-medium transition-colors ${textSize === "xl" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                >
-                  A++
-                </button>
-                <button
-                  onClick={() => setTextSize("2xl")}
-                  className={`px-2.5 py-1 rounded-md text-xl font-medium transition-colors ${textSize === "2xl" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                >
-                  A+++
-                </button>
-              </div>
+              <TextSizeControl scale={textScale} onChange={setTextScale} />
             </motion.div>
 
             {beliefs.map((belief, i) => (
@@ -229,7 +183,7 @@ const StatementOfFaith = () => {
                       {belief.title}
                     </h2>
                     {belief.content.map((paragraph, j) => (
-                      <p key={j} className={`text-muted-foreground ${textSizeClasses[textSize]}`}>
+                      <p key={j} className="text-muted-foreground leading-relaxed" style={{ fontSize: `${textScale}rem`, lineHeight: '1.8' }}>
                         {paragraph}
                       </p>
                     ))}
@@ -237,7 +191,8 @@ const StatementOfFaith = () => {
                       {belief.verses.map((verse, k) => (
                         <blockquote
                           key={k}
-                          className={`border-l-2 border-primary/30 pl-4 ${verseSizeClasses[textSize]} text-muted-foreground/80 italic`}
+                          className="border-l-2 border-primary/30 pl-4 text-muted-foreground/80 italic"
+                          style={{ fontSize: `${textScale * 0.875}rem`, lineHeight: '1.7' }}
                         >
                           {verse}
                         </blockquote>

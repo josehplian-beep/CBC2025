@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, BookOpen, Target, MapPin, Clock, Phone, Facebook, Twitter, Link2, MessageCircle } from "lucide-react";
+import TextSizeControl from "@/components/TextSizeControl";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -39,13 +40,7 @@ const renderBoldText = (text: string) => {
 };
 
 const About = () => {
-  const [textSize, setTextSize] = useState<"sm" | "default" | "lg">("default");
-
-  const textSizeClasses = {
-    sm: "text-sm leading-relaxed",
-    default: "text-base leading-relaxed",
-    lg: "text-lg leading-relaxed"
-  };
+  const [textScale, setTextScale] = useState(1);
 
   const { data: storyContent } = useQuery({
     queryKey: ["page-content", "about", "our_story"],
@@ -101,29 +96,10 @@ const About = () => {
             <div className="max-w-2xl mx-auto space-y-5">
               {/* Text Size Controller */}
               <motion.div variants={fadeUp} custom={0} className="flex justify-end">
-                <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-                  <button
-                    onClick={() => setTextSize("sm")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${textSize === "sm" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
-
-                    A-
-                  </button>
-                  <button
-                    onClick={() => setTextSize("default")}
-                    className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${textSize === "default" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
-
-                    A
-                  </button>
-                  <button
-                    onClick={() => setTextSize("lg")}
-                    className={`px-2.5 py-1 rounded-md text-base font-medium transition-colors ${textSize === "lg" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
-
-                    A+
-                  </button>
-                </div>
+                <TextSizeControl scale={textScale} onChange={setTextScale} />
               </motion.div>
 
-              <motion.div variants={fadeUp} custom={1} className={`text-muted-foreground ${textSizeClasses[textSize]} space-y-4`}>
+              <motion.div variants={fadeUp} custom={1} className="text-muted-foreground space-y-4" style={{ fontSize: `${textScale}rem`, lineHeight: '1.8' }}>
                 {paragraphs.map((p, i) =>
                 <p key={i}>{renderBoldText(p.trim())}</p>
                 )}
