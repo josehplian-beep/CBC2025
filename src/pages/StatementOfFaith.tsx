@@ -2,18 +2,9 @@ import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, ChevronDown, Heart, Users, Cross, Flame, UserCheck, Gift, Church, Droplets, KeyRound, Home } from "lucide-react";
+import { ChevronDown, Heart, Users, Cross, Flame, Gift, Church, Droplets, KeyRound, Home, BookOpen } from "lucide-react";
 import TextSizeControl from "@/components/TextSizeControl";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number = 0) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.5, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] as const }
-  })
-};
-
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.07 } } };
 
 interface BeliefSection {
   number: number;
@@ -89,88 +80,35 @@ const StatementOfFaith = () => {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative mt-20 overflow-hidden bg-primary">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,_hsl(210_55%_35%/0.5)_0%,_transparent_60%),radial-gradient(ellipse_at_80%_20%,_hsl(210_60%_40%/0.3)_0%,_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAzIj48cGF0aCBkPSJNMzYgMzRoLTJWMGgydjM0em0tNCAwSDJ2MmgyOHYtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40" />
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
-          className="relative z-10 container mx-auto px-8 md:px-16 py-20 md:py-28 max-w-4xl text-center"
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
-            className="w-20 h-20 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 flex items-center justify-center mx-auto mb-6"
-          >
-            <BookOpen className="w-10 h-10 text-primary-foreground" />
-          </motion.div>
-          <h1 className="font-display text-4xl md:text-6xl font-bold text-primary-foreground mb-4 leading-[1.1]">
+      <section className="mt-20 bg-primary">
+        <div className="container mx-auto px-6 py-16 md:py-20 max-w-3xl text-center">
+          <h1 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground mb-3">
             Statement of Faith
           </h1>
-          <p className="text-primary-foreground/50 max-w-lg mx-auto text-lg">
+          <p className="text-primary-foreground/60 max-w-md mx-auto">
             The core beliefs that guide our church and define our mission
           </p>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-8 flex justify-center"
-          >
-            <div className="flex items-center gap-2 text-primary-foreground/30 text-sm">
-              <span>{beliefs.length} Articles of Faith</span>
-              <span>·</span>
-              <span>Click to explore</span>
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Quick Nav Pills */}
-      <section className="sticky top-20 z-30 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-2 py-3 overflow-x-auto no-scrollbar">
-            {beliefs.map((belief) => (
-              <button
-                key={belief.number}
-                onClick={() => {
-                  setExpandedIndex(belief.number - 1);
-                  document.getElementById(`belief-${belief.number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                  expandedIndex === belief.number - 1
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                {belief.number}. {belief.title}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
+
 
       {/* Content */}
       <section className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="max-w-3xl mx-auto space-y-4">
+          <div className="max-w-3xl mx-auto space-y-4">
             {/* Text Size Controller */}
-            <motion.div variants={fadeUp} custom={0} className="flex justify-end mb-6">
+            <div className="flex justify-end mb-6">
               <TextSizeControl scale={textScale} onChange={setTextScale} />
-            </motion.div>
+            </div>
 
             {beliefs.map((belief, i) => {
               const Icon = belief.icon;
               const isExpanded = expandedIndex === i;
 
               return (
-                <motion.article
+                <div
                   key={belief.number}
                   id={`belief-${belief.number}`}
-                  variants={fadeUp}
-                  custom={i + 1}
-                  className="scroll-mt-40"
                 >
                   <div
                     className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
@@ -259,10 +197,10 @@ const StatementOfFaith = () => {
                       )}
                     </AnimatePresence>
                   </div>
-                </motion.article>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
       </section>
 
