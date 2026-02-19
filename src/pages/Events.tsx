@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Download, Upload, Share2, Maximize2, Minimize2, Eye, Facebook, Twitter, Instagram, Link2 } from "lucide-react";
-import { format, isSameDay, parseISO, startOfWeek, endOfWeek } from "date-fns";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Download, Upload, Share2, Eye, Facebook, Twitter, Instagram, Link2 } from "lucide-react";
+import { format, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -20,7 +21,6 @@ const Events = () => {
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   const [timeFilter, setTimeFilter] = useState<string>("upcoming");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [events, setEvents] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -28,7 +28,6 @@ const Events = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [fullscreenCalendar, setFullscreenCalendar] = useState(false);
   const [viewEventDialog, setViewEventDialog] = useState(false);
   const [viewingEvent, setViewingEvent] = useState<any>(null);
 
@@ -57,14 +56,10 @@ const Events = () => {
     
     if (!error && data) {
       setEvents(data.map((e: any) => {
-        // Parse date in UTC to avoid timezone shifts on calendar
-        const utcDate = e.date_obj.split('T')[0]; // Get YYYY-MM-DD
+        const utcDate = e.date_obj.split('T')[0];
         const [year, month, day] = utcDate.split('-').map(Number);
-        const dateObj = new Date(year, month - 1, day); // Local date object with correct calendar date
-        return {
-          ...e,
-          dateObj
-        };
+        const dateObj = new Date(year, month - 1, day);
+        return { ...e, dateObj };
       }));
     }
     setLoading(false);
@@ -76,7 +71,6 @@ const Events = () => {
       'Date': e.date,
       'Event Type': e.type
     }));
-
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Events');
@@ -87,7 +81,6 @@ const Events = () => {
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
@@ -95,7 +88,6 @@ const Events = () => {
         const workbook = XLSX.read(data, { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
-
         const eventsToInsert = jsonData.map((row: any) => ({
           title: row['Event Name'],
           date: row['Date'],
@@ -105,11 +97,8 @@ const Events = () => {
           type: row['Event Type'],
           description: ''
         }));
-
         const { error } = await supabase.from('events' as any).insert(eventsToInsert);
-        
         if (error) throw error;
-        
         toast.success(`${eventsToInsert.length} events imported successfully`);
         fetchEvents();
       } catch (error: any) {
@@ -122,12 +111,10 @@ const Events = () => {
 
   const handleDelete = async () => {
     if (!eventToDelete) return;
-
     const { error } = await supabase
       .from('events' as any)
       .delete()
       .eq('id', eventToDelete.id);
-
     if (error) {
       toast.error('Failed to delete event');
     } else {
@@ -139,23 +126,15 @@ const Events = () => {
   };
 
   const shareEventToCalendar = (event: any) => {
-    // Generate ICS file for calendar apps
     const startDate = format(event.dateObj, "yyyyMMdd");
     const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Chin Bethel Church//Events//EN',
-      'BEGIN:VEVENT',
-      `UID:${event.id}@chinbethelchurch.com`,
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Chin Bethel Church//Events//EN',
+      'BEGIN:VEVENT', `UID:${event.id}@chinbethelchurch.com`,
       `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
-      `DTSTART:${startDate}`,
-      `SUMMARY:${event.title}`,
-      `DESCRIPTION:${event.description || ''}`,
-      `LOCATION:${event.location}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
+      `DTSTART:${startDate}`, `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description || ''}`, `LOCATION:${event.location}`,
+      'END:VEVENT', 'END:VCALENDAR'
     ].join('\r\n');
-
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -188,28 +167,37 @@ const Events = () => {
     toast.success('Event link copied to clipboard');
   };
 
+  const handleNativeShare = async (event: any) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: event.title,
+          text: `${event.title} — ${event.date} at ${event.time}, ${event.location}`,
+          url: window.location.origin + '/events',
+        });
+      } catch {}
+    } else {
+      copyEventLink();
+    }
+  };
+
+  // Filtering
   let filteredEvents = events;
-  
-  // Filter by time (upcoming vs all) - default to upcoming
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   if (timeFilter === "upcoming") {
     filteredEvents = filteredEvents.filter(event => event.dateObj >= today);
   }
-  
-  // Filter by date
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
     const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
-    filteredEvents = filteredEvents.filter(event => 
+    filteredEvents = filteredEvents.filter(event =>
       event.dateObj >= weekStart && event.dateObj <= weekEnd
     );
   } else if (selectedDate) {
     filteredEvents = filteredEvents.filter(event => isSameDay(event.dateObj, selectedDate));
   }
-  
-  // Filter by event type
   if (eventTypeFilter !== "all") {
     filteredEvents = filteredEvents.filter(event => event.type === eventTypeFilter);
   }
@@ -217,7 +205,7 @@ const Events = () => {
   const upcomingEvents = events
     .filter(event => event.dateObj >= new Date())
     .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
-    .slice(0, 5);
+    .slice(0, 4);
 
   const typeColors: Record<string, string> = {
     Worship: "bg-primary text-primary-foreground",
@@ -236,488 +224,264 @@ const Events = () => {
 
   const eventDates = events.map(e => e.dateObj);
 
+  const ShareMenu = ({ event }: { event: any }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-accent/50">
+          <Share2 className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={() => handleNativeShare(event)}>
+          <Share2 className="w-4 h-4 mr-2" /> Quick Share
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => shareEventToCalendar(event)}>
+          <CalendarIcon className="w-4 h-4 mr-2" /> Add to Calendar
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
+          <Facebook className="w-4 h-4 mr-2" /> Facebook
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
+          <Twitter className="w-4 h-4 mr-2" /> Twitter / X
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={shareEventToInstagram}>
+          <Instagram className="w-4 h-4 mr-2" /> Instagram
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={copyEventLink}>
+          <Link2 className="w-4 h-4 mr-2" /> Copy Link
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
-      {/* Hero Section */}
-      <section className="relative h-[200px] flex items-center justify-center overflow-hidden mt-20 bg-gradient-to-r from-primary to-primary/80">
-        <div className="relative z-10 text-center text-primary-foreground px-4">
-          <CalendarIcon className="w-12 h-12 mx-auto mb-3" />
-          <h1 className="font-display text-4xl md:text-5xl font-bold">Church Calendar</h1>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFullscreenCalendar(!fullscreenCalendar)}
-            className="mt-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            {fullscreenCalendar ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}
-            {fullscreenCalendar ? 'Exit' : 'Expand'} Calendar View
-          </Button>
+
+      {/* Hero */}
+      <section className="relative mt-20 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--accent)/0.15),transparent_60%)]" />
+        <div className="relative z-10 container mx-auto px-4 py-16 text-center text-primary-foreground">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <CalendarIcon className="w-10 h-10 mx-auto mb-3 opacity-80" />
+            <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Events</h1>
+            <p className="mt-2 text-primary-foreground/70 text-lg max-w-md mx-auto">
+              Stay connected with what's happening at Chin Bethel Church
+            </p>
+          </motion.div>
         </div>
       </section>
 
-      {/* Fullscreen Calendar View */}
-      {fullscreenCalendar && (
-        <section className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-auto">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Calendar View</h2>
-              <Button onClick={() => setFullscreenCalendar(false)}>
-                <Minimize2 className="w-4 h-4 mr-2" />
-                Close
-              </Button>
-            </div>
-            <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8">
-              {/* Large Calendar */}
-              <Card className="p-4 md:p-8 shadow-md border border-border/60 rounded-2xl">
-                <div className="flex items-center justify-center min-h-[500px]">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      setSelectedDate(date);
-                      setWeekFilter(undefined);
-                    }}
-                    className="rounded-xl w-full max-w-2xl"
-                    modifiers={{
-                      hasEvent: eventDates
-                    }}
-                    modifiersClassNames={{
-                      hasEvent: "relative font-medium after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
-                    }}
-                  />
-                </div>
-              </Card>
-
-              {/* Events Slider */}
-              <Card className="border-2 shadow-xl max-h-[600px] overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 sticky top-0 z-10">
-                  <CardTitle>
-                    {selectedDate ? format(selectedDate, 'MMMM dd, yyyy') : 'All Events'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="overflow-y-auto max-h-[520px] space-y-3 p-4">
-                  {filteredEvents.length === 0 ? (
-                    <div className="text-center py-12">
-                      <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-muted-foreground">No events found</p>
-                    </div>
-                  ) : (
-                    filteredEvents.map((event, index) => (
-                      <Card key={index} className="hover:shadow-lg transition-all duration-200 border-2">
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-start justify-between">
-                            <h3 className="font-semibold">{event.title}</h3>
-                            <div className="flex items-center gap-1">
-                              <Badge className={typeColors[event.type]}>{event.type}</Badge>
-                              {(event.is_recurring_parent || event.parent_event_id) && (
-                                <Badge variant="outline" className="text-xs">🔄</Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <div className="flex items-center gap-2">
-                              <CalendarIcon className="w-3 h-3" />
-                              {event.date}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-3 h-3" />
-                              {event.time}
-                            </div>
-                          </div>
-                          <div className="flex gap-2 pt-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => {
-                                setViewingEvent(event);
-                                setViewEventDialog(true);
-                              }}
-                            >
-                              <Eye className="w-3 h-3 mr-1" />
-                              View Event
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="sm" variant="ghost">
-                                  <Share2 className="w-3 h-3" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => shareEventToCalendar(event)}>
-                                  <CalendarIcon className="w-4 h-4 mr-2" />
-                                  Add to Calendar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
-                                  <Facebook className="w-4 h-4 mr-2" />
-                                  Share to Facebook
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
-                                  <Twitter className="w-4 h-4 mr-2" />
-                                  Share to Twitter
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={shareEventToInstagram}>
-                                  <Instagram className="w-4 h-4 mr-2" />
-                                  Share to Instagram
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={copyEventLink}>
-                                  <Link2 className="w-4 h-4 mr-2" />
-                                  Copy Link
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
+      {/* Next Up — horizontal scroll of upcoming events */}
+      {upcomingEvents.length > 0 && (
+        <section className="border-b border-border/50 bg-muted/30">
+          <div className="container mx-auto px-4 py-6">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Next Up</h2>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {upcomingEvents.map((event, i) => (
+                <motion.button
+                  key={event.id || i}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                  className="flex-shrink-0 w-60 text-left rounded-xl border border-border/60 bg-card p-4 hover:shadow-md hover:border-primary/30 transition-all duration-200"
+                >
+                  <Badge className={`${typeColors[event.type]} text-[10px] mb-2`}>{event.type}</Badge>
+                  <p className="font-semibold text-sm line-clamp-1">{event.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{format(event.dateObj, 'MMM dd, yyyy')}</p>
+                </motion.button>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Main Content with Sidebar */}
-      <section className={`py-8 bg-background ${fullscreenCalendar ? 'hidden' : ''}`}>
+      {/* Main Content */}
+      <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Sidebar */}
-            <aside 
-              className={`
-                lg:sticky lg:top-24 lg:h-fit
-                transition-all duration-300 ease-in-out
-                ${sidebarOpen ? 'lg:w-[340px]' : 'lg:w-0 lg:overflow-hidden'}
-              `}
-            >
-              <div className={`
-                transition-opacity duration-300 space-y-4
-                ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:opacity-0'}
-              `}>
-                {/* Calendar Card */}
-                <Card className="animate-fade-in shadow-md border border-border/60 rounded-2xl overflow-hidden">
-                  <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <CalendarIcon className="w-4 h-4" />
-                      Select Date
-                    </span>
-                    <button
-                      onClick={() => setSidebarOpen(!sidebarOpen)}
-                      className="lg:inline-flex hidden p-1.5 hover:bg-accent rounded-full transition-colors duration-200"
-                    >
-                      <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                  <CardContent className="p-2 md:p-3">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => {
-                        setSelectedDate(date);
-                        setWeekFilter(undefined);
-                      }}
-                      className="rounded-xl mx-auto w-full"
-                      modifiers={{
-                        hasEvent: eventDates
-                      }}
-                      modifiersClassNames={{
-                        hasEvent: "relative font-medium after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
-                      }}
-                    />
-                    <div className="mt-3 space-y-1.5 px-1">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full rounded-xl text-xs h-9 hover:bg-primary/10 border-border/60 transition-colors duration-200"
-                        onClick={() => {
-                          setWeekFilter(new Date());
-                          setSelectedDate(undefined);
-                        }}
-                      >
-                        <CalendarIcon className="w-3.5 h-3.5 mr-1.5" />
-                        This Week
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="w-full rounded-xl text-xs h-9 text-muted-foreground hover:text-foreground transition-colors duration-200"
-                        onClick={() => {
-                          setSelectedDate(undefined);
-                          setWeekFilter(undefined);
-                        }}
-                      >
-                        Clear All Filters
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Admin bar */}
+          {isAdmin && (
+            <Card className="mb-6 p-4 border border-border/60 bg-card">
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={() => { setSelectedEvent(null); setDialogOpen(true); }}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Event
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleExport}>
+                  <Download className="w-4 h-4 mr-1" /> Export
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => document.getElementById('excel-import')?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Import
+                </Button>
+                <input id="excel-import" type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
+              </div>
+            </Card>
+          )}
 
-                {/* Upcoming Events Card */}
-                <Card className="animate-fade-in shadow-md border border-border/60 rounded-2xl overflow-hidden" style={{ animationDelay: '0.1s' }}>
-                  <div className="px-4 pt-4 pb-2">
-                    <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      Upcoming
-                    </span>
+          <div className="grid lg:grid-cols-[300px_1fr] gap-8">
+            {/* Sidebar — Calendar + Filters */}
+            <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+              <Card className="rounded-2xl border border-border/60 overflow-hidden">
+                <CardContent className="p-3">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => { setSelectedDate(date); setWeekFilter(undefined); }}
+                    className="rounded-xl mx-auto w-full"
+                    modifiers={{ hasEvent: eventDates }}
+                    modifiersClassNames={{
+                      hasEvent: "relative font-medium after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
+                    }}
+                  />
+                  <div className="mt-3 space-y-1.5 px-1">
+                    <Button
+                      variant="outline" size="sm"
+                      className="w-full rounded-xl text-xs h-8"
+                      onClick={() => { setWeekFilter(new Date()); setSelectedDate(undefined); }}
+                    >
+                      This Week
+                    </Button>
+                    <Button
+                      variant="ghost" size="sm"
+                      className="w-full rounded-xl text-xs h-8 text-muted-foreground"
+                      onClick={() => { setSelectedDate(undefined); setWeekFilter(undefined); setEventTypeFilter("all"); setTimeFilter("upcoming"); }}
+                    >
+                      Clear Filters
+                    </Button>
                   </div>
-                  <CardContent className="px-3 pb-3 space-y-1.5">
-                    {upcomingEvents.map((event, index) => (
-                      <div
-                        key={index}
-                        onClick={() => setSelectedDate(event.dateObj)}
-                        className="p-2.5 rounded-xl border border-transparent hover:border-border hover:bg-accent/30 cursor-pointer transition-all duration-200"
-                      >
-                        <div className="flex items-center justify-between gap-2 mb-0.5">
-                          <p className="font-medium text-sm line-clamp-1">{event.title}</p>
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 shrink-0 rounded-md">
-                            {event.type}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground/70">
-                          {format(event.dateObj, 'MMM dd, yyyy')}
-                        </p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
+
+              {/* Filters */}
+              <div className="space-y-2">
+                <Select value={timeFilter} onValueChange={setTimeFilter}>
+                  <SelectTrigger className="rounded-xl h-9 text-xs">
+                    <SelectValue placeholder="Time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="all">All Events</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                  <SelectTrigger className="rounded-xl h-9 text-xs">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Worship">Worship</SelectItem>
+                    <SelectItem value="Youth">Youth</SelectItem>
+                    <SelectItem value="Children">Children</SelectItem>
+                    <SelectItem value="Study">Study</SelectItem>
+                    <SelectItem value="Deacon">Deacon</SelectItem>
+                    <SelectItem value="Mission">Mission</SelectItem>
+                    <SelectItem value="Building Committee">Building Committee</SelectItem>
+                    <SelectItem value="Media">Media</SelectItem>
+                    <SelectItem value="Culture">Culture</SelectItem>
+                    <SelectItem value="CBCUSA">CBCUSA</SelectItem>
+                    <SelectItem value="Special">Special</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </aside>
 
-            {/* Toggle Button for Collapsed Sidebar */}
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="hidden lg:flex fixed left-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-primary text-primary-foreground rounded-r-lg shadow-lg hover:scale-110 transition-transform"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            )}
-
-            {/* Events Content */}
-            <div className="flex-1">
-              {isAdmin && (
-                <Card className="mb-6 p-4 border-2 shadow-lg bg-gradient-to-r from-primary/5 to-accent/5">
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={() => { setSelectedEvent(null); setDialogOpen(true); }}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Event
-                    </Button>
-                    <Button variant="outline" onClick={handleExport}>
-                      <Download className="w-4 h-4 mr-2" />
-                      Export Excel
-                    </Button>
-                    <Button variant="outline" onClick={() => document.getElementById('excel-import')?.click()}>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Import Excel
-                    </Button>
-                    <input
-                      id="excel-import"
-                      type="file"
-                      accept=".xlsx,.xls"
-                      onChange={handleImport}
-                      className="hidden"
-                    />
-                  </div>
-                </Card>
-              )}
-
-              <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Event List */}
+            <div>
+              <div className="flex items-baseline justify-between mb-5">
                 <div>
-                  <h2 className="text-2xl font-display font-bold">
-                    {weekFilter 
-                      ? `Week of ${format(startOfWeek(weekFilter, { weekStartsOn: 0 }), 'MMM dd, yyyy')}`
-                      : selectedDate 
-                      ? format(selectedDate, 'MMMM dd, yyyy') 
+                  <h2 className="text-xl font-display font-bold">
+                    {weekFilter
+                      ? `Week of ${format(startOfWeek(weekFilter, { weekStartsOn: 0 }), 'MMM dd')}`
+                      : selectedDate
+                      ? format(selectedDate, 'MMMM dd, yyyy')
                       : 'All Events'}
                   </h2>
-                  <p className="text-muted-foreground">
-                    {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+                  <p className="text-sm text-muted-foreground">
+                    {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
                   </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                  <Select value={timeFilter} onValueChange={setTimeFilter}>
-                    <SelectTrigger className="w-full sm:w-[150px]">
-                      <SelectValue placeholder="Time filter" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="upcoming">Upcoming</SelectItem>
-                      <SelectItem value="all">All Events</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Filter by type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="Worship">Worship</SelectItem>
-                      <SelectItem value="Youth">Youth</SelectItem>
-                      <SelectItem value="Children">Children</SelectItem>
-                      <SelectItem value="Study">Study</SelectItem>
-                      <SelectItem value="Deacon">Deacon</SelectItem>
-                      <SelectItem value="Mission">Mission</SelectItem>
-                      <SelectItem value="Building Committee">Building Committee</SelectItem>
-                      <SelectItem value="Media">Media</SelectItem>
-                      <SelectItem value="Culture">Culture</SelectItem>
-                      <SelectItem value="CBCUSA">CBCUSA</SelectItem>
-                      <SelectItem value="Special">Special</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {(selectedDate || weekFilter || eventTypeFilter !== "all" || timeFilter !== "upcoming") && (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedDate(undefined);
-                        setWeekFilter(undefined);
-                        setEventTypeFilter("all");
-                        setTimeFilter("upcoming");
-                      }}
-                      className="transition-all hover:scale-105"
-                    >
-                      Reset
-                    </Button>
-                  )}
                 </div>
               </div>
 
               {filteredEvents.length === 0 ? (
-                <Card className="p-12 text-center animate-fade-in">
-                  <CalendarIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No Events Found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    There are no events scheduled for this date.
-                  </p>
-                  <Button onClick={() => setSelectedDate(undefined)}>
-                    View All Events
+                <div className="text-center py-20">
+                  <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
+                  <p className="text-muted-foreground mb-3">No events found</p>
+                  <Button variant="outline" size="sm" onClick={() => { setSelectedDate(undefined); setWeekFilter(undefined); setEventTypeFilter("all"); }}>
+                    View All
                   </Button>
-                </Card>
+                </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-3">
                   {filteredEvents.map((event, index) => (
-                    <Card 
-                      key={index} 
-                      className="hover:shadow-xl transition-all duration-300 animate-fade-in border-2 hover:border-primary/50 overflow-hidden"
-                      style={{ animationDelay: `${index * 0.05}s` }}
+                    <motion.div
+                      key={event.id || index}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-40px" }}
+                      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.2) }}
                     >
-                      <div className="flex flex-col sm:flex-row">
-                        {/* Event Image */}
-                        <div className="sm:w-64 h-48 sm:h-auto flex-shrink-0 bg-muted relative overflow-hidden">
-                          {event.image_url ? (
-                            <img 
-                              src={event.image_url} 
-                              alt={event.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-                              <CalendarIcon className="w-16 h-16 text-muted-foreground/40" />
-                            </div>
-                          )}
-                        </div>
+                      <Card className="group border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden">
+                        <div className="flex flex-col sm:flex-row">
+                          {/* Date chip */}
+                          <div className="sm:w-24 flex-shrink-0 flex sm:flex-col items-center justify-center gap-1 p-4 bg-muted/40 text-center">
+                            <span className="text-2xl font-bold text-primary">{format(event.dateObj, 'd')}</span>
+                            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                              {format(event.dateObj, 'MMM')}
+                            </span>
+                          </div>
 
-                        {/* Event Details */}
-                        <div className="flex-1 p-6">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex flex-wrap items-center gap-2 mb-2">
-                                <Badge className={`${typeColors[event.type]}`}>{event.type}</Badge>
-                                {(event.is_recurring_parent || event.parent_event_id) && (
-                                  <Badge variant="outline" className="text-xs">
-                                    🔄 Recurring
-                                  </Badge>
+                          {/* Content */}
+                          <div className="flex-1 p-4 sm:p-5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                  <Badge className={`${typeColors[event.type]} text-[10px]`}>{event.type}</Badge>
+                                  {(event.is_recurring_parent || event.parent_event_id) && (
+                                    <Badge variant="outline" className="text-[10px]">🔄 Recurring</Badge>
+                                  )}
+                                </div>
+                                <h3 className="font-display font-bold text-base sm:text-lg text-foreground line-clamp-1">
+                                  {event.title}
+                                </h3>
+                                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" /> {event.time}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" /> {event.location}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex items-center gap-1 shrink-0">
+                                <ShareMenu event={event} />
+                                <Button
+                                  variant="ghost" size="icon"
+                                  className="h-8 w-8 rounded-full hover:bg-accent/50"
+                                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                {isAdmin && (
+                                  <>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+                                      onClick={() => { setSelectedEvent(event); setDialogOpen(true); }}>
+                                      <Edit className="w-3.5 h-3.5" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-destructive"
+                                      onClick={() => { setEventToDelete(event); setDeleteDialogOpen(true); }}>
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </>
                                 )}
                               </div>
-                              <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">
-                                {event.title}
-                              </h3>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                            <CalendarIcon className="w-4 h-4 text-primary" />
-                            <span className="font-medium">{event.date}</span>
-                            {event.recurring_pattern && event.recurring_pattern !== 'none' && (
-                              <span className="text-xs">
-                                • Repeats {event.recurring_pattern}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex flex-wrap gap-4 items-center">
-                            <Button 
-                              variant="outline"
-                              size="default"
-                              onClick={() => {
-                                setViewingEvent(event);
-                                setViewEventDialog(true);
-                              }}
-                            >
-                              VIEW EVENT
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <Share2 className="w-4 h-4 mr-2" />
-                                  Share
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="start">
-                                <DropdownMenuItem onClick={() => shareEventToCalendar(event)}>
-                                  <CalendarIcon className="w-4 h-4 mr-2" />
-                                  Add to Calendar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
-                                  <Facebook className="w-4 h-4 mr-2" />
-                                  Share to Facebook
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
-                                  <Twitter className="w-4 h-4 mr-2" />
-                                  Share to Twitter
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={shareEventToInstagram}>
-                                  <Instagram className="w-4 h-4 mr-2" />
-                                  Share to Instagram
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={copyEventLink}>
-                                  <Link2 className="w-4 h-4 mr-2" />
-                                  Copy Link
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            {isAdmin && (
-                              <>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedEvent(event);
-                                    setDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    setEventToDelete(event);
-                                    setDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Delete
-                                </Button>
-                              </>
-                            )}
-                          </div>
                         </div>
-                      </div>
-                    </Card>
+                      </Card>
+                    </motion.div>
                   ))}
                 </div>
               )}
@@ -726,115 +490,50 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-20 bg-secondary">
-        <div className="container mx-auto px-4 text-center">
-          <Users className="w-16 h-16 mx-auto mb-6 text-primary" />
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Want to Stay Updated?
-          </h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter to receive weekly updates about upcoming events and church news.
-          </p>
-          <Button size="lg" className="transition-all hover:scale-105">
-            Subscribe to Newsletter
-          </Button>
-        </div>
-      </section>
-
       {/* View Event Dialog */}
       <AlertDialog open={viewEventDialog} onOpenChange={setViewEventDialog}>
-        <AlertDialogContent className="max-w-2xl">
+        <AlertDialogContent className="max-w-lg rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl">{viewingEvent?.title}</AlertDialogTitle>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge className={typeColors[viewingEvent?.type]}>{viewingEvent?.type}</Badge>
+            </div>
+            <AlertDialogTitle className="text-xl font-display">{viewingEvent?.title}</AlertDialogTitle>
             <AlertDialogDescription asChild>
-              <div className="space-y-4 pt-4">
-                <div className="flex items-center gap-2 text-base">
-                  <Badge className={typeColors[viewingEvent?.type]}>{viewingEvent?.type}</Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <CalendarIcon className="w-5 h-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Date</p>
-                      <p className="text-muted-foreground">{viewingEvent?.date}</p>
-                    </div>
+              <div className="space-y-3 pt-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CalendarIcon className="w-4 h-4 text-primary" />
+                    <span>{viewingEvent?.date}</span>
                   </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Time</p>
-                      <p className="text-muted-foreground">{viewingEvent?.time}</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span>{viewingEvent?.time}</span>
                   </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Location</p>
-                      <p className="text-muted-foreground">{viewingEvent?.location}</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm col-span-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span>{viewingEvent?.location}</span>
                   </div>
                 </div>
-
                 {viewingEvent?.description && (
-                  <div className="pt-4 border-t">
-                    <p className="font-semibold mb-2">Description</p>
-                    <p className="text-muted-foreground">{viewingEvent.description}</p>
-                  </div>
+                  <p className="text-sm text-muted-foreground border-t border-border/50 pt-3">{viewingEvent.description}</p>
                 )}
-
                 {viewingEvent?.image_url && (
-                  <div className="pt-4">
-                    <img 
-                      src={viewingEvent.image_url} 
-                      alt={viewingEvent.title}
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
-                  </div>
+                  <img src={viewingEvent.image_url} alt={viewingEvent.title} className="w-full h-48 object-cover rounded-lg" />
                 )}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share Event
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem onClick={() => shareEventToCalendar(viewingEvent)}>
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  Add to Calendar
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => shareEventToFacebook(viewingEvent)}>
-                  <Facebook className="w-4 h-4 mr-2" />
-                  Share to Facebook
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => shareEventToTwitter(viewingEvent)}>
-                  <Twitter className="w-4 h-4 mr-2" />
-                  Share to Twitter
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={shareEventToInstagram}>
-                  <Instagram className="w-4 h-4 mr-2" />
-                  Share to Instagram
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={copyEventLink}>
-                  <Link2 className="w-4 h-4 mr-2" />
-                  Copy Link
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AlertDialogCancel>Close</AlertDialogCancel>
+          <AlertDialogFooter className="flex-row gap-2">
+            {viewingEvent && <ShareMenu event={viewingEvent} />}
+            <Button variant="outline" size="sm" onClick={() => viewingEvent && shareEventToCalendar(viewingEvent)}>
+              <CalendarIcon className="w-3.5 h-3.5 mr-1" /> Add to Calendar
+            </Button>
+            <AlertDialogCancel className="mt-0">Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <EventDialog 
+      <EventDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         event={selectedEvent}
