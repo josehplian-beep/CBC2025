@@ -112,9 +112,6 @@ const StatementOfFaith = () => {
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
-                        Article {belief.number}
-                      </span>
                       <h2 className="font-display text-lg md:text-xl font-bold text-foreground">
                         {belief.title}
                       </h2>
