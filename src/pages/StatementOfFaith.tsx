@@ -130,18 +130,22 @@ const beliefs: BeliefSection[] = [
 ];
 
 const StatementOfFaith = () => {
-  const [textSize, setTextSize] = useState<"sm" | "default" | "lg">("default");
+  const [textSize, setTextSize] = useState<"sm" | "default" | "lg" | "xl" | "2xl">("default");
 
   const textSizeClasses = {
     sm: "text-sm leading-relaxed",
     default: "text-base leading-relaxed",
-    lg: "text-lg leading-relaxed"
+    lg: "text-lg leading-relaxed",
+    xl: "text-xl leading-relaxed",
+    "2xl": "text-2xl leading-relaxed"
   };
 
   const verseSizeClasses = {
     sm: "text-xs",
     default: "text-sm",
-    lg: "text-base"
+    lg: "text-base",
+    xl: "text-lg",
+    "2xl": "text-xl"
   };
 
   return (
@@ -193,6 +197,18 @@ const StatementOfFaith = () => {
                   className={`px-2.5 py-1 rounded-md text-base font-medium transition-colors ${textSize === "lg" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
                 >
                   A+
+                </button>
+                <button
+                  onClick={() => setTextSize("xl")}
+                  className={`px-2.5 py-1 rounded-md text-lg font-medium transition-colors ${textSize === "xl" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                >
+                  A++
+                </button>
+                <button
+                  onClick={() => setTextSize("2xl")}
+                  className={`px-2.5 py-1 rounded-md text-xl font-medium transition-colors ${textSize === "2xl" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                >
+                  A+++
                 </button>
               </div>
             </motion.div>
