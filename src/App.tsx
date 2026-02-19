@@ -23,6 +23,7 @@ import AdminAlbums from "./pages/AdminAlbums";
 import RevVanDuhCeu from "./pages/RevVanDuhCeu";
 import RevJosephNihreBawihrin from "./pages/RevJosephNihreBawihrin";
 import TheBible from "./pages/TheBible";
+import StatementOfFaith from "./pages/StatementOfFaith";
 import Salvation from "./pages/Salvation";
 import Messages from "./pages/Messages";
 import TestimonyPost from "./pages/TestimonyPost";
@@ -102,6 +103,7 @@ const App = () => (
           <Route path="/beliefs/the-bible" element={<TheBible />} />
           <Route path="/beliefs/salvation" element={<Salvation />} />
           <Route path="/beliefs/mission" element={<Mission />} />
+          <Route path="/statement-of-faith" element={<StatementOfFaith />} />
           <Route path="/departments" element={<Departments />} />
           <Route path="/department-member/:id" element={<MemberProfileDepartment />} />
           <Route path="/testimony" element={<Messages />} />
