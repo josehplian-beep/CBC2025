@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Quote, Calendar, User, Share2, Facebook, Instagram, Link2, Edit, Trash2, Heart, X, Plus, BookMarked, ArrowRight } from "lucide-react";
+import TextSizeControl from "@/components/TextSizeControl";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -285,33 +286,7 @@ const TestimonyPost = () => {
 
             <div className="flex items-center gap-2 flex-wrap">
               {/* Text Size Controls */}
-              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTextSize(prev => Math.max(prev - 0.1, 0.8))}
-                  className="h-8 w-8"
-                  title="Decrease text size"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <text x="12" y="18" fontSize="14" textAnchor="middle" fill="currentColor">A</text>
-                  </svg>
-                </Button>
-                <span className="text-xs font-medium min-w-[3rem] text-center">
-                  {Math.round(textSize * 100)}%
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTextSize(prev => Math.min(prev + 0.1, 1.5))}
-                  className="h-8 w-8"
-                  title="Increase text size"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <text x="12" y="18" fontSize="18" textAnchor="middle" fill="currentColor" fontWeight="bold">A</text>
-                  </svg>
-                </Button>
-              </div>
+              <TextSizeControl scale={textSize} onChange={setTextSize} />
 
               <Button
                 variant={liked ? "default" : "outline"}
