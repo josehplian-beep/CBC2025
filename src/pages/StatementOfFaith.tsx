@@ -1,10 +1,9 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Heart, Users, Cross, Flame, Gift, Church, Droplets, KeyRound, Home, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
+import { Heart, Users, Cross, Flame, Gift, Church, Droplets, KeyRound, Home, BookOpen } from "lucide-react";
 import TextSizeControl from "@/components/TextSizeControl";
-
 
 interface BeliefSection {
   number: number;
@@ -69,11 +68,6 @@ const beliefs: BeliefSection[] = [
 
 const StatementOfFaith = () => {
   const [textScale, setTextScale] = useState(1);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
-  const toggleExpand = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,113 +85,69 @@ const StatementOfFaith = () => {
         </div>
       </section>
 
-
       {/* Content */}
       <section className="py-12 md:py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="max-w-3xl mx-auto space-y-8">
             {/* Text Size Controller */}
             <div className="flex justify-end mb-6">
               <TextSizeControl scale={textScale} onChange={setTextScale} />
             </div>
 
-            {beliefs.map((belief, i) => {
+            {beliefs.map((belief) => {
               const Icon = belief.icon;
-              const isExpanded = expandedIndex === i;
 
               return (
-                <div
+                <motion.div
                   key={belief.number}
-                  id={`belief-${belief.number}`}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="rounded-2xl border border-border/50 bg-card p-6 md:p-8"
                 >
-                  <div
-                    className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
-                      isExpanded
-                        ? 'bg-card border-primary/20 shadow-lg shadow-primary/5'
-                        : 'bg-card/50 border-border/50 hover:border-border hover:bg-card hover:shadow-md'
-                    }`}
-                  >
-                    {/* Header - always visible */}
-                    <button
-                      onClick={() => toggleExpand(i)}
-                      className="w-full flex items-center gap-4 p-5 md:p-6 text-left group"
-                    >
-                      <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                        isExpanded
-                          ? 'bg-primary text-primary-foreground shadow-md'
-                          : 'bg-primary/8 text-primary group-hover:bg-primary/15'
-                      }`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-semibold uppercase tracking-wider transition-colors ${
-                            isExpanded ? 'text-primary' : 'text-muted-foreground/60'
-                          }`}>
-                            Article {belief.number}
-                          </span>
-                        </div>
-                        <h2 className="font-display text-lg md:text-xl font-bold text-foreground mt-0.5 truncate">
-                          {belief.title}
-                        </h2>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: isExpanded ? 180 : 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="flex-shrink-0"
-                      >
-                        <ChevronDown className={`w-5 h-5 transition-colors ${isExpanded ? 'text-primary' : 'text-muted-foreground/40'}`} />
-                      </motion.div>
-                    </button>
-
-                    {/* Expandable Content */}
-                    <AnimatePresence initial={false}>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-5 md:px-6 pb-6 pt-0">
-                            <div className="border-t border-border/50 pt-5 space-y-4">
-                              {belief.content.map((paragraph, j) => (
-                                <motion.p
-                                  key={j}
-                                  initial={{ opacity: 0, y: 8 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ delay: j * 0.08 + 0.1, duration: 0.4 }}
-                                  className="text-muted-foreground leading-relaxed"
-                                  style={{ fontSize: `${textScale}rem`, lineHeight: '1.85' }}
-                                >
-                                  {paragraph}
-                                </motion.p>
-                              ))}
-
-                              <div className="space-y-3 pt-2">
-                                {belief.verses.map((verse, k) => (
-                                  <motion.blockquote
-                                    key={k}
-                                    initial={{ opacity: 0, x: -12 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: k * 0.1 + 0.25, duration: 0.4 }}
-                                    className="border-l-3 border-primary/40 pl-5 py-2 bg-primary/[0.03] rounded-r-lg"
-                                    style={{ fontSize: `${textScale * 0.875}rem`, lineHeight: '1.75' }}
-                                  >
-                                    <p className="text-muted-foreground/70 italic">
-                                      {verse}
-                                    </p>
-                                  </motion.blockquote>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
+                        Article {belief.number}
+                      </span>
+                      <h2 className="font-display text-lg md:text-xl font-bold text-foreground">
+                        {belief.title}
+                      </h2>
+                    </div>
                   </div>
-                </div>
+
+                  {/* Body */}
+                  <div className="space-y-4">
+                    {belief.content.map((paragraph, j) => (
+                      <p
+                        key={j}
+                        className="text-muted-foreground leading-relaxed"
+                        style={{ fontSize: `${textScale}rem`, lineHeight: '1.85' }}
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+
+                    <div className="space-y-3 pt-2">
+                      {belief.verses.map((verse, k) => (
+                        <blockquote
+                          key={k}
+                          className="border-l-3 border-primary/40 pl-5 py-2 bg-primary/[0.03] rounded-r-lg"
+                          style={{ fontSize: `${textScale * 0.875}rem`, lineHeight: '1.75' }}
+                        >
+                          <p className="text-muted-foreground/70 italic">
+                            {verse}
+                          </p>
+                        </blockquote>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
               );
             })}
           </div>
