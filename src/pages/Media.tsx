@@ -41,9 +41,9 @@ function LiveCountdown() {
       if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       setTimeLeft({
         days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
+        hours: Math.floor(diff % 86400000 / 3600000),
+        minutes: Math.floor(diff % 3600000 / 60000),
+        seconds: Math.floor(diff % 60000 / 1000)
       });
     };
 
@@ -53,27 +53,27 @@ function LiveCountdown() {
   }, []);
 
   const units = [
-    { label: "Days", value: timeLeft.days },
-    { label: "Hrs", value: timeLeft.hours },
-    { label: "Min", value: timeLeft.minutes },
-    { label: "Sec", value: timeLeft.seconds },
-  ];
+  { label: "Days", value: timeLeft.days },
+  { label: "Hrs", value: timeLeft.hours },
+  { label: "Min", value: timeLeft.minutes },
+  { label: "Sec", value: timeLeft.seconds }];
+
 
   return (
     <div className="rounded-2xl bg-gradient-to-br from-live/15 to-live/5 border border-live/20 p-6 text-center">
       <h3 className="font-semibold text-sm uppercase tracking-wider text-live mb-4">Next Sunday Service</h3>
       <div className="flex justify-center gap-3">
-        {units.map(({ label, value }) => (
-          <div key={label} className="flex flex-col items-center">
+        {units.map(({ label, value }) =>
+        <div key={label} className="flex flex-col items-center">
             <div className="bg-background/80 border border-live/20 rounded-xl w-14 h-14 flex items-center justify-center">
               <span className="text-xl font-bold tabular-nums">{String(value).padStart(2, "0")}</span>
             </div>
             <span className="text-[11px] text-muted-foreground mt-1">{label}</span>
           </div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 const Media = () => {
@@ -102,57 +102,57 @@ const Media = () => {
     try {
       let attempts = 0;
       let videos: YouTubeVideo[] = [];
-      
+
       while (attempts < 3 && videos.length === 0) {
         videos = await searchYouTubeVideos({
           channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
           maxResults: 500,
-          order: "date",
+          order: "date"
         });
         if (videos.length === 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
         attempts++;
       }
       setYoutubeVideos(videos);
     } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const fetchAlbums = async () => {
+
+
+
+
+      // silent
+    } finally {setLoading(false);}};const fetchAlbums = async () => {
     try {
-      const { data: albumsData, error } = await supabase
-        .from('albums')
-        .select('id, title, description, cover_image_url')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false });
+      const { data: albumsData, error } = await supabase.
+      from('albums').
+      select('id, title, description, cover_image_url').
+      eq('is_published', true).
+      order('created_at', { ascending: false });
 
       if (error) throw error;
 
       const albumsWithCounts = await Promise.all(
         (albumsData || []).map(async (album) => {
-          const { count } = await supabase
-            .from('photos')
-            .select('*', { count: 'exact', head: true })
-            .eq('album_id', album.id);
+          const { count } = await supabase.
+          from('photos').
+          select('*', { count: 'exact', head: true }).
+          eq('album_id', album.id);
           return { ...album, photo_count: count || 0 };
         })
       );
       setAlbums(albumsWithCounts);
     } catch {
-      // silent
-    } finally {
-      setAlbumsLoading(false);
-    }
-  };
 
-  const processedVideos = youtubeVideos.map((video) => {
+
+
+
+
+      // silent
+    } finally {setAlbumsLoading(false);}};const processedVideos = youtubeVideos.map((video) => {
     const date = new Date(video.publishedAt);
     const title = video.title.toLowerCase();
-    
+
     let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
     if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {
       category = "Sermon";
@@ -170,7 +170,7 @@ const Media = () => {
       category,
       year: date.getFullYear().toString(),
       thumbnail: video.thumbnail,
-      videoId: video.id,
+      videoId: video.id
     };
   });
 
@@ -214,27 +214,27 @@ const Media = () => {
         <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="h-14 p-1 bg-transparent gap-2 justify-start">
-              <TabsTrigger 
-                value="videos" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all"
-              >
+              <TabsTrigger
+                value="videos"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all">
+
                 <Video className="w-4 h-4 mr-2" />
                 Videos
               </TabsTrigger>
-              <TabsTrigger 
-                value="livestream" 
-                className="data-[state=active]:bg-live data-[state=active]:text-live-foreground px-6 rounded-full transition-all group"
-              >
+              <TabsTrigger
+                value="livestream"
+                className="data-[state=active]:bg-live data-[state=active]:text-live-foreground px-6 rounded-full transition-all group">
+
                 <span className="relative flex items-center">
                   <span className="absolute -left-1 w-2 h-2 bg-live rounded-full animate-pulse group-data-[state=active]:bg-live-foreground" />
                   <Radio className="w-4 h-4 ml-3 mr-2" />
                   Live
                 </span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="albums" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all"
-              >
+              <TabsTrigger
+                value="albums"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all">
+
                 <Images className="w-4 h-4 mr-2" />
                 Albums
               </TabsTrigger>
@@ -246,8 +246,8 @@ const Media = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-full hover:bg-muted transition-colors"
-                  aria-label="Facebook"
-                >
+                  aria-label="Facebook">
+
                   <Facebook className="w-5 h-5 text-muted-foreground hover:text-primary" />
                 </a>
                 <a
@@ -255,8 +255,8 @@ const Media = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-full hover:bg-muted transition-colors"
-                  aria-label="Instagram"
-                >
+                  aria-label="Instagram">
+
                   <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary" />
                 </a>
                 <a
@@ -264,8 +264,8 @@ const Media = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-full hover:bg-muted transition-colors"
-                  aria-label="YouTube"
-                >
+                  aria-label="YouTube">
+
                   <Youtube className="w-5 h-5 text-muted-foreground hover:text-live" />
                 </a>
               </div>
@@ -281,11 +281,11 @@ const Media = () => {
                     placeholder="Search videos..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 rounded-full bg-muted/50 border-0 focus-visible:ring-primary"
-                  />
+                    className="pl-10 rounded-full bg-muted/50 border-0 focus-visible:ring-primary" />
+
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v); setVisibleCount(VIDEOS_PER_PAGE); }}>
+                  <Select value={categoryFilter} onValueChange={(v) => {setCategoryFilter(v);setVisibleCount(VIDEOS_PER_PAGE);}}>
                     <SelectTrigger className="w-40 rounded-full">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
@@ -298,7 +298,7 @@ const Media = () => {
                       <SelectItem value="Worship & Music">Worship</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={yearFilter} onValueChange={(v) => { setYearFilter(v); setVisibleCount(VIDEOS_PER_PAGE); }}>
+                  <Select value={yearFilter} onValueChange={(v) => {setYearFilter(v);setVisibleCount(VIDEOS_PER_PAGE);}}>
                     <SelectTrigger className="w-32 rounded-full">
                       <SelectValue placeholder="Year" />
                     </SelectTrigger>
@@ -311,62 +311,62 @@ const Media = () => {
                       <SelectItem value="2022">2022</SelectItem>
                     </SelectContent>
                   </Select>
-                  {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full">
+                  {hasActiveFilters &&
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full">
                       <X className="w-4 h-4 mr-1" /> Clear
                     </Button>
-                  )}
+                  }
                 </div>
               </div>
 
               {/* Results Count */}
-              {!loading && (
-                <p className="text-sm text-muted-foreground mb-6">
+              {!loading &&
+              <p className="text-sm text-muted-foreground mb-6">
                   {filteredVideos.length} video{filteredVideos.length !== 1 && "s"} found
                 </p>
-              )}
+              }
 
               {/* Video Grid */}
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
+              {loading ?
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) =>
+                <div key={i} className="animate-pulse">
                       <div className="aspect-video bg-muted rounded-xl mb-3" />
                       <div className="h-4 bg-muted rounded w-3/4 mb-2" />
                       <div className="h-3 bg-muted rounded w-1/2" />
                     </div>
-                  ))}
-                </div>
-              ) : filteredVideos.length > 0 ? (
-                <>
+                )}
+                </div> :
+              filteredVideos.length > 0 ?
+              <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {displayedVideos.map((video, i) => (
-                      <VideoCard key={i} {...video} />
-                    ))}
+                    {displayedVideos.map((video, i) =>
+                  <VideoCard key={i} {...video} />
+                  )}
                   </div>
-                  {visibleCount < filteredVideos.length && (
-                    <div className="flex justify-center mt-8">
+                  {visibleCount < filteredVideos.length &&
+                <div className="flex justify-center mt-8">
                       <Button
-                        variant="outline"
-                        size="lg"
-                        className="rounded-full px-8"
-                        onClick={() => setVisibleCount((prev) => prev + VIDEOS_PER_PAGE)}
-                      >
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full px-8"
+                    onClick={() => setVisibleCount((prev) => prev + VIDEOS_PER_PAGE)}>
+
                         View More
                         <ChevronRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-16">
+                }
+                </> :
+
+              <div className="text-center py-16">
                   <Video className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                   <p className="text-muted-foreground">No videos match your search</p>
                   <Button variant="link" onClick={clearFilters} className="mt-2">
                     Clear filters
                   </Button>
                 </div>
-              )}
+              }
             </TabsContent>
 
             {/* Livestream Tab - Red Theme */}
@@ -386,8 +386,8 @@ const Media = () => {
                         src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ&autoplay=0"
                         title="CBC Live Stream"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                        allowFullScreen />
+
                     </div>
                   </div>
                   
@@ -424,7 +424,7 @@ const Media = () => {
                       </div>
                       <div className="flex justify-between items-center py-3 border-b border-live/10">
                         <div>
-                          <p className="font-medium">Bible Study</p>
+                          <p className="font-medium">Wednesday Service</p>
                           <p className="text-sm text-muted-foreground">Wednesday</p>
                         </div>
                         <span className="text-live font-semibold">7:00 PM</span>
@@ -446,19 +446,19 @@ const Media = () => {
                       Join Us
                     </h3>
                     <div className="space-y-3">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full justify-between group hover:border-live hover:text-live"
-                        onClick={() => window.open('https://www.youtube.com/@ChinBethelChurchDC', '_blank')}
-                      >
+                        onClick={() => window.open('https://www.youtube.com/@ChinBethelChurchDC', '_blank')}>
+
                         Subscribe on YouTube
                         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full justify-between group hover:border-primary hover:text-primary"
-                        onClick={() => setActiveTab('videos')}
-                      >
+                        onClick={() => setActiveTab('videos')}>
+
                         Watch Past Services
                         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -475,30 +475,30 @@ const Media = () => {
 
             {/* Albums Tab */}
             <TabsContent value="albums" className="py-8">
-              {albumsLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
+              {albumsLoading ?
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) =>
+                <div key={i} className="animate-pulse">
                       <div className="aspect-square bg-muted rounded-xl mb-3" />
                       <div className="h-4 bg-muted rounded w-3/4 mb-2" />
                       <div className="h-3 bg-muted rounded w-1/2" />
                     </div>
-                  ))}
-                </div>
-              ) : albums.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {albums.map((album) => (
-                    <div 
-                      key={album.id} 
-                      className="group cursor-pointer"
-                      onClick={() => navigate(`/media/album/${album.id}`)}
-                    >
+                )}
+                </div> :
+              albums.length > 0 ?
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {albums.map((album) =>
+                <div
+                  key={album.id}
+                  className="group cursor-pointer"
+                  onClick={() => navigate(`/media/album/${album.id}`)}>
+
                       <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-muted">
-                        <img 
-                          src={album.cover_image_url || communityImage} 
-                          alt={album.title} 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                        />
+                        <img
+                      src={album.cover_image_url || communityImage}
+                      alt={album.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button size="sm" className="w-full rounded-full">
@@ -513,14 +513,14 @@ const Media = () => {
                         {album.photo_count} photo{album.photo_count !== 1 && "s"}
                       </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
+                )}
+                </div> :
+
+              <div className="text-center py-16">
                   <Images className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                   <p className="text-muted-foreground">No albums available yet</p>
                 </div>
-              )}
+              }
             </TabsContent>
           </Tabs>
         </div>
@@ -529,8 +529,8 @@ const Media = () => {
       <Footer />
 
       <Footer />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Media;
