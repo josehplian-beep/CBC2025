@@ -208,8 +208,26 @@ function useCountdown() {
   return timeLeft;
 }
 
+function useIsSundayLive() {
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const now = new Date();
+      // Sunday = 0, service window 12:30 PM – 3:30 PM (generous buffer)
+      setIsLive(now.getDay() === 0 && now.getHours() >= 12 && now.getHours() < 16);
+    };
+    check();
+    const id = setInterval(check, 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  return isLive;
+}
+
 function ServiceTimesSection() {
   const { days, hours, minutes, seconds } = useCountdown();
+  const isLive = useIsSundayLive();
 
   const units = [
     { label: "Days", value: days },
@@ -230,31 +248,60 @@ function ServiceTimesSection() {
         variants={staggerContainer}
         className="container mx-auto px-4 text-center relative z-10"
       >
-        <motion.div variants={fadeUp} custom={0} className="flex items-center justify-center gap-3 mb-4">
-          <div className="bg-primary-foreground/10 p-3 rounded-full">
-            <Clock className="w-7 h-7" />
-          </div>
-          <h2 className="font-display text-3xl font-bold">Sunday Service</h2>
-        </motion.div>
-        <motion.p variants={fadeUp} custom={1} className="text-5xl font-bold mb-3 tracking-tight">
-          1:00 PM — 3:00 PM
-        </motion.p>
-        <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/70 text-lg max-w-md mx-auto mb-8">
-          Join us every Sunday for worship, fellowship, and spiritual growth
-        </motion.p>
-
-        <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-3 sm:gap-5">
-          {units.map(({ label, value }) => (
-            <div key={label} className="flex flex-col items-center">
-              <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                  {String(value).padStart(2, "0")}
-                </span>
+        {isLive ? (
+          <>
+            <motion.div variants={fadeUp} custom={0} className="flex items-center justify-center gap-3 mb-6">
+              <div className="flex items-center gap-2 bg-destructive text-destructive-foreground px-4 py-1.5 rounded-full text-sm font-semibold">
+                <span className="w-2 h-2 bg-destructive-foreground rounded-full animate-pulse" />
+                LIVE NOW
               </div>
-              <span className="text-xs sm:text-sm text-primary-foreground/60 mt-1.5">{label}</span>
-            </div>
-          ))}
-        </motion.div>
+            </motion.div>
+            <motion.h2 variants={fadeUp} custom={1} className="font-display text-3xl font-bold mb-6">
+              Sunday Worship Service
+            </motion.h2>
+            <motion.div variants={fadeUp} custom={2} className="max-w-3xl mx-auto">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/10">
+                <div className="aspect-video">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ&autoplay=1&mute=1"
+                    title="CBC Live Stream"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          <>
+            <motion.div variants={fadeUp} custom={0} className="flex items-center justify-center gap-3 mb-4">
+              <div className="bg-primary-foreground/10 p-3 rounded-full">
+                <Clock className="w-7 h-7" />
+              </div>
+              <h2 className="font-display text-3xl font-bold">Sunday Service</h2>
+            </motion.div>
+            <motion.p variants={fadeUp} custom={1} className="text-5xl font-bold mb-3 tracking-tight">
+              1:00 PM — 3:00 PM
+            </motion.p>
+            <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/70 text-lg max-w-md mx-auto mb-8">
+              Join us every Sunday for worship, fellowship, and spiritual growth
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-3 sm:gap-5">
+              {units.map(({ label, value }) => (
+                <div key={label} className="flex flex-col items-center">
+                  <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                    <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                      {String(value).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm text-primary-foreground/60 mt-1.5">{label}</span>
+                </div>
+              ))}
+            </motion.div>
+          </>
+        )}
       </motion.div>
     </section>
   );
