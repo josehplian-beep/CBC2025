@@ -22,7 +22,7 @@ const beliefs: BeliefSection[] = [
   {
     number: 2, title: "The One True God", icon: Heart,
     content: ["We believe there is one and only one living and true God, eternally existing in three Persons: Father, Son, and Holy Spirit. These three are equal in power and glory and are worthy of all worship, honor, and obedience."],
-    verses: ['"Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit." (Matthew 28:19)', '"Hear, O Israel: The Lord our God, the Lord is one!" (Deuteronomy 6:4)']
+    verses: ['"Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit." (Matthew 28:19)']
   },
   {
     number: 3, title: "Jesus Christ", icon: Cross,
