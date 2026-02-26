@@ -73,7 +73,7 @@ const StaffBiography = () => {
         <Navigation />
         <div className="container mx-auto px-4 py-32 text-center">
           <h1 className="text-2xl font-bold mb-4">Staff Member Not Found</h1>
-          <Button onClick={() => navigate('/about')}>Back to About</Button>
+          <Button onClick={() => navigate('/staff')}>Back to Staff</Button>
         </div>
         <Footer />
       </div>
@@ -89,7 +89,7 @@ const StaffBiography = () => {
         <div className="container mx-auto px-4">
           <Button 
             variant="ghost" 
-            onClick={() => navigate("/about")}
+            onClick={() => navigate("/staff")}
             className="mb-6"
           >
             ← Back to Staff
