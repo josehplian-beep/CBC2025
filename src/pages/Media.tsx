@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
@@ -78,7 +78,8 @@ function LiveCountdown() {
 
 const Media = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("videos");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "videos");
   const VIDEOS_PER_PAGE = 8;
   const [visibleCount, setVisibleCount] = useState(VIDEOS_PER_PAGE);
   const [categoryFilter, setCategoryFilter] = useState("all");

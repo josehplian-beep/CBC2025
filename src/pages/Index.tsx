@@ -272,6 +272,14 @@ function ServiceTimesSection() {
                 </div>
               </div>
             </motion.div>
+            <motion.div variants={fadeUp} custom={3} className="mt-6">
+              <Link to="/media?tab=livestream">
+                <Button size="lg" variant="secondary" className="group">
+                  Watch Live
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </motion.div>
           </>
         ) : (
           <>
