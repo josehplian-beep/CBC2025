@@ -121,72 +121,72 @@ const Media = () => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // silent
-    } finally {setLoading(false);}};const fetchAlbums = async () => {
-    try {
-      const { data: albumsData, error } = await supabase.
-      from('albums').
-      select('id, title, description, cover_image_url').
-      eq('is_published', true).
-      order('created_at', { ascending: false });
+    } finally {setLoading(false);}};const fetchAlbums = async () => {try {const { data: albumsData, error } = await supabase.from('albums').select('id, title, description, cover_image_url').eq('is_published', true).order('created_at', { ascending: false });if (error) throw error;const albumsWithCounts = await Promise.all((albumsData || []).map(async (album) => {const { count } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('album_id', album.id);return { ...album, photo_count: count || 0 };}));setAlbums(albumsWithCounts);} catch {
 
-      if (error) throw error;
 
-      const albumsWithCounts = await Promise.all(
-        (albumsData || []).map(async (album) => {
-          const { count } = await supabase.
-          from('photos').
-          select('*', { count: 'exact', head: true }).
-          eq('album_id', album.id);
-          return { ...album, photo_count: count || 0 };
-        })
-      );
-      setAlbums(albumsWithCounts);
-    } catch {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
       // silent
-    } finally {setAlbumsLoading(false);}};const processedVideos = youtubeVideos.map((video) => {
-    const date = new Date(video.publishedAt);
-    const title = video.title.toLowerCase();
-
-    let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";
-    if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {
-      category = "Sermon";
-    } else if (title.includes("live") || title.includes("livestream") || title.includes("service") || title.includes("sunday")) {
-      category = "Livestream";
-    } else if (title.includes("solo") || title.includes("special") || title.includes("song")) {
-      category = "Solo";
-    } else if (title.includes("choir") || title.includes("group")) {
-      category = "Choir";
-    }
-
-    return {
-      title: video.title,
-      date: date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-      category,
-      year: date.getFullYear().toString(),
-      thumbnail: video.thumbnail,
-      videoId: video.id
-    };
-  });
-
-  const filteredVideos = processedVideos.filter((video) => {
-    const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;
-    const matchesYear = yearFilter === "all" || video.year === yearFilter;
-    const matchesSearch = !searchQuery || video.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesYear && matchesSearch;
-  });
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setCategoryFilter("all");
-    setYearFilter("all");
-    setVisibleCount(VIDEOS_PER_PAGE);
-  };
+    } finally {setAlbumsLoading(false);}};const processedVideos = youtubeVideos.map((video) => {const date = new Date(video.publishedAt);const title = video.title.toLowerCase();let category: "Sermon" | "Solo" | "Choir" | "Worship & Music" | "Livestream" = "Worship & Music";if (title.includes("sermon") || title.includes("message") || title.includes("preaching")) {category = "Sermon";} else if (title.includes("live") || title.includes("livestream") || title.includes("service") || title.includes("sunday")) {category = "Livestream";} else if (title.includes("solo") || title.includes("special") || title.includes("song")) {category = "Solo";} else if (title.includes("choir") || title.includes("group")) {category = "Choir";}return { title: video.title, date: date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), category, year: date.getFullYear().toString(), thumbnail: video.thumbnail, videoId: video.id };});const filteredVideos = processedVideos.filter((video) => {const matchesCategory = categoryFilter === "all" || video.category === categoryFilter;const matchesYear = yearFilter === "all" || video.year === yearFilter;const matchesSearch = !searchQuery || video.title.toLowerCase().includes(searchQuery.toLowerCase());return matchesCategory && matchesYear && matchesSearch;});const clearFilters = () => {setSearchQuery("");setCategoryFilter("all");setYearFilter("all");setVisibleCount(VIDEOS_PER_PAGE);};
 
   const hasActiveFilters = searchQuery || categoryFilter !== "all" || yearFilter !== "all";
 
@@ -424,17 +424,17 @@ const Media = () => {
                       </div>
                       <div className="flex justify-between items-center py-3 border-b border-live/10">
                         <div>
-                          <p className="font-medium">Wednesday Service</p>
-                          <p className="text-sm text-muted-foreground">Wednesday</p>
+                          <p className="font-medium">Saturday Service</p>
+                          <p className="text-sm text-muted-foreground">Every Saturday</p>
                         </div>
                         <span className="text-live font-semibold">7:00 PM</span>
                       </div>
                       <div className="flex justify-between items-center py-3">
                         <div>
-                          <p className="font-medium">Prayer Meeting</p>
-                          <p className="text-sm text-muted-foreground">Friday</p>
+                          <p className="font-medium">Wednesday Service </p>
+                          <p className="text-sm text-muted-foreground">Every Wednesday  </p>
                         </div>
-                        <span className="text-live font-semibold">7:30 PM</span>
+                        <span className="text-live font-semibold">7:00 PM</span>
                       </div>
                     </div>
                   </div>
