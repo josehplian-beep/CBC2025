@@ -43,7 +43,7 @@ const AdminDepartments = () => {
   const [yearRangeDialogOpen, setYearRangeDialogOpen] = useState(false);
   const [newYearRange, setNewYearRange] = useState("");
   const [yearRanges, setYearRanges] = useState<string[]>([]);
-  const [churchMembers, setChurchMembers] = useState<{ id: string; name: string }[]>([]);
+  const [churchMembers, setChurchMembers] = useState<{ id: string; name: string; suffix: string | null }[]>([]);
   const [nameInput, setNameInput] = useState("");
   const [showNameSuggestions, setShowNameSuggestions] = useState(false);
 
@@ -144,7 +144,7 @@ const AdminDepartments = () => {
     try {
       const { data, error } = await supabase
         .from("members")
-        .select("id, name")
+        .select("id, name, suffix")
         .order("name");
       if (error) throw error;
       setChurchMembers(data || []);
@@ -485,7 +485,7 @@ const AdminDepartments = () => {
                                 setShowNameSuggestions(false);
                               }}
                             >
-                              {m.name}
+                              {m.suffix ? `${m.suffix} ` : ''}{m.name}
                             </button>
                           ))}
                         </div>
@@ -718,10 +718,10 @@ const AdminDepartments = () => {
                       <div className="space-y-1">
                         <h3 
                           className="font-semibold text-sm truncate cursor-pointer hover:text-primary transition-colors" 
-                          title={member.name}
+                          title={(() => { const cm = churchMembers.find(cm => cm.name === member.name); return cm?.suffix ? `${cm.suffix} ${member.name}` : member.name; })()}
                           onClick={() => navigate(`/department-member/${member.id}`)}
                         >
-                          {member.name}
+                          {(() => { const cm = churchMembers.find(cm => cm.name === member.name); return cm?.suffix ? `${cm.suffix} ` : ''; })()}{member.name}
                         </h3>
                         <p className="text-xs text-muted-foreground truncate" title={member.role}>
                           {member.role}
