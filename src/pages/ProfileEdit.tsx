@@ -494,12 +494,8 @@ const ProfileEdit = () => {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="none">None</SelectItem>
-                              <SelectItem value="Jr.">Jr.</SelectItem>
-                              <SelectItem value="Sr.">Sr.</SelectItem>
-                              <SelectItem value="II">II</SelectItem>
-                              <SelectItem value="III">III</SelectItem>
-                              <SelectItem value="IV">IV</SelectItem>
-                              <SelectItem value="V">V</SelectItem>
+                              <SelectItem value="Pu">Pu</SelectItem>
+                              <SelectItem value="Pi">Pi</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
