@@ -216,8 +216,7 @@ const Media = () => {
             <TabsList className="h-14 p-1 bg-transparent gap-2 justify-start">
               <TabsTrigger
                 value="videos"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all">
-
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=active]:scale-105 bg-muted/60 hover:bg-muted px-7 py-2.5 rounded-full transition-all duration-300 font-semibold text-base">
                 <Video className="w-4 h-4 mr-2" />
                 Videos
               </TabsTrigger>
@@ -235,8 +234,7 @@ const Media = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="albums"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 rounded-full transition-all">
-
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=active]:scale-105 bg-muted/60 hover:bg-muted px-7 py-2.5 rounded-full transition-all duration-300 font-semibold text-base">
                 <Images className="w-4 h-4 mr-2" />
                 Albums
               </TabsTrigger>
@@ -247,28 +245,25 @@ const Media = () => {
                   href={SOCIAL.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  className="p-2.5 rounded-full bg-muted/50 hover:bg-primary/10 hover:scale-110 transition-all duration-300"
                   aria-label="Facebook">
-
-                  <Facebook className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                  <Facebook className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
                 </a>
                 <a
                   href={SOCIAL.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  className="p-2.5 rounded-full bg-muted/50 hover:bg-pink-500/10 hover:scale-110 transition-all duration-300"
                   aria-label="Instagram">
-
-                  <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                  <Instagram className="w-5 h-5 text-muted-foreground hover:text-pink-500 transition-colors" />
                 </a>
                 <a
                   href={SOCIAL.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  className="p-2.5 rounded-full bg-muted/50 hover:bg-live/10 hover:scale-110 transition-all duration-300"
                   aria-label="YouTube">
-
-                  <Youtube className="w-5 h-5 text-muted-foreground hover:text-live" />
+                  <Youtube className="w-5 h-5 text-muted-foreground hover:text-live transition-colors" />
                 </a>
               </div>
             </TabsList>
