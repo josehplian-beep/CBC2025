@@ -323,7 +323,7 @@ const ProfileEdit = () => {
 
       const memberData = {
         name: fullName,
-        suffix: values.suffix || null,
+        suffix: values.suffix && values.suffix !== "none" ? values.suffix : null,
         address: fullAddress,
         phone: fullPhone,
         email: values.email,
@@ -493,7 +493,7 @@ const ProfileEdit = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">None</SelectItem>
+                              <SelectItem value="none">None</SelectItem>
                               <SelectItem value="Jr.">Jr.</SelectItem>
                               <SelectItem value="Sr.">Sr.</SelectItem>
                               <SelectItem value="II">II</SelectItem>

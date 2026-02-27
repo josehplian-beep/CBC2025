@@ -367,7 +367,7 @@ const Members = () => {
     const birthDate = values.birth_year && values.birth_month && values.birth_day ? `${values.birth_year}-${values.birth_month.padStart(2, '0')}-${values.birth_day.padStart(2, '0')}` : null;
     return {
       name: fullName,
-      suffix: values.suffix || null,
+      suffix: values.suffix && values.suffix !== "none" ? values.suffix : null,
       address: fullAddress || null,
       phone: fullPhone,
       email: values.email || null,
@@ -1454,7 +1454,7 @@ const Members = () => {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value="">None</SelectItem>
+                                      <SelectItem value="none">None</SelectItem>
                                       <SelectItem value="Jr.">Jr.</SelectItem>
                                       <SelectItem value="Sr.">Sr.</SelectItem>
                                       <SelectItem value="II">II</SelectItem>
@@ -1833,7 +1833,7 @@ const Members = () => {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value="">None</SelectItem>
+                                      <SelectItem value="none">None</SelectItem>
                                       <SelectItem value="Jr.">Jr.</SelectItem>
                                       <SelectItem value="Sr.">Sr.</SelectItem>
                                       <SelectItem value="II">II</SelectItem>
