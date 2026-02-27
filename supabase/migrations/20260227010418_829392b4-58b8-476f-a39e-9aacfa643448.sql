@@ -1,0 +1,1 @@
+UPDATE members SET name = 'Van Cung Thawng' WHERE id = 'e8a767cf-b87e-45b6-82ee-a26c1c5e977b';
