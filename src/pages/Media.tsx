@@ -223,11 +223,13 @@ const Media = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="livestream"
-                className="data-[state=active]:bg-live data-[state=active]:text-live-foreground px-6 rounded-full transition-all group">
-
-                <span className="relative flex items-center">
-                  <span className="absolute -left-1 w-2 h-2 bg-live rounded-full animate-pulse group-data-[state=active]:bg-live-foreground" />
-                  <Radio className="w-4 h-4 ml-3 mr-2" />
+                className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-live data-[state=active]:to-red-700 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-live/30 data-[state=active]:scale-105 bg-live/10 text-live hover:bg-live/20 px-7 py-2.5 rounded-full transition-all duration-300 group font-semibold text-base">
+                <span className="relative flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75 group-data-[state=active]:bg-white" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-live group-data-[state=active]:bg-white" />
+                  </span>
+                  <Radio className="w-4 h-4" />
                   Live
                 </span>
               </TabsTrigger>
