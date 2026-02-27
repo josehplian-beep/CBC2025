@@ -16,13 +16,11 @@ const Departments = () => {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState<string[]>([]);
-  const [memberSuffixes, setMemberSuffixes] = useState<Record<string, string | null>>({});
 
   const yearRanges = ["2026-2027", "2024-2025", "2022-2023", "2020-2021", "2018-2019"];
 
   useEffect(() => {
     fetchDepartments();
-    fetchMemberSuffixes();
   }, []);
 
   useEffect(() => {
@@ -54,18 +52,6 @@ const Departments = () => {
     } catch (error) {
       // Silently handle fetch error
     }
-  };
-
-  const fetchMemberSuffixes = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("members")
-        .select("name, suffix");
-      if (error) throw error;
-      const map: Record<string, string | null> = {};
-      data?.forEach(m => { if (m.suffix) map[m.name] = m.suffix; });
-      setMemberSuffixes(map);
-    } catch { /* silent */ }
   };
 
   const formatDepartmentName = (dept: string) => {
@@ -168,7 +154,7 @@ const Departments = () => {
                       className="cursor-pointer"
                     >
                       <StaffCard 
-                        name={`${memberSuffixes[member.name] ? memberSuffixes[member.name] + ' ' : ''}${member.name}`}
+                        name={member.name}
                         role={member.role}
                         image={member.profile_image_url}
                       />
