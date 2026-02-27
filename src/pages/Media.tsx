@@ -213,7 +213,7 @@ const Media = () => {
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="h-14 p-1 bg-transparent gap-2 justify-start">
+            <TabsList className="h-14 p-1 bg-transparent gap-2 justify-center">
               <TabsTrigger
                 value="videos"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=active]:scale-105 bg-muted/60 hover:bg-muted px-7 py-2.5 rounded-full transition-all duration-300 font-semibold text-base">
