@@ -30,6 +30,7 @@ const US_STATES = [
 const profileFormSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
   last_name: z.string().max(100).optional().or(z.literal("")),
+  suffix: z.string().max(20).optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   baptized: z.string().optional(),
   email: z.string().email("Invalid email address").max(255).optional().or(z.literal("")),
@@ -58,6 +59,7 @@ const profileFormSchema = z.object({
 interface Member {
   id: string;
   name: string;
+  suffix: string | null;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -88,6 +90,7 @@ const ProfileEdit = () => {
     defaultValues: {
       first_name: "",
       last_name: "",
+      suffix: "",
       gender: "",
       baptized: "",
       email: "",
@@ -197,6 +200,7 @@ const ProfileEdit = () => {
       form.reset({
         first_name: firstName,
         last_name: lastName,
+        suffix: memberData.suffix || "",
         gender: memberData.gender || "",
         baptized: memberData.baptized === true ? "yes" : memberData.baptized === false ? "no" : "",
         email: memberData.email || "",
@@ -319,6 +323,7 @@ const ProfileEdit = () => {
 
       const memberData = {
         name: fullName,
+        suffix: values.suffix || null,
         address: fullAddress,
         phone: fullPhone,
         email: values.email,
@@ -448,7 +453,7 @@ const ProfileEdit = () => {
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold border-b pb-2">Personal Information</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-[1fr_1fr_100px] gap-4">
                     <FormField
                       control={form.control}
                       name="first_name"
@@ -467,10 +472,36 @@ const ProfileEdit = () => {
                       name="last_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name *</FormLabel>
+                          <FormLabel>Last Name</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="suffix"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Suffix</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="None" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="">None</SelectItem>
+                              <SelectItem value="Jr.">Jr.</SelectItem>
+                              <SelectItem value="Sr.">Sr.</SelectItem>
+                              <SelectItem value="II">II</SelectItem>
+                              <SelectItem value="III">III</SelectItem>
+                              <SelectItem value="IV">IV</SelectItem>
+                              <SelectItem value="V">V</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
