@@ -240,7 +240,7 @@ const Media = () => {
               </TabsTrigger>
               
               {/* Social Media Icons */}
-              <div className="ml-auto flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <a
                   href={SOCIAL.facebook}
                   target="_blank"
