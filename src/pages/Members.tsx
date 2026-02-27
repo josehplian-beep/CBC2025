@@ -1457,6 +1457,9 @@ const Members = () => {
                                       <SelectItem value="none">None</SelectItem>
                                       <SelectItem value="Pu">Pu</SelectItem>
                                       <SelectItem value="Pi">Pi</SelectItem>
+                                      <SelectItem value="Upa">Upa</SelectItem>
+                                      <SelectItem value="Pastor">Pastor</SelectItem>
+                                      <SelectItem value="Rev.">Rev.</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -1832,6 +1835,9 @@ const Members = () => {
                                       <SelectItem value="none">None</SelectItem>
                                       <SelectItem value="Pu">Pu</SelectItem>
                                       <SelectItem value="Pi">Pi</SelectItem>
+                                      <SelectItem value="Upa">Upa</SelectItem>
+                                      <SelectItem value="Pastor">Pastor</SelectItem>
+                                      <SelectItem value="Rev.">Rev.</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
