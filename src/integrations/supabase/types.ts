@@ -829,6 +829,7 @@ export type Database = {
           position: string | null
           profile_image_url: string | null
           service_year: string | null
+          suffix: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -848,6 +849,7 @@ export type Database = {
           position?: string | null
           profile_image_url?: string | null
           service_year?: string | null
+          suffix?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -867,6 +869,7 @@ export type Database = {
           position?: string | null
           profile_image_url?: string | null
           service_year?: string | null
+          suffix?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
