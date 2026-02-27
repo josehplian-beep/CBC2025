@@ -453,7 +453,32 @@ const ProfileEdit = () => {
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold border-b pb-2">Personal Information</h3>
-                  <div className="grid grid-cols-[1fr_1fr_100px] gap-4">
+                  <div className="grid grid-cols-[100px_1fr_1fr] gap-4">
+                    <FormField
+                      control={form.control}
+                      name="suffix"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Suffix</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="None" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="Pu">Pu</SelectItem>
+                              <SelectItem value="Pi">Pi</SelectItem>
+                              <SelectItem value="Upa">Upa</SelectItem>
+                              <SelectItem value="Pastor">Pastor</SelectItem>
+                              <SelectItem value="Rev.">Rev.</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="first_name"
@@ -476,31 +501,6 @@ const ProfileEdit = () => {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="suffix"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Suffix</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="None" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              <SelectItem value="Pu">Pu</SelectItem>
-                              <SelectItem value="Pi">Pi</SelectItem>
-                              <SelectItem value="Upa">Upa</SelectItem>
-                              <SelectItem value="Pastor">Pastor</SelectItem>
-                              <SelectItem value="Rev.">Rev.</SelectItem>
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

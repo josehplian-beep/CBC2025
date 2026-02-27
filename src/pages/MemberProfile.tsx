@@ -657,7 +657,7 @@ const MemberProfile = () => {
               </div>
               <CardContent className="p-6 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <h1 className="text-2xl font-bold">{member.name}{member.suffix ? `, ${member.suffix}` : ''}</h1>
+                  <h1 className="text-2xl font-bold">{member.suffix ? `${member.suffix} ` : ''}{member.name}</h1>
                   {teacherInfo && (
                     <Badge className="bg-blue-600 hover:bg-blue-700">
                       <GraduationCap className="h-3 w-3 mr-1" />
