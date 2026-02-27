@@ -1,0 +1,1 @@
+UPDATE department_members SET name = 'Upa Cung Biak Thawng' WHERE id = '42b3671b-446c-4162-81af-d4444081142d';
