@@ -1,0 +1,1 @@
+UPDATE member_tags SET name = 'Deacon' WHERE name = 'Leader';
