@@ -1424,25 +1424,7 @@ const Members = () => {
                         {/* Name Section */}
                         <div>
                           <Label className="text-sm font-semibold">Name *</Label>
-                          <div className="grid grid-cols-[1fr_1fr_100px] gap-4 mt-2">
-                            <FormField control={form.control} name="first_name" render={({
-                          field
-                        }) => <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>} />
-                            <FormField control={form.control} name="last_name" render={({
-                          field
-                        }) => <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>} />
+                          <div className="grid grid-cols-[100px_1fr_1fr] gap-4 mt-2">
                             <FormField control={form.control} name="suffix" render={({
                           field
                         }) => <FormItem>
@@ -1462,6 +1444,24 @@ const Members = () => {
                                       <SelectItem value="Rev.">Rev.</SelectItem>
                                     </SelectContent>
                                   </Select>
+                                  <FormMessage />
+                                </FormItem>} />
+                            <FormField control={form.control} name="first_name" render={({
+                          field
+                        }) => <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>} />
+                            <FormField control={form.control} name="last_name" render={({
+                          field
+                        }) => <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>} />
                           </div>
@@ -1802,25 +1802,7 @@ const Members = () => {
                         {/* Name Section */}
                         <div>
                           <Label className="text-sm font-semibold">Name *</Label>
-                          <div className="grid grid-cols-[1fr_1fr_100px] gap-4 mt-2">
-                            <FormField control={form.control} name="first_name" render={({
-                          field
-                        }) => <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>} />
-                            <FormField control={form.control} name="last_name" render={({
-                          field
-                        }) => <FormItem>
-                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>} />
+                          <div className="grid grid-cols-[100px_1fr_1fr] gap-4 mt-2">
                             <FormField control={form.control} name="suffix" render={({
                           field
                         }) => <FormItem>
@@ -1840,6 +1822,24 @@ const Members = () => {
                                       <SelectItem value="Rev.">Rev.</SelectItem>
                                     </SelectContent>
                                   </Select>
+                                  <FormMessage />
+                                </FormItem>} />
+                            <FormField control={form.control} name="first_name" render={({
+                          field
+                        }) => <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">First Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>} />
+                            <FormField control={form.control} name="last_name" render={({
+                          field
+                        }) => <FormItem>
+                                  <FormLabel className="text-xs text-muted-foreground">Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>} />
                           </div>
