@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Download, Upload, Share2, Eye, Facebook, Twitter, Instagram, Link2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Download, Upload, Share2, Eye, Facebook, Twitter, Instagram, Link2, Sparkles, Star } from "lucide-react";
 import { format, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
@@ -224,6 +224,10 @@ const Events = () => {
 
   const eventDates = events.map(e => e.dateObj);
 
+  const isToday = (date: Date) => isSameDay(date, new Date());
+
+  const todaysEvents = events.filter(e => isToday(e.dateObj));
+
   const ShareMenu = ({ event }: { event: any }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -291,6 +295,68 @@ const Events = () => {
                   <p className="font-semibold text-sm line-clamp-1">{event.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">{format(event.dateObj, 'MMM dd, yyyy')}</p>
                 </motion.button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Happening Today — prominent section */}
+      {todaysEvents.length > 0 && (
+        <section className="border-b border-border/50 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center gap-2 mb-4">
+              <motion.div
+                animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-5 h-5 text-primary" />
+              </motion.div>
+              <h2 className="text-lg font-display font-bold text-primary">Happening Today</h2>
+              <Badge className="bg-primary text-primary-foreground animate-pulse text-[10px]">LIVE</Badge>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {todaysEvents.map((event, i) => (
+                <motion.div
+                  key={event.id || i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+                >
+                  <Card
+                    className="relative overflow-hidden cursor-pointer border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 hover:border-primary/60 hover:shadow-xl transition-all duration-300 rounded-2xl group"
+                    onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                  >
+                    {/* Decorative accent bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className={`${typeColors[event.type]} text-[10px]`}>{event.type}</Badge>
+                            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary font-semibold">
+                              <Star className="w-3 h-3 mr-0.5 fill-primary" /> Today
+                            </Badge>
+                          </div>
+                          <h3 className="font-display font-bold text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                            {event.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
+                              <Clock className="w-3 h-3 text-primary" /> {event.time}
+                            </span>
+                            <span className="flex items-center gap-1 bg-accent/10 px-2 py-0.5 rounded-full">
+                              <MapPin className="w-3 h-3 text-accent" /> {event.location}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 shrink-0">
+                          <ShareMenu event={event} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -421,11 +487,22 @@ const Events = () => {
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.2) }}
                     >
-                      <Card className="group border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden">
+                      <Card className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden ${
+                        isToday(event.dateObj) 
+                          ? 'border-2 border-primary/40 bg-gradient-to-r from-primary/5 via-card to-accent/5 shadow-md ring-1 ring-primary/10' 
+                          : 'border-border/50 hover:border-primary/30'
+                      }`}>
                         <div className="flex flex-col sm:flex-row">
                           {/* Date chip */}
-                          <div className="sm:w-24 flex-shrink-0 flex sm:flex-col items-center justify-center gap-1 p-4 bg-muted/40 text-center">
-                            <span className="text-2xl font-bold text-primary">{format(event.dateObj, 'd')}</span>
+                          <div className={`sm:w-24 flex-shrink-0 flex sm:flex-col items-center justify-center gap-1 p-4 text-center ${
+                            isToday(event.dateObj) 
+                              ? 'bg-gradient-to-b from-primary/20 to-primary/10' 
+                              : 'bg-muted/40'
+                          }`}>
+                            {isToday(event.dateObj) && (
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-primary mb-0.5 sm:mb-1">Today</span>
+                            )}
+                            <span className={`text-2xl font-bold ${isToday(event.dateObj) ? 'text-primary' : 'text-primary'}`}>{format(event.dateObj, 'd')}</span>
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                               {format(event.dateObj, 'MMM')}
                             </span>
