@@ -263,8 +263,8 @@ const Events = () => {
       <Navigation />
 
       {/* Hero */}
-      <section className="relative mt-20 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--accent)/0.15),transparent_60%)]" />
+      <section className="relative mt-20 overflow-hidden bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--accent)/0.1),transparent_60%)]" />
         <div className="relative z-10 container mx-auto px-4 py-16 text-center text-primary-foreground">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <CalendarIcon className="w-10 h-10 mx-auto mb-3 opacity-80" />
