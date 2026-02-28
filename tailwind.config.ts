@@ -30,7 +30,6 @@ export default {
   				'sans-serif'
   			],
   			serif: [
-  				'Lora',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -39,7 +38,6 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Roboto Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
