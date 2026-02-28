@@ -62,6 +62,11 @@ All colors MUST be HSL.
     --live-foreground: 0 0% 100%;
     --live-muted: 0 50% 35%;
 
+    /* Today highlight (coral pink) */
+    --today: 0 100% 80%;
+    --today-foreground: 0 60% 30%;
+    --today-muted: 0 80% 90%;
+
     --shadow-soft: 0 2px 8px rgba(33, 51, 74, 0.08);
     --shadow-medium: 0 4px 16px rgba(33, 51, 74, 0.12);
     --shadow-large: 0 8px 32px rgba(33, 51, 74, 0.16);
@@ -118,6 +123,11 @@ All colors MUST be HSL.
     --live: 0 60% 50%;
     --live-foreground: 0 0% 100%;
     --live-muted: 0 45% 40%;
+
+    /* Today highlight - dark */
+    --today: 0 100% 80%;
+    --today-foreground: 0 80% 90%;
+    --today-muted: 0 60% 25%;
     --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
     --font-serif: Lora, ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
     --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
