@@ -49,11 +49,16 @@ export default {
   			]
   		},
   		colors: {
-  			live: {
-  				DEFAULT: 'hsl(var(--live))',
-  				foreground: 'hsl(var(--live-foreground))',
-  				muted: 'hsl(var(--live-muted))'
-  			},
+			live: {
+				DEFAULT: 'hsl(var(--live))',
+				foreground: 'hsl(var(--live-foreground))',
+				muted: 'hsl(var(--live-muted))'
+			},
+			today: {
+				DEFAULT: 'hsl(var(--today))',
+				foreground: 'hsl(var(--today-foreground))',
+				muted: 'hsl(var(--today-muted))'
+			},
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',

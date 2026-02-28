@@ -303,17 +303,17 @@ const Events = () => {
 
       {/* Happening Today — prominent section */}
       {todaysEvents.length > 0 && (
-        <section className="border-b border-border/50 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
+        <section className="border-b-2 border-today/30 bg-gradient-to-r from-today/10 via-today-muted/30 to-today/10">
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center gap-2 mb-4">
               <motion.div
                 animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
               >
-                <Sparkles className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-today-foreground" />
               </motion.div>
-              <h2 className="text-lg font-display font-bold text-primary">Happening Today</h2>
-              <Badge className="bg-primary text-primary-foreground animate-pulse text-[10px]">LIVE</Badge>
+              <h2 className="text-lg font-display font-bold text-today-foreground">Happening Today</h2>
+              <Badge className="bg-today text-today-foreground animate-pulse text-[10px] font-bold">LIVE</Badge>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {todaysEvents.map((event, i) => (
@@ -324,29 +324,29 @@ const Events = () => {
                   transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
                 >
                   <Card
-                    className="relative overflow-hidden cursor-pointer border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 hover:border-primary/60 hover:shadow-xl transition-all duration-300 rounded-2xl group"
+                    className="relative overflow-hidden cursor-pointer border-2 border-today/50 bg-gradient-to-br from-today-muted/40 via-card to-today/10 hover:border-today/80 hover:shadow-xl transition-all duration-300 rounded-2xl group shadow-[0_4px_20px_-4px_hsl(var(--today)/0.3)]"
                     onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
                   >
                     {/* Decorative accent bar */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-today via-today-foreground to-today" />
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge className={`${typeColors[event.type]} text-[10px]`}>{event.type}</Badge>
-                            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary font-semibold">
-                              <Star className="w-3 h-3 mr-0.5 fill-primary" /> Today
+                            <Badge variant="outline" className="text-[10px] border-today/60 text-today-foreground bg-today/20 font-semibold">
+                              <Star className="w-3 h-3 mr-0.5 fill-today" /> Today
                             </Badge>
                           </div>
                           <h3 className="font-display font-bold text-base text-foreground group-hover:text-primary transition-colors line-clamp-2">
                             {event.title}
                           </h3>
                           <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
-                              <Clock className="w-3 h-3 text-primary" /> {event.time}
+                            <span className="flex items-center gap-1 bg-today/15 px-2 py-0.5 rounded-full">
+                              <Clock className="w-3 h-3 text-today-foreground" /> {event.time}
                             </span>
-                            <span className="flex items-center gap-1 bg-accent/10 px-2 py-0.5 rounded-full">
-                              <MapPin className="w-3 h-3 text-accent" /> {event.location}
+                            <span className="flex items-center gap-1 bg-today/10 px-2 py-0.5 rounded-full">
+                              <MapPin className="w-3 h-3 text-today-foreground" /> {event.location}
                             </span>
                           </div>
                         </div>
@@ -489,20 +489,20 @@ const Events = () => {
                     >
                       <Card className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden ${
                         isToday(event.dateObj) 
-                          ? 'border-2 border-primary/40 bg-gradient-to-r from-primary/5 via-card to-accent/5 shadow-md ring-1 ring-primary/10' 
+                          ? 'border-2 border-today/50 bg-gradient-to-r from-today-muted/30 via-card to-today/10 shadow-md ring-1 ring-today/20' 
                           : 'border-border/50 hover:border-primary/30'
                       }`}>
                         <div className="flex flex-col sm:flex-row">
                           {/* Date chip */}
                           <div className={`sm:w-24 flex-shrink-0 flex sm:flex-col items-center justify-center gap-1 p-4 text-center ${
                             isToday(event.dateObj) 
-                              ? 'bg-gradient-to-b from-primary/20 to-primary/10' 
+                              ? 'bg-gradient-to-b from-today/25 to-today/10' 
                               : 'bg-muted/40'
                           }`}>
                             {isToday(event.dateObj) && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-primary mb-0.5 sm:mb-1">Today</span>
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-today-foreground mb-0.5 sm:mb-1">Today</span>
                             )}
-                            <span className={`text-2xl font-bold ${isToday(event.dateObj) ? 'text-primary' : 'text-primary'}`}>{format(event.dateObj, 'd')}</span>
+                            <span className={`text-2xl font-bold ${isToday(event.dateObj) ? 'text-today-foreground' : 'text-primary'}`}>{format(event.dateObj, 'd')}</span>
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                               {format(event.dateObj, 'MMM')}
                             </span>
