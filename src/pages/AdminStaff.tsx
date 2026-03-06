@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Bold, Italic, AtSign, Search, Users, FileCheck, FileClock, Eye, EyeOff, Filter, X } from "lucide-react";
+import { Plus, Edit, Trash2, Bold, Italic, AtSign, Search, Users, FileCheck, FileClock, Eye, EyeOff, Filter, X, Crop } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { ImageCropDialog } from "@/components/ImageCropDialog";
 
 interface StaffBiography {
   id: string;
@@ -41,6 +42,8 @@ const AdminStaff = () => {
   const [staffToDelete, setStaffToDelete] = useState<StaffBiography | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -157,12 +160,25 @@ const AdminStaff = () => {
         toast.error('Image must be less than 5MB');
         return;
       }
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setCropImageSrc(reader.result as string);
+        setCropDialogOpen(true);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const file = new File([croppedBlob], 'cropped-staff.jpg', { type: 'image/jpeg' });
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(croppedBlob));
+  };
+
+  const handleOpenCropExisting = () => {
+    if (imagePreview) {
+      setCropImageSrc(imagePreview);
+      setCropDialogOpen(true);
     }
   };
 
@@ -832,6 +848,16 @@ const AdminStaff = () => {
               {imagePreview && (
                 <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 mb-2">
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="absolute bottom-2 right-2 gap-1"
+                    onClick={handleOpenCropExisting}
+                  >
+                    <Crop className="w-4 h-4" />
+                    Crop
+                  </Button>
                 </div>
               )}
               <Input
@@ -878,6 +904,13 @@ const AdminStaff = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ImageCropDialog
+        open={cropDialogOpen}
+        onOpenChange={setCropDialogOpen}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+      />
     </>
   );
 };
