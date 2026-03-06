@@ -904,6 +904,13 @@ const AdminStaff = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ImageCropDialog
+        open={cropDialogOpen}
+        onOpenChange={setCropDialogOpen}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+      />
     </>
   );
 };
