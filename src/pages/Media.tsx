@@ -193,7 +193,7 @@ const Media = () => {
   const displayedVideos = filteredVideos.slice(0, visibleCount);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
 
       {/* Compact Hero */}
@@ -210,8 +210,9 @@ const Media = () => {
       </section>
 
       {/* Tab Navigation - Modern Pills */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-4">
+      <div className="flex-1 flex flex-col">
+        <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b">
+          <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="h-14 p-1 bg-transparent gap-2 justify-center">
               <TabsTrigger
@@ -519,7 +520,8 @@ const Media = () => {
                 </div>
               }
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          </div>
         </div>
       </div>
 
