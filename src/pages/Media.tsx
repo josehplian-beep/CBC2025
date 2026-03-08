@@ -524,8 +524,6 @@ const Media = () => {
       </div>
 
       <Footer />
-
-      <Footer />
     </div>);
 
 };
