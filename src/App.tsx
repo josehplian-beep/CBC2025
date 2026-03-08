@@ -78,6 +78,7 @@ const App = () => (
       <PWAInstallPrompt />
       <BackToTop />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
