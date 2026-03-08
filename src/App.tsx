@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import BackToTop from "@/components/BackToTop";
+import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Staff from "./pages/Staff";
@@ -77,6 +78,7 @@ const App = () => (
       <PWAInstallPrompt />
       <BackToTop />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
