@@ -489,17 +489,17 @@ function AlbumsSection() {
 
 
         // silent
-      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-today text-secondary">
-      <div className="container mx-auto px-4 text-today-muted">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14 text-live-foreground">
+      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-today">
+      <div className="container mx-auto px-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14">
           
-          <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
+          <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-primary-foreground/70 uppercase tracking-widest">
             Memories
           </motion.span>
-          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4">
+          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4 text-primary-foreground">
             Photo Albums
           </motion.h2>
-          <motion.p variants={fadeUp} custom={2} className="text-muted-foreground text-lg max-w-lg mx-auto">
+          <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/60 text-lg max-w-lg mx-auto">
             Browse our collection of church memories
           </motion.p>
         </motion.div>
