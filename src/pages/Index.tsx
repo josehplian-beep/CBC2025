@@ -483,10 +483,15 @@ function AlbumsSection() {
 
 
 
+
+
+
+
+
         // silent
-      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-muted/20 dark:bg-muted/10">
-      <div className="container mx-auto px-4">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14">
+      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-today text-secondary">
+      <div className="container mx-auto px-4 text-today-muted">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14 text-live-foreground">
           
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
             Memories
@@ -501,27 +506,22 @@ function AlbumsSection() {
 
         {loading ? <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />)}
-          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> : <motion.div initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
-      variants={staggerContainer}
-      className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> : <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-3 gap-6">
           
-            {albums.map((album, i) =>
-        <motion.div key={album.id} variants={fadeUp} custom={i}>
+            {albums.map((album, i) => <motion.div key={album.id} variants={fadeUp} custom={i}>
                 <Link to={`/media/album/${album.id}`}>
                   <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
                     {album.cover_image_url ?
-              <img
-                src={album.cover_image_url}
-                alt={album.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> :
+                <img
+                  src={album.cover_image_url}
+                  alt={album.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> :
 
 
-              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <div className="w-full h-full bg-muted flex items-center justify-center">
                         <Camera className="w-10 h-10 text-muted-foreground/40" />
                       </div>
-              }
+                }
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <h3 className="text-primary-foreground font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
