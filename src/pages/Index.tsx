@@ -505,25 +505,26 @@ function AlbumsSection() {
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             variants={staggerContainer}
-            className="grid grid-cols-2 md:grid-cols-3 gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 gap-4"
           >
             {albums.map((album, i) => (
               <motion.div key={album.id} variants={fadeUp} custom={i}>
                 <Link to={`/media/album/${album.id}`}>
-                  <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
+                  <div className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer bg-muted">
                     {album.cover_image_url ? (
                       <img
                         src={album.cover_image_url}
                         alt={album.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
                         <Camera className="w-10 h-10 text-muted-foreground/40" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/25 transition-colors duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-primary/70 to-transparent">
                       <h3 className="text-primary-foreground font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
                       <p className="text-primary-foreground/70 text-xs mt-1">{album.photo_count} photos</p>
                     </div>
