@@ -317,7 +317,7 @@ function ServiceTimesSection() {
 
 function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-today-muted">
       <div className="container mx-auto px-4">
         <motion.div
           initial="hidden"
@@ -371,7 +371,7 @@ function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
 
 function EventsSection({ events }: {events: ChurchEvent[];}) {
   return (
-    <section className="py-24 relative overflow-hidden bg-[#bfbfbf]">
+    <section className="py-24 relative overflow-hidden bg-live-foreground">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4">
@@ -481,6 +481,8 @@ function AlbumsSection() {
 
 
 
+
+
         // silent
       } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-muted/20 dark:bg-muted/10">
       <div className="container mx-auto px-4">
@@ -499,13 +501,11 @@ function AlbumsSection() {
 
         {loading ? <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />)}
-          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> :
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-40px" }}
-        variants={staggerContainer}
-        className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> : <motion.div initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-40px" }}
+      variants={staggerContainer}
+      className="grid grid-cols-2 md:grid-cols-3 gap-6">
           
             {albums.map((album, i) =>
         <motion.div key={album.id} variants={fadeUp} custom={i}>
