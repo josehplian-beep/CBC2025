@@ -320,6 +320,17 @@ const AlbumGallery = () => {
                 </span>
               </div>
               <div className="flex items-center gap-1">
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-foreground hover:bg-muted gap-1.5 text-xs"
+                    onClick={handleSetCover}
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Set as Cover
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
                   <Share2 className="w-5 h-5" />
                 </Button>
