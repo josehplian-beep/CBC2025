@@ -156,12 +156,13 @@ const AlbumGallery = () => {
     toast({ title: "Link Copied", description: "Album link copied to clipboard." });
   };
 
-  // Bento grid pattern — varies item sizes for visual interest
-  const getBentoClass = (index: number): string => {
-    const pattern = index % 8;
-    if (pattern === 0) return "col-span-1 row-span-1 md:col-span-2 md:row-span-2";
-    if (pattern === 3) return "col-span-1 row-span-1 md:col-span-1 md:row-span-2";
-    if (pattern === 5) return "col-span-1 row-span-1 md:col-span-2 md:row-span-1";
+  // Collage pattern: 5 columns, some items span 2 cols or 2 rows for variety
+  const getCollageClass = (index: number): string => {
+    const pattern = index % 10;
+    // First item in each group is large (2x2), middle item is wide (2x1)
+    if (pattern === 0) return "col-span-1 row-span-1 md:col-span-1 md:row-span-2";
+    if (pattern === 2) return "col-span-1 row-span-1 md:col-span-1 md:row-span-2";
+    if (pattern === 7) return "col-span-1 row-span-1 md:col-span-1 md:row-span-2";
     return "col-span-1 row-span-1";
   };
 
@@ -169,10 +170,10 @@ const AlbumGallery = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-20 mt-20">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="animate-pulse aspect-square bg-muted rounded-xl" />
+        <div className="px-2 sm:px-4 py-20 mt-20">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+            {[...Array(15)].map((_, i) => (
+              <div key={i} className="animate-pulse aspect-[4/3] bg-muted" />
             ))}
           </div>
         </div>
@@ -195,33 +196,33 @@ const AlbumGallery = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
       <Navigation />
 
-      <div className="flex-1 container mx-auto px-4 py-8 mt-20">
-        <Button variant="ghost" onClick={() => navigate('/media')} className="mb-6 -ml-2">
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Back to Media
-        </Button>
-
-        {/* Album Header */}
+      <div className="flex-1 py-8 mt-20">
+        {/* Album Header - centered like reference */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="text-center mb-8 px-4"
         >
+          <Button variant="ghost" onClick={() => navigate('/media')} className="mb-4">
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Media
+          </Button>
+
           {editingTitle && isAdmin ? (
-            <div className="flex gap-2 items-center max-w-2xl">
+            <div className="flex gap-2 items-center justify-center max-w-2xl mx-auto">
               <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') updateTitle(); if (e.key === 'Escape') { setEditingTitle(false); setNewTitle(album.title); } }}
-                className="text-3xl font-bold h-auto py-2" autoFocus />
+                className="text-3xl font-bold h-auto py-2 text-center" autoFocus />
               <Button onClick={updateTitle} size="sm">Save</Button>
               <Button onClick={() => { setEditingTitle(false); setNewTitle(album.title); }} size="sm" variant="ghost">Cancel</Button>
             </div>
           ) : (
             <h1
-              className="font-display text-4xl md:text-5xl font-bold mb-2"
+              className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-2"
               onClick={() => isAdmin && setEditingTitle(true)}
               style={{ cursor: isAdmin ? 'pointer' : 'default' }}
             >
@@ -229,11 +230,18 @@ const AlbumGallery = () => {
               {isAdmin && <span className="text-sm text-muted-foreground ml-2">(click to edit)</span>}
             </h1>
           )}
-          {album.description && <p className="text-muted-foreground text-lg">{album.description}</p>}
-          <p className="text-sm text-muted-foreground mt-2">{photos.length} photos</p>
+          {album.description && <p className="text-muted-foreground text-base">{album.description}</p>}
+          <p className="text-sm text-muted-foreground mt-1">{photos.length} photos</p>
+
+          {/* Share icons */}
+          <div className="flex justify-center gap-3 mt-4">
+            <button onClick={handleShare} className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors">
+              <Share2 className="w-4 h-4 text-primary" />
+            </button>
+          </div>
         </motion.div>
 
-        {/* Bento Grid */}
+        {/* Photo Collage Grid - edge to edge with tiny gaps like reference */}
         {photos.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No photos in this album yet</p>
@@ -242,29 +250,34 @@ const AlbumGallery = () => {
           <motion.div
             initial="hidden"
             animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[minmax(160px,1fr)] gap-3"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.03 } } }}
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 auto-rows-[minmax(140px,200px)] sm:auto-rows-[minmax(160px,240px)] md:auto-rows-[minmax(180px,260px)] gap-[3px] sm:gap-1 px-0 sm:px-1"
           >
             {photos.map((photo, index) => (
               <motion.div
                 key={photo.id}
-                variants={{ hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1 } }}
-                className={`${getBentoClass(index)} relative rounded-xl overflow-hidden cursor-pointer group`}
+                variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }}
+                className={`${getCollageClass(index)} relative overflow-hidden cursor-pointer group`}
                 onClick={() => handlePhotoClick(index)}
               >
-                {/* Uniform square crop via aspect-square + object-cover */}
                 <img
                   src={photo.image_url}
                   alt={photo.caption || `Photo ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-[1.03] group-hover:brightness-110"
                   loading="lazy"
                 />
-                {/* Theme color overlay on hover */}
-                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/25 transition-colors duration-300" />
+                {/* Subtle overlay on hover */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                {/* Photo number indicator on hover */}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                    {index + 1}
+                  </span>
+                </div>
                 {/* Caption on hover */}
                 {photo.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-primary/70 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-primary-foreground text-xs sm:text-sm truncate">{photo.caption}</p>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs truncate">{photo.caption}</p>
                   </div>
                 )}
               </motion.div>
