@@ -106,7 +106,7 @@ const Index = () => {
       <ServiceTimesSection />
       <VideosSection loading={loading} videos={processedVideos} />
       <EventsSection events={events} />
-      <CTASection />
+      <AlbumsSection />
       <Footer />
     </div>
   );
