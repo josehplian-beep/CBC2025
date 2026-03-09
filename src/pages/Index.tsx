@@ -441,48 +441,114 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
   );
 }
 
-const ctaItems = [
-  { icon: Users, title: "Connect", desc: "Join our welcoming community and build lasting relationships" },
-  { icon: Book, title: "Learn", desc: "Grow in your faith through Bible study and worship" },
-  { icon: Heart, title: "Serve", desc: "Make a difference in our community through service" },
-];
+function AlbumsSection() {
+  const [albums, setAlbums] = useState<{ id: string; title: string; cover_image_url: string | null; photo_count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
 
-function CTASection() {
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      try {
+        const { data } = await supabase
+          .from("albums")
+          .select("id, title, cover_image_url")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false })
+          .limit(6);
+        const withCounts = await Promise.all(
+          (data || []).map(async (album) => {
+            const { count } = await supabase.from("photos").select("*", { count: "exact", head: true }).eq("album_id", album.id);
+            return { ...album, photo_count: count || 0 };
+          })
+        );
+        setAlbums(withCounts);
+      } catch {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAlbums();
+  }, []);
+
   return (
-    <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(210_55%_35%)_0%,_transparent_60%)] opacity-40" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_50%_30%)_0%,_transparent_60%)] opacity-30" />
-
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        variants={staggerContainer}
-        className="container mx-auto px-4 relative z-10"
-      >
-        <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-          <span className="text-sm font-semibold text-primary-foreground/60 uppercase tracking-widest">Get Started</span>
-          <h2 className="font-display text-4xl font-bold mt-2">Be Part of Something Greater</h2>
+    <section className="py-24 bg-muted/20 dark:bg-muted/10">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={staggerContainer}
+          className="text-center mb-14"
+        >
+          <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
+            Memories
+          </motion.span>
+          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4">
+            Photo Albums
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={2} className="text-muted-foreground text-lg max-w-lg mx-auto">
+            Browse our collection of church memories
+          </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-          {ctaItems.map(({ icon: Icon, title, desc }, i) => (
-            <motion.div
-              key={title}
-              variants={fadeUp}
-              custom={i + 1}
-              whileHover={{ y: -6, scale: 1.02 }}
-              className="text-center group"
-            >
-              <div className="bg-primary-foreground/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-primary-foreground/20 transition-colors duration-300">
-                <Icon className="w-9 h-9" />
-              </div>
-              <h3 className="font-display text-xl font-bold mb-2">{title}</h3>
-              <p className="text-primary-foreground/70 leading-relaxed">{desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />
+            ))}
+          </div>
+        ) : albums.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">No albums yet</p>
+        ) : (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-2 md:grid-cols-3 gap-6"
+          >
+            {albums.map((album, i) => (
+              <motion.div key={album.id} variants={fadeUp} custom={i}>
+                <Link to={`/albums/${album.id}`}>
+                  <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
+                    {album.cover_image_url ? (
+                      <img
+                        src={album.cover_image_url}
+                        alt={album.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Camera className="w-10 h-10 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-white font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
+                      <p className="text-white/70 text-xs mt-1">{album.photo_count} photos</p>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-10"
+        >
+          <Link to="/media?tab=albums">
+            <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
+              View All Albums
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
     </section>
   );
 }
