@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/Navigation";
@@ -6,7 +7,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, X, Download, Share2, ChevronRight } from "lucide-react";
+import { ChevronLeft, X, Download, Share2, ChevronRight, ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
@@ -101,6 +102,19 @@ const AlbumGallery = () => {
       toast({ title: "Success", description: "Album title updated." });
     } catch {
       toast({ title: "Error", description: "Failed to update title.", variant: "destructive" });
+    }
+  };
+
+  const handleSetCover = async () => {
+    const photo = photos[currentPhotoIndex];
+    if (!photo || !album) return;
+    try {
+      const { error } = await supabase.from('albums').update({ cover_image_url: photo.image_url }).eq('id', album.id);
+      if (error) throw error;
+      setAlbum({ ...album, cover_image_url: photo.image_url });
+      toast({ title: "Cover Updated", description: "Album cover photo has been set." });
+    } catch {
+      toast({ title: "Error", description: "Failed to set cover photo.", variant: "destructive" });
     }
   };
 
@@ -306,6 +320,17 @@ const AlbumGallery = () => {
                 </span>
               </div>
               <div className="flex items-center gap-1">
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-foreground hover:bg-muted gap-1.5 text-xs"
+                    onClick={handleSetCover}
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Set as Cover
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
                   <Share2 className="w-5 h-5" />
                 </Button>
