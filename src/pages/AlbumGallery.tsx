@@ -314,12 +314,11 @@ const AlbumGallery = () => {
                     transition={{ duration: 0.25 }}
                     className="relative w-full max-w-5xl mx-auto"
                   >
-                    {/* Fixed-height container with object-cover for half-view effect */}
-                    <div className="w-full h-[50vh] sm:h-[65vh] rounded-2xl overflow-hidden bg-muted shadow-2xl">
+                    <div className="w-full h-[60vh] sm:h-[70vh] rounded-2xl overflow-hidden bg-muted shadow-2xl flex items-center justify-center">
                       <img
                         src={photos[currentPhotoIndex].image_url}
                         alt={photos[currentPhotoIndex].caption || `Photo ${currentPhotoIndex + 1}`}
-                        className="w-full h-full object-cover object-top"
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
                     {/* Caption below the image */}
