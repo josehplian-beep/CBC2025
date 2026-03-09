@@ -509,7 +509,7 @@ function AlbumsSection() {
           >
             {albums.map((album, i) => (
               <motion.div key={album.id} variants={fadeUp} custom={i}>
-                <Link to={`/albums/${album.id}`}>
+                <Link to={`/media/album/${album.id}`}>
                   <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
                     {album.cover_image_url ? (
                       <img
@@ -522,10 +522,10 @@ function AlbumsSection() {
                         <Camera className="w-10 h-10 text-muted-foreground/40" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-white font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
-                      <p className="text-white/70 text-xs mt-1">{album.photo_count} photos</p>
+                      <h3 className="text-primary-foreground font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
+                      <p className="text-primary-foreground/70 text-xs mt-1">{album.photo_count} photos</p>
                     </div>
                   </div>
                 </Link>
