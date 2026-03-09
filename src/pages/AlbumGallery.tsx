@@ -105,6 +105,19 @@ const AlbumGallery = () => {
     }
   };
 
+  const handleSetCover = async () => {
+    const photo = photos[currentPhotoIndex];
+    if (!photo || !album) return;
+    try {
+      const { error } = await supabase.from('albums').update({ cover_image_url: photo.image_url }).eq('id', album.id);
+      if (error) throw error;
+      setAlbum({ ...album, cover_image_url: photo.image_url });
+      toast({ title: "Cover Updated", description: "Album cover photo has been set." });
+    } catch {
+      toast({ title: "Error", description: "Failed to set cover photo.", variant: "destructive" });
+    }
+  };
+
   const handlePhotoClick = (index: number) => {
     setSelectedPhoto(index);
     setCurrentPhotoIndex(index);
