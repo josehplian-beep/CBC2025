@@ -504,35 +504,51 @@ function AlbumsSection() {
           </motion.p>
         </motion.div>
 
-        {loading ? <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />)}
-          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> : <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          
-            {albums.map((album, i) => <motion.div key={album.id} variants={fadeUp} custom={i}>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse aspect-[4/3] bg-muted/30 rounded-2xl" />)}
+          </div>
+        ) : albums.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">No albums yet</p>
+        ) : (
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {albums.map((album, i) => (
+              <motion.div key={album.id} variants={fadeUp} custom={i}>
                 <Link to={`/media/album/${album.id}`}>
-                  <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
-                    {album.cover_image_url ?
-                <img
-                  src={album.cover_image_url}
-                  alt={album.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> :
-
-
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Camera className="w-10 h-10 text-muted-foreground/40" />
+                  <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-muted/20 shadow-lg hover:shadow-2xl transition-shadow duration-500">
+                    {album.cover_image_url ? (
+                      <img
+                        src={album.cover_image_url}
+                        alt={album.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted/30 flex items-center justify-center">
+                        <Camera className="w-12 h-12 text-muted-foreground/30" />
                       </div>
-                }
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-primary-foreground font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
-                      <p className="text-primary-foreground/70 text-xs mt-1">{album.photo_count} photos</p>
+                    )}
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                    {/* Info bar */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                      <h3 className="text-white font-bold text-base md:text-lg leading-tight drop-shadow-lg">{album.title}</h3>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Camera className="w-3.5 h-3.5 text-white/70" />
+                        <p className="text-white/80 text-xs font-medium">{album.photo_count} photos</p>
+                      </div>
+                    </div>
+                    {/* Corner accent */}
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-primary/90 backdrop-blur-sm text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                        View →
+                      </div>
                     </div>
                   </div>
                 </Link>
               </motion.div>
-        )}
+            ))}
           </motion.div>
-      }
+        )}
 
         <motion.div
         initial={{ opacity: 0, y: 20 }}
