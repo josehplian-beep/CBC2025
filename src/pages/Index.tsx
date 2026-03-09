@@ -5,7 +5,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import VideoCard from "@/components/VideoCard";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Users, Heart, Book, MapPin, Facebook, Instagram, Youtube, ChevronDown, ArrowRight } from "lucide-react";
+import { Calendar, Clock, Users, Heart, Book, MapPin, Facebook, Instagram, Youtube, ChevronDown, ArrowRight, Camera } from "lucide-react";
 import { SOCIAL } from "@/config/social";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
