@@ -27,7 +27,7 @@ const eventColors: Record<string, string> = {
   Culture: "bg-accent/80 text-accent-foreground",
   CBCUSA: "bg-primary text-primary-foreground",
   Special: "bg-primary text-primary-foreground",
-  Others: "bg-muted text-muted-foreground",
+  Others: "bg-muted text-muted-foreground"
 };
 
 interface ChurchEvent {
@@ -45,13 +45,13 @@ const fadeUp = {
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] as const },
-  }),
+    transition: { duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] as const }
+  })
 };
 
 const staggerContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.1 } }
 };
 
 const Index = () => {
@@ -81,21 +81,21 @@ const Index = () => {
   const loadEvents = async () => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
-    const { data } = await supabase
-      .from("events")
-      .select("*")
-      .or(`date_obj.gte.${today.toISOString()},title.ilike.*Sunday Service*`)
-      .order("date_obj", { ascending: true })
-      .limit(3);
+    const { data } = await supabase.
+    from("events").
+    select("*").
+    or(`date_obj.gte.${today.toISOString()},title.ilike.*Sunday Service*`).
+    order("date_obj", { ascending: true }).
+    limit(3);
     setEvents(data || []);
   };
 
-  const processedVideos = videos.map(v => ({
+  const processedVideos = videos.map((v) => ({
     title: v.title,
     date: new Date(v.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
     category: v.title.toLowerCase().includes("sermon") ? "Sermon" as const : "Solo" as const,
     thumbnail: v.thumbnail,
-    videoId: v.id,
+    videoId: v.id
   }));
 
   return (
@@ -108,11 +108,11 @@ const Index = () => {
       <EventsSection events={events} />
       <AlbumsSection />
       <Footer />
-    </div>
-  );
+    </div>);
+
 };
 
-function HeroSection({ heroOpacity }: { heroOpacity: ReturnType<typeof useTransform> }) {
+function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransform>;}) {
   return (
     <section className="relative w-screen h-[70vh] flex items-center justify-center overflow-hidden" style={{ marginLeft: "calc(-50vw + 50%)", width: "100vw" }}>
       <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -121,36 +121,36 @@ function HeroSection({ heroOpacity }: { heroOpacity: ReturnType<typeof useTransf
           src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&modestbranding=1&playsinline=1&rel=0&vq=hd2160`}
           title="Background Video"
           allow="autoplay; encrypted-media"
-          style={{ border: 0, transform: "translate(-50%, -50%)", width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.78vh" }}
-        />
+          style={{ border: 0, transform: "translate(-50%, -50%)", width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.78vh" }} />
+        
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70" />
 
       <motion.div
         style={{ opacity: heroOpacity }}
-        className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto"
-      >
+        className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+        
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display text-5xl md:text-7xl font-bold mb-6"
-        >
+          className="font-display text-5xl md:text-7xl font-bold mb-6">
+          
           Welcome to CBC!
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="text-xl mb-8 text-white/90"
-        >
+          className="text-xl mb-8 text-white/90">
+          
           "Mit hmuh in si loin zumhnak tu in kan kal"<br />2 Korin 5:7
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        >
+          transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+          
           <Link to="/media">
             <Button size="lg" className="group">
               Join Us This Sunday
@@ -164,12 +164,12 @@ function HeroSection({ heroOpacity }: { heroOpacity: ReturnType<typeof useTransf
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-      >
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        
         <ChevronDown className="w-6 h-6 text-white/60" />
       </motion.div>
-    </section>
-  );
+    </section>);
+
 }
 
 function useCountdown() {
@@ -194,9 +194,9 @@ function useCountdown() {
       if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       setTimeLeft({
         days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
+        hours: Math.floor(diff % 86400000 / 3600000),
+        minutes: Math.floor(diff % 3600000 / 60000),
+        seconds: Math.floor(diff % 60000 / 1000)
       });
     };
 
@@ -230,11 +230,11 @@ function ServiceTimesSection() {
   const isLive = useIsSundayLive();
 
   const units = [
-    { label: "Days", value: days },
-    { label: "Hours", value: hours },
-    { label: "Min", value: minutes },
-    { label: "Sec", value: seconds },
-  ];
+  { label: "Days", value: days },
+  { label: "Hours", value: hours },
+  { label: "Min", value: minutes },
+  { label: "Sec", value: seconds }];
+
 
   return (
     <section className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
@@ -246,10 +246,10 @@ function ServiceTimesSection() {
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
         variants={staggerContainer}
-        className="container mx-auto px-4 text-center relative z-10"
-      >
-        {isLive ? (
-          <>
+        className="container mx-auto px-4 text-center relative z-10">
+        
+        {isLive ?
+        <>
             <motion.div variants={fadeUp} custom={0} className="flex items-center justify-center gap-3 mb-6">
               <div className="flex items-center gap-2 bg-destructive text-destructive-foreground px-4 py-1.5 rounded-full text-sm font-semibold">
                 <span className="w-2 h-2 bg-destructive-foreground rounded-full animate-pulse" />
@@ -263,12 +263,12 @@ function ServiceTimesSection() {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/10">
                 <div className="aspect-video">
                   <iframe
-                    className="w-full h-full"
-                    src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ&autoplay=1&mute=1"
-                    title="CBC Live Stream"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/live_stream?channel=UCNQNT1hM2b6_jd50ja-XAeQ&autoplay=1&mute=1"
+                  title="CBC Live Stream"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen />
+                
                 </div>
               </div>
             </motion.div>
@@ -280,9 +280,9 @@ function ServiceTimesSection() {
                 </Button>
               </Link>
             </motion.div>
-          </>
-        ) : (
-          <>
+          </> :
+
+        <>
             <motion.div variants={fadeUp} custom={0} className="flex items-center justify-center gap-3 mb-4">
               <div className="bg-primary-foreground/10 p-3 rounded-full">
                 <Clock className="w-7 h-7" />
@@ -297,8 +297,8 @@ function ServiceTimesSection() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-3 sm:gap-5">
-              {units.map(({ label, value }) => (
-                <div key={label} className="flex flex-col items-center">
+              {units.map(({ label, value }) =>
+            <div key={label} className="flex flex-col items-center">
                   <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
                     <span className="text-2xl sm:text-3xl font-bold tabular-nums">
                       {String(value).padStart(2, "0")}
@@ -306,16 +306,16 @@ function ServiceTimesSection() {
                   </div>
                   <span className="text-xs sm:text-sm text-primary-foreground/60 mt-1.5">{label}</span>
                 </div>
-              ))}
+            )}
             </motion.div>
           </>
-        )}
+        }
       </motion.div>
-    </section>
-  );
+    </section>);
+
 }
 
-function VideosSection({ loading, videos }: { loading: boolean; videos: any[] }) {
+function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
@@ -324,8 +324,8 @@ function VideosSection({ loading, videos }: { loading: boolean; videos: any[] })
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
           variants={staggerContainer}
-          className="text-center mb-14"
-        >
+          className="text-center mb-14">
+          
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
             Watch & Listen
           </motion.span>
@@ -337,41 +337,41 @@ function VideosSection({ loading, videos }: { loading: boolean; videos: any[] })
           </motion.p>
         </motion.div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse">
+        {loading ?
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) =>
+          <div key={i} className="animate-pulse">
                 <div className="aspect-video bg-muted rounded-lg mb-3" />
                 <div className="h-4 bg-muted rounded w-3/4 mb-2" />
                 <div className="h-3 bg-muted rounded w-1/2" />
               </div>
-            ))}
-          </div>
-        ) : videos.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">No videos found</p>
-        ) : (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {videos.map((v, i) => (
-              <motion.div key={v.videoId || i} variants={fadeUp} custom={i}>
+          )}
+          </div> :
+        videos.length === 0 ?
+        <p className="text-center text-muted-foreground py-12">No videos found</p> :
+
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+            {videos.map((v, i) =>
+          <motion.div key={v.videoId || i} variants={fadeUp} custom={i}>
                 <VideoCard {...v} />
               </motion.div>
-            ))}
+          )}
           </motion.div>
-        )}
+        }
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
-function EventsSection({ events }: { events: ChurchEvent[] }) {
+function EventsSection({ events }: {events: ChurchEvent[];}) {
   return (
-    <section className="py-24 bg-muted/30 dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden bg-[#bfbfbf]">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4">
@@ -380,8 +380,8 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
           variants={staggerContainer}
-          className="text-center mb-14"
-        >
+          className="text-center mb-14">
+          
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
             What's Coming Up
           </motion.span>
@@ -398,10 +398,10 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
           variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {events.map((event, i) => (
-            <motion.div key={event.id} variants={fadeUp} custom={i}>
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          {events.map((event, i) =>
+          <motion.div key={event.id} variants={fadeUp} custom={i}>
               <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <Badge className={`w-fit ${eventColors[event.type] || eventColors.Others}`}>{event.type}</Badge>
@@ -419,7 +419,7 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
                 </CardContent>
               </Card>
             </motion.div>
-          ))}
+          )}
         </motion.div>
 
         <motion.div
@@ -427,8 +427,8 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-center mt-14"
-        >
+          className="text-center mt-14">
+          
           <Link to="/events">
             <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
               View All Events
@@ -437,23 +437,23 @@ function EventsSection({ events }: { events: ChurchEvent[] }) {
           </Link>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 function AlbumsSection() {
-  const [albums, setAlbums] = useState<{ id: string; title: string; cover_image_url: string | null; photo_count: number }[]>([]);
+  const [albums, setAlbums] = useState<{id: string;title: string;cover_image_url: string | null;photo_count: number;}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAlbums = async () => {
       try {
-        const { data } = await supabase
-          .from("albums")
-          .select("id, title, cover_image_url")
-          .eq("is_published", true)
-          .order("created_at", { ascending: false })
-          .limit(6);
+        const { data } = await supabase.
+        from("albums").
+        select("id, title, cover_image_url").
+        eq("is_published", true).
+        order("created_at", { ascending: false }).
+        limit(6);
         const withCounts = await Promise.all(
           (data || []).map(async (album) => {
             const { count } = await supabase.from("photos").select("*", { count: "exact", head: true }).eq("album_id", album.id);
@@ -462,24 +462,30 @@ function AlbumsSection() {
         );
         setAlbums(withCounts);
       } catch {
-        // silent
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAlbums();
-  }, []);
 
-  return (
-    <section className="py-24 bg-muted/20 dark:bg-muted/10">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // silent
+      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-muted/20 dark:bg-muted/10">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={staggerContainer}
-          className="text-center mb-14"
-        >
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14">
+          
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
             Memories
           </motion.span>
@@ -491,57 +497,50 @@ function AlbumsSection() {
           </motion.p>
         </motion.div>
 
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />
-            ))}
-          </div>
-        ) : albums.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">No albums yet</p>
-        ) : (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-2 md:grid-cols-3 gap-4"
-          >
-            {albums.map((album, i) => (
-              <motion.div key={album.id} variants={fadeUp} custom={i}>
+        {loading ? <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse aspect-[4/3] bg-muted rounded-xl" />)}
+          </div> : albums.length === 0 ? <p className="text-center text-muted-foreground py-12">No albums yet</p> :
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-40px" }}
+        variants={staggerContainer}
+        className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          
+            {albums.map((album, i) =>
+        <motion.div key={album.id} variants={fadeUp} custom={i}>
                 <Link to={`/media/album/${album.id}`}>
-                  <div className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer bg-muted">
-                    {album.cover_image_url ? (
-                      <img
-                        src={album.cover_image_url}
-                        alt={album.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <div className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-muted">
+                    {album.cover_image_url ?
+              <img
+                src={album.cover_image_url}
+                alt={album.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> :
+
+
+              <div className="w-full h-full bg-muted flex items-center justify-center">
                         <Camera className="w-10 h-10 text-muted-foreground/40" />
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/25 transition-colors duration-300" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-primary/70 to-transparent">
+              }
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
                       <h3 className="text-primary-foreground font-semibold text-sm md:text-base leading-tight">{album.title}</h3>
                       <p className="text-primary-foreground/70 text-xs mt-1">{album.photo_count} photos</p>
                     </div>
                   </div>
                 </Link>
               </motion.div>
-            ))}
-          </motion.div>
         )}
+          </motion.div>
+      }
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-center mt-10"
-        >
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="text-center mt-10">
+          
           <Link to="/media?tab=albums">
             <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
               View All Albums
@@ -550,37 +549,37 @@ function AlbumsSection() {
           </Link>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>;
+
 }
 
 function SocialIcons() {
   const links = [
-    { href: SOCIAL.facebook, icon: Facebook },
-    { href: SOCIAL.instagram, icon: Instagram },
-    { href: SOCIAL.youtube, icon: Youtube },
-  ];
+  { href: SOCIAL.facebook, icon: Facebook },
+  { href: SOCIAL.instagram, icon: Instagram },
+  { href: SOCIAL.youtube, icon: Youtube }];
+
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
-      className="flex justify-center gap-4 mt-6"
-    >
-      {links.map(({ href, icon: Icon }) => (
-        <a
-          key={href}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2.5 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 transition-all duration-300 backdrop-blur-sm"
-        >
+      className="flex justify-center gap-4 mt-6">
+      
+      {links.map(({ href, icon: Icon }) =>
+      <a
+        key={href}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="p-2.5 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 transition-all duration-300 backdrop-blur-sm">
+        
           <Icon className="w-5 h-5 text-white" />
         </a>
-      ))}
-    </motion.div>
-  );
+      )}
+    </motion.div>);
+
 }
 
 export default Index;
