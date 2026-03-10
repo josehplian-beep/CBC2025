@@ -352,9 +352,9 @@ const AlbumGallery = () => {
                 {selectedPhoto !== null && photos[currentPhotoIndex] && (
                   <motion.div
                     key={currentPhotoIndex}
-                    initial={{ opacity: 0, x: direction * 60 }}
+                    initial={{ opacity: 0, x: directionRef.current * 60 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: direction * -60 }}
+                    exit={{ opacity: 0, x: directionRef.current * -60 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                     className="relative w-full max-w-5xl mx-auto"
                   >
