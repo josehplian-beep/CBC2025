@@ -41,7 +41,8 @@ const AlbumGallery = () => {
   // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
+  const directionRef = useRef(0);
+  const [, forceRender] = useState(0);
 
   useEffect(() => {
     if (albumId) {
@@ -125,13 +126,15 @@ const AlbumGallery = () => {
   };
 
   const handlePrevPhoto = useCallback(() => {
-    setDirection(-1);
+    directionRef.current = -1;
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
+    forceRender((n) => n + 1);
   }, [photos.length]);
 
   const handleNextPhoto = useCallback(() => {
-    setDirection(1);
+    directionRef.current = 1;
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+    forceRender((n) => n + 1);
   }, [photos.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
@@ -349,9 +352,9 @@ const AlbumGallery = () => {
                 {selectedPhoto !== null && photos[currentPhotoIndex] && (
                   <motion.div
                     key={currentPhotoIndex}
-                    initial={{ opacity: 0, x: direction * 60 }}
+                    initial={{ opacity: 0, x: directionRef.current * 60 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: direction * -60 }}
+                    exit={{ opacity: 0, x: directionRef.current * -60 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                     className="relative w-full max-w-5xl mx-auto"
                   >
