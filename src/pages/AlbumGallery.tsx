@@ -38,9 +38,10 @@ const AlbumGallery = () => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState("");
 
-  // Swipe state
+  // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
 
   useEffect(() => {
     if (albumId) {
