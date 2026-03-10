@@ -319,7 +319,7 @@ function ServiceTimesSection() {
 
 function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
   return (
-    <section className="py-24 bg-today-muted">
+    <section className="py-24 bg-secondary">
       <div className="container mx-auto px-4">
         <motion.div
           initial="hidden"
