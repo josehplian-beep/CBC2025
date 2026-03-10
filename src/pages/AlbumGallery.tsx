@@ -38,9 +38,10 @@ const AlbumGallery = () => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState("");
 
-  // Swipe state
+  // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
 
   useEffect(() => {
     if (albumId) {
@@ -124,10 +125,12 @@ const AlbumGallery = () => {
   };
 
   const handlePrevPhoto = useCallback(() => {
+    setDirection(-1);
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
   }, [photos.length]);
 
   const handleNextPhoto = useCallback(() => {
+    setDirection(1);
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   }, [photos.length]);
 
@@ -346,10 +349,10 @@ const AlbumGallery = () => {
                 {selectedPhoto !== null && photos[currentPhotoIndex] && (
                   <motion.div
                     key={currentPhotoIndex}
-                    initial={{ opacity: 0, x: 40 }}
+                    initial={{ opacity: 0, x: direction * 60 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
-                    transition={{ duration: 0.25 }}
+                    exit={{ opacity: 0, x: direction * -60 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                     className="relative w-full max-w-5xl mx-auto"
                   >
                     <div className="w-full h-[60vh] sm:h-[70vh] rounded-2xl overflow-hidden bg-muted shadow-2xl flex items-center justify-center">
