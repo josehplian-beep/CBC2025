@@ -21,21 +21,23 @@ const WatchVideo = () => {
   
   const currentVideo = location.state?.video;
 
-  useEffect(() => {
-    const fetchRecentVideos = async () => {
-      setLoading(true);
-      const videos = await searchYouTubeVideos({
-        channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
-        maxResults: 2000,
-        order: 'date'
-      });
-      const filtered = videos.filter(v => v.id !== videoId);
-      setAllVideos(filtered);
-      setRecentVideos(filtered);
-      setLoading(false);
-    };
+  const fetchRecentVideos = async () => {
+    setLoading(true);
+    const videos = await searchYouTubeVideos({
+      channelId: "UCNQNT1hM2b6_jd50ja-XAeQ",
+      maxResults: 2000,
+      order: 'date'
+    });
+    const filtered = videos.filter(v => v.id !== videoId);
+    setAllVideos(filtered);
+    setRecentVideos(filtered);
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchRecentVideos();
+    const interval = setInterval(fetchRecentVideos, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [videoId]);
 
   useEffect(() => {

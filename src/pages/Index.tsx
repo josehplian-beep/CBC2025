@@ -64,6 +64,8 @@ const Index = () => {
   useEffect(() => {
     loadVideos();
     loadEvents();
+    const interval = setInterval(loadVideos, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadVideos = async () => {
