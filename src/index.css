@@ -81,42 +81,42 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 210 35% 8%;
-    --foreground: 210 10% 95%;
+    --background: 220 20% 4%;
+    --foreground: 210 10% 93%;
 
-    --card: 210 30% 12%;
-    --card-foreground: 210 10% 95%;
+    --card: 220 18% 7%;
+    --card-foreground: 210 10% 93%;
 
-    --popover: 210 30% 12%;
-    --popover-foreground: 210 10% 95%;
+    --popover: 220 18% 7%;
+    --popover-foreground: 210 10% 93%;
 
     --primary: 210 50% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 18%;
-    --secondary-foreground: 210 10% 95%;
+    --secondary: 220 15% 10%;
+    --secondary-foreground: 210 10% 90%;
 
-    --muted: 210 20% 18%;
-    --muted-foreground: 210 10% 65%;
+    --muted: 220 15% 10%;
+    --muted-foreground: 210 10% 55%;
 
-    --accent: 210 55% 55%;
+    --accent: 210 55% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 20%;
-    --input: 210 20% 20%;
+    --border: 220 15% 12%;
+    --input: 220 15% 12%;
     --ring: 210 50% 50%;
 
     /* Sidebar tokens - dark */
-    --sidebar-background: 210 30% 12%;
-    --sidebar-foreground: 210 10% 95%;
+    --sidebar-background: 220 18% 5%;
+    --sidebar-foreground: 210 10% 93%;
     --sidebar-primary: 210 50% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 22%;
-    --sidebar-accent-foreground: 210 10% 95%;
-    --sidebar-border: 210 20% 20%;
+    --sidebar-accent: 220 15% 10%;
+    --sidebar-accent-foreground: 210 10% 93%;
+    --sidebar-border: 220 15% 10%;
     --sidebar-ring: 210 50% 50%;
 
     /* Livestream red accent - dark */
@@ -127,7 +127,16 @@ All colors MUST be HSL.
     /* Today highlight - dark */
     --today: 200 35% 45%;
     --today-foreground: 200 30% 90%;
-    --today-muted: 200 25% 20%;
+    --today-muted: 200 25% 12%;
+
+    --hero-gradient: linear-gradient(135deg, hsl(220 20% 4%) 0%, hsl(210 30% 10%) 100%);
+    --accent-gradient: linear-gradient(135deg, hsl(210 50% 30%) 0%, hsl(210 55% 40%) 100%);
+    --overlay-gradient: linear-gradient(180deg, rgba(5, 8, 14, 0.7) 0%, rgba(5, 8, 14, 0.95) 100%);
+
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-large: 0 8px 32px rgba(0, 0, 0, 0.5);
+
     --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
     --font-serif: Lora, ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
     --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
