@@ -41,7 +41,8 @@ const AlbumGallery = () => {
   // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
+  const directionRef = useRef(0);
+  const [, forceRender] = useState(0);
 
   useEffect(() => {
     if (albumId) {
