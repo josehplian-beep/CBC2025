@@ -498,7 +498,7 @@ function AlbumsSection() {
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-primary-foreground/70 dark:text-muted-foreground uppercase tracking-widest">
             Memories
           </motion.span>
-          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4 text-primary-foreground">
+          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4 text-primary-foreground dark:text-foreground">
             Photo Albums
           </motion.h2>
           <motion.p variants={fadeUp} custom={2} className="text-primary-foreground/60 text-lg max-w-lg mx-auto">
