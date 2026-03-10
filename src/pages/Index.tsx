@@ -491,7 +491,7 @@ function AlbumsSection() {
 
 
         // silent
-      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-today">
+      } finally {setLoading(false);}};fetchAlbums();}, []);return <section className="py-24 bg-primary dark:bg-card">
       <div className="container mx-auto px-4">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={staggerContainer} className="text-center mb-14">
           
