@@ -137,9 +137,15 @@ const AlbumGallery = () => {
     forceRender((n) => n + 1);
   }, [photos.length]);
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+  };
   const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Ignore if the touch originated on a button/interactive element
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) return;
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 50) { diff > 0 ? handleNextPhoto() : handlePrevPhoto(); }
   };
