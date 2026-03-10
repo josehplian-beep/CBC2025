@@ -95,6 +95,8 @@ const Media = () => {
   useEffect(() => {
     fetchVideos();
     fetchAlbums();
+    const interval = setInterval(fetchVideos, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchVideos = async () => {
