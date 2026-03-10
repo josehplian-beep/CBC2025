@@ -398,6 +398,16 @@ const AlbumGallery = () => {
               <ChevronRight className="w-6 h-6" />
             </Button>
 
+            {/* Mobile bottom action bar */}
+            <div className="sm:hidden absolute bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-4 p-4 bg-gradient-to-t from-background/90 to-transparent">
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
+                <Share2 className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleDownload}>
+                <Download className="w-5 h-5" />
+              </Button>
+            </div>
+
             {/* Thumbnail strip */}
             <div className="hidden sm:block absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent">
               <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
