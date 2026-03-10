@@ -126,13 +126,15 @@ const AlbumGallery = () => {
   };
 
   const handlePrevPhoto = useCallback(() => {
-    setDirection(-1);
+    directionRef.current = -1;
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
+    forceRender((n) => n + 1);
   }, [photos.length]);
 
   const handleNextPhoto = useCallback(() => {
-    setDirection(1);
+    directionRef.current = 1;
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+    forceRender((n) => n + 1);
   }, [photos.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
