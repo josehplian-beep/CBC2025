@@ -343,10 +343,10 @@ const AlbumGallery = () => {
                     Set as Cover
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-foreground hover:bg-muted" onClick={handleShare}>
                   <Share2 className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleDownload}>
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-foreground hover:bg-muted" onClick={handleDownload}>
                   <Download className="w-5 h-5" />
                 </Button>
               </div>
