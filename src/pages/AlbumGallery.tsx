@@ -125,10 +125,12 @@ const AlbumGallery = () => {
   };
 
   const handlePrevPhoto = useCallback(() => {
+    setDirection(-1);
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
   }, [photos.length]);
 
   const handleNextPhoto = useCallback(() => {
+    setDirection(1);
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   }, [photos.length]);
 
