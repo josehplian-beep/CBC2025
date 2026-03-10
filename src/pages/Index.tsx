@@ -373,7 +373,7 @@ function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
 
 function EventsSection({ events }: {events: ChurchEvent[];}) {
   return (
-    <section className="py-24 relative overflow-hidden bg-live-foreground">
+    <section className="py-24 relative overflow-hidden bg-background">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container mx-auto px-4">
