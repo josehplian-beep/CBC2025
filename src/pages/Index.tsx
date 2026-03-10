@@ -560,7 +560,7 @@ function AlbumsSection() {
         className="text-center mt-10">
           
           <Link to="/media?tab=albums">
-            <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
+            <Button size="lg" variant="outline" className="group border-primary-foreground/30 hover:border-primary-foreground dark:border-primary/30 dark:hover:border-primary">
               View All Albums
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
