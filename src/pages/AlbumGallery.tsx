@@ -137,9 +137,15 @@ const AlbumGallery = () => {
     forceRender((n) => n + 1);
   }, [photos.length]);
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+  };
   const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Ignore if the touch originated on a button/interactive element
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) return;
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 50) { diff > 0 ? handleNextPhoto() : handlePrevPhoto(); }
   };
@@ -337,10 +343,10 @@ const AlbumGallery = () => {
                     Set as Cover
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-foreground hover:bg-muted" onClick={handleShare}>
                   <Share2 className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleDownload}>
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-foreground hover:bg-muted" onClick={handleDownload}>
                   <Download className="w-5 h-5" />
                 </Button>
               </div>
@@ -391,6 +397,16 @@ const AlbumGallery = () => {
             >
               <ChevronRight className="w-6 h-6" />
             </Button>
+
+            {/* Mobile bottom action bar */}
+            <div className="sm:hidden absolute bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-4 p-4 bg-gradient-to-t from-background/90 to-transparent">
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleShare}>
+                <Share2 className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted" onClick={handleDownload}>
+                <Download className="w-5 h-5" />
+              </Button>
+            </div>
 
             {/* Thumbnail strip */}
             <div className="hidden sm:block absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent">
