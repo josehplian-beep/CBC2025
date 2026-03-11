@@ -188,6 +188,9 @@ const Events = () => {
 
   if (timeFilter === "upcoming") {
     filteredEvents = filteredEvents.filter(event => event.dateObj >= today);
+  } else if (timeFilter === "past") {
+    filteredEvents = filteredEvents.filter(event => event.dateObj < today);
+    filteredEvents = filteredEvents.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
   }
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
@@ -426,6 +429,7 @@ const Events = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="past">Past Events</SelectItem>
                     <SelectItem value="all">All Events</SelectItem>
                   </SelectContent>
                 </Select>
