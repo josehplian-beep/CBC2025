@@ -429,6 +429,7 @@ const Events = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="past">Past Events</SelectItem>
                     <SelectItem value="all">All Events</SelectItem>
                   </SelectContent>
                 </Select>
