@@ -731,7 +731,7 @@ const AdminDepartments = () => {
                         <h3 
                           className="font-semibold text-sm truncate cursor-pointer hover:text-primary transition-colors" 
                           title={(() => { const cm = churchMembers.find(cm => cm.name === member.name); return cm?.suffix ? `${cm.suffix} ${member.name}` : member.name; })()}
-                          onClick={() => navigate(`/department-member/${member.id}`)}
+                          onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}`)}
                         >
                           {(() => { const cm = churchMembers.find(cm => cm.name === member.name); return cm?.suffix ? `${cm.suffix} ` : ''; })()}{member.name}
                         </h3>

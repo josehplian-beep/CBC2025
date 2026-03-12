@@ -107,7 +107,7 @@ const App = () => (
           <Route path="/beliefs/mission" element={<Mission />} />
           <Route path="/statement-of-faith" element={<StatementOfFaith />} />
           <Route path="/departments" element={<Departments />} />
-          <Route path="/department-member/:id" element={<MemberProfileDepartment />} />
+          <Route path="/department-member/:slug" element={<MemberProfileDepartment />} />
           <Route path="/testimony" element={<Messages />} />
           <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
