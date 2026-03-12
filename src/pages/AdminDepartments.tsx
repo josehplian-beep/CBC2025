@@ -712,7 +712,7 @@ const AdminDepartments = () => {
                     <CardContent className="p-3 space-y-2">
                       <div 
                         className="aspect-square bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg overflow-hidden relative group cursor-pointer transition-transform hover:scale-105" 
-                        onClick={() => navigate(`/department-member/${member.id}`)}
+                         onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}`)}
                       >
                         {member.profile_image_url ? (
                           <img 
