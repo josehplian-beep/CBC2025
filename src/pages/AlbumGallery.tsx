@@ -88,7 +88,7 @@ const AlbumGallery = () => {
       setNewTitle(albumData.title);
 
       const { data: photosData, error: photosError } = await supabase
-        .from('photos').select('*').eq('album_id', albumId).order('display_order');
+        .from('photos').select('*').eq('album_id', albumData.id).order('display_order');
       if (photosError) throw photosError;
       setPhotos(photosData || []);
     } catch {

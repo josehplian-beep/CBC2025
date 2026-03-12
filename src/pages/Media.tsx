@@ -491,7 +491,7 @@ const Media = () => {
                 <div
                   key={album.id}
                   className="group cursor-pointer"
-                  onClick={() => navigate(`/media/album/${album.id}`)}>
+                  onClick={() => navigate(`/media/album/${album.slug || album.id}`)}>
 
                       <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-muted">
                         <img
