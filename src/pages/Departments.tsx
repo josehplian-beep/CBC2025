@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
@@ -12,7 +12,8 @@ import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
   const navigate = useNavigate();
-  const [selectedDepartment, setSelectedDepartment] = useState("deacons");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedDepartment, setSelectedDepartment] = useState(searchParams.get("tab") || "deacons");
   const [yearFilter, setYearFilter] = useState("2026-2027");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,7 +140,10 @@ const Departments = () => {
           </div>
 
           {/* Ministry Tabs */}
-          <Tabs value={selectedDepartment} className="w-full" onValueChange={setSelectedDepartment}>
+          <Tabs value={selectedDepartment} className="w-full" onValueChange={(val) => {
+              setSelectedDepartment(val);
+              setSearchParams({ tab: val });
+            }}>
             <TabsList className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto mb-8 h-auto bg-muted/50 p-3 rounded-xl">
               {departments.map(dept => (
                 <TabsTrigger 
@@ -163,7 +167,7 @@ const Departments = () => {
                   {members.map((member) => (
                     <div 
                       key={member.id}
-                      onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}`)}
+                      onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}?from=${selectedDepartment}`)}
                       className="cursor-pointer"
                     >
                       <StaffCard 

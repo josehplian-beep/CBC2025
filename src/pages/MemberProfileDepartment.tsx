@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getSignedUrl } from "@/hooks/useSignedUrl";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ interface MemberProfile {
 const MemberProfileDepartment = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [member, setMember] = useState<MemberProfile | null>(null);
   const [positionHistory, setPositionHistory] = useState<PositionHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,7 +129,14 @@ const MemberProfileDepartment = () => {
       <div className="container mx-auto px-4 py-20">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            const fromDept = searchParams.get("from");
+            if (fromDept) {
+              navigate(`/departments?tab=${fromDept}`);
+            } else {
+              navigate(-1);
+            }
+          }}
           className="mb-8 gap-2 group hover:gap-3 transition-all"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
