@@ -267,7 +267,10 @@ const AdminDepartments = () => {
     try {
       // Delete from storage if exists
       if (member.profile_image_url) {
-        const fileName = member.profile_image_url.split('/').pop();
+        // profile_image_url could be a full URL (legacy) or just a file path
+        const fileName = member.profile_image_url.includes('/') && member.profile_image_url.includes('http') 
+          ? member.profile_image_url.split('/').pop() 
+          : member.profile_image_url;
         if (fileName) {
           await supabase.storage.from("department-photos").remove([fileName]);
         }

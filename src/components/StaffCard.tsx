@@ -16,7 +16,13 @@ const StaffCard = ({ name, role, image, email, phone, profileLink }: StaffCardPr
     <div className="flex flex-col items-center text-center">
       <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 mb-4 overflow-hidden border-2 border-border transition-all duration-300 group-hover:border-primary group-hover:shadow-xl group-hover:scale-105">
         {image ? (
-          <img src={image} alt={name} className="w-full h-full object-contain p-2 transition-transform duration-300" />
+          <img 
+            src={image} 
+            alt={name} 
+            className="w-full h-full object-contain p-2 transition-transform duration-300 pointer-events-none select-none" 
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
             <User className="w-20 h-20 text-primary/60" />
