@@ -82,7 +82,19 @@ const Departments = () => {
         .order("display_order");
 
       if (error) throw error;
-      setMembers(data || []);
+      
+      // Generate signed URLs for each member's profile image
+      const membersWithSignedUrls = await Promise.all(
+        (data || []).map(async (member) => {
+          if (member.profile_image_url) {
+            const signedUrl = await getSignedUrl("department-photos", member.profile_image_url);
+            return { ...member, profile_image_url: signedUrl };
+          }
+          return member;
+        })
+      );
+      
+      setMembers(membersWithSignedUrls);
     } catch (error) {
       // Silently handle fetch error
     } finally {

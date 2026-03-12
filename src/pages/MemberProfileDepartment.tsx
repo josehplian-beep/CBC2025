@@ -151,7 +151,9 @@ const MemberProfileDepartment = () => {
                       <img 
                         src={member.profile_image_url} 
                         alt={member.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover pointer-events-none select-none"
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
