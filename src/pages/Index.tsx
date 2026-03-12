@@ -452,7 +452,7 @@ function AlbumsSection() {
       try {
         const { data } = await supabase.
         from("albums").
-        select("id, title, cover_image_url").
+        select("id, title, cover_image_url, slug").
         eq("is_published", true).
         order("created_at", { ascending: false }).
         limit(6);

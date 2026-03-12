@@ -162,7 +162,7 @@ const Media = () => {
 
 
       // silent
-    } finally {setLoading(false);}};const fetchAlbums = async () => {try {const { data: albumsData, error } = await supabase.from('albums').select('id, title, description, cover_image_url').eq('is_published', true).order('created_at', { ascending: false });if (error) throw error;const albumsWithCounts = await Promise.all((albumsData || []).map(async (album) => {const { count } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('album_id', album.id);return { ...album, photo_count: count || 0 };}));setAlbums(albumsWithCounts);} catch {
+    } finally {setLoading(false);}};const fetchAlbums = async () => {try {const { data: albumsData, error } = await supabase.from('albums').select('id, title, description, cover_image_url, slug').eq('is_published', true).order('created_at', { ascending: false });if (error) throw error;const albumsWithCounts = await Promise.all((albumsData || []).map(async (album) => {const { count } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('album_id', album.id);return { ...album, photo_count: count || 0 };}));setAlbums(albumsWithCounts);} catch {
 
 
 
