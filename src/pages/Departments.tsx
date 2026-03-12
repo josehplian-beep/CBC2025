@@ -140,7 +140,10 @@ const Departments = () => {
           </div>
 
           {/* Ministry Tabs */}
-          <Tabs value={selectedDepartment} className="w-full" onValueChange={setSelectedDepartment}>
+          <Tabs value={selectedDepartment} className="w-full" onValueChange={(val) => {
+              setSelectedDepartment(val);
+              setSearchParams({ tab: val });
+            }}>
             <TabsList className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto mb-8 h-auto bg-muted/50 p-3 rounded-xl">
               {departments.map(dept => (
                 <TabsTrigger 
