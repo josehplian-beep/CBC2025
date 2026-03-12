@@ -128,27 +128,42 @@ const MemberProfileDepartment = () => {
       <Navigation />
       
       <div className="container mx-auto px-4 py-20">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-6 flex-wrap">
-          <Link to="/departments" className="hover:text-primary transition-colors font-medium">
-            Departments
-          </Link>
-          {searchParams.get("from") && (
-            <>
-              <ChevronRight className="w-3.5 h-3.5" />
-              <Link 
-                to={`/departments?tab=${searchParams.get("from")}`} 
-                className="hover:text-primary transition-colors font-medium"
-              >
-                {formatDepartmentName(searchParams.get("from")!)}
-              </Link>
-            </>
-          )}
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-foreground font-semibold">{member.name}</span>
-        </nav>
+        <Button 
+          variant="ghost" 
+          onClick={() => {
+            const fromDept = searchParams.get("from");
+            if (fromDept) {
+              navigate(`/departments?tab=${fromDept}`);
+            } else {
+              navigate(-1);
+            }
+          }}
+          className="mb-8 gap-2 group hover:gap-3 transition-all"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back
+        </Button>
 
         <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
+          {/* Breadcrumb Navigation */}
+          <nav className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mb-2 flex-wrap">
+            <Link to="/departments" className="hover:text-primary transition-colors font-medium">
+              Departments
+            </Link>
+            {searchParams.get("from") && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5" />
+                <Link 
+                  to={`/departments?tab=${searchParams.get("from")}`} 
+                  className="hover:text-primary transition-colors font-medium"
+                >
+                  {formatDepartmentName(searchParams.get("from")!)}
+                </Link>
+              </>
+            )}
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-foreground font-semibold">{member.name}</span>
+          </nav>
           <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row gap-8 items-start">
