@@ -12,7 +12,8 @@ import communityImage from "@/assets/community.jpg";
 
 const Departments = () => {
   const navigate = useNavigate();
-  const [selectedDepartment, setSelectedDepartment] = useState("deacons");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedDepartment, setSelectedDepartment] = useState(searchParams.get("tab") || "deacons");
   const [yearFilter, setYearFilter] = useState("2026-2027");
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
