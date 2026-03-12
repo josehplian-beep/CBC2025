@@ -46,11 +46,18 @@ const MemberProfileDepartment = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
+        // Generate signed URL for the profile image
+        let signedImageUrl = data[0].profile_image_url;
+        if (signedImageUrl) {
+          const url = await getSignedUrl("department-photos", signedImageUrl);
+          signedImageUrl = url;
+        }
+        
         // Set member info from first record
         setMember({
           id: data[0].id,
           name: data[0].name,
-          profile_image_url: data[0].profile_image_url,
+          profile_image_url: signedImageUrl,
         });
 
         // Fetch all positions for this member name across all departments and years
