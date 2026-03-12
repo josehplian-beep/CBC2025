@@ -77,8 +77,12 @@ const AlbumGallery = () => {
   const fetchAlbumAndPhotos = async () => {
     setLoading(true);
     try {
-      const { data: albumData, error: albumError } = await supabase
-        .from('albums').select('*').eq('id', albumId).eq('is_published', true).single();
+      // Support both numeric slug and UUID for backwards compatibility
+      const isNumericSlug = /^\d+$/.test(albumId!);
+      const query = isNumericSlug
+        ? supabase.from('albums').select('*').eq('slug', parseInt(albumId!)).eq('is_published', true).single()
+        : supabase.from('albums').select('*').eq('id', albumId).eq('is_published', true).single();
+      const { data: albumData, error: albumError } = await query;
       if (albumError) throw albumError;
       setAlbum(albumData);
       setNewTitle(albumData.title);
