@@ -247,15 +247,11 @@ const AdminDepartments = () => {
         upsert: true
       });
       if (uploadError) throw uploadError;
-      const {
-        data: {
-          publicUrl
-        }
-      } = supabase.storage.from("department-photos").getPublicUrl(filePath);
+      // Store just the file path (not public URL) since bucket is private
       const {
         error: updateError
       } = await supabase.from("department_members").update({
-        profile_image_url: publicUrl
+        profile_image_url: filePath
       }).eq("id", currentMemberId);
       if (updateError) throw updateError;
       toast.success("Photo uploaded successfully");
