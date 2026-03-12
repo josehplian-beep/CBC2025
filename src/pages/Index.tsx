@@ -444,7 +444,7 @@ function EventsSection({ events }: {events: ChurchEvent[];}) {
 }
 
 function AlbumsSection() {
-  const [albums, setAlbums] = useState<{id: string;title: string;cover_image_url: string | null;photo_count: number;}[]>([]);
+  const [albums, setAlbums] = useState<{id: string;title: string;cover_image_url: string | null;slug?: number;photo_count: number;}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

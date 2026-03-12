@@ -19,6 +19,7 @@ interface Album {
   title: string;
   description: string | null;
   cover_image_url: string | null;
+  slug?: number;
   photo_count?: number;
 }
 
