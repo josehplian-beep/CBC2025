@@ -19,6 +19,7 @@ interface Album {
   title: string;
   description: string | null;
   cover_image_url: string | null;
+  slug?: number;
   photo_count?: number;
 }
 
@@ -161,7 +162,7 @@ const Media = () => {
 
 
       // silent
-    } finally {setLoading(false);}};const fetchAlbums = async () => {try {const { data: albumsData, error } = await supabase.from('albums').select('id, title, description, cover_image_url').eq('is_published', true).order('created_at', { ascending: false });if (error) throw error;const albumsWithCounts = await Promise.all((albumsData || []).map(async (album) => {const { count } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('album_id', album.id);return { ...album, photo_count: count || 0 };}));setAlbums(albumsWithCounts);} catch {
+    } finally {setLoading(false);}};const fetchAlbums = async () => {try {const { data: albumsData, error } = await supabase.from('albums').select('id, title, description, cover_image_url, slug').eq('is_published', true).order('created_at', { ascending: false });if (error) throw error;const albumsWithCounts = await Promise.all((albumsData || []).map(async (album) => {const { count } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('album_id', album.id);return { ...album, photo_count: count || 0 };}));setAlbums(albumsWithCounts);} catch {
 
 
 
@@ -491,7 +492,7 @@ const Media = () => {
                 <div
                   key={album.id}
                   className="group cursor-pointer"
-                  onClick={() => navigate(`/media/album/${album.id}`)}>
+                  onClick={() => navigate(`/media/album/${album.slug || album.id}`)}>
 
                       <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 bg-muted">
                         <img

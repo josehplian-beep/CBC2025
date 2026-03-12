@@ -444,7 +444,7 @@ function EventsSection({ events }: {events: ChurchEvent[];}) {
 }
 
 function AlbumsSection() {
-  const [albums, setAlbums] = useState<{id: string;title: string;cover_image_url: string | null;photo_count: number;}[]>([]);
+  const [albums, setAlbums] = useState<{id: string;title: string;cover_image_url: string | null;slug?: number;photo_count: number;}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -452,7 +452,7 @@ function AlbumsSection() {
       try {
         const { data } = await supabase.
         from("albums").
-        select("id, title, cover_image_url").
+        select("id, title, cover_image_url, slug").
         eq("is_published", true).
         order("created_at", { ascending: false }).
         limit(6);
@@ -516,7 +516,7 @@ function AlbumsSection() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {albums.map((album, i) => (
               <motion.div key={album.id} variants={fadeUp} custom={i}>
-                <Link to={`/media/album/${album.id}`}>
+                <Link to={`/media/album/${album.slug || album.id}`}>
                   <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-muted/20 shadow-lg hover:shadow-2xl transition-shadow duration-500">
                     {album.cover_image_url ? (
                       <img
