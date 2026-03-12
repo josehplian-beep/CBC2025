@@ -129,7 +129,14 @@ const MemberProfileDepartment = () => {
       <div className="container mx-auto px-4 py-20">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            const fromDept = searchParams.get("from");
+            if (fromDept) {
+              navigate(`/departments?tab=${fromDept}`);
+            } else {
+              navigate(-1);
+            }
+          }}
           className="mb-8 gap-2 group hover:gap-3 transition-all"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

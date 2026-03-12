@@ -167,7 +167,7 @@ const Departments = () => {
                   {members.map((member) => (
                     <div 
                       key={member.id}
-                      onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}`)}
+                      onClick={() => navigate(`/department-member/${member.name.replace(/\s+/g, '_')}?from=${selectedDepartment}`)}
                       className="cursor-pointer"
                     >
                       <StaffCard 
