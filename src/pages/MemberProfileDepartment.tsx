@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getSignedUrl } from "@/hooks/useSignedUrl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,11 +46,18 @@ const MemberProfileDepartment = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
+        // Generate signed URL for the profile image
+        let signedImageUrl = data[0].profile_image_url;
+        if (signedImageUrl) {
+          const url = await getSignedUrl("department-photos", signedImageUrl);
+          signedImageUrl = url;
+        }
+        
         // Set member info from first record
         setMember({
           id: data[0].id,
           name: data[0].name,
-          profile_image_url: data[0].profile_image_url,
+          profile_image_url: signedImageUrl,
         });
 
         // Fetch all positions for this member name across all departments and years
@@ -143,7 +151,9 @@ const MemberProfileDepartment = () => {
                       <img 
                         src={member.profile_image_url} 
                         alt={member.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover pointer-events-none select-none"
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

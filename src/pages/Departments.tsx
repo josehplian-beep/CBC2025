@@ -6,6 +6,7 @@ import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { getSignedUrl } from "@/hooks/useSignedUrl";
 
 import communityImage from "@/assets/community.jpg";
 
@@ -81,7 +82,19 @@ const Departments = () => {
         .order("display_order");
 
       if (error) throw error;
-      setMembers(data || []);
+      
+      // Generate signed URLs for each member's profile image
+      const membersWithSignedUrls = await Promise.all(
+        (data || []).map(async (member) => {
+          if (member.profile_image_url) {
+            const signedUrl = await getSignedUrl("department-photos", member.profile_image_url);
+            return { ...member, profile_image_url: signedUrl };
+          }
+          return member;
+        })
+      );
+      
+      setMembers(membersWithSignedUrls);
     } catch (error) {
       // Silently handle fetch error
     } finally {

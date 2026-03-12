@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getSignedUrl } from "@/hooks/useSignedUrl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -213,7 +214,19 @@ const AdminDepartments = () => {
         .order("display_order");
       
       if (error) throw error;
-      setMembers(data || []);
+      
+      // Generate signed URLs for private bucket
+      const membersWithSignedUrls = await Promise.all(
+        (data || []).map(async (member) => {
+          if (member.profile_image_url) {
+            const signedUrl = await getSignedUrl("department-photos", member.profile_image_url);
+            return { ...member, profile_image_url: signedUrl };
+          }
+          return member;
+        })
+      );
+      
+      setMembers(membersWithSignedUrls as DepartmentMember[]);
     } catch (error) {
       toast.error("Failed to load members");
     } finally {
@@ -247,15 +260,11 @@ const AdminDepartments = () => {
         upsert: true
       });
       if (uploadError) throw uploadError;
-      const {
-        data: {
-          publicUrl
-        }
-      } = supabase.storage.from("department-photos").getPublicUrl(filePath);
+      // Store just the file path (not public URL) since bucket is private
       const {
         error: updateError
       } = await supabase.from("department_members").update({
-        profile_image_url: publicUrl
+        profile_image_url: filePath
       }).eq("id", currentMemberId);
       if (updateError) throw updateError;
       toast.success("Photo uploaded successfully");
@@ -271,7 +280,10 @@ const AdminDepartments = () => {
     try {
       // Delete from storage if exists
       if (member.profile_image_url) {
-        const fileName = member.profile_image_url.split('/').pop();
+        // profile_image_url could be a full URL (legacy) or just a file path
+        const fileName = member.profile_image_url.includes('/') && member.profile_image_url.includes('http') 
+          ? member.profile_image_url.split('/').pop() 
+          : member.profile_image_url;
         if (fileName) {
           await supabase.storage.from("department-photos").remove([fileName]);
         }
