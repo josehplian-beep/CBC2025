@@ -26,6 +26,7 @@ interface MemberProfile {
 const MemberProfileDepartment = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [member, setMember] = useState<MemberProfile | null>(null);
   const [positionHistory, setPositionHistory] = useState<PositionHistory[]>([]);
   const [loading, setLoading] = useState(true);
