@@ -19,6 +19,7 @@ const StaffCard = ({ name, role, image, email, phone, profileLink }: StaffCardPr
           <img 
             src={image} 
             alt={name} 
+            loading="lazy"
             className="w-full h-full object-contain p-2 transition-transform duration-300 pointer-events-none select-none" 
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
