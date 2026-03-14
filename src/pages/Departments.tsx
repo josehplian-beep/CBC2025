@@ -5,8 +5,9 @@ import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { getSignedUrl } from "@/hooks/useSignedUrl";
+import { getBatchSignedUrls } from "@/hooks/useSignedUrl";
 
 import communityImage from "@/assets/community.jpg";
 
@@ -84,21 +85,21 @@ const Departments = () => {
 
       if (error) throw error;
       
-      // Generate signed URLs for each member's profile image
-      const membersWithSignedUrls = await Promise.all(
-        (data || []).map(async (member) => {
-          if (member.profile_image_url) {
-            const signedUrl = await getSignedUrl("department-photos", member.profile_image_url);
-            return { ...member, profile_image_url: signedUrl };
-          }
-          return member;
-        })
-      );
+      // Show members immediately, then load images
+      const rawMembers = data || [];
+      setMembers(rawMembers);
+      setLoading(false);
+
+      // Batch sign all URLs in a single API call (much faster)
+      const paths = rawMembers.map(m => m.profile_image_url);
+      const signedUrls = await getBatchSignedUrls("department-photos", paths);
       
-      setMembers(membersWithSignedUrls);
+      const membersWithUrls = rawMembers.map((member, i) => ({
+        ...member,
+        profile_image_url: signedUrls[i] || member.profile_image_url,
+      }));
+      setMembers(membersWithUrls);
     } catch (error) {
-      // Silently handle fetch error
-    } finally {
       setLoading(false);
     }
   };
@@ -159,8 +160,16 @@ const Departments = () => {
 
             <TabsContent value={selectedDepartment}>
               {loading ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Loading...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="rounded-lg border bg-card p-6 space-y-4">
+                      <div className="flex flex-col items-center">
+                        <Skeleton className="w-48 h-48 rounded-lg mb-4" />
+                        <Skeleton className="h-5 w-32 mb-2" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : members.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
