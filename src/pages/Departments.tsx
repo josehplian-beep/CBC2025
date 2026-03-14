@@ -5,8 +5,9 @@ import Footer from "@/components/Footer";
 import StaffCard from "@/components/StaffCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { getSignedUrl } from "@/hooks/useSignedUrl";
+import { getBatchSignedUrls } from "@/hooks/useSignedUrl";
 
 import communityImage from "@/assets/community.jpg";
 
