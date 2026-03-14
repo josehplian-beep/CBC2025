@@ -85,21 +85,21 @@ const Departments = () => {
 
       if (error) throw error;
       
-      // Generate signed URLs for each member's profile image
-      const membersWithSignedUrls = await Promise.all(
-        (data || []).map(async (member) => {
-          if (member.profile_image_url) {
-            const signedUrl = await getSignedUrl("department-photos", member.profile_image_url);
-            return { ...member, profile_image_url: signedUrl };
-          }
-          return member;
-        })
-      );
+      // Show members immediately, then load images
+      const rawMembers = data || [];
+      setMembers(rawMembers);
+      setLoading(false);
+
+      // Batch sign all URLs in a single API call (much faster)
+      const paths = rawMembers.map(m => m.profile_image_url);
+      const signedUrls = await getBatchSignedUrls("department-photos", paths);
       
-      setMembers(membersWithSignedUrls);
+      const membersWithUrls = rawMembers.map((member, i) => ({
+        ...member,
+        profile_image_url: signedUrls[i] || member.profile_image_url,
+      }));
+      setMembers(membersWithUrls);
     } catch (error) {
-      // Silently handle fetch error
-    } finally {
       setLoading(false);
     }
   };
