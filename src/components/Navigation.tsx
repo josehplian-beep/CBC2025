@@ -173,7 +173,9 @@ const Navigation = () => {
               <Link to="/auth" onClick={() => setMobileOpen(false)}><Button size="sm">Sign In</Button></Link>
             )}
           </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </nav>
   );
