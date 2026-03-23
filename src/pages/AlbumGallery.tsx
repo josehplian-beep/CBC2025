@@ -23,7 +23,6 @@ interface Album {
   title: string;
   description: string | null;
   cover_image_url: string | null;
-  slug: number;
 }
 
 const AlbumGallery = () => {
@@ -51,41 +50,6 @@ const AlbumGallery = () => {
       fetchAlbumAndPhotos();
     }
   }, [albumId]);
-
-  // Dynamic OG meta tags for rich link previews
-  useEffect(() => {
-    if (!album) return;
-
-    const originalTitle = document.title;
-    document.title = `${album.title} | Chin Bethel Church`;
-
-    const setMeta = (property: string, content: string, isName = false) => {
-      const attr = isName ? 'name' : 'property';
-      let el = document.querySelector(`meta[${attr}="${property}"]`) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute(attr, property);
-        document.head.appendChild(el);
-      }
-      el.setAttribute('content', content);
-    };
-
-    setMeta('og:title', `${album.title} | Chin Bethel Church`);
-    setMeta('og:description', album.description || `View the ${album.title} photo album from Chin Bethel Church`);
-    setMeta('og:type', 'article');
-    setMeta('og:url', window.location.href);
-    if (album.cover_image_url) {
-      setMeta('og:image', album.cover_image_url);
-      setMeta('twitter:image', album.cover_image_url, true);
-    }
-    setMeta('twitter:title', `${album.title} | Chin Bethel Church`, true);
-    setMeta('twitter:description', album.description || `View the ${album.title} photo album from Chin Bethel Church`, true);
-    setMeta('twitter:card', 'summary_large_image', true);
-
-    return () => {
-      document.title = originalTitle;
-    };
-  }, [album]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -210,21 +174,15 @@ const AlbumGallery = () => {
     }
   };
 
-  const getShareUrl = () => {
-    const slug = album?.slug || albumId;
-    return `https://auztoefiuddwerfbpcpm.supabase.co/functions/v1/og-album?slug=${slug}`;
-  };
-
   const handleShare = async () => {
-    const shareUrl = getShareUrl();
-    const shareData = { title: album?.title || 'Photo', url: shareUrl };
+    const shareData = { title: album?.title || 'Photo', url: window.location.href };
     if (navigator.share) {
       try { await navigator.share(shareData); } catch { copyToClipboard(); }
     } else { copyToClipboard(); }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(getShareUrl());
+    navigator.clipboard.writeText(window.location.href);
     toast({ title: "Link Copied", description: "Album link copied to clipboard." });
   };
 
@@ -307,9 +265,8 @@ const AlbumGallery = () => {
 
           {/* Share icons */}
           <div className="flex justify-center gap-3 mt-4">
-            <button onClick={handleShare} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-sm font-medium text-primary">
-              <Share2 className="w-4 h-4" />
-              Share Album
+            <button onClick={handleShare} className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors">
+              <Share2 className="w-4 h-4 text-primary" />
             </button>
           </div>
         </motion.div>
