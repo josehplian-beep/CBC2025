@@ -307,8 +307,9 @@ const AlbumGallery = () => {
 
           {/* Share icons */}
           <div className="flex justify-center gap-3 mt-4">
-            <button onClick={handleShare} className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors">
-              <Share2 className="w-4 h-4 text-primary" />
+            <button onClick={handleShare} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-sm font-medium text-primary">
+              <Share2 className="w-4 h-4" />
+              Share Album
             </button>
           </div>
         </motion.div>
