@@ -135,8 +135,16 @@ const Navigation = () => {
         </div>
 
         {/* Mobile menu */}
+        <AnimatePresence>
         {mobileOpen && (
-          <div className="md:hidden py-4 border-t border-border flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="md:hidden overflow-hidden"
+          >
+          <div className="py-4 border-t border-border flex flex-col gap-4">
             <Button variant="ghost" size="sm" onClick={toggleTheme} className="justify-start gap-2">
               <Sun className="h-4 w-4 dark:hidden" />
               <Moon className="h-4 w-4 hidden dark:block" />
