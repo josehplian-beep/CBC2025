@@ -23,6 +23,7 @@ interface Album {
   title: string;
   description: string | null;
   cover_image_url: string | null;
+  slug: number;
 }
 
 const AlbumGallery = () => {
@@ -209,15 +210,21 @@ const AlbumGallery = () => {
     }
   };
 
+  const getShareUrl = () => {
+    const slug = album?.slug || albumId;
+    return `https://auztoefiuddwerfbpcpm.supabase.co/functions/v1/og-album?slug=${slug}`;
+  };
+
   const handleShare = async () => {
-    const shareData = { title: album?.title || 'Photo', url: window.location.href };
+    const shareUrl = getShareUrl();
+    const shareData = { title: album?.title || 'Photo', url: shareUrl };
     if (navigator.share) {
       try { await navigator.share(shareData); } catch { copyToClipboard(); }
     } else { copyToClipboard(); }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(getShareUrl());
     toast({ title: "Link Copied", description: "Album link copied to clipboard." });
   };
 
