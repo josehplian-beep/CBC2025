@@ -51,6 +51,41 @@ const AlbumGallery = () => {
     }
   }, [albumId]);
 
+  // Dynamic OG meta tags for rich link previews
+  useEffect(() => {
+    if (!album) return;
+
+    const originalTitle = document.title;
+    document.title = `${album.title} | Chin Bethel Church`;
+
+    const setMeta = (property: string, content: string, isName = false) => {
+      const attr = isName ? 'name' : 'property';
+      let el = document.querySelector(`meta[${attr}="${property}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    setMeta('og:title', `${album.title} | Chin Bethel Church`);
+    setMeta('og:description', album.description || `View the ${album.title} photo album from Chin Bethel Church`);
+    setMeta('og:type', 'article');
+    setMeta('og:url', window.location.href);
+    if (album.cover_image_url) {
+      setMeta('og:image', album.cover_image_url);
+      setMeta('twitter:image', album.cover_image_url, true);
+    }
+    setMeta('twitter:title', `${album.title} | Chin Bethel Church`, true);
+    setMeta('twitter:description', album.description || `View the ${album.title} photo album from Chin Bethel Church`, true);
+    setMeta('twitter:card', 'summary_large_image', true);
+
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [album]);
+
   // Keyboard navigation
   useEffect(() => {
     if (selectedPhoto === null) return;
