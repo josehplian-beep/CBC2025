@@ -394,7 +394,7 @@ const Media = () => {
                   
                   {/* Stream Info */}
                   <div className="mt-6">
-                    <h2 className="text-2xl font-bold mb-2">Sunday Worship Service</h2>
+                    <h2 className="text-2xl font-bold mb-2">Worship Service</h2>
                     <p className="text-muted-foreground">Chin Bethel Church DC</p>
                   </div>
 
