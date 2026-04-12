@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 
 const CHANNEL_ID = "UCNQNT1hM2b6_jd50ja-XAeQ";
-const HERO_VIDEO_ID = "C2iF2xNjtIs";
+const HERO_VIDEO_ID = "Fe9ctqWeA5U";
 
 const eventColors: Record<string, string> = {
   Worship: "bg-primary text-primary-foreground",
