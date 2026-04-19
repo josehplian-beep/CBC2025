@@ -57,7 +57,7 @@ const AlbumGallery = () => {
         "/storage/v1/render/image/public/"
       );
       const sep = transformed.includes("?") ? "&" : "?";
-      return `${transformed}${sep}width=${width}&quality=70&resize=cover`;
+      return `${transformed}${sep}width=${width}&quality=70&resize=contain`;
     }
     return url;
   }, []);
