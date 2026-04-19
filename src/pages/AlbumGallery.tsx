@@ -38,12 +38,29 @@ const AlbumGallery = () => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [visibleCount, setVisibleCount] = useState(24);
+  const PAGE_SIZE = 24;
 
   // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const directionRef = useRef(0);
   const [, forceRender] = useState(0);
+
+  // Build an optimized thumbnail URL using Supabase image transforms when possible.
+  // Falls back to the original URL if the image isn't served from Supabase storage.
+  const getThumbUrl = useCallback((url: string, width = 600) => {
+    if (!url) return url;
+    if (url.includes("/storage/v1/object/public/")) {
+      const transformed = url.replace(
+        "/storage/v1/object/public/",
+        "/storage/v1/render/image/public/"
+      );
+      const sep = transformed.includes("?") ? "&" : "?";
+      return `${transformed}${sep}width=${width}&quality=70&resize=cover`;
+    }
+    return url;
+  }, []);
 
   useEffect(() => {
     if (albumId) {
@@ -64,13 +81,13 @@ const AlbumGallery = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [selectedPhoto, photos.length]);
 
-  // Preload adjacent images for smoother transitions
+  // Preload adjacent images for smoother lightbox transitions (next 2 + previous 1)
   useEffect(() => {
     if (photos.length === 0 || selectedPhoto === null) return;
     const preloadIndices = [
-      (currentPhotoIndex - 1 + photos.length) % photos.length,
       (currentPhotoIndex + 1) % photos.length,
       (currentPhotoIndex + 2) % photos.length,
+      (currentPhotoIndex - 1 + photos.length) % photos.length,
     ];
     preloadIndices.forEach((idx) => {
       if (photos[idx]) {
@@ -79,6 +96,12 @@ const AlbumGallery = () => {
       }
     });
   }, [currentPhotoIndex, selectedPhoto, photos]);
+
+  // Reset visible count when album changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+    setLoadedImages(new Set());
+  }, [albumId]);
 
   const checkAdminStatus = async () => {
     const { data: { session } } = await supabase.auth.getSession();
