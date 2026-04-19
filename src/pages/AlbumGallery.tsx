@@ -47,6 +47,9 @@ const AlbumGallery = () => {
   const directionRef = useRef(0);
   const [, forceRender] = useState(0);
 
+  // Infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
   // Build an optimized thumbnail URL using Supabase image transforms when possible.
   // Falls back to the original URL if the image isn't served from Supabase storage.
   const getThumbUrl = useCallback((url: string, width = 600) => {
