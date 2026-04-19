@@ -84,6 +84,24 @@ const AlbumGallery = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [selectedPhoto, photos.length]);
 
+  // Infinite scroll: load more when sentinel enters viewport
+  useEffect(() => {
+    if (loading || photos.length === 0) return;
+    if (visibleCount >= photos.length) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, photos.length));
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loading, photos.length, visibleCount]);
+
   // Preload adjacent images for smoother lightbox transitions (next 2 + previous 1)
   useEffect(() => {
     if (photos.length === 0 || selectedPhoto === null) return;
