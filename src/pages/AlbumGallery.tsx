@@ -505,7 +505,7 @@ const AlbumGallery = () => {
                         : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'
                     }`}
                   >
-                    <img src={photo.image_url} alt={`Thumb ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={getThumbUrl(photo.image_url, 120)} alt={`Thumb ${index + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
