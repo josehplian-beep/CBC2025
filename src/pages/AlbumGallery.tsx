@@ -38,12 +38,29 @@ const AlbumGallery = () => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [visibleCount, setVisibleCount] = useState(24);
+  const PAGE_SIZE = 24;
 
   // Swipe & direction state
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const directionRef = useRef(0);
   const [, forceRender] = useState(0);
+
+  // Build an optimized thumbnail URL using Supabase image transforms when possible.
+  // Falls back to the original URL if the image isn't served from Supabase storage.
+  const getThumbUrl = useCallback((url: string, width = 600) => {
+    if (!url) return url;
+    if (url.includes("/storage/v1/object/public/")) {
+      const transformed = url.replace(
+        "/storage/v1/object/public/",
+        "/storage/v1/render/image/public/"
+      );
+      const sep = transformed.includes("?") ? "&" : "?";
+      return `${transformed}${sep}width=${width}&quality=70&resize=cover`;
+    }
+    return url;
+  }, []);
 
   useEffect(() => {
     if (albumId) {
@@ -64,13 +81,13 @@ const AlbumGallery = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [selectedPhoto, photos.length]);
 
-  // Preload adjacent images for smoother transitions
+  // Preload adjacent images for smoother lightbox transitions (next 2 + previous 1)
   useEffect(() => {
     if (photos.length === 0 || selectedPhoto === null) return;
     const preloadIndices = [
-      (currentPhotoIndex - 1 + photos.length) % photos.length,
       (currentPhotoIndex + 1) % photos.length,
       (currentPhotoIndex + 2) % photos.length,
+      (currentPhotoIndex - 1 + photos.length) % photos.length,
     ];
     preloadIndices.forEach((idx) => {
       if (photos[idx]) {
@@ -79,6 +96,12 @@ const AlbumGallery = () => {
       }
     });
   }, [currentPhotoIndex, selectedPhoto, photos]);
+
+  // Reset visible count when album changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+    setLoadedImages(new Set());
+  }, [albumId]);
 
   const checkAdminStatus = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -304,52 +327,69 @@ const AlbumGallery = () => {
             <p className="text-muted-foreground">No photos in this album yet</p>
           </div>
         ) : (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.04 } } }}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 auto-rows-[minmax(140px,200px)] sm:auto-rows-[minmax(160px,240px)] md:auto-rows-[minmax(180px,260px)] gap-[3px] sm:gap-1 px-0 sm:px-1"
-          >
-            {photos.map((photo, index) => (
-              <motion.div
-                key={photo.id}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.92 },
-                  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } }
-                }}
-                className={`${getCollageClass(index)} relative overflow-hidden cursor-pointer group`}
-                onClick={() => handlePhotoClick(index)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Skeleton placeholder */}
-                {!loadedImages.has(index) && (
-                  <div className="absolute inset-0 bg-muted animate-pulse" />
-                )}
-                <img
-                  src={photo.image_url}
-                  alt={photo.caption || `Photo ${index + 1}`}
-                  className={`w-full h-full object-cover transition-all duration-500 ease-out group-hover:brightness-110 ${
-                    loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  loading="lazy"
-                  onLoad={() => handleImageLoad(index)}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
-                    {index + 1}
-                  </span>
-                </div>
-                {photo.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-xs truncate">{photo.caption}</p>
+          <>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.02 } } }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 auto-rows-[minmax(140px,200px)] sm:auto-rows-[minmax(160px,240px)] md:auto-rows-[minmax(180px,260px)] gap-[3px] sm:gap-1 px-0 sm:px-1"
+            >
+              {photos.slice(0, visibleCount).map((photo, index) => (
+                <motion.div
+                  key={photo.id}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.92 },
+                    visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } }
+                  }}
+                  className={`${getCollageClass(index)} relative overflow-hidden cursor-pointer group bg-muted`}
+                  onClick={() => handlePhotoClick(index)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {!loadedImages.has(index) && (
+                    <div className="absolute inset-0 bg-muted animate-pulse" />
+                  )}
+                  <img
+                    src={getThumbUrl(photo.image_url, 600)}
+                    alt={photo.caption || `Photo ${index + 1}`}
+                    className={`w-full h-full object-cover transition-all duration-500 ease-out group-hover:brightness-110 ${
+                      loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => handleImageLoad(index)}
+                    onError={() => handleImageLoad(index)}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
+                      {index + 1}
+                    </span>
                   </div>
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
+                  {photo.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p className="text-white text-xs truncate">{photo.caption}</p>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+            {visibleCount < photos.length && (
+              <div className="flex flex-col items-center gap-2 mt-8 px-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {visibleCount} of {photos.length} photos
+                </p>
+                <Button
+                  onClick={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, photos.length))}
+                  size="lg"
+                  className="rounded-full px-8"
+                >
+                  Load More
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -465,7 +505,7 @@ const AlbumGallery = () => {
                         : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'
                     }`}
                   >
-                    <img src={photo.image_url} alt={`Thumb ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={getThumbUrl(photo.image_url, 120)} alt={`Thumb ${index + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
