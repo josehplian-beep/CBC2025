@@ -397,17 +397,19 @@ const AlbumGallery = () => {
               ))}
             </motion.div>
             {visibleCount < photos.length && (
-              <div className="flex flex-col items-center gap-2 mt-8 px-4">
-                <p className="text-sm text-muted-foreground">
-                  Showing {visibleCount} of {photos.length} photos
+              <div
+                ref={sentinelRef}
+                className="flex flex-col items-center gap-3 mt-8 px-4 py-6"
+                aria-label="Loading more photos"
+              >
+                <div className="flex gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "120ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "240ms" }} />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {visibleCount} of {photos.length} photos
                 </p>
-                <Button
-                  onClick={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, photos.length))}
-                  size="lg"
-                  className="rounded-full px-8"
-                >
-                  Load More
-                </Button>
               </div>
             )}
           </>
