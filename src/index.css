@@ -21,11 +21,11 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 45% 20%;
 
-    --primary: 210 45% 25%;
+    --primary: 203 33% 26%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 15% 92%;
-    --secondary-foreground: 210 45% 20%;
+    --secondary-foreground: 203 33% 26%;
 
     --muted: 210 10% 90%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -38,7 +38,7 @@ All colors MUST be HSL.
 
     --border: 210 15% 88%;
     --input: 210 15% 88%;
-    --ring: 210 45% 25%;
+    --ring: 203 33% 26%;
 
     --radius: 0.75rem;
 
@@ -53,7 +53,7 @@ All colors MUST be HSL.
     --sidebar-ring: 210 50% 50%;
 
     /* Custom design tokens */
-    --hero-gradient: linear-gradient(135deg, hsl(210 45% 25%) 0%, hsl(210 50% 35%) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(203 33% 26%) 0%, hsl(203 38% 36%) 100%);
     --accent-gradient: linear-gradient(135deg, hsl(210 50% 40%) 0%, hsl(210 55% 50%) 100%);
     --overlay-gradient: linear-gradient(180deg, rgba(33, 51, 74, 0.5) 0%, rgba(33, 51, 74, 0.8) 100%);
 

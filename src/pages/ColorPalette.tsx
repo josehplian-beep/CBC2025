@@ -1,11 +1,49 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Palette, Copy, Check } from "lucide-react";
+import { Palette, Copy, Check, Download } from "lucide-react";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const ColorPalette = () => {
   const [copiedColor, setCopiedColor] = useState<string>('');
+  const [downloading, setDownloading] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const downloadPdf = async () => {
+    if (!printRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save('color-palette.pdf');
+      toast.success('PDF downloaded');
+    } catch (e) {
+      toast.error('Failed to generate PDF');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const hslToHex = (hsl: string): string => {
     const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
@@ -73,7 +111,7 @@ const ColorPalette = () => {
   };
 
   const colors = [
-    { name: 'Primary (Deep Navy)', var: '--primary', value: 'hsl(210 45% 25%)' },
+    { name: 'Primary (Deep Teal)', var: '--primary', value: 'hsl(203 33% 26%)' },
     { name: 'Background (White)', var: '--background', value: 'hsl(0 0% 100%)' },
     { name: 'Foreground (Dark Blue-Gray)', var: '--foreground', value: 'hsl(210 45% 20%)' },
     { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 15% 92%)' },
@@ -102,6 +140,13 @@ const ColorPalette = () => {
 
       <section className="py-12 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex justify-end mb-4">
+            <Button onClick={downloadPdf} disabled={downloading}>
+              <Download className="w-4 h-4 mr-2" />
+              {downloading ? 'Generating...' : 'Download as PDF'}
+            </Button>
+          </div>
+          <div ref={printRef}>
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -231,6 +276,7 @@ const ColorPalette = () => {
               </p>
             </CardContent>
           </Card>
+          </div>
         </div>
       </section>
     </>
