@@ -80,6 +80,66 @@ const ColorPalette = () => {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
   };
 
+  const hslToRgbValues = (hsl: string): [number, number, number] => {
+    const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
+    if (!match) return [0, 0, 0];
+    const h = parseFloat(match[1]) / 360;
+    const s = parseFloat(match[2]) / 100;
+    const l = parseFloat(match[3]) / 100;
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    return [r * 255, g * 255, b * 255];
+  };
+
+  const relativeLuminance = ([r, g, b]: [number, number, number]) => {
+    const channel = (c: number) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  };
+
+  const contrastRatio = (a: [number, number, number], b: [number, number, number]) => {
+    const l1 = relativeLuminance(a);
+    const l2 = relativeLuminance(b);
+    const [light, dark] = l1 > l2 ? [l1, l2] : [l2, l1];
+    return (light + 0.05) / (dark + 0.05);
+  };
+
+  const getReadableForeground = (hsl: string) => {
+    const bg = hslToRgbValues(hsl);
+    const white: [number, number, number] = [255, 255, 255];
+    const black: [number, number, number] = [0, 0, 0];
+    const whiteRatio = contrastRatio(bg, white);
+    const blackRatio = contrastRatio(bg, black);
+    const useWhite = whiteRatio >= blackRatio;
+    const ratio = useWhite ? whiteRatio : blackRatio;
+    const grade = ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA' : ratio >= 3 ? 'AA Large' : 'Fail';
+    return {
+      color: useWhite ? '#FFFFFF' : '#000000',
+      label: useWhite ? 'White' : 'Black',
+      ratio: ratio.toFixed(2),
+      grade,
+      passes: ratio >= 4.5,
+    };
+  };
+
   const hslToRgb = (hsl: string): string => {
     const match = hsl.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
     if (!match) return 'rgb(0, 0, 0)';
@@ -160,16 +220,35 @@ const ColorPalette = () => {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {colors.map((color) => (
+                {colors.map((color) => {
+                  const contrast = getReadableForeground(color.value);
+                  return (
                   <Card 
                     key={color.var}
                     className="overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer group"
                     onClick={() => copyToClipboard(color.var, color.value)}
                   >
                     <div 
-                      className="h-24 w-full transition-transform group-hover:scale-105"
-                      style={{ background: color.value }}
-                    />
+                      className="h-28 w-full transition-transform group-hover:scale-105 flex items-center justify-between px-4"
+                      style={{ background: color.value, color: contrast.color }}
+                    >
+                      <div>
+                        <p className="text-base font-semibold leading-tight">Aa Sample</p>
+                        <p className="text-xs opacity-90">on {contrast.label} text</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-mono text-sm font-bold">{contrast.ratio}:1</p>
+                        <span
+                          className="inline-block text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded"
+                          style={{
+                            background: contrast.passes ? 'rgba(34,197,94,0.9)' : 'rgba(239,68,68,0.9)',
+                            color: '#fff',
+                          }}
+                        >
+                          {contrast.grade}
+                        </span>
+                      </div>
+                    </div>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -186,6 +265,11 @@ const ColorPalette = () => {
                             <p className="text-xs text-muted-foreground">
                               <span className="font-semibold">HSL:</span>{' '}
                               <span className="font-mono break-all">{color.value}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground pt-1 border-t mt-1">
+                              <span className="font-semibold">Readable text:</span>{' '}
+                              <span className="font-mono">{contrast.label}</span>{' '}
+                              <span className="text-[10px]">({contrast.ratio}:1 · {contrast.grade})</span>
                             </p>
                           </div>
                         </div>
@@ -207,7 +291,8 @@ const ColorPalette = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
