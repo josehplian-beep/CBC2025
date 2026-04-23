@@ -276,6 +276,7 @@ const ColorPalette = () => {
               </p>
             </CardContent>
           </Card>
+          </div>
         </div>
       </section>
     </>
