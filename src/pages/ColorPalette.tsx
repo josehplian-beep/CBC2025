@@ -140,6 +140,13 @@ const ColorPalette = () => {
 
       <section className="py-12 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex justify-end mb-4">
+            <Button onClick={downloadPdf} disabled={downloading}>
+              <Download className="w-4 h-4 mr-2" />
+              {downloading ? 'Generating...' : 'Download as PDF'}
+            </Button>
+          </div>
+          <div ref={printRef}>
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
