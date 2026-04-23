@@ -73,7 +73,7 @@ const ColorPalette = () => {
   };
 
   const colors = [
-    { name: 'Primary (Deep Navy)', var: '--primary', value: 'hsl(210 45% 25%)' },
+    { name: 'Primary (Deep Teal)', var: '--primary', value: 'hsl(203 33% 26%)' },
     { name: 'Background (White)', var: '--background', value: 'hsl(0 0% 100%)' },
     { name: 'Foreground (Dark Blue-Gray)', var: '--foreground', value: 'hsl(210 45% 20%)' },
     { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 15% 92%)' },
