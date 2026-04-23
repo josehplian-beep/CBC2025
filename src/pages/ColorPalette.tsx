@@ -171,14 +171,14 @@ const ColorPalette = () => {
   };
 
   const colors = [
-    { name: 'Primary (Deep Teal)', var: '--primary', value: 'hsl(203 33% 26%)' },
+    { name: 'Primary (Deep Teal)', var: '--primary', value: 'hsl(203.18 32.84% 26.27%)' },
     { name: 'Background (White)', var: '--background', value: 'hsl(0 0% 100%)' },
     { name: 'Foreground (Dark Blue-Gray)', var: '--foreground', value: 'hsl(210 45% 20%)' },
     { name: 'Secondary (Light Gray)', var: '--secondary', value: 'hsl(210 15% 92%)' },
     { name: 'Accent (Medium Blue)', var: '--accent', value: 'hsl(210 50% 40%)' },
-    { name: 'Muted Foreground (Gray Text)', var: '--muted-foreground', value: 'hsl(215.4 16.3% 46.9%)' },
+    { name: 'Muted Foreground (Slate)', var: '--muted-foreground', value: 'hsl(215.38 16.32% 46.86%)' },
     { name: 'Border (Light Gray)', var: '--border', value: 'hsl(210 15% 88%)' },
-    { name: 'Destructive (Red)', var: '--destructive', value: 'hsl(0 84.2% 60.2%)' }
+    { name: 'Destructive (Soft Red)', var: '--destructive', value: 'hsl(0 100% 80%)' }
   ];
 
   const copyToClipboard = (colorVar: string, value: string) => {
