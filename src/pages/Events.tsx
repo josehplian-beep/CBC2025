@@ -145,25 +145,27 @@ const Events = () => {
     toast.success('Calendar event downloaded');
   };
 
+  const eventUrl = (event: any) => `${window.location.origin}/events/${event.id}`;
+
   const shareEventToFacebook = (event: any) => {
-    const url = encodeURIComponent(window.location.origin + '/events');
+    const url = encodeURIComponent(eventUrl(event));
     const text = encodeURIComponent(`${event.title} - ${event.date} at ${event.time}`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
   const shareEventToTwitter = (event: any) => {
     const text = encodeURIComponent(`Join us for ${event.title} on ${event.date} at ${event.time}!`);
-    const url = encodeURIComponent(window.location.origin + '/events');
+    const url = encodeURIComponent(eventUrl(event));
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
-  const shareEventToInstagram = () => {
+  const shareEventToInstagram = (event: any) => {
+    navigator.clipboard.writeText(eventUrl(event));
     toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
-    navigator.clipboard.writeText(window.location.origin + '/events');
   };
 
-  const copyEventLink = () => {
-    navigator.clipboard.writeText(window.location.origin + '/events');
+  const copyEventLink = (event: any) => {
+    navigator.clipboard.writeText(eventUrl(event));
     toast.success('Event link copied to clipboard');
   };
 
@@ -173,11 +175,11 @@ const Events = () => {
         await navigator.share({
           title: event.title,
           text: `${event.title} — ${event.date} at ${event.time}, ${event.location}`,
-          url: window.location.origin + '/events',
+          url: eventUrl(event),
         });
       } catch {}
     } else {
-      copyEventLink();
+      copyEventLink(event);
     }
   };
 
