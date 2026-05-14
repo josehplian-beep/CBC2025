@@ -615,6 +615,11 @@ const Events = () => {
             <Button variant="outline" size="sm" onClick={() => viewingEvent && shareEventToCalendar(viewingEvent)}>
               <CalendarIcon className="w-3.5 h-3.5 mr-1" /> Add to Calendar
             </Button>
+            {viewingEvent && (
+              <Button size="sm" onClick={() => navigate(`/events/${viewingEvent.id}`)}>
+                <Eye className="w-3.5 h-3.5 mr-1" /> View Page
+              </Button>
+            )}
             <AlertDialogCancel className="mt-0">Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
