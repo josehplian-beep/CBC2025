@@ -545,9 +545,11 @@ const Events = () => {
                                 <Button
                                   variant="ghost" size="icon"
                                   className="h-8 w-8 rounded-full hover:bg-accent/50"
-                                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                                  asChild
                                 >
-                                  <Eye className="w-4 h-4" />
+                                  <Link to={`/events/${event.id}`} aria-label="View event page">
+                                    <Eye className="w-4 h-4" />
+                                  </Link>
                                 </Button>
                                 {isAdmin && (
                                   <>
