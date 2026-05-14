@@ -13,6 +13,7 @@ import Staff from "./pages/Staff";
 import Media from "./pages/Media";
 import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import Resources from "./pages/Resources";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
