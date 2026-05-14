@@ -147,7 +147,8 @@ const Events = () => {
     toast.success('Calendar event downloaded');
   };
 
-  const eventUrl = (event: any) => `${window.location.origin}/events/${event.id}`;
+  const eventPath = (event: any) => (event.slug ? `/e/${event.slug}` : `/events/${event.id}`);
+  const eventUrl = (event: any) => `${window.location.origin}${eventPath(event)}`;
 
   const shareEventToFacebook = (event: any) => {
     const url = encodeURIComponent(eventUrl(event));
@@ -547,7 +548,7 @@ const Events = () => {
                                   className="h-8 w-8 rounded-full hover:bg-accent/50"
                                   asChild
                                 >
-                                  <Link to={`/events/${event.id}`} aria-label="View event page">
+                                  <Link to={eventPath(event)} aria-label="View event page">
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
@@ -616,7 +617,7 @@ const Events = () => {
               <CalendarIcon className="w-3.5 h-3.5 mr-1" /> Add to Calendar
             </Button>
             {viewingEvent && (
-              <Button size="sm" onClick={() => navigate(`/events/${viewingEvent.id}`)}>
+              <Button size="sm" onClick={() => navigate(eventPath(viewingEvent))}>
                 <Eye className="w-3.5 h-3.5 mr-1" /> View Page
               </Button>
             )}

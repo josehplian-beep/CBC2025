@@ -427,6 +427,7 @@ export type Database = {
           parent_event_id: string | null
           recurring_end_date: string | null
           recurring_pattern: string | null
+          slug: string | null
           time: string
           title: string
           type: string
@@ -445,6 +446,7 @@ export type Database = {
           parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
+          slug?: string | null
           time: string
           title: string
           type: string
@@ -463,6 +465,7 @@ export type Database = {
           parent_event_id?: string | null
           recurring_end_date?: string | null
           recurring_pattern?: string | null
+          slug?: string | null
           time?: string
           title?: string
           type?: string
@@ -1429,6 +1432,7 @@ export type Database = {
         Args: { _class_id: string; _teacher_id: string }
         Returns: boolean
       }
+      slugify_event: { Args: { _title: string }; Returns: string }
     }
     Enums: {
       app_role:

@@ -32,7 +32,7 @@ const typeColors: Record<string, string> = {
 };
 
 const EventDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -40,13 +40,12 @@ const EventDetail = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!id) return;
+      if (!id && !slug) return;
       setLoading(true);
-      const { data, error } = await supabase
-        .from("events" as any)
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
+      const query = supabase.from("events" as any).select("*");
+      const { data, error } = slug
+        ? await query.eq("slug", slug).maybeSingle()
+        : await query.eq("id", id!).maybeSingle();
       if (error || !data) {
         setEvent(null);
       } else {
@@ -59,9 +58,10 @@ const EventDetail = () => {
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [id, slug]);
 
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/events/${id}` : "";
+  const shortPath = event?.slug ? `/e/${event.slug}` : `/events/${event?.id ?? id}`;
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}${shortPath}` : "";
   const shareTitle = event ? `${event.title} — Chin Bethel Church` : "Event";
   const shareText = event ? `${event.title} • ${event.date} at ${event.time} • ${event.location}` : "";
 

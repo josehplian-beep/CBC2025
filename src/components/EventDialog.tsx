@@ -49,6 +49,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
   const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     date: "",
     date_obj: "",
     time: "",
@@ -64,6 +65,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     if (event) {
       setFormData({
         title: event.title || "",
+        slug: event.slug || "",
         date: event.date || "",
         date_obj: event.date_obj?.split('T')[0] || "",
         time: event.time || "",
@@ -78,6 +80,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     } else {
       setFormData({
         title: "",
+        slug: "",
         date: "",
         date_obj: "",
         time: "",
@@ -92,6 +95,9 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     }
     setImageFile(null);
   }, [event, open]);
+
+  const slugify = (s: string) =>
+    s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -133,8 +139,10 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         imageUrl = publicUrl;
       }
 
+      const cleanSlug = formData.slug ? slugify(formData.slug) : null;
       const eventData = {
         ...formData,
+        slug: cleanSlug,
         date_obj: new Date(formData.date_obj).toISOString(),
         image_url: imageUrl || null,
         recurring_pattern: formData.recurring_pattern !== 'none' ? formData.recurring_pattern : null,
@@ -236,6 +244,21 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
               />
+            </div>
+
+            <div>
+              <Label htmlFor="slug">Custom Short URL</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">/e/</span>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onBlur={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
+                  placeholder={formData.title ? slugify(formData.title) : "easter-sunday-2026"}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate from the title.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
