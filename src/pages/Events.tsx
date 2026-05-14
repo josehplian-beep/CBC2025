@@ -548,7 +548,7 @@ const Events = () => {
                                   className="h-8 w-8 rounded-full hover:bg-accent/50"
                                   asChild
                                 >
-                                  <Link to={`/events/${event.id}`} aria-label="View event page">
+                                  <Link to={eventPath(event)} aria-label="View event page">
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
