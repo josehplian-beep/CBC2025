@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
 const Events = () => {
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
