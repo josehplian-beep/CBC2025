@@ -246,6 +246,21 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
               />
             </div>
 
+            <div>
+              <Label htmlFor="slug">Custom Short URL</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">/e/</span>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onBlur={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
+                  placeholder={formData.title ? slugify(formData.title) : "easter-sunday-2026"}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate from the title.</p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="date">Display Date *</Label>
