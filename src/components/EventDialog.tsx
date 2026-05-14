@@ -139,8 +139,10 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         imageUrl = publicUrl;
       }
 
+      const cleanSlug = formData.slug ? slugify(formData.slug) : null;
       const eventData = {
         ...formData,
+        slug: cleanSlug,
         date_obj: new Date(formData.date_obj).toISOString(),
         image_url: imageUrl || null,
         recurring_pattern: formData.recurring_pattern !== 'none' ? formData.recurring_pattern : null,
