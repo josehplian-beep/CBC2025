@@ -49,6 +49,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
   const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     date: "",
     date_obj: "",
     time: "",
@@ -64,6 +65,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     if (event) {
       setFormData({
         title: event.title || "",
+        slug: event.slug || "",
         date: event.date || "",
         date_obj: event.date_obj?.split('T')[0] || "",
         time: event.time || "",
@@ -78,6 +80,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     } else {
       setFormData({
         title: "",
+        slug: "",
         date: "",
         date_obj: "",
         time: "",
@@ -92,6 +95,9 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     }
     setImageFile(null);
   }, [event, open]);
+
+  const slugify = (s: string) =>
+    s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
