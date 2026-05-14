@@ -13,6 +13,7 @@ import Staff from "./pages/Staff";
 import Media from "./pages/Media";
 import WatchVideo from "./pages/WatchVideo";
 import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import Resources from "./pages/Resources";
 import GetInvolved from "./pages/GetInvolved";
 import Members from "./pages/Members";
@@ -87,6 +88,7 @@ const App = () => (
           <Route path="/media/album/:albumId" element={<AlbumGallery />} />
           <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<ProtectedRoute permission="view_member_directory"><AdminLayout><Members /></AdminLayout></ProtectedRoute>} />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -17,6 +18,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
 const Events = () => {
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
@@ -145,25 +147,27 @@ const Events = () => {
     toast.success('Calendar event downloaded');
   };
 
+  const eventUrl = (event: any) => `${window.location.origin}/events/${event.id}`;
+
   const shareEventToFacebook = (event: any) => {
-    const url = encodeURIComponent(window.location.origin + '/events');
+    const url = encodeURIComponent(eventUrl(event));
     const text = encodeURIComponent(`${event.title} - ${event.date} at ${event.time}`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
   const shareEventToTwitter = (event: any) => {
     const text = encodeURIComponent(`Join us for ${event.title} on ${event.date} at ${event.time}!`);
-    const url = encodeURIComponent(window.location.origin + '/events');
+    const url = encodeURIComponent(eventUrl(event));
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
-  const shareEventToInstagram = () => {
+  const shareEventToInstagram = (event: any) => {
+    navigator.clipboard.writeText(eventUrl(event));
     toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
-    navigator.clipboard.writeText(window.location.origin + '/events');
   };
 
-  const copyEventLink = () => {
-    navigator.clipboard.writeText(window.location.origin + '/events');
+  const copyEventLink = (event: any) => {
+    navigator.clipboard.writeText(eventUrl(event));
     toast.success('Event link copied to clipboard');
   };
 
@@ -173,11 +177,11 @@ const Events = () => {
         await navigator.share({
           title: event.title,
           text: `${event.title} — ${event.date} at ${event.time}, ${event.location}`,
-          url: window.location.origin + '/events',
+          url: eventUrl(event),
         });
       } catch {}
     } else {
-      copyEventLink();
+      copyEventLink(event);
     }
   };
 
@@ -251,10 +255,10 @@ const Events = () => {
         <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
           <Twitter className="w-4 h-4 mr-2" /> Twitter / X
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareEventToInstagram}>
+        <DropdownMenuItem onClick={() => shareEventToInstagram(event)}>
           <Instagram className="w-4 h-4 mr-2" /> Instagram
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={copyEventLink}>
+        <DropdownMenuItem onClick={() => copyEventLink(event)}>
           <Link2 className="w-4 h-4 mr-2" /> Copy Link
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -541,9 +545,11 @@ const Events = () => {
                                 <Button
                                   variant="ghost" size="icon"
                                   className="h-8 w-8 rounded-full hover:bg-accent/50"
-                                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                                  asChild
                                 >
-                                  <Eye className="w-4 h-4" />
+                                  <Link to={`/events/${event.id}`} aria-label="View event page">
+                                    <Eye className="w-4 h-4" />
+                                  </Link>
                                 </Button>
                                 {isAdmin && (
                                   <>
@@ -609,6 +615,11 @@ const Events = () => {
             <Button variant="outline" size="sm" onClick={() => viewingEvent && shareEventToCalendar(viewingEvent)}>
               <CalendarIcon className="w-3.5 h-3.5 mr-1" /> Add to Calendar
             </Button>
+            {viewingEvent && (
+              <Button size="sm" onClick={() => navigate(`/events/${viewingEvent.id}`)}>
+                <Eye className="w-3.5 h-3.5 mr-1" /> View Page
+              </Button>
+            )}
             <AlertDialogCancel className="mt-0">Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
