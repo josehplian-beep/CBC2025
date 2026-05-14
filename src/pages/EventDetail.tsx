@@ -137,6 +137,20 @@ const EventDetail = () => {
 
   const description = event.description?.slice(0, 160) || `${event.title} on ${event.date} at ${event.time}, ${event.location}.`;
 
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    startDate: event.dateObj.toISOString(),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: { "@type": "Place", name: event.location },
+    description: event.description || description,
+    image: event.image_url || undefined,
+    organizer: { "@type": "Organization", name: "Chin Bethel Church", url: "https://chinbethelchurch.com" },
+    url: shareUrl,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
@@ -152,19 +166,7 @@ const EventDetail = () => {
         <meta name="twitter:title" content={event.title} />
         <meta name="twitter:description" content={description} />
         {event.image_url && <meta name="twitter:image" content={event.image_url} />}
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Event",
-          name: event.title,
-          startDate: event.dateObj.toISOString(),
-          eventStatus: "https://schema.org/EventScheduled",
-          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-          location: { "@type": "Place", name: event.location },
-          description: event.description || description,
-          image: event.image_url || undefined,
-          organizer: { "@type": "Organization", name: "Chin Bethel Church", url: "https://chinbethelchurch.com" },
-          url: shareUrl,
-        })}</script>
+        <script type="application/ld+json">{jsonLd}</script>
       </Helmet>
 
       <Navigation />
