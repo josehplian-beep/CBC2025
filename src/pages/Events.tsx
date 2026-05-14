@@ -147,7 +147,8 @@ const Events = () => {
     toast.success('Calendar event downloaded');
   };
 
-  const eventUrl = (event: any) => `${window.location.origin}/events/${event.id}`;
+  const eventPath = (event: any) => (event.slug ? `/e/${event.slug}` : `/events/${event.id}`);
+  const eventUrl = (event: any) => `${window.location.origin}${eventPath(event)}`;
 
   const shareEventToFacebook = (event: any) => {
     const url = encodeURIComponent(eventUrl(event));
