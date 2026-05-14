@@ -617,7 +617,7 @@ const Events = () => {
               <CalendarIcon className="w-3.5 h-3.5 mr-1" /> Add to Calendar
             </Button>
             {viewingEvent && (
-              <Button size="sm" onClick={() => navigate(`/events/${viewingEvent.id}`)}>
+              <Button size="sm" onClick={() => navigate(eventPath(viewingEvent))}>
                 <Eye className="w-3.5 h-3.5 mr-1" /> View Page
               </Button>
             )}
