@@ -89,6 +89,7 @@ const App = () => (
           <Route path="/watch/:videoId" element={<WatchVideo />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/e/:slug" element={<EventDetail />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/members" element={<ProtectedRoute permission="view_member_directory"><AdminLayout><Members /></AdminLayout></ProtectedRoute>} />
