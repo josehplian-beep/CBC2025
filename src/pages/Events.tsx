@@ -253,10 +253,10 @@ const Events = () => {
         <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
           <Twitter className="w-4 h-4 mr-2" /> Twitter / X
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareEventToInstagram}>
+        <DropdownMenuItem onClick={() => shareEventToInstagram(event)}>
           <Instagram className="w-4 h-4 mr-2" /> Instagram
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={copyEventLink}>
+        <DropdownMenuItem onClick={() => copyEventLink(event)}>
           <Link2 className="w-4 h-4 mr-2" /> Copy Link
         </DropdownMenuItem>
       </DropdownMenuContent>
