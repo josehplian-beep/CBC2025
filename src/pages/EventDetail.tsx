@@ -193,7 +193,12 @@ const EventDetail = () => {
         <div className="grid lg:grid-cols-[1fr_320px] gap-8">
           <div>
             {event.image_url && (
-              <img src={event.image_url} alt={event.title} className="w-full rounded-2xl mb-6 object-cover max-h-[480px]" />
+              <img
+                src={event.image_url}
+                alt={event.title}
+                className="w-full h-auto rounded-2xl mb-6 object-contain bg-muted/30"
+                loading="lazy"
+              />
             )}
             {event.description ? (
               <div className="prose prose-neutral dark:prose-invert max-w-none whitespace-pre-wrap text-foreground/90 leading-relaxed">
