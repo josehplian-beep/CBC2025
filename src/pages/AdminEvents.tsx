@@ -340,26 +340,34 @@ const AdminEvents = () => {
     setDialogOpen(false);
   };
 
+  const startOfToday = (() => { const t = new Date(); t.setHours(0,0,0,0); return t; })();
+
   const filteredEvents = events
     .filter(e => {
       const matchesType = typeFilter === "all" || e.type === typeFilter;
-      const matchesSearch = searchQuery === "" || 
+      const matchesSearch = searchQuery === "" ||
         e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.location.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      let matchesDate = true;
+
       const eventDate = new Date(e.date_obj);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (dateFilter === "upcoming") {
-        matchesDate = eventDate >= today;
-      } else if (dateFilter === "past") {
-        matchesDate = eventDate < today;
-      }
-      
+      let matchesDate = true;
+      if (dateFilter === "upcoming") matchesDate = eventDate >= startOfToday;
+      else if (dateFilter === "past") matchesDate = eventDate < startOfToday;
+
       return matchesType && matchesSearch && matchesDate;
+    })
+    .sort((a, b) => {
+      const da = new Date(a.date_obj).getTime();
+      const db = new Date(b.date_obj).getTime();
+      const now = startOfToday.getTime();
+      const aUpcoming = da >= now;
+      const bUpcoming = db >= now;
+      // Upcoming events always come first, sorted soonest → latest.
+      // Past events follow, sorted most recent → oldest.
+      if (aUpcoming && !bUpcoming) return -1;
+      if (!aUpcoming && bUpcoming) return 1;
+      return aUpcoming ? da - db : db - da;
     });
 
   const eventTypes = Array.from(new Set(events.map(e => e.type)));
