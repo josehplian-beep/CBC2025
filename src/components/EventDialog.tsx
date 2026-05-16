@@ -140,10 +140,16 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
       }
 
       const cleanSlug = formData.slug ? slugify(formData.slug) : null;
+      // Parse YYYY-MM-DD as a LOCAL date at noon so the stored ISO never drifts to the previous/next day across timezones.
+      const [yy, mm, dd] = formData.date_obj.split('-').map(Number);
+      const localNoon = new Date(yy, mm - 1, dd, 12, 0, 0);
+      // Keep the human-readable display date in sync with the calendar date.
+      const syncedDisplayDate = format(localNoon, 'MMMM d, yyyy');
       const eventData = {
         ...formData,
+        date: syncedDisplayDate,
         slug: cleanSlug,
-        date_obj: new Date(formData.date_obj).toISOString(),
+        date_obj: localNoon.toISOString(),
         image_url: imageUrl || null,
         recurring_pattern: formData.recurring_pattern !== 'none' ? formData.recurring_pattern : null,
         recurring_end_date: formData.recurring_pattern !== 'none' && formData.recurring_end_date 
@@ -279,7 +285,15 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
                   id="date_obj"
                   type="date"
                   value={formData.date_obj}
-                  onChange={(e) => setFormData({ ...formData, date_obj: e.target.value })}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    let displayDate = formData.date;
+                    if (v) {
+                      const [yy, mm, dd] = v.split('-').map(Number);
+                      displayDate = format(new Date(yy, mm - 1, dd, 12), 'MMMM d, yyyy');
+                    }
+                    setFormData({ ...formData, date_obj: v, date: displayDate });
+                  }}
                   required
                 />
               </div>
