@@ -117,8 +117,10 @@ const AdminEvents = () => {
     try {
       const imageUrl = await uploadImage();
       
-      const eventDate = new Date(formData.date);
-      const dateString = format(eventDate, "MMMM dd, yyyy");
+      // Parse YYYY-MM-DD as local noon so the stored date never drifts across timezones.
+      const [yy, mm, dd] = formData.date.split('-').map(Number);
+      const eventDate = new Date(yy, mm - 1, dd, 12, 0, 0);
+      const dateString = format(eventDate, "MMMM d, yyyy");
 
       const eventData = {
         title: formData.title,
