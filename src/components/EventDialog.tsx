@@ -285,7 +285,15 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
                   id="date_obj"
                   type="date"
                   value={formData.date_obj}
-                  onChange={(e) => setFormData({ ...formData, date_obj: e.target.value })}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    let displayDate = formData.date;
+                    if (v) {
+                      const [yy, mm, dd] = v.split('-').map(Number);
+                      displayDate = format(new Date(yy, mm - 1, dd, 12), 'MMMM d, yyyy');
+                    }
+                    setFormData({ ...formData, date_obj: v, date: displayDate });
+                  }}
                   required
                 />
               </div>
