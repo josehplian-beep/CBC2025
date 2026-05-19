@@ -296,7 +296,7 @@ const Events = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                  onClick={() => navigate(eventPath(event))}
                   className="flex-shrink-0 w-60 text-left rounded-xl border border-border/60 bg-card p-4 hover:shadow-md hover:border-primary/30 transition-all duration-200"
                 >
                   <Badge className={`${typeColors[event.type]} text-[10px] mb-2`}>{event.type}</Badge>
