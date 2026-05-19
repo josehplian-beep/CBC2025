@@ -333,7 +333,7 @@ const Events = () => {
                 >
                   <Card
                     className="relative overflow-hidden cursor-pointer border-2 border-today/50 bg-gradient-to-br from-today-muted/40 via-card to-today/10 hover:border-today/80 hover:shadow-xl transition-all duration-300 rounded-2xl group shadow-[0_4px_20px_-4px_hsl(var(--today)/0.3)]"
-                    onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                    onClick={() => navigate(eventPath(event))}
                   >
                     {/* Decorative accent bar */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-today via-today-foreground to-today" />
