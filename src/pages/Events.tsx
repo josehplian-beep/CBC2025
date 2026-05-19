@@ -296,7 +296,7 @@ const Events = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                  onClick={() => navigate(eventPath(event))}
                   className="flex-shrink-0 w-60 text-left rounded-xl border border-border/60 bg-card p-4 hover:shadow-md hover:border-primary/30 transition-all duration-200"
                 >
                   <Badge className={`${typeColors[event.type]} text-[10px] mb-2`}>{event.type}</Badge>
@@ -333,7 +333,7 @@ const Events = () => {
                 >
                   <Card
                     className="relative overflow-hidden cursor-pointer border-2 border-today/50 bg-gradient-to-br from-today-muted/40 via-card to-today/10 hover:border-today/80 hover:shadow-xl transition-all duration-300 rounded-2xl group shadow-[0_4px_20px_-4px_hsl(var(--today)/0.3)]"
-                    onClick={() => { setViewingEvent(event); setViewEventDialog(true); }}
+                    onClick={() => navigate(eventPath(event))}
                   >
                     {/* Decorative accent bar */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-today via-today-foreground to-today" />
@@ -496,7 +496,9 @@ const Events = () => {
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.2) }}
                     >
-                      <Card className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden ${
+                      <Card
+                        onClick={() => navigate(eventPath(event))}
+                        className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden cursor-pointer ${
                         isToday(event.dateObj) 
                           ? 'border-2 border-today/50 bg-gradient-to-r from-today-muted/30 via-card to-today/10 shadow-md ring-1 ring-today/20' 
                           : 'border-border/50 hover:border-primary/30'
@@ -541,7 +543,7 @@ const Events = () => {
                               </div>
 
                               {/* Actions */}
-                              <div className="flex items-center gap-1 shrink-0">
+                              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                                 <ShareMenu event={event} />
                                 <Button
                                   variant="ghost" size="icon"
