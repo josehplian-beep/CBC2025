@@ -496,7 +496,9 @@ const Events = () => {
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.2) }}
                     >
-                      <Card className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden ${
+                      <Card
+                        onClick={() => navigate(eventPath(event))}
+                        className={`group border hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden cursor-pointer ${
                         isToday(event.dateObj) 
                           ? 'border-2 border-today/50 bg-gradient-to-r from-today-muted/30 via-card to-today/10 shadow-md ring-1 ring-today/20' 
                           : 'border-border/50 hover:border-primary/30'
