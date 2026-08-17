@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import {
   Calendar as CalendarIcon, Clock, MapPin, ArrowLeft, Share2,
-  Facebook, Twitter, Instagram, Link2, Check,
+  Facebook, Twitter, Instagram, Link2, Check, Sparkles, Users, ArrowRight,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -31,10 +30,18 @@ const typeColors: Record<string, string> = {
   Outreach: "bg-muted text-muted-foreground",
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4 } }),
+};
+
+const eventPath = (e: any) => (e?.slug ? `/e/${e.slug}` : `/events/${e?.id}`);
+
 const EventDetail = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
+  const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -50,17 +57,34 @@ const EventDetail = () => {
         setEvent(null);
       } else {
         const e: any = data;
-        const utc = e.date_obj.split("T")[0];
-        const [y, m, d] = utc.split("-").map(Number);
+        const [y, m, d] = e.date_obj.split("T")[0].split("-").map(Number);
         e.dateObj = new Date(y, m - 1, d);
         setEvent(e);
+
+        const { data: others } = await supabase
+          .from("events" as any)
+          .select("*")
+          .neq("id", e.id)
+          .gte("date_obj", new Date().toISOString().split("T")[0])
+          .order("date_obj", { ascending: true })
+          .limit(3);
+        setRelated((others as any[]) || []);
       }
       setLoading(false);
     };
     load();
   }, [id, slug]);
 
-  const shortPath = event?.slug ? `/e/${event.slug}` : `/events/${event?.id ?? id}`;
+  const countdown = useMemo(() => {
+    if (!event?.dateObj) return null;
+    const days = differenceInCalendarDays(event.dateObj, new Date());
+    if (days > 1) return `${days} days to go`;
+    if (days === 1) return "Tomorrow";
+    if (days === 0) return "Happening today";
+    return "This event has passed";
+  }, [event]);
+
+  const shortPath = event ? eventPath(event) : `/events/${id}`;
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}${shortPath}` : "";
   const shareTitle = event ? `${event.title} — Chin Bethel Church` : "Event";
   const shareText = event ? `${event.title} • ${event.date} at ${event.time} • ${event.location}` : "";
@@ -115,7 +139,12 @@ const EventDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-32 text-center text-muted-foreground">Loading event…</div>
+        <div className="container mx-auto px-4 py-32 space-y-4 max-w-3xl">
+          <div className="h-8 w-2/3 rounded-lg bg-muted animate-pulse" />
+          <div className="h-56 rounded-2xl bg-muted animate-pulse" />
+          <div className="h-4 w-full rounded bg-muted animate-pulse" />
+          <div className="h-4 w-4/5 rounded bg-muted animate-pulse" />
+        </div>
         <Footer />
       </div>
     );
@@ -151,6 +180,13 @@ const EventDetail = () => {
     url: shareUrl,
   });
 
+  const facts = [
+    { icon: CalendarIcon, label: "Date", value: format(event.dateObj, "EEEE, MMMM d, yyyy") },
+    { icon: Clock, label: "Time", value: event.time },
+    { icon: MapPin, label: "Location", value: event.location },
+    { icon: Users, label: "Who's invited", value: `${event.type} • Everyone welcome` },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
@@ -171,21 +207,81 @@ const EventDetail = () => {
 
       <Navigation />
 
-      <section className="relative mt-20 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--accent)/0.15),transparent_60%)]" />
-        <div className="relative z-10 container mx-auto px-4 py-12">
-          <Link to="/events" className="inline-flex items-center gap-1.5 text-primary-foreground/80 hover:text-primary-foreground text-sm mb-4">
+      {/* Immersive hero */}
+      <section className="relative mt-20 overflow-hidden">
+        {event.image_url && (
+          <div className="absolute inset-0">
+            <img src={event.image_url} alt="" aria-hidden className="w-full h-full object-cover scale-105 blur-xl opacity-40" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70" style={{ mixBlendMode: "multiply" }} />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--accent)/0.25),transparent_60%)]" />
+
+        <div className="relative z-10 container mx-auto px-4 py-12 md:py-16">
+          <Link to="/events" className="inline-flex items-center gap-1.5 text-primary-foreground/80 hover:text-primary-foreground text-sm mb-5">
             <ArrowLeft className="w-4 h-4" /> All Events
           </Link>
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <Badge className={`${typeColors[event.type] || "bg-secondary"} mb-3`}>{event.type}</Badge>
-            <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">{event.title}</h1>
-            <div className="mt-4 flex flex-wrap gap-4 text-primary-foreground/85 text-sm">
-              <span className="flex items-center gap-1.5"><CalendarIcon className="w-4 h-4" />{event.date}</span>
-              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{event.time}</span>
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{event.location}</span>
-            </div>
-          </motion.div>
+
+          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 items-center">
+            <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0}>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <Badge className={typeColors[event.type] || "bg-secondary"}>{event.type}</Badge>
+                {countdown && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/15 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur">
+                    <Sparkles className="w-3.5 h-3.5" /> {countdown}
+                  </span>
+                )}
+              </div>
+              <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">{event.title}</h1>
+              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-primary-foreground/85 text-sm">
+                <span className="flex items-center gap-1.5"><CalendarIcon className="w-4 h-4" />{event.date}</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{event.time}</span>
+                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{event.location}</span>
+              </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button onClick={downloadIcs} variant="secondary" className="rounded-full">
+                  <CalendarIcon className="w-4 h-4 mr-2" /> Add to Calendar
+                </Button>
+                <Button onClick={nativeShare} variant="outline" className="rounded-full bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/20">
+                  <Share2 className="w-4 h-4 mr-2" /> Invite a Friend
+                </Button>
+              </div>
+            </motion.div>
+
+            {event.image_url && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="hidden lg:block"
+              >
+                <img
+                  src={event.image_url}
+                  alt={event.title}
+                  className="w-full max-h-[380px] object-contain rounded-2xl shadow-2xl ring-1 ring-primary-foreground/20 bg-background/10"
+                  loading="lazy"
+                />
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick facts */}
+      <section className="container mx-auto px-4 -mt-6 relative z-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {facts.map((f, i) => (
+            <motion.div key={f.label} initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} custom={i}>
+              <Card className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wide">
+                    <f.icon className="w-3.5 h-3.5" /> {f.label}
+                  </div>
+                  <p className="mt-1.5 text-sm font-medium leading-snug">{f.value}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -196,16 +292,44 @@ const EventDetail = () => {
               <img
                 src={event.image_url}
                 alt={event.title}
-                className="w-full h-auto rounded-2xl mb-6 object-contain bg-muted/30"
+                className="w-full h-auto rounded-2xl mb-6 object-contain bg-muted/30 lg:hidden"
                 loading="lazy"
               />
             )}
+            <h2 className="font-display text-xl font-bold mb-3">About this event</h2>
             {event.description ? (
               <div className="prose prose-neutral dark:prose-invert max-w-none whitespace-pre-wrap text-foreground/90 leading-relaxed">
                 {event.description}
               </div>
             ) : (
-              <p className="text-muted-foreground">More details coming soon.</p>
+              <p className="text-muted-foreground">More details coming soon — check back or reach out to the church office.</p>
+            )}
+
+            {related.length > 0 && (
+              <div className="mt-12">
+                <h2 className="font-display text-xl font-bold mb-4">More upcoming events</h2>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {related.map((r) => (
+                    <Link key={r.id} to={eventPath(r)} className="group">
+                      <Card className="rounded-2xl border border-border/60 h-full overflow-hidden transition-shadow hover:shadow-lg">
+                        {r.image_url && (
+                          <div className="h-28 bg-muted/40 overflow-hidden">
+                            <img src={r.image_url} alt={r.title} loading="lazy"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          </div>
+                        )}
+                        <CardContent className="p-4">
+                          <p className="text-[11px] text-muted-foreground">{r.date}</p>
+                          <p className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
+                          <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
+                            View <ArrowRight className="w-3 h-3" />
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
