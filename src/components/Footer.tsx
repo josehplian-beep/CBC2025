@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import cbcLogo from "@/assets/cbc-logo.png.asset.json";
+import cbcLogo from "@/assets/cbc-logo.png";
 import { SOCIAL } from "@/config/social";
 
 const quickLinks = [

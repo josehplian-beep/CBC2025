@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "./ThemeProvider";
-import cbcLogo from "@/assets/cbc-logo.png.asset.json";
+import cbcLogo from "@/assets/cbc-logo.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
