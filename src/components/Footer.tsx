@@ -25,7 +25,7 @@ const Footer = () =>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* About */}
         <div>
-          <img src={cbcLogo} alt="CBC Logo" className="h-24 md:h-28 w-auto mb-4" />
+          <img src={cbcLogo} alt="CBC Logo" className="h-16 md:h-20 w-auto mb-4" />
           <p className="text-primary-foreground/80 text-sm leading-relaxed">
             Chin Bethel Church - A community of faith, worship, and service, dedicated to spreading God's love.
           </p>
