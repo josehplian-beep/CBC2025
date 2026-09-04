@@ -81,26 +81,6 @@ const WatchVideo = () => {
       
       <div className="container mx-auto px-4 pt-24 pb-20">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Search Bar */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search videos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
           {/* Main Video Player */}
           <div className="space-y-4">
             <div className="relative w-full pt-[56.25%] bg-muted rounded-lg overflow-hidden">
@@ -131,6 +111,26 @@ const WatchVideo = () => {
 
           {/* Recent Videos Section */}
           <div className="space-y-4">
+            {/* Search Bar (below the player so it's out of the way while watching) */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search videos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">Recent Videos</h2>
               {searchQuery && (

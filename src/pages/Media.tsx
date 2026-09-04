@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -90,6 +90,23 @@ const Media = () => {
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [albumsLoading, setAlbumsLoading] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => prev + VIDEOS_PER_PAGE);
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [activeTab]);
+
 
 
 
@@ -202,6 +219,8 @@ const Media = () => {
       {/* Compact Hero */}
       <section className="relative pt-24 pb-12 bg-gradient-to-br from-primary via-primary to-accent overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-24 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-2">
             Media Center
@@ -209,6 +228,20 @@ const Media = () => {
           <p className="text-primary-foreground/80 text-lg max-w-xl">
             Watch sermons, worship sessions, and relive our church moments
           </p>
+          <div className="flex flex-wrap gap-3 mt-6">
+            <Button
+              variant="secondary"
+              className="rounded-full bg-live text-live-foreground hover:bg-live/90 border-0"
+              onClick={() => setActiveTab("livestream")}>
+              <Radio className="w-4 h-4 mr-2" /> Watch Live
+            </Button>
+            <Button
+              variant="secondary"
+              className="rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border border-primary-foreground/20"
+              onClick={() => setActiveTab("albums")}>
+              <Images className="w-4 h-4 mr-2" /> Browse Albums
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -217,7 +250,7 @@ const Media = () => {
         <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b">
           <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="h-14 p-1 bg-transparent gap-2 justify-center">
+            <TabsList className="h-auto min-h-14 flex-wrap p-1 py-2 bg-transparent gap-2 justify-center">
               <TabsTrigger
                 value="videos"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=active]:scale-105 bg-muted/60 hover:bg-muted px-7 py-2.5 rounded-full transition-all duration-300 font-semibold text-base">
@@ -244,7 +277,7 @@ const Media = () => {
               </TabsTrigger>
               
               {/* Social Media Icons */}
-              <div className="flex items-center gap-1">
+              <div className="hidden lg:flex items-center gap-1">
                 <a
                   href={SOCIAL.facebook}
                   target="_blank"
@@ -346,16 +379,15 @@ const Media = () => {
                   )}
                   </div>
                   {visibleCount < filteredVideos.length &&
-                <div className="flex justify-center mt-8">
-                      <Button
-                    variant="outline"
-                    size="lg"
-                    className="rounded-full px-8"
-                    onClick={() => setVisibleCount((prev) => prev + VIDEOS_PER_PAGE)}>
-
-                        View More
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
+                <div ref={sentinelRef} className="flex flex-col items-center gap-2 mt-8 py-4">
+                      <div className="flex gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Showing {Math.min(visibleCount, filteredVideos.length)} of {filteredVideos.length} videos
+                      </p>
                     </div>
                 }
                 </> :
@@ -498,7 +530,13 @@ const Media = () => {
                         <img
                       src={album.cover_image_url || communityImage}
                       alt={album.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
+                        <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-medium">
+                          {album.photo_count} photo{album.photo_count !== 1 && "s"}
+                        </div>
 
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
