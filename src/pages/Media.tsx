@@ -530,7 +530,13 @@ const Media = () => {
                         <img
                       src={album.cover_image_url || communityImage}
                       alt={album.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
+                        <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-medium">
+                          {album.photo_count} photo{album.photo_count !== 1 && "s"}
+                        </div>
 
                         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
