@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import cbcLogo from "@/assets/cbc-logo.png";
+import cbcLogo from "@/assets/cbc-logo.png.asset.json";
 import { SOCIAL } from "@/config/social";
 
 const quickLinks = [
@@ -25,7 +25,7 @@ const Footer = () =>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* About */}
         <div>
-          <img src={cbcLogo} alt="CBC Logo" className="h-12 w-auto mb-4" />
+          <img src={cbcLogo.url} alt="CBC Logo" className="h-12 w-auto mb-4" />
           <p className="text-primary-foreground/80 text-sm leading-relaxed">
             Chin Bethel Church - A community of faith, worship, and service, dedicated to spreading God's love.
           </p>
