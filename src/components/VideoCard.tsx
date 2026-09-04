@@ -24,14 +24,16 @@ const VideoCard = ({ title, date, category, thumbnail, videoId }: VideoCardProps
   return (
     <>
       <Card 
-        className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col"
+        className="group overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full flex flex-col"
         onClick={handleClick}
       >
         <div className="relative aspect-video bg-muted overflow-hidden">
           {thumbnail ? (
-            <img 
-              src={thumbnail} 
+            <img
+              src={thumbnail}
               alt={title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
