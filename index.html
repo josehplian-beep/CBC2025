@@ -162,6 +162,32 @@ Experience faith, fellowship, and spiritual growth.
 
   <body>
     <div id="root"></div>
+    <script>
+      // Clear stale service workers/caches left over from an old base path (e.g. /CBC2025/)
+      (function () {
+        var FLAG = "cbc-sw-reset-v1";
+        if (localStorage.getItem(FLAG) || !("serviceWorker" in navigator)) return;
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          var stale = regs.filter(function (r) {
+            return r.scope.indexOf("/CBC2025") !== -1;
+          });
+          if (!stale.length) {
+            localStorage.setItem(FLAG, "1");
+            return;
+          }
+          Promise.all(stale.map(function (r) { return r.unregister(); }))
+            .then(function () {
+              return window.caches ? caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              }) : null;
+            })
+            .then(function () {
+              localStorage.setItem(FLAG, "1");
+              window.location.reload();
+            });
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
