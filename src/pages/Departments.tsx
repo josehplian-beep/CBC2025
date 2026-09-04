@@ -146,8 +146,25 @@ const Departments = () => {
               setSearchParams({ tab: val });
             }}>
             <div className="flex flex-col md:flex-row gap-6 lg:gap-10 max-w-7xl mx-auto">
-              {/* Vertical tab sidebar — horizontal scroll chips on mobile */}
-              <TabsList className="flex md:flex-col md:w-56 md:shrink-0 md:sticky md:top-24 self-start w-full overflow-x-auto md:overflow-visible gap-1.5 h-auto bg-muted/50 p-2 rounded-xl scrollbar-none">
+              {/* Mobile dropdown selector */}
+              <div className="md:hidden">
+                <Select value={selectedDepartment} onValueChange={(val) => {
+                    setSelectedDepartment(val);
+                    setSearchParams({ tab: val });
+                  }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map(dept => (
+                      <SelectItem key={dept} value={dept}>{formatDepartmentName(dept)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Desktop vertical tab sidebar */}
+              <TabsList className="hidden md:flex md:flex-col md:w-56 md:shrink-0 md:sticky md:top-24 self-start w-full overflow-x-auto md:overflow-visible gap-1.5 h-auto bg-muted/50 p-2 rounded-xl scrollbar-none">
                 {departments.map(dept => (
                   <TabsTrigger
                     key={dept}
