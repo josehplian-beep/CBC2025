@@ -90,6 +90,23 @@ const Media = () => {
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [albumsLoading, setAlbumsLoading] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => prev + VIDEOS_PER_PAGE);
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [activeTab]);
+
 
 
 
@@ -362,16 +379,15 @@ const Media = () => {
                   )}
                   </div>
                   {visibleCount < filteredVideos.length &&
-                <div className="flex justify-center mt-8">
-                      <Button
-                    variant="outline"
-                    size="lg"
-                    className="rounded-full px-8"
-                    onClick={() => setVisibleCount((prev) => prev + VIDEOS_PER_PAGE)}>
-
-                        View More
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
+                <div ref={sentinelRef} className="flex flex-col items-center gap-2 mt-8 py-4">
+                      <div className="flex gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Showing {Math.min(visibleCount, filteredVideos.length)} of {filteredVideos.length} videos
+                      </p>
                     </div>
                 }
                 </> :
