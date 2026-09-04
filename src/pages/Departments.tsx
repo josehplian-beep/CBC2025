@@ -145,22 +145,25 @@ const Departments = () => {
               setSelectedDepartment(val);
               setSearchParams({ tab: val });
             }}>
-            <TabsList className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto mb-8 h-auto bg-muted/50 p-3 rounded-xl">
-              {departments.map(dept => (
-                <TabsTrigger 
-                  key={dept} 
-                  value={dept} 
-                  className="px-4 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] font-medium"
-                  title={formatDepartmentName(dept)}
-                >
-                  <span className="truncate block">{formatDepartmentName(dept)}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="flex flex-col md:flex-row gap-6 lg:gap-10 max-w-7xl mx-auto">
+              {/* Vertical tab sidebar — horizontal scroll chips on mobile */}
+              <TabsList className="flex md:flex-col md:w-56 md:shrink-0 md:sticky md:top-24 self-start w-full overflow-x-auto md:overflow-visible gap-1.5 h-auto bg-muted/50 p-2 rounded-xl scrollbar-none">
+                {departments.map(dept => (
+                  <TabsTrigger
+                    key={dept}
+                    value={dept}
+                    className="justify-start shrink-0 md:w-full px-4 py-2.5 rounded-lg text-left whitespace-nowrap font-medium transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground"
+                    title={formatDepartmentName(dept)}
+                  >
+                    <span className="truncate">{formatDepartmentName(dept)}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            <TabsContent value={selectedDepartment}>
+              <div className="flex-1 min-w-0">
+            <TabsContent value={selectedDepartment} className="mt-0">
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {[...Array(4)].map((_, i) => (
                     <div key={i} className="rounded-lg border bg-card p-6 space-y-4">
                       <div className="flex flex-col items-center">
