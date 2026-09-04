@@ -143,6 +143,10 @@ All colors MUST be HSL.
   }
 }
 
+#lovable-badge {
+  display: none !important;
+}
+
 @layer base {
   * {
     @apply border-border;
