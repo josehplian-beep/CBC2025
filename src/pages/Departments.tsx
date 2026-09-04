@@ -175,7 +175,7 @@ const Departments = () => {
                   ))}
                 </div>
               ) : members.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {members.map((member) => (
                     <div 
                       key={member.id}
@@ -196,6 +196,8 @@ const Departments = () => {
                 </div>
               )}
             </TabsContent>
+              </div>
+            </div>
           </Tabs>
         </div>
       </section>
