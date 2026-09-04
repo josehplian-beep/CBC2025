@@ -92,10 +92,10 @@ const Navigation = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24 md:h-28">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2 group">
-              <img src={cbcLogo.url} alt="CBC Logo" className="h-16 w-auto transition-transform group-hover:scale-105" />
+              <img src={cbcLogo.url} alt="CBC Logo" className="h-20 md:h-24 w-auto transition-transform group-hover:scale-105" />
             </Link>
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
