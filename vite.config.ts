@@ -5,7 +5,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/CBC2025/",
+  base: "/",
   server: {
     host: "::",
     port: 8080,
@@ -23,8 +23,8 @@ export default defineConfig(({ mode }) => ({
         background_color: "#1a1a2e",
         display: "standalone",
         orientation: "portrait",
-        scope: "/CBC2025/",
-        start_url: "/CBC2025/",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: "pwa-192x192.png",
