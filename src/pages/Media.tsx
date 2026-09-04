@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -202,6 +202,8 @@ const Media = () => {
       {/* Compact Hero */}
       <section className="relative pt-24 pb-12 bg-gradient-to-br from-primary via-primary to-accent overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -left-24 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-2">
             Media Center
@@ -209,6 +211,20 @@ const Media = () => {
           <p className="text-primary-foreground/80 text-lg max-w-xl">
             Watch sermons, worship sessions, and relive our church moments
           </p>
+          <div className="flex flex-wrap gap-3 mt-6">
+            <Button
+              variant="secondary"
+              className="rounded-full bg-live text-live-foreground hover:bg-live/90 border-0"
+              onClick={() => setActiveTab("livestream")}>
+              <Radio className="w-4 h-4 mr-2" /> Watch Live
+            </Button>
+            <Button
+              variant="secondary"
+              className="rounded-full bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border border-primary-foreground/20"
+              onClick={() => setActiveTab("albums")}>
+              <Images className="w-4 h-4 mr-2" /> Browse Albums
+            </Button>
+          </div>
         </div>
       </section>
 
