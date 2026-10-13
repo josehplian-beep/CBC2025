@@ -7,3 +7,8 @@
 # Message navigation
 - [x] Replace the two-column Messages view with a shared section switcher and remove the standalone public navigation link.
 - [x] Verify both destinations, browser back, and compact-screen switching.
+
+# Rooted Thoughts editorial refresh
+- [ ] Add a reference-inspired photo banner and editorial post layout with centered tabs.
+- [ ] Add individual cover metadata and verify desktop/mobile navigation and post sharing controls.
+- [ ] Verify social crawlers receive individual post previews; server-rendered hosting and a published post with a public cover are required.
