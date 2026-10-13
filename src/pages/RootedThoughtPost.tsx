@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
@@ -17,6 +17,11 @@ import { excerpt, postEmbed, postPath, postMetadata, publicSiteOrigin } from '@/
 
 export default function RootedThoughtPost({ embed = false }: { embed?: boolean }) {
   const { slug } = useParams();
+  useEffect(() => {
+    const homepageImages = Array.from(document.head.querySelectorAll('meta[property="og:image"]:not([data-rh]), meta[name="twitter:image"]:not([data-rh])'));
+    homepageImages.forEach(tag => tag.remove());
+    return () => { homepageImages.forEach(tag => document.head.appendChild(tag)); };
+  }, []);
   const [scale, setScale] = useState(1);
   const { can } = usePermissions();
   const { data: post, isLoading, isError, refetch } = useQuery({
