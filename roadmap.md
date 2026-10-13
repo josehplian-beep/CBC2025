@@ -7,3 +7,8 @@
 # Message navigation
 - [x] Replace the two-column Messages view with a shared section switcher and remove the standalone public navigation link.
 - [x] Verify both destinations, browser back, and compact-screen switching.
+
+# Rooted Thoughts editorial refresh
+- [x] Add a reference-inspired photo banner and editorial post layout with centered tabs.
+- [x] Add individual cover metadata and verify desktop/mobile navigation and post sharing controls using the published Beautiful Savior reflection.
+- [ ] Verify social crawlers receive individual post previews: blocked by static hosting returning homepage metadata; requires a server-rendering upgrade and republishing.

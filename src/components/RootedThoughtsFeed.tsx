@@ -29,12 +29,12 @@ export default function RootedThoughtsFeed({ preview = false }: { preview?: bool
   });
 
   return <div className="min-w-0">
-    {!preview && <div className="relative mb-8 max-w-md">
+    {!preview && <div className="relative mx-auto mb-8 max-w-md">
       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
       <Input aria-label="Search Rooted Thoughts" placeholder="Search Rooted Thoughts…" className="pl-10" value={search}
         onChange={event => { setSearch(event.target.value); setPage(0); }} />
     </div>}
-    {isLoading ? <div className="grid gap-8 sm:grid-cols-2">
+    {isLoading ? <div className="grid gap-8">
       {Array.from({ length: preview ? 2 : 4 }, (_, index) => <div key={index} className="space-y-4">
         <Skeleton className="aspect-[3/2] w-full rounded-lg" /><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-full" />
       </div>)}
@@ -45,19 +45,21 @@ export default function RootedThoughtsFeed({ preview = false }: { preview?: bool
       <h3 className="font-display text-xl font-semibold">{search ? 'No posts found' : 'A new chapter is coming'}</h3>
       <p className="mt-3 text-muted-foreground">{search ? 'Try another title.' : 'Daily reflections will appear here when published.'}</p>
     </div> : <>
-      <div className={`grid gap-x-8 gap-y-10 ${preview ? '' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
+      <div className="grid gap-8">
         {data.posts.map((post, index) => <article key={post.id} className="group min-w-0 border-b border-border pb-8">
-          <Link to={postPath(post)} className="block">
-            {post.image_url && <div className="mb-5 aspect-[3/2] overflow-hidden rounded-lg bg-muted">
+          <Link to={postPath(post)} className={`grid gap-6 rounded-lg outline-offset-4 focus-visible:ring-2 focus-visible:ring-ring ${preview ? '' : 'sm:grid-cols-[220px_minmax(0,1fr)] sm:gap-8'}`}>
+            {post.image_url && <div className="aspect-[3/2] overflow-hidden rounded-lg bg-muted">
               <img src={post.image_url} alt={post.title} loading={index === 0 ? 'eager' : 'lazy'} decoding="async"
                 onContextMenu={event => event.preventDefault()} draggable={false}
                 className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-105" />
             </div>}
+            <div className={post.image_url || preview ? 'min-w-0' : 'min-w-0 sm:col-span-2'}>
             <time dateTime={post.created_at} className="text-sm text-muted-foreground">{format(new Date(post.created_at), 'MMMM d, yyyy')}</time>
             <h3 className="mt-3 break-words font-display text-2xl font-semibold leading-snug group-hover:text-primary">{post.title}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{post.author_name}</p>
             <p className="mt-4 leading-relaxed text-muted-foreground">{excerpt(post.content)}</p>
             <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">Read <ArrowRight className="h-4 w-4" /></span>
+            </div>
           </Link>
         </article>)}
       </div>

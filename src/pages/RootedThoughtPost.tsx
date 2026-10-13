@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
@@ -13,10 +13,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/hooks/usePermissions';
-import { excerpt, postEmbed, postPath } from '@/lib/rooted-thoughts';
+import { excerpt, postEmbed, postPath, postMetadata, publicSiteOrigin } from '@/lib/rooted-thoughts';
 
 export default function RootedThoughtPost({ embed = false }: { embed?: boolean }) {
   const { slug } = useParams();
+  useEffect(() => {
+    const homepageImages = Array.from(document.head.querySelectorAll('meta[property="og:image"]:not([data-rh]), meta[name="twitter:image"]:not([data-rh])'));
+    homepageImages.forEach(tag => tag.remove());
+    return () => { homepageImages.forEach(tag => document.head.appendChild(tag)); };
+  }, []);
   const [scale, setScale] = useState(1);
   const { can } = usePermissions();
   const { data: post, isLoading, isError, refetch } = useQuery({
@@ -34,7 +39,8 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
     try { await navigator.clipboard.writeText(text); toast.success('Copied to clipboard'); }
     catch { toast.error('Could not copy. Select and copy the text instead.'); }
   };
-  const url = post ? window.location.origin + postPath(post) : '';
+  const metadata = post ? postMetadata(post) : null;
+  const url = metadata?.url || '';
   const share = async () => {
     if (!post) return;
     if (!navigator.share) { await copy(url); return; }
@@ -54,7 +60,11 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
             <title>{post.title} | Rooted Thoughts</title><meta name="description" content={excerpt(post.content)} />
             <link rel="canonical" href={url} /><meta property="og:title" content={post.title} />
             <meta property="og:description" content={excerpt(post.content)} /><meta property="og:type" content="article" />
-            <meta property="og:url" content={url} /><meta name="twitter:card" content="summary_large_image" />
+            <meta property="og:url" content={url} /><meta name="twitter:card" content={metadata?.image ? 'summary_large_image' : 'summary'} />
+            <meta name="twitter:title" content={post.title} /><meta name="twitter:description" content={excerpt(post.content)} />
+            <meta property="article:published_time" content={post.created_at} />
+            <meta property="og:image" content={metadata?.image || ''} /><meta name="twitter:image" content={metadata?.image || ''} />
+            {metadata?.image && <meta property="og:image:alt" content={post.title} />}
           </Helmet>
           <article className="mt-8">
             <p className="mb-4 text-sm font-medium text-primary">Rooted Thoughts · Daily devotion</p>
@@ -77,8 +87,8 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
           </article>
           {embed ? <Button asChild className="mt-8"><a href={url} target="_blank" rel="noopener noreferrer">Read the full reflection</a></Button> : <section className="mt-12 border-t border-border pt-8">
             <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold"><Code className="h-5 w-5" />Embed this reflection</h2>
-            <Textarea aria-label="HTML embed code" readOnly value={postEmbed(window.location.origin, post)} rows={4} className="font-mono text-xs" onFocus={event => event.target.select()} />
-            <div className="mt-4 flex flex-wrap gap-3"><Button variant="outline" onClick={() => copy(postEmbed(window.location.origin, post))}><Copy className="mr-2 h-4 w-4" />Copy HTML</Button><Button variant="ghost" asChild><Link to={`${postPath(post)}/embed`} target="_blank">Preview embed</Link></Button></div>
+            <Textarea aria-label="HTML embed code" readOnly value={postEmbed(publicSiteOrigin, post)} rows={4} className="font-mono text-xs" onFocus={event => event.target.select()} />
+            <div className="mt-4 flex flex-wrap gap-3"><Button variant="outline" onClick={() => copy(postEmbed(publicSiteOrigin, post))}><Copy className="mr-2 h-4 w-4" />Copy HTML</Button><Button variant="ghost" asChild><Link to={`${postPath(post)}/embed`} target="_blank">Preview embed</Link></Button></div>
           </section>}
         </>}
     </main>
