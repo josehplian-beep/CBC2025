@@ -72,6 +72,7 @@ All colors MUST be HSL.
     --shadow-large: 0 8px 32px rgba(33, 51, 74, 0.16);
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --message-banner-overlay: hsl(220 20% 4% / 0.55);
 
     --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
 
@@ -198,6 +199,9 @@ All colors MUST be HSL.
 
 }
 @layer utilities {
+  .message-banner-overlay {
+    background: var(--message-banner-overlay);
+  }
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
