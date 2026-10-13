@@ -28,6 +28,8 @@ import TheBible from "./pages/TheBible";
 import StatementOfFaith from "./pages/StatementOfFaith";
 import Salvation from "./pages/Salvation";
 import Messages from "./pages/Messages";
+import RootedThoughts from "./pages/RootedThoughts";
+import RootedThoughtPost from "./pages/RootedThoughtPost";
 import TestimonyPost from "./pages/TestimonyPost";
 import Blog from "./pages/Blog";
 import ProfileEdit from "./pages/ProfileEdit";
@@ -112,6 +114,10 @@ const App = () => (
           <Route path="/departments" element={<Departments />} />
           <Route path="/department-member/:slug" element={<MemberProfileDepartment />} />
           <Route path="/testimony" element={<Messages />} />
+          <Route path="/rooted-thoughts" element={<RootedThoughts />} />
+          <Route path="/rooted-thoughts/:slug" element={<RootedThoughtPost />} />
+          <Route path="/rooted-thoughts/:slug/embed" element={<RootedThoughtPost embed />} />
+          <Route path="/admin/rooted-thoughts" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminMessages key="rooted" section="rooted_thought" /></AdminLayout></ProtectedRoute>} />
           <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/admin/color-palette" element={<ProtectedRoute permission="manage_users"><AdminLayout><ColorPalette /></AdminLayout></ProtectedRoute>} />

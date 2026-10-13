@@ -31,6 +31,7 @@ const cbcLinks: NavLink[] = [
 const mediaLinks: NavLink[] = [
   { name: "Watch", path: "/media" },
   { name: "Messages", path: "/testimony" },
+  { name: "Rooted Thoughts", path: "/rooted-thoughts" },
 ];
 
 const resourceLinks: NavLink[] = [
