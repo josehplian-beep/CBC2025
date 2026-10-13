@@ -34,7 +34,7 @@ export default function RootedThoughts() {
             </div>
           )}
           <RecentTopic />
-          <h2 className="mb-6 text-center font-display text-2xl font-semibold sm:text-3xl">Latest reflections</h2>
+          <h2 className="mb-6 text-center font-display text-2xl font-semibold sm:text-3xl">Latest Posts</h2>
           <RootedThoughtsFeed />
         </div>
       </div>
