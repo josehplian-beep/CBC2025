@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import RootedThoughtsFeed from "@/components/RootedThoughtsFeed";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +29,8 @@ interface Message {
 
 const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { can } = usePermissions();
+  const isAdmin = can("manage_testimonies");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -49,26 +52,15 @@ const Messages = () => {
   });
 
   useEffect(() => {
-    checkAdminStatus();
     fetchMessages();
   }, []);
-
-  const checkAdminStatus = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'administrator'
-      });
-      setIsAdmin(data || false);
-    }
-  };
 
   const fetchMessages = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('testimonials' as any)
       .select('*')
+      .eq('content_type', 'testimony')
       .eq('is_published', true)
       .order('created_at', { ascending: false });
     
@@ -240,7 +232,7 @@ const Messages = () => {
               Messages
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/95 font-medium max-w-2xl mx-auto">
-              Sermons, teachings, and messages that inspire and transform lives
+              Testimonies of grace. Daily reflections rooted in faith.
             </p>
           </div>
         </div>
@@ -263,6 +255,9 @@ const Messages = () => {
             </div>
           )}
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className="min-w-0">
+          <h2 className="mb-8 font-display text-3xl font-bold">Testimonies</h2>
           {/* Series Showcase */}
           {Object.keys(messagesBySeries).length > 0 && (
             <div className="mb-12">
@@ -270,7 +265,7 @@ const Messages = () => {
                 <BookMarked className="w-8 h-8 text-primary" />
                 Message Series
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {Object.entries(messagesBySeries).map(([series, seriesMessages], index) => (
                   <div
                     key={series}
@@ -312,7 +307,7 @@ const Messages = () => {
 
           {/* Tabs and Search */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
+            <div className="flex flex-col gap-4 items-start justify-between mb-6">
               <TabsList className="grid w-full md:w-auto grid-cols-3 bg-muted/50 backdrop-blur-sm p-1 rounded-xl shadow-lg">
                 <TabsTrigger value="recent" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all">
                   <Calendar className="w-4 h-4" />
@@ -328,7 +323,7 @@ const Messages = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="relative w-full md:w-80">
+              <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search messages..."
@@ -421,7 +416,7 @@ const Messages = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
                   {filteredMessages.map((message, index) => (
                     <Link
                       key={message.id}
@@ -460,7 +455,7 @@ const Messages = () => {
                             {message.title}
                           </h3>
                           
-                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
                             <div className="flex items-center gap-1.5">
                               <User className="w-4 h-4" />
                               <span className="font-medium">{message.author_name}</span>
@@ -491,6 +486,13 @@ const Messages = () => {
               )}
             </TabsContent>
           </Tabs>
+          </div>
+          <aside className="min-w-0 lg:border-l lg:border-border lg:pl-12">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4"><h2 className="font-display text-3xl font-bold">Rooted Thoughts</h2><Button variant="ghost" size="sm" asChild><Link to="/rooted-thoughts">View all <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
+            {isAdmin && <Button variant="outline" className="mb-6" asChild><Link to="/admin/rooted-thoughts"><Plus className="mr-2 h-4 w-4" />Add Reflection</Link></Button>}
+            <RootedThoughtsFeed preview />
+          </aside>
+          </div>
         </div>
       </section>
 
