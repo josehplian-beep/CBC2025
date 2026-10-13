@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import MessageSectionSelect from "@/components/MessageSectionSelect";
+import MessageSectionTabs from "@/components/MessageSectionTabs";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -223,20 +223,21 @@ const Messages = () => {
       {/* Main Content */}
       <main className="pb-20 pt-28 md:pt-32 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
-          <header className="mb-12 flex flex-wrap items-center justify-between gap-6 border-b border-border pb-8">
-            <MessageSectionSelect value="/testimony" />
-          {isAdmin && (
-              <Button 
-                onClick={() => { resetForm(); setDialogOpen(true); }}
-                variant="outline"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Share a Message
-              </Button>
-          )}
-          </header>
+          <div className="flex flex-col md:flex-row gap-6 lg:gap-10">
+            <MessageSectionTabs value="/testimony" />
 
-          <div className="min-w-0">
+            <div className="min-w-0 flex-1">
+              {isAdmin && (
+                <div className="mb-8 flex justify-end">
+                  <Button
+                    onClick={() => { resetForm(); setDialogOpen(true); }}
+                    variant="outline"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Share a Message
+                  </Button>
+                </div>
+              )}
           {/* Series Showcase */}
           {Object.keys(messagesBySeries).length > 0 && (
             <div className="mb-12">
@@ -465,6 +466,7 @@ const Messages = () => {
               )}
             </TabsContent>
           </Tabs>
+            </div>
           </div>
         </div>
       </main>
