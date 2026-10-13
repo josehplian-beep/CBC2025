@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { hasPermission, type UserRole } from './permissions';
-import { postEmbed, postPath } from './rooted-thoughts';
+import { hasPermission, type UserRole } from '../src/lib/permissions';
+import { postEmbed, postPath } from '../src/lib/rooted-thoughts';
 
 describe('Rooted Thoughts shares Message editing access', () => {
   test('editors can manage posts', () => expect(hasPermission('editor', 'manage_testimonies')).toBe(true));
