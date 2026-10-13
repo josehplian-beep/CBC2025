@@ -75,6 +75,7 @@ const TestimonyPost = () => {
     const { data, error } = await supabase
       .from('testimonials')
       .select('*')
+      .eq('content_type', 'testimony')
       .eq('id', id)
       .single();
     
@@ -95,6 +96,7 @@ const TestimonyPost = () => {
           .from('testimonials')
           .select('id, title, author_name, author_role, image_url, created_at')
           .eq('author_role', data.author_role)
+          .eq('content_type', 'testimony')
           .eq('is_published', true)
           .order('created_at', { ascending: true });
         

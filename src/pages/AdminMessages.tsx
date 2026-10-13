@@ -31,7 +31,7 @@ interface Message {
 
 const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "rooted_thought" }) => {
   const isRooted = section === "rooted_thought";
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,10 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
 
   useEffect(() => {
     const post = messages.find(message => message.id === params.get("edit"));
-    if (post) handleEdit(post);
+    if (post) {
+      handleEdit(post);
+      setParams({}, { replace: true });
+    }
   }, [messages, params]);
 
   const fetchMessages = async () => {
