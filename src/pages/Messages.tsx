@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import RootedThoughtsFeed from "@/components/RootedThoughtsFeed";
+import MessageSectionSelect from "@/components/MessageSectionSelect";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -220,44 +220,23 @@ const Messages = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative h-[400px] flex items-center justify-center overflow-hidden mt-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20 animate-pulse"></div>
-        </div>
-        <div className="relative z-10 text-center text-primary-foreground px-4 max-w-4xl">
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <BookOpen className="w-20 h-20 mx-auto mb-6 drop-shadow-2xl" />
-            <h1 className="font-display text-6xl md:text-7xl font-bold mb-6 drop-shadow-lg">
-              Messages
-            </h1>
-            <p className="text-xl md:text-2xl text-primary-foreground/95 font-medium max-w-2xl mx-auto">
-              Testimonies of grace. Daily reflections rooted in faith.
-            </p>
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
-      </section>
-
       {/* Main Content */}
-      <section className="py-16 bg-background">
+      <main className="pb-20 pt-28 md:pt-32 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
+          <header className="mb-12 flex flex-wrap items-center justify-between gap-6 border-b border-border pb-8">
+            <MessageSectionSelect value="/testimony" />
           {isAdmin && (
-            <div className="mb-8 flex justify-center">
               <Button 
                 onClick={() => { resetForm(); setDialogOpen(true); }}
-                size="lg"
-                className="shadow-lg hover:shadow-xl transition-all"
+                variant="outline"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Share a Message
               </Button>
-            </div>
           )}
+          </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           <div className="min-w-0">
-          <h2 className="mb-8 font-display text-3xl font-bold">Testimonies</h2>
           {/* Series Showcase */}
           {Object.keys(messagesBySeries).length > 0 && (
             <div className="mb-12">
@@ -416,7 +395,7 @@ const Messages = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredMessages.map((message, index) => (
                     <Link
                       key={message.id}
@@ -487,14 +466,8 @@ const Messages = () => {
             </TabsContent>
           </Tabs>
           </div>
-          <aside className="min-w-0 lg:border-l lg:border-border lg:pl-12">
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4"><h2 className="font-display text-3xl font-bold">Rooted Thoughts</h2><Button variant="ghost" size="sm" asChild><Link to="/rooted-thoughts">View all <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
-            {isAdmin && <Button variant="outline" className="mb-6" asChild><Link to="/admin/rooted-thoughts"><Plus className="mr-2 h-4 w-4" />Add Reflection</Link></Button>}
-            <RootedThoughtsFeed preview />
-          </aside>
-          </div>
         </div>
-      </section>
+      </main>
 
       {/* Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
