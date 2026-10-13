@@ -223,7 +223,7 @@ const Messages = () => {
       {/* Main Content */}
       <main className="pb-20 pt-28 md:pt-32 bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex flex-col md:flex-row gap-6 lg:gap-10">
+          <div className="flex flex-col gap-8 md:gap-10">
             <MessageSectionTabs value="/testimony" />
 
             <div className="min-w-0 flex-1">
