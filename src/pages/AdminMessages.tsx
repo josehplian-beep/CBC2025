@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,9 +26,13 @@ interface Message {
   image_url?: string;
   is_published: boolean;
   created_at: string;
+  slug?: string | null;
 }
 
-const AdminMessages = () => {
+const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "rooted_thought" }) => {
+  const isRooted = section === "rooted_thought";
+  const [params] = useSearchParams();
+  const [saving, setSaving] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -43,6 +48,7 @@ const AdminMessages = () => {
   const [yearFilter, setYearFilter] = useState("all");
 
   const [formData, setFormData] = useState({
+    slug: "",
     title: "",
     content: "",
     author_name: "",
@@ -53,14 +59,22 @@ const AdminMessages = () => {
   });
 
   useEffect(() => {
+    setSelectedMessageIds([]);
+    resetForm();
     fetchMessages();
-  }, []);
+  }, [section]);
+
+  useEffect(() => {
+    const post = messages.find(message => message.id === params.get("edit"));
+    if (post) handleEdit(post);
+  }, [messages, params]);
 
   const fetchMessages = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("testimonials")
       .select("*")
+      .eq("content_type", section)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -102,8 +116,7 @@ const AdminMessages = () => {
       .upload(fileName, imageFile);
 
     if (uploadError) {
-      toast.error("Failed to upload image");
-      return null;
+      throw uploadError;
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -115,25 +128,29 @@ const AdminMessages = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
 
     try {
       const imageUrl = await uploadImage();
 
       const messageData = {
+        content_type: section,
+        ...(isRooted ? { slug: formData.slug.trim() || null } : {}),
         title: formData.title,
         content: formData.content,
         author_name: formData.author_name,
         author_role: formData.author_role || null,
         image_url: imageUrl,
         is_published: formData.is_published,
-        created_at: new Date(formData.created_at).toISOString(),
+        created_at: new Date(`${formData.created_at}T12:00:00`).toISOString(),
       };
 
       if (selectedMessage) {
         const { error } = await supabase
           .from("testimonials")
           .update(messageData)
-          .eq("id", selectedMessage.id);
+          .eq("id", selectedMessage.id).eq("content_type", section);
 
         if (error) throw error;
         toast.success("Message updated successfully");
@@ -150,12 +167,15 @@ const AdminMessages = () => {
       fetchMessages();
     } catch (error: any) {
       toast.error(error.message || "Failed to save message");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleEdit = (message: Message) => {
     setSelectedMessage(message);
     setFormData({
+      slug: message.slug || "",
       title: message.title,
       content: message.content,
       author_name: message.author_name,
@@ -173,7 +193,7 @@ const AdminMessages = () => {
       const { error } = await supabase
         .from("testimonials")
         .update({ is_published: !message.is_published })
-        .eq("id", message.id);
+        .eq("id", message.id).eq("content_type", section);
 
       if (error) throw error;
       
@@ -193,7 +213,7 @@ const AdminMessages = () => {
       const { error } = await supabase
         .from("testimonials")
         .delete()
-        .eq("id", messageToDelete.id);
+        .eq("id", messageToDelete.id).eq("content_type", section);
 
       if (error) throw error;
 
@@ -214,7 +234,7 @@ const AdminMessages = () => {
       const { error } = await supabase
         .from("testimonials")
         .delete()
-        .in("id", selectedMessageIds);
+        .in("id", selectedMessageIds).eq("content_type", section);
 
       if (error) throw error;
 
@@ -235,7 +255,7 @@ const AdminMessages = () => {
       const { error } = await supabase
         .from("testimonials")
         .update({ is_published: publish })
-        .in("id", selectedMessageIds);
+        .in("id", selectedMessageIds).eq("content_type", section);
 
       if (error) throw error;
 
@@ -267,7 +287,8 @@ const AdminMessages = () => {
 
   const resetForm = () => {
     setFormData({
-      title: "",
+      slug: "",
+    title: "",
       content: "",
       author_name: "",
       author_role: "",
@@ -323,27 +344,31 @@ const AdminMessages = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
+        <div className="mb-8 flex flex-wrap gap-4 justify-between items-start">
           <div>
             <h1 className="font-display text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Manage Messages
+              {isRooted ? "Manage Rooted Thoughts" : "Manage Messages"}
             </h1>
-            <p className="text-muted-foreground">Create, edit, and manage sermon messages and teachings</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button asChild variant={isRooted ? "outline" : "default"} size="sm"><Link to="/admin/messages">Testimonies</Link></Button>
+              <Button asChild variant={isRooted ? "default" : "outline"} size="sm"><Link to="/admin/rooted-thoughts">Rooted Thoughts</Link></Button>
+            </div>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} size="lg" className="gap-2 shadow-lg">
+              <Button onClick={() => { resetForm(); setDialogOpen(true); }} size="lg" className="gap-2 shadow-lg">
                 <Plus className="h-5 w-5" />
-                Add Message
+                {isRooted ? "Add Reflection" : "Add Message"}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {selectedMessage ? "Edit Message" : "Create New Message"}
+                  {isRooted ? (selectedMessage ? "Edit Reflection" : "Create Reflection") : (selectedMessage ? "Edit Message" : "Create New Message")}
                 </DialogTitle>
               </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {isRooted && <div><Label htmlFor="slug">Custom post link</Label><Input id="slug" value={formData.slug} pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="e.g., rooted-in-hope" onChange={event => setFormData({ ...formData, slug: event.target.value })} /></div>}
               <div>
                 <Label htmlFor="title">Message Title *</Label>
                 <Input
@@ -453,8 +478,8 @@ const AdminMessages = () => {
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {selectedMessage ? "Update Message" : "Create Message"}
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Saving…" : isRooted ? "Save Reflection" : selectedMessage ? "Update Message" : "Create Message"}
                 </Button>
               </div>
             </form>
@@ -742,6 +767,7 @@ const AdminMessages = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            aria-label={`Edit ${message.title}`}
                             onClick={() => handleEdit(message)}
                           >
                             <Edit className="h-4 w-4" />
