@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Code, Copy, Facebook, PenLine, Share2 } from 'lucide-react';
+import { ArrowLeft, Copy, Facebook, PenLine, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TextSizeControl from '@/components/TextSizeControl';
+import PostEngagement from '@/components/PostEngagement';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { usePermissions } from '@/hooks/usePermissions';
-import { excerpt, postEmbed, postPath, postMetadata, publicSiteOrigin } from '@/lib/rooted-thoughts';
+import { excerpt, postMetadata } from '@/lib/rooted-thoughts';
 
 export default function RootedThoughtPost({ embed = false }: { embed?: boolean }) {
   const { slug } = useParams();
@@ -85,11 +85,7 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
               {(embed ? excerpt(post.content, 350) : post.content).split(/\n\s*\n/).map((paragraph, index) => <p key={index} className="whitespace-pre-line">{paragraph}</p>)}
             </div>
           </article>
-          {embed ? <Button asChild className="mt-8"><a href={url} target="_blank" rel="noopener noreferrer">Read the full reflection</a></Button> : <section className="mt-12 border-t border-border pt-8">
-            <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold"><Code className="h-5 w-5" />Embed this reflection</h2>
-            <Textarea aria-label="HTML embed code" readOnly value={postEmbed(publicSiteOrigin, post)} rows={4} className="font-mono text-xs" onFocus={event => event.target.select()} />
-            <div className="mt-4 flex flex-wrap gap-3"><Button variant="outline" onClick={() => copy(postEmbed(publicSiteOrigin, post))}><Copy className="mr-2 h-4 w-4" />Copy HTML</Button><Button variant="ghost" asChild><Link to={`${postPath(post)}/embed`} target="_blank">Preview embed</Link></Button></div>
-          </section>}
+          {embed ? <Button asChild className="mt-8"><a href={url} target="_blank" rel="noopener noreferrer">Read the full reflection</a></Button> : <PostEngagement postId={post.id} />}
         </>}
     </main>
     {!embed && <Footer />}
