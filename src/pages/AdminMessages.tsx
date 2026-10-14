@@ -82,11 +82,6 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
       .select("*")
       .eq("content_type", section)
       .order("created_at", { ascending: false });
-    // Authors only see and edit the posts they wrote
-    if (!canDelete) {
-      const { data: { user } } = await supabase.auth.getUser();
-      query = query.eq("created_by", user?.id ?? "");
-    }
     const { data, error } = await query;
 
     if (!error && data) {
@@ -371,7 +366,7 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
             <DialogTrigger asChild>
               <Button onClick={() => { resetForm(); setDialogOpen(true); }} size="lg" className="gap-2 shadow-lg">
                 <Plus className="h-5 w-5" />
-                {isRooted ? "Add Reflection" : "Add Message"}
+                {isRooted ? "Add New Post" : "Add Message"}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
