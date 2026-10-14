@@ -28,7 +28,10 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
         .eq('content_type', contentType).eq('is_published', true)
         .order('created_at', { ascending: false }).order('id')
         .range(page * pageSize, (page + 1) * pageSize - 1);
-      if (search.trim()) query = query.ilike('title', `%${search.trim()}%`);
+      if (search.trim()) {
+        const term = `%${search.trim().replace(/[%,()]/g, '')}%`;
+        query = query.or(`title.ilike.${term},author_name.ilike.${term}`);
+      }
       const { data, error, count } = await query;
       if (error) throw error;
       return { posts: data, count: count || 0 };
@@ -41,7 +44,7 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
   return <div className="min-w-0">
     {!preview && <div className="relative mx-auto mb-8 max-w-md">
       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-      <Input aria-label={`Search ${label}`} placeholder={`Search ${label}…`} className="pl-10" value={search}
+      <Input aria-label={`Search ${label}`} placeholder={`Search by title or author…`} className="pl-10" value={search}
         onChange={event => { setSearch(event.target.value); setPage(0); }} />
     </div>}
     {isLoading ? <div className="grid gap-8">
@@ -53,7 +56,7 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
     </div> : !data?.posts.length ? <div className="border-y border-border py-16 text-center">
       <BookOpen className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
       <h3 className="font-display text-xl font-semibold">{search ? 'No posts found' : 'A new chapter is coming'}</h3>
-      <p className="mt-3 text-muted-foreground">{search ? 'Try another title.' : isTestimony ? 'Testimonies will appear here when published.' : 'Daily reflections will appear here when published.'}</p>
+      <p className="mt-3 text-muted-foreground">{search ? 'Try another title or author name.' : isTestimony ? 'Testimonies will appear here when published.' : 'Daily reflections will appear here when published.'}</p>
     </div> : <>
       <div className="grid gap-8">
         {data.posts.map((post, index) => <article key={post.id} className="group min-w-0 border-b border-border pb-8">
