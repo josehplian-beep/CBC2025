@@ -9,16 +9,23 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { excerpt, postPath } from '@/lib/rooted-thoughts';
 
-export default function RootedThoughtsFeed({ preview = false }: { preview?: boolean }) {
+type MessageFeedProps = {
+  contentType?: 'rooted_thought' | 'testimony';
+  preview?: boolean;
+};
+
+export default function RootedThoughtsFeed({ contentType = 'rooted_thought', preview = false }: MessageFeedProps) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const pageSize = preview ? 4 : 12;
+  const isTestimony = contentType === 'testimony';
+  const label = isTestimony ? 'testimonies' : 'Rooted Thoughts';
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['rooted-thoughts', page, search, preview],
+    queryKey: ['message-feed', contentType, page, search, preview],
     queryFn: async () => {
       let query = supabase.from('testimonials')
         .select('id,title,content,author_name,author_role,image_url,created_at,slug', { count: 'exact' })
-        .eq('content_type', 'rooted_thought').eq('is_published', true)
+        .eq('content_type', contentType).eq('is_published', true)
         .order('created_at', { ascending: false }).order('id')
         .range(page * pageSize, (page + 1) * pageSize - 1);
       if (search.trim()) query = query.ilike('title', `%${search.trim()}%`);
@@ -28,10 +35,13 @@ export default function RootedThoughtsFeed({ preview = false }: { preview?: bool
     },
   });
 
+  const linkFor = (post: { id: string; slug: string | null }) =>
+    isTestimony ? `/testimony/${post.id}` : postPath(post);
+
   return <div className="min-w-0">
     {!preview && <div className="relative mx-auto mb-8 max-w-md">
       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-      <Input aria-label="Search Rooted Thoughts" placeholder="Search Rooted Thoughts…" className="pl-10" value={search}
+      <Input aria-label={`Search ${label}`} placeholder={`Search ${label}…`} className="pl-10" value={search}
         onChange={event => { setSearch(event.target.value); setPage(0); }} />
     </div>}
     {isLoading ? <div className="grid gap-8">
@@ -39,15 +49,15 @@ export default function RootedThoughtsFeed({ preview = false }: { preview?: bool
         <Skeleton className="aspect-[3/2] w-full rounded-lg" /><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-full" />
       </div>)}
     </div> : isError ? <div role="alert" className="py-12 text-muted-foreground">
-      <p>Rooted Thoughts could not be loaded.</p><Button variant="outline" className="mt-4" onClick={() => refetch()}>Try again</Button>
+      <p>{isTestimony ? 'Testimonies' : 'Rooted Thoughts'} could not be loaded.</p><Button variant="outline" className="mt-4" onClick={() => refetch()}>Try again</Button>
     </div> : !data?.posts.length ? <div className="border-y border-border py-16 text-center">
       <BookOpen className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
       <h3 className="font-display text-xl font-semibold">{search ? 'No posts found' : 'A new chapter is coming'}</h3>
-      <p className="mt-3 text-muted-foreground">{search ? 'Try another title.' : 'Daily reflections will appear here when published.'}</p>
+      <p className="mt-3 text-muted-foreground">{search ? 'Try another title.' : isTestimony ? 'Testimonies will appear here when published.' : 'Daily reflections will appear here when published.'}</p>
     </div> : <>
       <div className="grid gap-8">
         {data.posts.map((post, index) => <article key={post.id} className="group min-w-0 border-b border-border pb-8">
-          <Link to={postPath(post)} className={`grid gap-6 rounded-lg outline-offset-4 focus-visible:ring-2 focus-visible:ring-ring ${preview ? '' : 'sm:grid-cols-[220px_minmax(0,1fr)] sm:gap-8'}`}>
+          <Link to={linkFor(post)} className={`grid gap-6 rounded-lg outline-offset-4 focus-visible:ring-2 focus-visible:ring-ring ${preview ? '' : 'sm:grid-cols-[220px_minmax(0,1fr)] sm:gap-8'}`}>
             {post.image_url && <div className="aspect-[3/2] overflow-hidden rounded-lg bg-muted">
               <img src={post.image_url} alt={post.title} loading={index === 0 ? 'eager' : 'lazy'} decoding="async"
                 onContextMenu={event => event.preventDefault()} draggable={false}
