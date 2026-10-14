@@ -65,7 +65,7 @@ async function fetchPosts(): Promise<SharePost[]> {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
   if (!response.ok) throw new Error(`Post fetch failed: ${response.status}`);
-  return response.json();
+  return (await response.json()) as SharePost[];
 }
 
 export function prerenderPosts(): Plugin {
