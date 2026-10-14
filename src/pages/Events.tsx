@@ -13,7 +13,7 @@ import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Dow
 import { format, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
-import { eventDays, eventEnd, eventPath as sharedEventPath, formatEventRange, formatEventTime, isMultiDay, isUpcoming, occursOn, overlapsRange } from "@/lib/event-dates";
+import { eventDays, eventEnd, formatEventRange, formatEventTime, isMultiDay, isUpcoming, occursOn, overlapsRange } from "@/lib/event-dates";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
@@ -415,14 +415,14 @@ const Events = () => {
                       <Button
                         variant="outline" size="sm"
                         className="rounded-xl text-xs h-8"
-                        onClick={() => { setSelectedDate(new Date()); setWeekFilter(undefined); }}
+                        onClick={() => { setSelectedDate(new Date()); setCalendarMonth(new Date()); setWeekFilter(undefined); }}
                       >
                         Today
                       </Button>
                       <Button
                         variant="outline" size="sm"
                         className="rounded-xl text-xs h-8"
-                        onClick={() => { setWeekFilter(new Date()); setSelectedDate(undefined); }}
+                        onClick={() => { setWeekFilter(new Date()); setCalendarMonth(new Date()); setSelectedDate(undefined); }}
                       >
                         This Week
                       </Button>
@@ -467,7 +467,7 @@ const Events = () => {
                     <SelectItem value="Culture">Culture</SelectItem>
                     <SelectItem value="CBCUSA">CBCUSA</SelectItem>
                     <SelectItem value="Special">Special</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
+                    <SelectItem value="Outreach">Outreach</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
