@@ -12,11 +12,14 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { formatEventRange, parseDay } from "@/lib/event-dates";
 
 interface EventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event?: any;
+  /** Pre-fill a new event from an existing one (dates cleared). */
+  duplicateFrom?: any;
   onSuccess: () => void;
 }
 
@@ -43,7 +46,7 @@ const RECURRING_PATTERNS = [
   { value: 'yearly', label: 'Yearly' }
 ];
 
-export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialogProps) => {
+export const EventDialog = ({ open, onOpenChange, event, duplicateFrom, onSuccess }: EventDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -58,25 +61,31 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
     description: "",
     image_url: "",
     recurring_pattern: "none",
-    recurring_end_date: ""
+    recurring_end_date: "",
+    end_date: "",
+    end_time: ""
   });
 
   useEffect(() => {
-    if (event) {
+    const source = event || duplicateFrom;
+    if (source) {
+      const copying = !event;
       setFormData({
-        title: event.title || "",
-        slug: event.slug || "",
-        date: event.date || "",
-        date_obj: event.date_obj?.split('T')[0] || "",
-        time: event.time || "",
-        location: event.location || "",
-        type: event.type || "Worship",
-        description: event.description || "",
-        image_url: event.image_url || "",
-        recurring_pattern: event.recurring_pattern || "none",
-        recurring_end_date: event.recurring_end_date || ""
+        title: copying ? `${source.title} (Copy)` : source.title || "",
+        slug: copying ? "" : source.slug || "",
+        date: copying ? "" : source.date || "",
+        date_obj: copying ? "" : source.date_obj?.split('T')[0] || "",
+        end_date: copying ? "" : source.end_date || "",
+        end_time: source.end_time || "",
+        time: source.time || "",
+        location: source.location || "",
+        type: source.type || "Worship",
+        description: source.description || "",
+        image_url: source.image_url || "",
+        recurring_pattern: copying ? "none" : source.recurring_pattern || "none",
+        recurring_end_date: copying ? "" : source.recurring_end_date || ""
       });
-      setImagePreview(event.image_url || '');
+      setImagePreview(source.image_url || '');
     } else {
       setFormData({
         title: "",
@@ -89,12 +98,14 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
         description: "",
         image_url: "",
         recurring_pattern: "none",
-        recurring_end_date: ""
+        recurring_end_date: "",
+        end_date: "",
+        end_time: ""
       });
       setImagePreview('');
     }
     setImageFile(null);
-  }, [event, open]);
+  }, [event, duplicateFrom, open]);
 
   const slugify = (s: string) =>
     s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -144,9 +155,12 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
       const [yy, mm, dd] = formData.date_obj.split('-').map(Number);
       const localNoon = new Date(yy, mm - 1, dd, 12, 0, 0);
       // Keep the human-readable display date in sync with the calendar date.
-      const syncedDisplayDate = format(localNoon, 'MMMM d, yyyy');
+      const endDate = formData.end_date && formData.end_date > formData.date_obj ? formData.end_date : null;
+      const syncedDisplayDate = formatEventRange({ date_obj: formData.date_obj, end_date: endDate });
       const eventData = {
         ...formData,
+        end_date: endDate,
+        end_time: formData.end_time.trim() || null,
         date: syncedDisplayDate,
         slug: cleanSlug,
         date_obj: localNoon.toISOString(),
@@ -280,33 +294,67 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
               </div>
 
               <div>
-                <Label htmlFor="date_obj">Calendar Date *</Label>
+                <Label htmlFor="date_obj">Start Date *</Label>
                 <Input
                   id="date_obj"
                   type="date"
                   value={formData.date_obj}
                   onChange={(e) => {
                     const v = e.target.value;
-                    let displayDate = formData.date;
-                    if (v) {
-                      const [yy, mm, dd] = v.split('-').map(Number);
-                      displayDate = format(new Date(yy, mm - 1, dd, 12), 'MMMM d, yyyy');
-                    }
-                    setFormData({ ...formData, date_obj: v, date: displayDate });
+                    const end = formData.end_date && formData.end_date > v ? formData.end_date : "";
+                    const displayDate = v ? formatEventRange({ date_obj: v, end_date: end }) : formData.date;
+                    setFormData({ ...formData, date_obj: v, end_date: end, date: displayDate });
                   }}
                   required
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="end_date">End Date</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="end_date"
+                  type="date"
+                  value={formData.end_date}
+                  min={formData.date_obj || undefined}
+                  disabled={!formData.date_obj}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setFormData({ ...formData, end_date: v, date: formatEventRange({ date_obj: formData.date_obj, end_date: v || null }) });
+                  }}
+                />
+                {formData.end_date && (
+                  <Button type="button" variant="ghost" size="sm"
+                    onClick={() => setFormData({ ...formData, end_date: "", date: formatEventRange({ date_obj: formData.date_obj }) })}>
+                    One day
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.end_date && formData.end_date > formData.date_obj
+                  ? `Multi-day event: ${formatEventRange({ date_obj: formData.date_obj, end_date: formData.end_date })}`
+                  : "Leave blank for a one-day event."}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="time">Time *</Label>
+                <Label htmlFor="end_time">End Time</Label>
+                <Input
+                  id="end_time"
+                  value={formData.end_time}
+                  onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                  placeholder="e.g., 3:00 PM"
+                />
+              </div>
+              <div>
+                <Label htmlFor="time">Start Time *</Label>
                 <Input
                   id="time"
                   value={formData.time}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  placeholder="e.g., 1:00 PM - 3:00 PM"
+                  placeholder="e.g., 1:00 PM"
                   required
                 />
               </div>
@@ -410,7 +458,7 @@ export const EventDialog = ({ open, onOpenChange, event, onSuccess }: EventDialo
                   required
                 />
                 <p className="text-sm text-muted-foreground">
-                  This will automatically create event instances from {formData.date_obj && format(new Date(formData.date_obj), 'MMM d, yyyy')} until the end date.
+                  This will automatically create event instances from {formData.date_obj && format(parseDay(formData.date_obj), 'MMM d, yyyy')} until the end date.
                 </p>
               </div>
             )}
