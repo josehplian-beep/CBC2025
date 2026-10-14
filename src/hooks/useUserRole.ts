@@ -56,6 +56,7 @@ const ROLE_PRIORITY: readonly AppUserRole[] = [
   'staff',
   'editor',
   'teacher',
+  'author',
   'member',
   'viewer',
   'admin', // Legacy role - kept for backwards compatibility

@@ -83,7 +83,7 @@ serve(async (req) => {
       }
 
       // Validate role
-      const validRoles = ["staff", "admin", "viewer", "member", "editor", "teacher", "administrator"];
+      const validRoles = ["staff", "admin", "viewer", "member", "author", "editor", "teacher", "administrator"];
       if (!validRoles.includes(role)) {
         return new Response(
           JSON.stringify({ error: "Invalid role specified" }),

@@ -41,6 +41,13 @@ const rolePermissions = {
     permissions: ["✓ Manage staff biographies", "✓ Manage albums and photos", "✓ View all members", "✓ Manage department members"],
     restrictions: ["✗ Cannot manage users", "✗ Limited admin access"]
   },
+  author: {
+    icon: Edit,
+    color: "bg-primary",
+    description: "Writes Testimonies and Rooted Thoughts",
+    permissions: ["✓ Write Testimonies posts", "✓ Write Rooted Thoughts posts", "✓ Edit their own posts"],
+    restrictions: ["✗ Cannot delete posts", "✗ No access to any other content or admin area"]
+  },
   teacher: {
     icon: GraduationCap,
     color: "bg-green-500",
@@ -74,7 +81,7 @@ const AdminUsers = () => {
   const [creating, setCreating] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
-  const [newUserRole, setNewUserRole] = useState<'administrator' | 'staff' | 'editor' | 'teacher' | 'member' | 'viewer'>("member");
+  const [newUserRole, setNewUserRole] = useState<'administrator' | 'staff' | 'editor' | 'author' | 'teacher' | 'member' | 'viewer'>("member");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedRoleInfo, setSelectedRoleInfo] = useState<string | null>(null);
@@ -356,6 +363,7 @@ const AdminUsers = () => {
       administrator: users.filter(u => u.roles.includes('administrator')).length,
       staff: users.filter(u => u.roles.includes('staff')).length,
       editor: users.filter(u => u.roles.includes('editor')).length,
+      author: users.filter(u => u.roles.includes('author')).length,
       teacher: users.filter(u => u.roles.includes('teacher')).length,
       member: users.filter(u => u.roles.includes('member')).length,
       viewer: users.filter(u => u.roles.includes('viewer')).length,
@@ -598,6 +606,12 @@ const AdminUsers = () => {
                                     Editor
                                   </div>
                                 </SelectItem>
+                                <SelectItem value="author">
+                                  <div className="flex items-center gap-2">
+                                    <Edit className="w-4 h-4 text-primary" />
+                                    Author
+                                  </div>
+                                </SelectItem>
                                 <SelectItem value="teacher">
                                   <div className="flex items-center gap-2">
                                     <GraduationCap className="w-4 h-4 text-green-500" />
@@ -681,6 +695,7 @@ const AdminUsers = () => {
                   <SelectItem value="administrator">Administrator</SelectItem>
                   <SelectItem value="staff">Staff</SelectItem>
                   <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="author">Author</SelectItem>
                   <SelectItem value="teacher">Teacher</SelectItem>
                   <SelectItem value="member">Member</SelectItem>
                   <SelectItem value="viewer">Viewer</SelectItem>

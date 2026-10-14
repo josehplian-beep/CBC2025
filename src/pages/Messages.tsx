@@ -19,7 +19,7 @@ export default function Messages() {
       <div className="mx-auto flex max-w-5xl flex-col gap-10 px-5 pt-8 sm:px-8 sm:pt-10">
         <MessageSectionTabs value="/testimony" />
         <div className="min-w-0 flex-1">
-          {can('manage_testimonies') && (
+          {can('write_posts') && (
             <div className="mb-8 flex justify-end">
               <Button asChild variant="outline"><Link to="/admin/messages"><PenLine className="mr-2 h-4 w-4" />Manage posts</Link></Button>
             </div>
