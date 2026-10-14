@@ -64,7 +64,7 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
               <TextSizeControl scale={scale} onChange={setScale} />
               <div className="flex flex-wrap gap-2">
                 <ShareMenu url={url} title={post.title} text={excerpt(post.content)} />
-                {can('manage_testimonies') && <Button variant="ghost" size="sm" asChild><Link to={`/admin/rooted-thoughts?edit=${post.id}`}><PenLine className="mr-2 h-4 w-4" />Edit</Link></Button>}
+                {can('write_posts') && <Button variant="ghost" size="sm" asChild><Link to={`/admin/rooted-thoughts?edit=${post.id}`}><PenLine className="mr-2 h-4 w-4" />Edit</Link></Button>}
               </div>
             </div>}
             {post.image_url && <img src={post.image_url} alt={post.title} onContextMenu={event => event.preventDefault()} draggable={false} className="my-8 h-auto w-full rounded-lg" />}

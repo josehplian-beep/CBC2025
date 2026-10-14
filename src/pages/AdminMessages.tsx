@@ -16,6 +16,7 @@ import { MessageSquare, Plus, Edit, Trash2, User, Calendar, Eye, EyeOff, X, Sear
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface Message {
   id: string;
@@ -31,6 +32,8 @@ interface Message {
 
 const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "rooted_thought" }) => {
   const isRooted = section === "rooted_thought";
+  const { can, loading: roleLoading } = usePermissions();
+  const canDelete = can('manage_testimonies');
   const [params, setParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -61,8 +64,8 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
   useEffect(() => {
     setSelectedMessageIds([]);
     resetForm();
-    fetchMessages();
-  }, [section]);
+    if (!roleLoading) fetchMessages();
+  }, [section, roleLoading, canDelete]);
 
   useEffect(() => {
     const post = messages.find(message => message.id === params.get("edit"));
@@ -74,11 +77,17 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
 
   const fetchMessages = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("testimonials")
       .select("*")
       .eq("content_type", section)
       .order("created_at", { ascending: false });
+    // Authors only see and edit the posts they wrote
+    if (!canDelete) {
+      const { data: { user } } = await supabase.auth.getUser();
+      query = query.eq("created_by", user?.id ?? "");
+    }
+    const { data, error } = await query;
 
     if (!error && data) {
       setMessages(data);
@@ -158,9 +167,10 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
         if (error) throw error;
         toast.success("Message updated successfully");
       } else {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from("testimonials")
-          .insert([messageData]);
+          .insert([{ ...messageData, created_by: user?.id }]);
 
         if (error) throw error;
         toast.success("Message created successfully");
@@ -615,6 +625,7 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
                     <EyeOff className="h-4 w-4" />
                     Unpublish
                   </Button>
+                  {canDelete && (
                   <Button
                     variant="destructive"
                     size="sm"
@@ -624,6 +635,7 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
                     <Trash2 className="h-4 w-4" />
                     Delete
                   </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -775,6 +787,7 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+                          {canDelete && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -785,6 +798,7 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
