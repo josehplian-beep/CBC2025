@@ -42,12 +42,6 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
   };
   const metadata = post ? postMetadata(post) : null;
   const url = metadata?.url || '';
-  const share = async () => {
-    if (!post) return;
-    if (!navigator.share) { await copy(url); return; }
-    try { await navigator.share({ title: post.title, text: excerpt(post.content), url }); }
-    catch (error) { if (!(error instanceof DOMException && error.name === 'AbortError')) toast.error('Sharing is unavailable. Copy the link instead.'); }
-  };
 
   return <div className="min-h-screen bg-background text-foreground">
     {!embed && <Navigation />}
@@ -74,9 +68,7 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
             {!embed && <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-y border-border py-4">
               <TextSizeControl scale={scale} onChange={setScale} />
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={share}><Share2 className="mr-2 h-4 w-4" />Share</Button>
-                <Button variant="ghost" size="icon" aria-label="Copy post link" title="Copy post link" onClick={() => copy(url)}><Copy className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" asChild><a aria-label="Share on Facebook" title="Share on Facebook" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"><Facebook className="h-4 w-4" /></a></Button>
+                <ShareMenu url={url} title={post.title} text={excerpt(post.content)} />
                 {can('manage_testimonies') && <Button variant="ghost" size="sm" asChild><Link to={`/admin/rooted-thoughts?edit=${post.id}`}><PenLine className="mr-2 h-4 w-4" />Edit</Link></Button>}
               </div>
             </div>}
