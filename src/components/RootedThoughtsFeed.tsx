@@ -56,7 +56,7 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
     </div> : !data?.posts.length ? <div className="border-y border-border py-16 text-center">
       <BookOpen className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
       <h3 className="font-display text-xl font-semibold">{search ? 'No posts found' : 'A new chapter is coming'}</h3>
-      <p className="mt-3 text-muted-foreground">{search ? 'Try another title.' : isTestimony ? 'Testimonies will appear here when published.' : 'Daily reflections will appear here when published.'}</p>
+      <p className="mt-3 text-muted-foreground">{search ? 'Try another title or author name.' : isTestimony ? 'Testimonies will appear here when published.' : 'Daily reflections will appear here when published.'}</p>
     </div> : <>
       <div className="grid gap-8">
         {data.posts.map((post, index) => <article key={post.id} className="group min-w-0 border-b border-border pb-8">
