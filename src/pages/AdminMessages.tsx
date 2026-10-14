@@ -369,127 +369,93 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
                 {isRooted ? "Add New Post" : "Add Message"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {isRooted ? (selectedMessage ? "Edit Reflection" : "Create Reflection") : (selectedMessage ? "Edit Message" : "Create New Message")}
+            <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 gap-0">
+              <DialogHeader className="px-6 py-4 border-b border-border sticky top-0 bg-background z-10">
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  {selectedMessage ? "Edit Post" : "New Post"}
                 </DialogTitle>
               </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {isRooted && <div><Label htmlFor="slug">Custom post link</Label><Input id="slug" value={formData.slug} pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="e.g., rooted-in-hope" onChange={event => setFormData({ ...formData, slug: event.target.value })} /></div>}
-              <div>
-                <Label htmlFor="title">Message Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Faith: The Story of a God and His People"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="content">Message Content *</Label>
-                <Textarea
-                  id="content"
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  rows={8}
-                  placeholder="Enter the message description or transcript..."
-                  required
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="author_name">Writer/Author *</Label>
-                  <Input
-                    id="author_name"
-                    value={formData.author_name}
-                    onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                    placeholder="e.g., Pastor John Smith"
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    This will be used for Writer filtering on the Messages page
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="author_role">Scripture/Topic</Label>
-                  <Input
-                    id="author_role"
-                    value={formData.author_role}
-                    onChange={(e) => setFormData({ ...formData, author_role: e.target.value })}
-                    placeholder="e.g., Genesis 1:1, Romans 8:28, or Faith Series"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Enter Bible references (Genesis-Revelation) for Scripture filtering, or topics (e.g., "Faith", "Hope", "Advent Series") for Topic filtering
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="created_at">Post Date *</Label>
-                  <Input
-                    id="created_at"
-                    type="date"
-                    value={formData.created_at}
-                    onChange={(e) => setFormData({ ...formData, created_at: e.target.value })}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Set the date this message should be posted
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="image">Featured Image</Label>
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                {imagePreview && (
-                  <div className="mt-2 relative">
-                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2"
-                      onClick={() => {
-                        setImageFile(null);
-                        setImagePreview("");
-                        setFormData({ ...formData, image_url: "" });
-                      }}
-                    >
+            <form onSubmit={handleSubmit} className="grid md:grid-cols-[1fr_300px]">
+              <div className="p-6 space-y-5 md:border-r border-border">
+                <label htmlFor="image" className="group relative block cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-border hover:border-primary transition-colors">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Cover preview" className="w-full aspect-[16/7] object-cover" />
+                  ) : (
+                    <div className="aspect-[16/7] flex flex-col items-center justify-center gap-2 text-muted-foreground group-hover:text-primary transition-colors">
+                      <Plus className="h-8 w-8" />
+                      <span className="text-sm font-medium">Add a cover image</span>
+                    </div>
+                  )}
+                  <input id="image" type="file" accept="image/*" className="sr-only" onChange={handleImageChange} />
+                  {imagePreview && (
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2"
+                      onClick={(e) => { e.preventDefault(); setImageFile(null); setImagePreview(""); setFormData({ ...formData, image_url: "" }); }}>
                       <X className="h-4 w-4" />
                     </Button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </label>
 
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="is_published"
-                  checked={formData.is_published}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
+                <Input
+                  id="title"
+                  aria-label="Title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Post title"
+                  className="h-auto border-0 px-0 text-3xl font-bold shadow-none focus-visible:ring-0"
+                  required
                 />
-                <Label htmlFor="is_published" className="cursor-pointer">
-                  Publish immediately
-                </Label>
+                {formData.author_role && <Badge variant="secondary">{formData.author_role}</Badge>}
+
+                <Textarea
+                  id="content"
+                  aria-label="Content"
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  rows={16}
+                  placeholder="Start writing your story… Leave a blank line between paragraphs."
+                  className="border-0 px-0 text-base leading-relaxed shadow-none focus-visible:ring-0 resize-none"
+                  required
+                />
+                {(() => {
+                  const words = formData.content.trim() ? formData.content.trim().split(/\s+/).length : 0;
+                  return <p className="text-xs text-muted-foreground">{words} words · {Math.max(1, Math.ceil(words / 200))} min read</p>;
+                })()}
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Saving…" : isRooted ? "Save Reflection" : selectedMessage ? "Update Message" : "Create Message"}
-                </Button>
-              </div>
+              <aside className="p-6 space-y-5 bg-muted/30">
+                <div className="space-y-1.5">
+                  <Label htmlFor="author_name">Author *</Label>
+                  <Input id="author_name" value={formData.author_name}
+                    onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                    placeholder="e.g., Pastor John Smith" required />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="author_role">Scripture or topic</Label>
+                  <Input id="author_role" value={formData.author_role}
+                    onChange={(e) => setFormData({ ...formData, author_role: e.target.value })}
+                    placeholder="e.g., Romans 8:28 or Hope" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="created_at">Post date *</Label>
+                  <Input id="created_at" type="date" value={formData.created_at}
+                    onChange={(e) => setFormData({ ...formData, created_at: e.target.value })} required />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                  <Label htmlFor="is_published" className="cursor-pointer flex items-center gap-2">
+                    {formData.is_published ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4" />}
+                    {formData.is_published ? "Published" : "Draft"}
+                  </Label>
+                  <Switch id="is_published" checked={formData.is_published}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })} />
+                </div>
+                <div className="flex flex-col gap-2 pt-2">
+                  <Button type="submit" disabled={saving} className="w-full">
+                    {saving ? "Saving…" : selectedMessage ? "Update Post" : formData.is_published ? "Publish Post" : "Save Draft"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetForm} className="w-full">Cancel</Button>
+                </div>
+              </aside>
             </form>
           </DialogContent>
         </Dialog>
