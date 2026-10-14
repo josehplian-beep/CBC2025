@@ -1,5 +1,5 @@
 // Role-based permissions configuration
-export type UserRole = 'member' | 'editor' | 'teacher' | 'staff' | 'administrator' | 'admin' | 'viewer';
+export type UserRole = 'member' | 'author' | 'editor' | 'teacher' | 'staff' | 'administrator' | 'admin' | 'viewer';
 
 export type Permission =
   | 'view_public_content'
@@ -7,6 +7,7 @@ export type Permission =
   | 'manage_albums'
   | 'manage_events'
   | 'manage_testimonies'
+  | 'write_posts'
   | 'manage_students'
   | 'manage_classes'
   | 'take_attendance'
@@ -24,6 +25,11 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'view_public_content',
     'view_member_directory'
   ],
+  // Authors only write Testimonies and Rooted Thoughts posts
+  author: [
+    'view_public_content',
+    'write_posts'
+  ],
   editor: [
     'view_public_content',
     'view_admin_panel',
@@ -31,6 +37,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'manage_albums',
     'manage_events',
     'manage_testimonies',
+    'write_posts',
     'manage_members',
     'manage_staff',
     'manage_departments',
@@ -60,6 +67,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'manage_albums',
     'manage_events',
     'manage_testimonies',
+    'write_posts',
     'manage_students',
     'manage_classes',
     'take_attendance',
@@ -79,6 +87,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     'manage_albums',
     'manage_events',
     'manage_testimonies',
+    'write_posts',
     'manage_students',
     'manage_classes',
     'take_attendance',
@@ -108,6 +117,7 @@ export function hasAnyPermission(userRole: UserRole | null, permissions: Permiss
 export function getRoleDisplayName(role: UserRole): string {
   const displayNames: Record<UserRole, string> = {
     member: 'Member',
+    author: 'Author',
     editor: 'Editor',
     teacher: 'Teacher',
     staff: 'Staff',
@@ -118,4 +128,4 @@ export function getRoleDisplayName(role: UserRole): string {
   return displayNames[role] || role;
 }
 
-export const ALL_ROLES: UserRole[] = ['member', 'editor', 'teacher', 'staff', 'administrator'];
+export const ALL_ROLES: UserRole[] = ['member', 'author', 'editor', 'teacher', 'staff', 'administrator'];

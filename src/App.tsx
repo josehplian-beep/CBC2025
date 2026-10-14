@@ -104,7 +104,7 @@ const App = () => (
           <Route path="/teacher/dashboard" element={<ProtectedRoute permission="take_attendance"><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/admin/albums" element={<ProtectedRoute permission="manage_albums"><AdminLayout><AdminAlbums /></AdminLayout></ProtectedRoute>} />
           <Route path="/admin/events" element={<ProtectedRoute permission="manage_events"><AdminLayout><AdminEvents /></AdminLayout></ProtectedRoute>} />
-          <Route path="/admin/messages" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminMessages /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/messages" element={<ProtectedRoute permission="write_posts"><AdminLayout><AdminMessages /></AdminLayout></ProtectedRoute>} />
           <Route path="/staff/rev-van-duh-ceu" element={<RevVanDuhCeu />} />
           <Route path="/staff/rev-joseph-nihre-bawihrin" element={<RevJosephNihreBawihrin />} />
           <Route path="/beliefs/the-bible" element={<TheBible />} />
@@ -117,7 +117,7 @@ const App = () => (
           <Route path="/rooted-thoughts" element={<RootedThoughts />} />
           <Route path="/rooted-thoughts/:slug" element={<RootedThoughtPost />} />
           <Route path="/rooted-thoughts/:slug/embed" element={<RootedThoughtPost embed />} />
-          <Route path="/admin/rooted-thoughts" element={<ProtectedRoute permission="manage_testimonies"><AdminLayout><AdminMessages key="rooted" section="rooted_thought" /></AdminLayout></ProtectedRoute>} />
+          <Route path="/admin/rooted-thoughts" element={<ProtectedRoute permission="write_posts"><AdminLayout><AdminMessages key="rooted" section="rooted_thought" /></AdminLayout></ProtectedRoute>} />
           <Route path="/testimony/:id" element={<TestimonyPost />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/admin/color-palette" element={<ProtectedRoute permission="manage_users"><AdminLayout><ColorPalette /></AdminLayout></ProtectedRoute>} />
