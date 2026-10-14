@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { excerpt, publicSiteOrigin } from "@/lib/rooted-thoughts";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -187,19 +189,21 @@ const TestimonyPost = () => {
     }
   };
 
+  const postUrl = testimony ? `${publicSiteOrigin}/testimony/${testimony.id}` : window.location.href;
+
   const shareToFacebook = () => {
-    const url = encodeURIComponent(window.location.href);
+    const url = encodeURIComponent(postUrl);
     const text = encodeURIComponent(`${testimony?.title} - Check out this inspiring message!`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
   const shareToInstagram = () => {
     toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(postUrl);
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(postUrl);
     toast.success('Link copied to clipboard');
   };
 
@@ -226,8 +230,27 @@ const TestimonyPost = () => {
     return null;
   }
 
+  const shareUrl = `${publicSiteOrigin}/testimony/${testimony.id}`;
+  const shareDescription = excerpt(testimony.content);
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{testimony.title} | Testimonies | Chin Bethel Church</title>
+        <meta name="description" content={shareDescription} />
+        <link rel="canonical" href={shareUrl} />
+        <meta property="og:title" content={testimony.title} />
+        <meta property="og:description" content={shareDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={shareUrl} />
+        <meta property="article:published_time" content={testimony.created_at} />
+        <meta name="twitter:card" content={testimony.image_url ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:title" content={testimony.title} />
+        <meta name="twitter:description" content={shareDescription} />
+        {testimony.image_url && <meta property="og:image" content={testimony.image_url} />}
+        {testimony.image_url && <meta name="twitter:image" content={testimony.image_url} />}
+        {testimony.image_url && <meta property="og:image:alt" content={testimony.title} />}
+      </Helmet>
       <Navigation />
       
       {/* Header Navigation */}
