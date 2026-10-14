@@ -13,6 +13,7 @@ import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Dow
 import { format, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
+import { eventDays, eventEnd, eventPath as sharedEventPath, formatEventRange, formatEventTime, isMultiDay, isUpcoming, occursOn, overlapsRange } from "@/lib/event-dates";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
@@ -20,6 +21,7 @@ import * as XLSX from "xlsx";
 const Events = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [weekFilter, setWeekFilter] = useState<Date | undefined>();
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   const [timeFilter, setTimeFilter] = useState<string>("upcoming");
@@ -191,27 +193,26 @@ const Events = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  if (timeFilter === "upcoming") {
-    filteredEvents = filteredEvents.filter(event => event.dateObj >= today);
-  } else if (timeFilter === "past") {
-    filteredEvents = filteredEvents.filter(event => event.dateObj < today);
-    filteredEvents = filteredEvents.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
-  }
+  // A picked day or week always wins over Upcoming/Past, so past dates still show their events.
   if (weekFilter) {
     const weekStart = startOfWeek(weekFilter, { weekStartsOn: 0 });
     const weekEnd = endOfWeek(weekFilter, { weekStartsOn: 0 });
-    filteredEvents = filteredEvents.filter(event =>
-      event.dateObj >= weekStart && event.dateObj <= weekEnd
-    );
+    filteredEvents = filteredEvents.filter(event => overlapsRange(event, weekStart, weekEnd));
   } else if (selectedDate) {
-    filteredEvents = filteredEvents.filter(event => isSameDay(event.dateObj, selectedDate));
+    filteredEvents = filteredEvents.filter(event => occursOn(event, selectedDate));
+  } else if (timeFilter === "upcoming") {
+    filteredEvents = filteredEvents.filter(event => isUpcoming(event, today));
+  } else if (timeFilter === "past") {
+    filteredEvents = filteredEvents
+      .filter(event => !isUpcoming(event, today))
+      .sort((a, b) => eventEnd(b).getTime() - eventEnd(a).getTime());
   }
   if (eventTypeFilter !== "all") {
     filteredEvents = filteredEvents.filter(event => event.type === eventTypeFilter);
   }
 
   const upcomingEvents = events
-    .filter(event => event.dateObj >= new Date())
+    .filter(event => isUpcoming(event))
     .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
     .slice(0, 4);
 
@@ -230,11 +231,11 @@ const Events = () => {
     Outreach: "bg-muted text-muted-foreground",
   };
 
-  const eventDates = events.map(e => e.dateObj);
+  const eventDates = events.flatMap(e => eventDays(e));
 
   const isToday = (date: Date) => isSameDay(date, new Date());
 
-  const todaysEvents = events.filter(e => isToday(e.dateObj));
+  const todaysEvents = events.filter(e => occursOn(e, new Date()));
 
   const ShareMenu = ({ event }: { event: any }) => (
     <DropdownMenu>
@@ -401,6 +402,8 @@ const Events = () => {
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => { setSelectedDate(date); setWeekFilter(undefined); }}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
                     className="rounded-xl mx-auto w-full"
                     modifiers={{ hasEvent: eventDates }}
                     modifiersClassNames={{
@@ -408,13 +411,22 @@ const Events = () => {
                     }}
                   />
                   <div className="mt-3 space-y-1.5 px-1">
-                    <Button
-                      variant="outline" size="sm"
-                      className="w-full rounded-xl text-xs h-8"
-                      onClick={() => { setWeekFilter(new Date()); setSelectedDate(undefined); }}
-                    >
-                      This Week
-                    </Button>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button
+                        variant="outline" size="sm"
+                        className="rounded-xl text-xs h-8"
+                        onClick={() => { setSelectedDate(new Date()); setWeekFilter(undefined); }}
+                      >
+                        Today
+                      </Button>
+                      <Button
+                        variant="outline" size="sm"
+                        className="rounded-xl text-xs h-8"
+                        onClick={() => { setWeekFilter(new Date()); setSelectedDate(undefined); }}
+                      >
+                        This Week
+                      </Button>
+                    </div>
                     <Button
                       variant="ghost" size="sm"
                       className="w-full rounded-xl text-xs h-8 text-muted-foreground"
@@ -517,6 +529,11 @@ const Events = () => {
                             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                               {format(event.dateObj, 'MMM')}
                             </span>
+                            {isMultiDay(event) && (
+                              <span className="text-[10px] font-medium text-muted-foreground">
+                                to {format(eventEnd(event), 'MMM d')}
+                              </span>
+                            )}
                           </div>
 
                           {/* Content */}
@@ -525,6 +542,9 @@ const Events = () => {
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap items-center gap-2 mb-1">
                                   <Badge className={`${typeColors[event.type]} text-[10px]`}>{event.type}</Badge>
+                                  {isMultiDay(event) && (
+                                    <Badge variant="outline" className="text-[10px]">{formatEventRange(event)}</Badge>
+                                  )}
                                   {(event.is_recurring_parent || event.parent_event_id) && (
                                     <Badge variant="outline" className="text-[10px]">🔄 Recurring</Badge>
                                   )}
@@ -534,7 +554,7 @@ const Events = () => {
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                                   <span className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" /> {event.time}
+                                    <Clock className="w-3 h-3" /> {formatEventTime(event)}
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <MapPin className="w-3 h-3" /> {event.location}
@@ -593,7 +613,7 @@ const Events = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2 text-sm">
                     <CalendarIcon className="w-4 h-4 text-primary" />
-                    <span>{viewingEvent?.date}</span>
+                    <span>{viewingEvent && formatEventRange(viewingEvent)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="w-4 h-4 text-primary" />
