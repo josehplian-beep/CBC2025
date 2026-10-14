@@ -189,19 +189,21 @@ const TestimonyPost = () => {
     }
   };
 
+  const postUrl = testimony ? `${publicSiteOrigin}/testimony/${testimony.id}` : window.location.href;
+
   const shareToFacebook = () => {
-    const url = encodeURIComponent(window.location.href);
+    const url = encodeURIComponent(postUrl);
     const text = encodeURIComponent(`${testimony?.title} - Check out this inspiring message!`);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
   const shareToInstagram = () => {
     toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(postUrl);
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(postUrl);
     toast.success('Link copied to clipboard');
   };
 
