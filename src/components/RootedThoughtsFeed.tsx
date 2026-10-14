@@ -44,7 +44,7 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
   return <div className="min-w-0">
     {!preview && <div className="relative mx-auto mb-8 max-w-md">
       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-      <Input aria-label={`Search ${label}`} placeholder={`Search ${label}…`} className="pl-10" value={search}
+      <Input aria-label={`Search ${label}`} placeholder={`Search by title or author…`} className="pl-10" value={search}
         onChange={event => { setSearch(event.target.value); setPage(0); }} />
     </div>}
     {isLoading ? <div className="grid gap-8">
