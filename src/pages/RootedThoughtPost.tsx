@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Copy, Facebook, PenLine, Share2 } from 'lucide-react';
+import { ArrowLeft, PenLine } from 'lucide-react';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TextSizeControl from '@/components/TextSizeControl';
 import PostEngagement from '@/components/PostEngagement';
+import ShareMenu from '@/components/ShareMenu';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,18 +35,8 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
       return data;
     },
   });
-  const copy = async (text: string) => {
-    try { await navigator.clipboard.writeText(text); toast.success('Copied to clipboard'); }
-    catch { toast.error('Could not copy. Select and copy the text instead.'); }
-  };
   const metadata = post ? postMetadata(post) : null;
   const url = metadata?.url || '';
-  const share = async () => {
-    if (!post) return;
-    if (!navigator.share) { await copy(url); return; }
-    try { await navigator.share({ title: post.title, text: excerpt(post.content), url }); }
-    catch (error) { if (!(error instanceof DOMException && error.name === 'AbortError')) toast.error('Sharing is unavailable. Copy the link instead.'); }
-  };
 
   return <div className="min-h-screen bg-background text-foreground">
     {!embed && <Navigation />}
@@ -73,9 +63,7 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
             {!embed && <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-y border-border py-4">
               <TextSizeControl scale={scale} onChange={setScale} />
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={share}><Share2 className="mr-2 h-4 w-4" />Share</Button>
-                <Button variant="ghost" size="icon" aria-label="Copy post link" title="Copy post link" onClick={() => copy(url)}><Copy className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" asChild><a aria-label="Share on Facebook" title="Share on Facebook" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"><Facebook className="h-4 w-4" /></a></Button>
+                <ShareMenu url={url} title={post.title} text={excerpt(post.content)} />
                 {can('manage_testimonies') && <Button variant="ghost" size="sm" asChild><Link to={`/admin/rooted-thoughts?edit=${post.id}`}><PenLine className="mr-2 h-4 w-4" />Edit</Link></Button>}
               </div>
             </div>}
