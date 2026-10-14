@@ -36,10 +36,6 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
       return data;
     },
   });
-  const copy = async (text: string) => {
-    try { await navigator.clipboard.writeText(text); toast.success('Copied to clipboard'); }
-    catch { toast.error('Could not copy. Select and copy the text instead.'); }
-  };
   const metadata = post ? postMetadata(post) : null;
   const url = metadata?.url || '';
 
