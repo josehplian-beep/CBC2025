@@ -191,22 +191,6 @@ const TestimonyPost = () => {
 
   const postUrl = testimony ? `${publicSiteOrigin}/testimony/${testimony.id}` : window.location.href;
 
-  const shareToFacebook = () => {
-    const url = encodeURIComponent(postUrl);
-    const text = encodeURIComponent(`${testimony?.title} - Check out this inspiring message!`);
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-  };
-
-  const shareToInstagram = () => {
-    toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
-    navigator.clipboard.writeText(postUrl);
-  };
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(postUrl);
-    toast.success('Link copied to clipboard');
-  };
-
   const toggleLike = () => {
     setLiked(!liked);
     toast.success(liked ? 'Removed from favorites' : 'Added to favorites');
@@ -322,27 +306,7 @@ const TestimonyPost = () => {
                 <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Share2 className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={shareToFacebook}>
-                    <Facebook className="w-4 h-4 mr-2" />
-                    Share to Facebook
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={shareToInstagram}>
-                    <Instagram className="w-4 h-4 mr-2" />
-                    Share to Instagram
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={copyLink}>
-                    <Link2 className="w-4 h-4 mr-2" />
-                    Copy Link
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ShareMenu url={postUrl} title={testimony.title} text={shareDescription} />
 
               {isAdmin && (
                 <>
