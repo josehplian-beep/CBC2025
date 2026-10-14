@@ -1,3 +1,4 @@
+import MessagesHero from '@/components/MessagesHero';
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -221,8 +222,9 @@ const Messages = () => {
       <Navigation />
       
       {/* Main Content */}
-      <main className="pb-20 pt-28 md:pt-32 bg-background">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <main className="pb-20 bg-background">
+        <MessagesHero />
+        <div className="container mx-auto px-4 max-w-7xl pt-8">
           <div className="flex flex-col gap-8 md:gap-10">
             <MessageSectionTabs value="/testimony" />
 
