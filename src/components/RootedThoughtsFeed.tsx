@@ -28,7 +28,10 @@ export default function RootedThoughtsFeed({ contentType = 'rooted_thought', pre
         .eq('content_type', contentType).eq('is_published', true)
         .order('created_at', { ascending: false }).order('id')
         .range(page * pageSize, (page + 1) * pageSize - 1);
-      if (search.trim()) query = query.ilike('title', `%${search.trim()}%`);
+      if (search.trim()) {
+        const term = `%${search.trim().replace(/[%,()]/g, '')}%`;
+        query = query.or(`title.ilike.${term},author_name.ilike.${term}`);
+      }
       const { data, error, count } = await query;
       if (error) throw error;
       return { posts: data, count: count || 0 };
