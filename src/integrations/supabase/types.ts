@@ -420,6 +420,8 @@ export type Database = {
           date: string
           date_obj: string
           description: string | null
+          end_date: string | null
+          end_time: string | null
           id: string
           image_url: string | null
           is_recurring_parent: boolean | null
@@ -439,6 +441,8 @@ export type Database = {
           date: string
           date_obj: string
           description?: string | null
+          end_date?: string | null
+          end_time?: string | null
           id?: string
           image_url?: string | null
           is_recurring_parent?: boolean | null
@@ -458,6 +462,8 @@ export type Database = {
           date?: string
           date_obj?: string
           description?: string | null
+          end_date?: string | null
+          end_time?: string | null
           id?: string
           image_url?: string | null
           is_recurring_parent?: boolean | null
