@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, PenLine } from 'lucide-react';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import TextSizeControl from '@/components/TextSizeControl';
