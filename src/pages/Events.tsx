@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Download, Upload, Share2, Eye, Facebook, Twitter, Instagram, Link2, Sparkles, Star } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, Plus, Edit, Trash2, Download, Upload, Share2, Eye, Facebook, Instagram, Link2, Sparkles, Star } from "lucide-react";
 import { format, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { EventDialog } from "@/components/EventDialog";
@@ -158,12 +158,6 @@ const Events = () => {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
   };
 
-  const shareEventToTwitter = (event: any) => {
-    const text = encodeURIComponent(`Join us for ${event.title} on ${event.date} at ${event.time}!`);
-    const url = encodeURIComponent(eventUrl(event));
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-  };
-
   const shareEventToInstagram = (event: any) => {
     navigator.clipboard.writeText(eventUrl(event));
     toast.info('Instagram does not support direct link sharing. Link copied to clipboard!');
@@ -253,9 +247,6 @@ const Events = () => {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => shareEventToFacebook(event)}>
           <Facebook className="w-4 h-4 mr-2" /> Facebook
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => shareEventToTwitter(event)}>
-          <Twitter className="w-4 h-4 mr-2" /> Twitter / X
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => shareEventToInstagram(event)}>
           <Instagram className="w-4 h-4 mr-2" /> Instagram

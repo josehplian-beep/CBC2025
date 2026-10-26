@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Users, BookOpen, Target, MapPin, Clock, Phone, Facebook, Twitter, Link2, MessageCircle } from "lucide-react";
+import { Heart, Users, BookOpen, Target, MapPin, Clock, Phone, Facebook, Link2 } from "lucide-react";
 import TextSizeControl from "@/components/TextSizeControl";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -117,24 +117,6 @@ const About = () => {
                   aria-label="Share on Facebook">
 
                   <Facebook className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
-                  aria-label="Share on X">
-
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(shareTitle + " " + pageUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-muted hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
-                  aria-label="Share on WhatsApp">
-
-                  <MessageCircle className="w-4 h-4" />
                 </a>
                 <button
                   onClick={handleCopyLink}

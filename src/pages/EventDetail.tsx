@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { format, differenceInCalendarDays } from "date-fns";
 import {
   Calendar as CalendarIcon, Clock, MapPin, ArrowLeft, Share2,
-  Facebook, Twitter, Instagram, Link2, Check, Sparkles, Users, ArrowRight,
+  Facebook, Instagram, Link2, Check, Sparkles, Users, ArrowRight,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -108,8 +108,6 @@ const EventDetail = () => {
 
   const shareFacebook = () =>
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, "_blank");
-  const shareTwitter = () =>
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, "_blank");
   const shareInstagram = () => {
     copyLink();
     toast.info("Instagram does not support direct link sharing — link copied so you can paste it.");
@@ -347,9 +345,6 @@ const EventDetail = () => {
                   </Button>
                   <Button variant="outline" size="sm" onClick={shareFacebook}>
                     <Facebook className="w-4 h-4 mr-1" /> Facebook
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={shareTwitter}>
-                    <Twitter className="w-4 h-4 mr-1" /> Twitter
                   </Button>
                   <Button variant="outline" size="sm" onClick={shareInstagram}>
                     <Instagram className="w-4 h-4 mr-1" /> Instagram
