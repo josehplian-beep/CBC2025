@@ -27,6 +27,7 @@ export function postHead(post: SharePost) {
   const url = SITE + sharePath(post);
   const title = `${post.title} | Chin Bethel Church`;
   const description = (post.content ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160);
+  const image = post.image_url?.startsWith("https://") ? post.image_url : `${SITE}/pwa-512x512.png`;
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
@@ -37,16 +38,12 @@ export function postHead(post: SharePost) {
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
     `<meta property="og:url" content="${url}" />`,
     `<meta property="article:published_time" content="${escapeHtml(post.created_at)}" />`,
-    `<meta name="twitter:card" content="${post.image_url ? "summary_large_image" : "summary"}" />`,
+    `<meta property="og:image" content="${escapeHtml(image)}" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
+    `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
   ];
-  if (post.image_url?.startsWith("https://")) {
-    tags.push(
-      `<meta property="og:image" content="${escapeHtml(post.image_url)}" />`,
-      `<meta name="twitter:image" content="${escapeHtml(post.image_url)}" />`,
-    );
-  }
   return tags.join("\n    ");
 }
 
