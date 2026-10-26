@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
+import RecentTopic from "@/components/RecentTopic";
 
 const CHANNEL_ID = "UCNQNT1hM2b6_jd50ja-XAeQ";
 const HERO_VIDEO_ID = "Fe9ctqWeA5U";
@@ -108,6 +109,7 @@ const Index = () => {
       <ServiceTimesSection />
       <VideosSection loading={loading} videos={processedVideos} />
       <EventsSection events={events} />
+      <RootedThoughtsSection />
       <AlbumsSection />
       <Footer />
     </div>);
@@ -438,6 +440,42 @@ function EventsSection({ events }: {events: ChurchEvent[];}) {
             </Button>
           </Link>
         </motion.div>
+      </div>
+    </section>);
+
+}
+
+function RootedThoughtsSection() {
+  return (
+    <section className="py-24 bg-secondary">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={staggerContainer}
+          className="text-center mb-10">
+          <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
+            Daily Devotional
+          </motion.span>
+          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4">
+            Rooted Thoughts
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={2} className="text-muted-foreground text-sm max-w-md mx-auto">
+            Reflections to keep your faith grounded through the week
+          </motion.p>
+        </motion.div>
+
+        <RecentTopic />
+
+        <div className="text-center">
+          <Link to="/rooted-thoughts">
+            <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
+              Read All Reflections
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </section>);
 
