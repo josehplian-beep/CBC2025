@@ -1,4 +1,4 @@
-import { Copy, Facebook, Instagram, Mail, MessageCircle, Share2, Twitter } from 'lucide-react';
+import { Copy, Facebook, Instagram, Mail, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -49,14 +49,8 @@ export default function ShareMenu({ url, title, text }: ShareMenuProps) {
         <DropdownMenuItem onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`)}>
           <Facebook className="mr-2 h-4 w-4" />Facebook
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openShare(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`)}>
-          <Twitter className="mr-2 h-4 w-4" />X (Twitter)
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={shareToInstagram}>
           <Instagram className="mr-2 h-4 w-4" />Instagram
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openShare(`https://wa.me/?text=${encodedText}%20${encodedUrl}`)}>
-          <MessageCircle className="mr-2 h-4 w-4" />WhatsApp
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodedText}%0A%0A${encodedUrl}`; }}>
           <Mail className="mr-2 h-4 w-4" />Email
