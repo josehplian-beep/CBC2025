@@ -27,6 +27,7 @@ export function postHead(post: SharePost) {
   const url = SITE + sharePath(post);
   const title = `${post.title} | Chin Bethel Church`;
   const description = (post.content ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160);
+  const image = post.image_url?.startsWith("https://") ? post.image_url : `${SITE}/pwa-512x512.png`;
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
