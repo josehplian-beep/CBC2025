@@ -70,7 +70,7 @@ const PWAInstallPrompt = () => {
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
             <img 
-              src="/pwa-192x192.png" 
+              src={`${import.meta.env.BASE_URL}pwa-192x192.png`} 
               alt="CBC" 
               className="w-8 h-8 rounded"
               onError={(e) => {
