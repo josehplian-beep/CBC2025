@@ -57,7 +57,7 @@ export default function RootedThoughtPost({ embed = false }: { embed?: boolean }
             {metadata?.image && <meta property="og:image:alt" content={post.title} />}
           </Helmet>
           <article className="mt-8">
-            <p className="mb-4 text-sm font-medium text-primary">Rooted Thoughts · Weeky devotion</p>
+            <p className="mb-4 text-sm font-medium text-primary">Rooted Thoughts · Weekly devotion</p>
             <h1 className="break-words font-display text-3xl font-bold leading-tight md:text-5xl">{post.title}</h1>
             <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground"><span>{post.author_name}</span><time dateTime={post.created_at}>{format(new Date(post.created_at), 'MMMM d, yyyy')}</time></div>
             {!embed && <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-y border-border py-4">
