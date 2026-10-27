@@ -456,7 +456,7 @@ function RootedThoughtsSection() {
           variants={staggerContainer}
           className="text-center mb-10">
           <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
-            Daily Devotional
+            WEEKLY DEVOTIONAL
           </motion.span>
           <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4">
             Rooted Thoughts
