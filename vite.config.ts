@@ -6,7 +6,8 @@ import { prerenderPosts } from "./scripts/prerender-posts";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/",
+  // GitHub Pages serves the app under /<repo-name>/; the main site serves it at the root.
+  base: process.env.GITHUB_PAGES_BASE_PATH || "/",
   server: {
     host: "::",
     port: 8080,
@@ -25,8 +26,8 @@ export default defineConfig(({ mode }) => ({
         background_color: "#1a1a2e",
         display: "standalone",
         orientation: "portrait",
-        scope: "/",
-        start_url: "/",
+        scope: process.env.GITHUB_PAGES_BASE_PATH || "/",
+        start_url: process.env.GITHUB_PAGES_BASE_PATH || "/",
         icons: [
           {
             src: "pwa-192x192.png",
