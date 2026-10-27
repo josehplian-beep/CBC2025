@@ -9,6 +9,7 @@ import RecentTopic from "@/components/RecentTopic";
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/usePermissions';
 import MessagesHero from '@/components/MessagesHero';
+import DevotionalSignup from '@/components/DevotionalSignup';
 
 export default function RootedThoughts() {
   const { can } = usePermissions();
@@ -28,6 +29,7 @@ export default function RootedThoughts() {
           <RecentTopic />
           <h2 className="mb-6 text-center font-display text-2xl font-semibold sm:text-3xl">Latest Posts</h2>
           <RootedThoughtsFeed />
+          <div className="mt-12"><DevotionalSignup /></div>
         </div>
       </div>
     </main>

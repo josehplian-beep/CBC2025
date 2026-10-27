@@ -24,9 +24,18 @@ export default function ShareMenu({ url, title, text }: ShareMenuProps) {
     }
   };
 
-  const shareToInstagram = async () => {
-    await copyLink();
-    toast.info('Instagram has no web share link — paste the copied link into your story, bio, or DM.');
+  // Instagram has no web share URL. On phones the system share sheet lists the Instagram app,
+  // and it must open directly from the tap or iOS/Android block it.
+  const shareToInstagram = () => {
+    if (navigator.share) {
+      navigator.share({ title, text, url }).catch((error) => {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          copyLink().then(() => toast.info('Paste the copied link into Instagram.'));
+        }
+      });
+      return;
+    }
+    copyLink().then(() => toast.info('Link copied — paste it into your Instagram story, bio, or DM.'));
   };
 
   const shareNative = async () => {

@@ -413,6 +413,30 @@ export type Database = {
         }
         Relationships: []
       }
+      devotional_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          unsubscribe_token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          unsubscribe_token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          unsubscribe_token?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
