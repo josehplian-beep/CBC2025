@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { format, differenceInCalendarDays } from "date-fns";
 import {
   Calendar as CalendarIcon, Clock, MapPin, ArrowLeft, Share2,
-  Facebook, Instagram, Link2, Check, Sparkles, Users, ArrowRight,
+  Sparkles, Users, ArrowRight,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -106,13 +106,6 @@ const EventDetail = () => {
     } else {
       copyLink();
     }
-  };
-
-  const shareFacebook = () =>
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, "_blank");
-  const shareInstagram = () => {
-    copyLink();
-    toast.info("Instagram does not support direct link sharing — link copied so you can paste it.");
   };
 
   const downloadIcs = () => {
@@ -341,42 +334,6 @@ const EventDetail = () => {
                 <Button variant="outline" size="sm" className="w-full rounded-full" onClick={downloadIcs}>
                   <CalendarIcon className="w-4 h-4 mr-1" /> Add to calendar
                 </Button>
-                          <p className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
-                          <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
-                            View <ArrowRight className="w-3 h-3" />
-                          </span>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-            <Card className="rounded-2xl border border-border/60">
-              <CardContent className="p-5 space-y-3">
-                <h3 className="font-display font-bold text-base">Share this event</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" onClick={nativeShare}>
-                    <Share2 className="w-4 h-4 mr-1" /> Share
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={copyLink}>
-                    {copied ? <Check className="w-4 h-4 mr-1" /> : <Link2 className="w-4 h-4 mr-1" />}
-                    {copied ? "Copied" : "Copy link"}
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={shareFacebook}>
-                    <Facebook className="w-4 h-4 mr-1" /> Facebook
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={shareInstagram}>
-                    <Instagram className="w-4 h-4 mr-1" /> Instagram
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={downloadIcs}>
-                    <CalendarIcon className="w-4 h-4 mr-1" /> Calendar
-                  </Button>
-                </div>
-                <p className="text-[11px] text-muted-foreground break-all border-t border-border/50 pt-3">{shareUrl}</p>
               </CardContent>
             </Card>
           </aside>
