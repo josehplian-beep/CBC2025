@@ -387,7 +387,7 @@ function ScriptureMarquee() {
         transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
       >
         {row.map((word, i) => (
-          <span key={i} className="flex items-center gap-10 font-display text-3xl font-bold uppercase tracking-tight text-background/20 md:text-5xl">
+          <span key={i} className="flex items-center gap-10 font-display text-3xl font-bold uppercase tracking-tight text-background/20 md:text-5xl dark:text-foreground/20">
             {word}<span className="h-2 w-2 rounded-full bg-accent" />
           </span>
         ))}
