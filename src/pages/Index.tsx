@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { searchYouTubeVideos, type YouTubeVideo } from "@/lib/youtube";
 import RecentTopic from "@/components/RecentTopic";
+import { FeaturedEvent, MoreEvents, type HomeEvent } from "@/components/home/UpcomingEvents";
 
 const CHANNEL_ID = "UCNQNT1hM2b6_jd50ja-XAeQ";
 const HERO_VIDEO_ID = "Fe9ctqWeA5U";
@@ -58,7 +59,7 @@ const staggerContainer = {
 const Index = () => {
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [events, setEvents] = useState<ChurchEvent[]>([]);
+  const [events, setEvents] = useState<HomeEvent[]>([]);
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
 
@@ -87,10 +88,10 @@ const Index = () => {
     const { data } = await supabase.
     from("events").
     select("*").
-    or(`date_obj.gte.${today.toISOString()},title.ilike.*Sunday Service*`).
+    or(`date_obj.gte.${today.toISOString()},end_date.gte.${today.toISOString().slice(0, 10)}`).
     order("date_obj", { ascending: true }).
-    limit(3);
-    setEvents(data || []);
+    limit(4);
+    setEvents((data as HomeEvent[]) || []);
   };
 
   const processedVideos = videos.map((v) => ({
@@ -106,9 +107,11 @@ const Index = () => {
       <Navigation />
 
       <HeroSection heroOpacity={heroOpacity} />
+      {events[0] && <FeaturedEvent event={events[0]} />}
+      <ScriptureMarquee />
       <ServiceTimesSection />
+      {events.length > 1 && <MoreEvents events={events.slice(1)} />}
       <VideosSection loading={loading} videos={processedVideos} />
-      <EventsSection events={events} />
       <RootedThoughtsSection />
       <AlbumsSection />
       <Footer />
@@ -118,7 +121,7 @@ const Index = () => {
 
 function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransform>;}) {
   return (
-    <section className="relative w-screen h-[70vh] flex items-center justify-center overflow-hidden" style={{ marginLeft: "calc(-50vw + 50%)", width: "100vw" }}>
+    <section className="relative w-screen h-[78vh] flex items-center justify-center overflow-hidden" style={{ marginLeft: "calc(-50vw + 50%)", width: "100vw" }}>
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <iframe
           className="absolute top-1/2 left-1/2 pointer-events-none"
@@ -168,7 +171,7 @@ function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransfo
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 hidden md:block">
         
         <ChevronDown className="w-6 h-6 text-white/60" />
       </motion.div>
@@ -373,76 +376,24 @@ function VideosSection({ loading, videos }: {loading: boolean;videos: any[];}) {
 
 }
 
-function EventsSection({ events }: {events: ChurchEvent[];}) {
+function ScriptureMarquee() {
+  const words = ["Worship", "Fellowship", "Prayer", "Faith", "Hope", "Love", "Community", "Grace"];
+  const row = [...words, ...words];
   return (
-    <section className="py-24 relative overflow-hidden bg-background">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={staggerContainer}
-          className="text-center mb-14">
-          
-          <motion.span variants={fadeUp} custom={0} className="text-sm font-semibold text-accent uppercase tracking-widest">
-            What's Coming Up
-          </motion.span>
-          <motion.h2 variants={fadeUp} custom={1} className="font-display text-4xl font-bold mt-2 mb-4">
-            Upcoming Events
-          </motion.h2>
-          <motion.p variants={fadeUp} custom={2} className="text-muted-foreground text-sm max-w-md mx-auto">
-            Join us for worship, fellowship, and spiritual growth
-          </motion.p>
-        </motion.div>
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
-          variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
-          {events.map((event, i) =>
-          <motion.div key={event.id} variants={fadeUp} custom={i}>
-              <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50 bg-card/80 backdrop-blur-sm">
-                <CardHeader className="pb-3">
-                  <Badge className={`w-fit ${eventColors[event.type] || eventColors.Others}`}>{event.type}</Badge>
-                  <CardTitle className="text-lg font-semibold leading-tight mt-2 group-hover:text-primary transition-colors">
-                    {event.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-muted-foreground text-sm line-clamp-2">{event.description}</p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-accent" /><span>{event.date}</span></div>
-                    <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-accent" /><span>{event.time}</span></div>
-                    <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-accent" /><span>{event.location}</span></div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-center mt-14">
-          
-          <Link to="/events">
-            <Button size="lg" variant="outline" className="group border-primary/30 hover:border-primary">
-              View All Events
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
-        </motion.div>
-      </div>
-    </section>);
-
+    <div className="relative overflow-hidden border-y border-border/60 bg-background py-6">
+      <motion.div
+        className="flex w-max gap-10 whitespace-nowrap"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+      >
+        {row.map((word, i) => (
+          <span key={i} className="flex items-center gap-10 font-display text-3xl font-bold uppercase tracking-tight text-primary/15 md:text-5xl">
+            {word}<span className="h-2 w-2 rounded-full bg-accent" />
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
 }
 
 function RootedThoughtsSection() {
