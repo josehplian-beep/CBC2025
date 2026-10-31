@@ -4,4 +4,4 @@
 - Keep message section destinations in one shared definition and use the same route-driven selector on both listings so switching stays consistent.
 - Derive devotional sharing metadata through a shared helper using the public site origin and only public post covers; client-side head tags alone do not verify crawler previews on static hosting.
 - Post share pages are prerendered at build time into `dist/<post path>/index.html` with per-post head tags, so crawlers see them without JS; new posts need a republish to get static previews.
-- Vite `base` comes from `GITHUB_PAGES_BASE_PATH` (set by `.github/workflows/static.yml` to `/<repo-name>/`) and defaults to `/`; the main site must always build at the root — never hardcode a GitHub sub-path.
+- Vite `base` comes from `GITHUB_PAGES_BASE_PATH` and defaults to `/`. The Pages workflow derives it from the repo type: `/` for a `<owner>.github.io` user site, `/<repo-name>/` for any other repo. Never hardcode a sub-path — the main site must always build at the root.
