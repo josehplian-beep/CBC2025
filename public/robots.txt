@@ -12,4 +12,4 @@ Allow: /
 
 User-agent: *
 Allow: /
-Sitemap: https://josehplian-beep.github.io/sitemap.xml
+Sitemap: https://chinbethelchurch.com/sitemap.xml
