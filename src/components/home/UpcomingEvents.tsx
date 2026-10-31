@@ -59,7 +59,7 @@ export function FeaturedEvent({ event }: { event: HomeEvent }) {
   const start = eventStart(event);
 
   return (
-    <section className="relative z-20 -mt-24 px-4 pb-10 bg-gradient-to-b from-transparent from-[96px] to-foreground to-[96px]">
+    <section className="relative z-20 -mt-24 px-4 pb-10 bg-foreground">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
