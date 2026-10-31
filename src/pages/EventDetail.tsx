@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import SharePanel from "@/components/SharePanel";
+import { publicSiteOrigin } from "@/lib/rooted-thoughts";
 
 const typeColors: Record<string, string> = {
   Worship: "bg-primary text-primary-foreground",
@@ -85,7 +87,7 @@ const EventDetail = () => {
   }, [event]);
 
   const shortPath = event ? eventPath(event) : `/events/${id}`;
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}${shortPath}` : "";
+  const shareUrl = `${publicSiteOrigin}${shortPath}`;
   const shareTitle = event ? `${event.title} — Chin Bethel Church` : "Event";
   const shareText = event ? `${event.title} • ${event.date} at ${event.time} • ${event.location}` : "";
 
@@ -318,6 +320,27 @@ const EventDetail = () => {
                         )}
                         <CardContent className="p-4">
                           <p className="text-[11px] text-muted-foreground">{r.date}</p>
+                          <p className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
+                          <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
+                            View <ArrowRight className="w-3 h-3" />
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+            <Card className="rounded-2xl border border-border/60">
+              <CardContent className="p-5 space-y-3">
+                <h3 className="font-display font-bold text-base">Share this event</h3>
+                <SharePanel url={shareUrl} title={shareTitle} text={shareText} />
+                <Button variant="outline" size="sm" className="w-full rounded-full" onClick={downloadIcs}>
+                  <CalendarIcon className="w-4 h-4 mr-1" /> Add to calendar
+                </Button>
                           <p className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">{r.title}</p>
                           <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
                             View <ArrowRight className="w-3 h-3" />

@@ -68,7 +68,7 @@ export default function SharePanel({ url, title, text, className, onDone }: Shar
       icon: MessageCircle,
       run: () => isMobile()
         ? (window.location.href = `fb-messenger://share/?link=${link}`)
-        : openWindow(`https://www.facebook.com/dialog/send?link=${link}&app_id=966242223397117&redirect_uri=${link}`),
+        : copyLink('Link copied — paste it into a Messenger chat').then(() => openWindow('https://www.messenger.com/')),
     },
     {
       label: 'Instagram',
