@@ -131,7 +131,7 @@ function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransfo
           style={{ border: 0, transform: "translate(-50%, -50%)", width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.78vh" }} />
         
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-foreground" />
 
       <motion.div
         style={{ opacity: heroOpacity }}
