@@ -327,15 +327,28 @@ const EventDetail = () => {
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-            <Card className="rounded-2xl border border-border/60">
-              <CardContent className="p-5 space-y-3">
-                <h3 className="font-display font-bold text-base">Share this event</h3>
-                <SharePanel url={shareUrl} title={shareTitle} text={shareText} />
-                <Button variant="outline" size="sm" className="w-full rounded-full" onClick={downloadIcs}>
-                  <CalendarIcon className="w-4 h-4 mr-1" /> Add to calendar
-                </Button>
-              </CardContent>
-            </Card>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="overflow-hidden rounded-3xl border border-border/60 shadow-lg">
+                <div className="flex items-center gap-4 bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground">
+                  <div className="flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-primary-foreground/15 backdrop-blur">
+                    <span className="text-[10px] font-semibold uppercase tracking-widest">{format(event.dateObj, "MMM")}</span>
+                    <span className="font-display text-2xl font-bold leading-none">{format(event.dateObj, "d")}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-primary-foreground/75">{format(event.dateObj, "EEEE")} · {event.time}</p>
+                    <p className="font-display font-semibold leading-snug line-clamp-2">{event.title}</p>
+                  </div>
+                </div>
+                <CardContent className="space-y-4 p-5">
+                  <Button className="w-full rounded-full" variant="secondary" onClick={downloadIcs}>
+                    <CalendarIcon className="w-4 h-4 mr-2" /> Add to calendar
+                  </Button>
+                  <div className="h-px bg-border/60" />
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Invite friends</p>
+                  <SharePanel url={shareUrl} title={shareTitle} text={shareText} />
+                </CardContent>
+              </Card>
+            </motion.div>
           </aside>
         </div>
       </section>

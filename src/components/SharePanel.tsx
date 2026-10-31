@@ -105,44 +105,47 @@ export default function SharePanel({ url, title, text, className, onDone }: Shar
     },
   ];
 
+  const [expanded, setExpanded] = useState(false);
+  const primary = options.filter((o) => ['Facebook', 'Messenger', 'Instagram'].includes(o.label));
+  const extra = options.filter((o) => !primary.includes(o) && !o.label.startsWith('Cop'));
+  const copyOption = options[options.length - 1];
+  const visible = expanded ? [...primary, ...extra] : primary;
+
+  const iconButton = ({ label, icon: Icon, run }: (typeof options)[number]) => (
+    <button
+      key={label}
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={() => { run(); onDone?.(); }}
+      className="group flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-secondary/60 text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <Icon className="h-[18px] w-[18px]" />
+    </button>
+  );
+
   return (
-    <div className={cn('space-y-4', className)}>
-      <div className="grid grid-cols-4 gap-3">
-        {options.map(({ label, icon: Icon, run }) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => { run(); if (label !== 'Copy link' && label !== 'Copied') onDone?.(); }}
-            className="group flex flex-col items-center gap-1.5 rounded-xl p-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-secondary/60 text-foreground transition-all group-hover:-translate-y-0.5 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-active:scale-95">
-              <Icon className="h-5 w-5" />
-            </span>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 py-1 pl-4 pr-1">
-        <span className="flex-1 truncate text-xs text-muted-foreground select-all">{url}</span>
+    <div className={cn('space-y-3', className)}>
+      <div className="flex flex-wrap items-center gap-2">
+        {visible.map(iconButton)}
         <button
           type="button"
-          onClick={() => copyLink()}
-          className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-transform active:scale-95"
+          onClick={() => (canNativeShare() && isMobile() ? nativeShare() : setExpanded((v) => !v))}
+          aria-label="More share options"
+          title="More"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
         >
-          {copied ? 'Copied' : 'Copy'}
+          <Share2 className="h-[18px] w-[18px]" />
         </button>
       </div>
-
-      {canNativeShare() && (
-        <button
-          type="button"
-          onClick={() => nativeShare()}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-border/60 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-        >
-          <Share2 className="h-4 w-4" /> More apps on this device
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => copyOption.run()}
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:opacity-90 active:scale-[0.98]"
+      >
+        {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+        {copied ? 'Link copied' : 'Copy link'}
+      </button>
     </div>
   );
 }
