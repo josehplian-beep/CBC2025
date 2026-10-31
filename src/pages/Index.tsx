@@ -131,7 +131,7 @@ function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransfo
           style={{ border: 0, transform: "translate(-50%, -50%)", width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.78vh" }} />
         
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-foreground" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-foreground dark:to-background" />
 
       <motion.div
         style={{ opacity: heroOpacity }}
@@ -380,14 +380,14 @@ function ScriptureMarquee() {
   const words = ["Worship", "Fellowship", "Prayer", "Faith", "Hope", "Love", "Community", "Grace"];
   const row = [...words, ...words];
   return (
-    <div className="relative overflow-hidden bg-foreground py-6">
+    <div className="relative overflow-hidden bg-foreground dark:bg-background py-6">
       <motion.div
         className="flex w-max gap-10 whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
         transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
       >
         {row.map((word, i) => (
-          <span key={i} className="flex items-center gap-10 font-display text-3xl font-bold uppercase tracking-tight text-background/20 md:text-5xl">
+          <span key={i} className="flex items-center gap-10 font-display text-3xl font-bold uppercase tracking-tight text-background/20 md:text-5xl dark:text-foreground/20">
             {word}<span className="h-2 w-2 rounded-full bg-accent" />
           </span>
         ))}
