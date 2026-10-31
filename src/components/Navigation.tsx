@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "./ThemeProvider";
+import { ThemeToggle } from "./ThemeToggle";
 import cbcLogo from "@/assets/cbc-logo.png";
 import {
   NavigationMenu,
@@ -97,10 +97,7 @@ const Navigation = () => {
             <Link to="/" className="flex items-center gap-2 group">
               <img src={cbcLogo} alt="CBC Logo" className="h-10 md:h-12 w-auto transition-transform group-hover:scale-105" />
             </Link>
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
+            <ThemeToggle className="ml-1" />
           </div>
 
           {/* Desktop */}
@@ -146,11 +143,12 @@ const Navigation = () => {
             className="md:hidden overflow-hidden"
           >
           <div className="py-4 border-t border-border flex flex-col gap-4">
-            <Button variant="ghost" size="sm" onClick={toggleTheme} className="justify-start gap-2">
-              <Sun className="h-4 w-4 dark:hidden" />
-              <Moon className="h-4 w-4 hidden dark:block" />
-              <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
-            </Button>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Page colors
+              </span>
+              <ThemeToggle variant="row" />
+            </div>
 
             <Link to="/" onClick={() => setMobileOpen(false)} className={linkClass("/")}>Home</Link>
             <MobileSection title="CBC" links={cbcLinks} onClose={() => setMobileOpen(false)} />
