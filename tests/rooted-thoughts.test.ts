@@ -20,15 +20,15 @@ test('message switching puts Rooted Thoughts first and sends each selection to i
 test('post links resolve custom names and embeds to the same reflection', () => {
   const post = { id: '123', slug: 'rooted-in-hope', title: 'Hope "today" <script>' };
   expect(postPath(post)).toBe('/rooted-thoughts/rooted-in-hope');
-  const html = postEmbed('https://chinbethelchurch.com', post);
-  expect(html).toContain('src="https://chinbethelchurch.com/rooted-thoughts/rooted-in-hope/embed"');
+  const html = postEmbed('https://josehplian-beep.github.io', post);
+  expect(html).toContain('src="https://josehplian-beep.github.io/rooted-thoughts/rooted-in-hope/embed"');
   expect(html).not.toContain('<script>');
 });
 
 test('individual sharing uses the post cover and self-referencing public URL', () => {
-  const metadata = postMetadata({ id: '123', slug: 'rooted-in-hope', title: 'Rooted in hope', content: 'A reflection on hope.', image_url: 'https://chinbethelchurch.com/covers/hope.jpg' });
-  expect(metadata.url).toBe('https://chinbethelchurch.com/rooted-thoughts/rooted-in-hope');
-  expect(metadata.image).toBe('https://chinbethelchurch.com/covers/hope.jpg');
+  const metadata = postMetadata({ id: '123', slug: 'rooted-in-hope', title: 'Rooted in hope', content: 'A reflection on hope.', image_url: 'https://josehplian-beep.github.io/covers/hope.jpg' });
+  expect(metadata.url).toBe('https://josehplian-beep.github.io/rooted-thoughts/rooted-in-hope');
+  expect(metadata.image).toBe('https://josehplian-beep.github.io/covers/hope.jpg');
   expect(metadata.title).toBe('Rooted in hope');
   expect(metadata.description).toBe('A reflection on hope.');
 });

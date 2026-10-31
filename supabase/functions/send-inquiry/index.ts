@@ -118,7 +118,7 @@ const handler = async (req: Request): Promise<Response> => {
             
             <p style="color: #666;">
               <strong>Chin Bethel Church</strong><br>
-              <a href="https://chinbethelchurch.com" style="color: #1e3a5f;">chinbethelchurch.com</a>
+              <a href="https://josehplian-beep.github.io" style="color: #1e3a5f;">josehplian-beep.github.io</a>
             </p>
           </div>
         `,

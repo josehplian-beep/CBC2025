@@ -2,7 +2,7 @@ export function postPath(post: { slug: string | null; id: string }) {
   return `/rooted-thoughts/${post.slug || post.id}`;
 }
 
-export const publicSiteOrigin = 'https://chinbethelchurch.com';
+export const publicSiteOrigin = 'https://josehplian-beep.github.io';
 
 export function postMetadata(post: { id: string; slug: string | null; title: string; content: string; image_url: string | null }) {
   const url = publicSiteOrigin + postPath(post);
