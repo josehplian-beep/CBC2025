@@ -47,7 +47,6 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -84,7 +83,6 @@ const Navigation = () => {
     navigate("/");
   };
 
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
   const isActive = (path: string) => location.pathname === path;
   const linkClass = (path: string) =>
     `text-base font-medium transition-colors hover:text-primary ${isActive(path) ? "text-primary font-semibold" : "text-muted-foreground"}`;
