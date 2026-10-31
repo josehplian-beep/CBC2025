@@ -79,14 +79,7 @@ export function ThemeToggle({
                       selected && "scale-110"
                     )}
                   />
-                  <span
-                    className={cn(
-                      "relative hidden lg:inline",
-                      variant === "row" && "inline"
-                    )}
-                  >
-                    {label}
-                  </span>
+                  <span className="relative">{label}</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs">

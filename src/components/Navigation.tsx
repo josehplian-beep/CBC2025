@@ -99,7 +99,7 @@ const Navigation = () => {
           </div>
 
           {/* Desktop */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8">
             <Link to="/" className={linkClass("/")}>Home</Link>
             <Dropdown label="CBC" links={cbcLinks} />
             <Link to="/events" className={linkClass("/events")}>Events</Link>
@@ -125,7 +125,7 @@ const Navigation = () => {
           </div>
 
           {/* Mobile toggle */}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-foreground hover:text-primary">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden text-foreground hover:text-primary">
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -138,7 +138,7 @@ const Navigation = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="md:hidden overflow-hidden"
+            className="lg:hidden overflow-hidden"
           >
           <div className="py-4 border-t border-border flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
