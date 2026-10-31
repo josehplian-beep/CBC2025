@@ -171,7 +171,7 @@ function HeroSection({ heroOpacity }: {heroOpacity: ReturnType<typeof useTransfo
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        className="absolute bottom-28 left-1/2 -translate-x-1/2 z-10 hidden md:block">
         
         <ChevronDown className="w-6 h-6 text-white/60" />
       </motion.div>
