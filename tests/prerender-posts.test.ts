@@ -8,11 +8,11 @@ test("post page replaces homepage cover and title with the post's own", () => {
   expect(html).not.toContain("home.webp");
   expect(html).toContain('content="https://cdn/post.jpg"');
   expect(html).toContain("<title>Beautiful Savior | Chin Bethel Church</title>");
-  expect(html).toContain('href="https://chinbethelchurch.com/rooted-thoughts/beautiful-savior"');
+  expect(html).toContain('href="https://josehplian-beep.github.io/rooted-thoughts/beautiful-savior"');
 });
 
 test("post without its own image falls back to the site default image", () => {
   const html = renderPostHtml(template, { id: "2", slug: null, title: "A Testimony", content: "Story.", image_url: null, created_at: "2026-01-01", content_type: "testimony" });
-  expect(html).toContain('content="https://chinbethelchurch.com/pwa-512x512.png"');
-  expect(html).toContain('href="https://chinbethelchurch.com/testimony/2"');
+  expect(html).toContain('content="https://josehplian-beep.github.io/pwa-512x512.png"');
+  expect(html).toContain('href="https://josehplian-beep.github.io/testimony/2"');
 });

@@ -174,7 +174,7 @@ const EventDetail = () => {
     location: { "@type": "Place", name: event.location },
     description: event.description || description,
     image: event.image_url || undefined,
-    organizer: { "@type": "Organization", name: "Chin Bethel Church", url: "https://chinbethelchurch.com" },
+    organizer: { "@type": "Organization", name: "Chin Bethel Church", url: "https://josehplian-beep.github.io" },
     url: shareUrl,
   });
 
