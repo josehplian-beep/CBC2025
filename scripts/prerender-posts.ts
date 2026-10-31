@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 
-const SITE = "https://josehplian-beep.github.io";
+const SITE = "https://chinbethelchurch.com";
 const SUPABASE_URL = "https://auztoefiuddwerfbpcpm.supabase.co";
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1enRvZWZpdWRkd2VyZmJwY3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3NjQwNDcsImV4cCI6MjA3NjM0MDA0N30.hQFOBZSxmtEedImOsLNoy6u_5s7EzRJ0t5klvyzXgtU";
