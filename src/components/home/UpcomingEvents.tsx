@@ -70,7 +70,7 @@ export function FeaturedEvent({ event }: { event: HomeEvent }) {
           to={eventPath(event)}
           aria-label={`Open ${event.title}`}
           className="group relative grid overflow-hidden rounded-3xl text-primary-foreground shadow-2xl ring-1 ring-primary-foreground/10 md:grid-cols-[1.1fr_1fr]"
-          style={{ background: "var(--hero-gradient)" }}
+          style={{ background: "linear-gradient(135deg, hsl(203.18 32.84% 12%) 0%, hsl(203.18 32.84% 20%) 100%)" }}
         >
           <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-accent/40 blur-3xl animate-pulse" />
           <div className="pointer-events-none absolute -bottom-24 right-1/3 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
