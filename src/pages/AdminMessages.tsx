@@ -168,7 +168,10 @@ const AdminMessages = ({ section = "testimony" }: { section?: "testimony" | "roo
           .insert([{ ...messageData, created_by: user?.id }]);
 
         if (error) throw error;
-        toast.success("Message created successfully");
+        toast.success("Post created", {
+          description: "Publish the website so this post shows its own picture when shared on social media.",
+          duration: 10000,
+        });
       }
 
       resetForm();
