@@ -5,3 +5,4 @@ verify_jwt = true
 
 [functions.send-inquiry]
 verify_jwt = false
+
