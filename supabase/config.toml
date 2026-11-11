@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.send-inquiry]
 verify_jwt = false
+
+[functions.share]
+verify_jwt = false
