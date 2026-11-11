@@ -21,7 +21,9 @@ const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 export const sharePath = (post: SharePost) =>
-  post.content_type === "rooted_thought" ? `/rooted-thoughts/${post.slug}` : `/testimony/${post.id}`;
+  post.content_type === "event"
+    ? `/e/${post.slug}`
+    : post.content_type === "rooted_thought" ? `/rooted-thoughts/${post.slug}` : `/testimony/${post.id}`;
 
 export function postHead(post: SharePost) {
   const url = SITE + sharePath(post);
@@ -32,7 +34,7 @@ export function postHead(post: SharePost) {
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
     `<link rel="canonical" href="${url}" />`,
-    `<meta property="og:type" content="article" />`,
+    `<meta property="og:type" content="${post.content_type === "event" ? "website" : "article"}" />`,
     `<meta property="og:site_name" content="Chin Bethel Church" />`,
     `<meta property="og:title" content="${escapeHtml(title)}" />`,
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
@@ -65,6 +67,28 @@ async function fetchPosts(): Promise<SharePost[]> {
   return (await response.json()) as SharePost[];
 }
 
+type ShareEvent = { id: string; slug: string | null; title: string; description: string | null; date: string; time: string; location: string; image_url: string | null; created_at: string };
+
+async function fetchEvents(): Promise<SharePost[]> {
+  const query = "select=id,slug,title,description,date,time,location,image_url,created_at&slug=not.is.null";
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/events?${query}`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!response.ok) throw new Error(`Event fetch failed: ${response.status}`);
+  return ((await response.json()) as ShareEvent[]).map(event => {
+    const when = `${event.date} at ${event.time} • ${event.location}`;
+    return {
+      id: event.id,
+      slug: event.slug,
+      title: event.title,
+      content: event.description ? `${when}. ${event.description}` : when,
+      image_url: event.image_url,
+      created_at: event.created_at,
+      content_type: "event",
+    };
+  });
+}
+
 export function prerenderPosts(): Plugin {
   let outDir = "dist";
   return {
@@ -76,13 +100,13 @@ export function prerenderPosts(): Plugin {
     async closeBundle() {
       try {
         const template = fs.readFileSync(path.join(outDir, "index.html"), "utf8");
-        const posts = (await fetchPosts()).filter(post => post.content_type !== "rooted_thought" || post.slug);
+        const posts = [...(await fetchPosts()), ...(await fetchEvents())].filter(post => post.content_type !== "rooted_thought" || post.slug);
         for (const post of posts) {
           const dir = path.join(outDir, sharePath(post));
           fs.mkdirSync(dir, { recursive: true });
           fs.writeFileSync(path.join(dir, "index.html"), renderPostHtml(template, post));
         }
-        console.log(`Prerendered share pages for ${posts.length} posts`);
+        console.log(`Prerendered share pages for ${posts.length} posts and events`);
       } catch (error) {
         console.warn("Skipped post share pages:", error);
       }
